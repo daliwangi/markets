@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator in Bash
-# v0.2   2019/jul/13     by mountaineerbr
+# v0.2.1   2019/jul/13     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -213,9 +213,19 @@ else
 	EQ=$(printf "%s\n" "${*}" | sed 's/,/./g')
 fi
 
+# If you just want to format last result ( -s and/or -g )
+if [[ -z ${*} ]] && [[ -n ${SCL} ]] || [[ -n ${GROUP} ]]; then
+	EQ="$(tail -1 ~/.bcalc_record)"
+fi
+
 ## Check if equation syntax is valid
 if [[ -z $(printf "%s\n" "${EQ}" | bc -l) ]]; then
 	exit 1
+fi
+
+## Check if your locale uses a comma or dot for decimal separation
+if [[ -z $(printf "%f\n" "1" | grep "\.") ]]; then
+	COMMA=1
 fi
 
 ## Calculate result
@@ -227,13 +237,9 @@ if ! [[ $(printf "%s\n" "${EQ}" | bc -l) = $(tail -1 ~/.bcalc_record) ]]; then
 	printf "%s\n" "${EQ}" | bc -l >> ~/.bcalc_record
 fi
 
-## Check if you locale uses a comma or dot for decimal separation
-if [[ -z $(printf "%f\n" "1" | grep "\.") ]]; then
-	COMMA=1
-fi
-
 ## Format viewing result ( scale and thousands grouping )
-# Set grouping and scale
+# Set thousands grouping and scale
+# Will format numbers according to your locale
 if [[ -n ${GROUP} && -n ${SCL} ]]; then
 	if [[ -z ${COMMA} ]]; then
 		# Maximum Scale Result - printf cannot get more decimals than 58
@@ -243,7 +249,7 @@ if [[ -n ${GROUP} && -n ${SCL} ]]; then
 	fi
 	printf "%'.${SCL}f\n" "${MXS}"
 	exit
-# Set only grouping
+# Set only thousands grouping
 elif [[ -n ${GROUP} ]]; then
 	if [[ -z ${COMMA} ]]; then
 		printf "%'.2f\n" "$(printf "%s\n" "${EQ}" | bc -l)"
@@ -252,8 +258,6 @@ elif [[ -n ${GROUP} ]]; then
 	fi
 	exit
 fi
-
-
 # Set only scale
 if [[ -z ${SCL} ]]; then
 		SCL=20
