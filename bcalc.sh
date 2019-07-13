@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator in Bash
-# v0.2             by mountaineerbr
+# v0.2   2019/jul/13     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -17,8 +17,13 @@ SYNOPSIS
 DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features
 	for use within Bash.
-	
-	Use of \"ans\" in new expression greps last result from Record.
+
+	It creates a Record file in ~/.bcalc_record. Use of \"ans\" in new 
+	expression greps last result from Record.
+
+	Use of the extensions otions, will try to download a copy of a table of
+	values for scientific variables and extra math functions to ~/.bcalc_extensions
+	in a format readable by Bash Calcultor ( bc ).
 
 
 		Usage examples:	
@@ -55,6 +60,10 @@ DESCRIPTION
 
 
 	You may need escape () with backslashes, \"\" or ''.
+
+	Also, you may consider adding a bash alias to this script and easier use
+	of the calc fucntions it offers. A suggestion to add to you ~/.bashrc :
+	alias c=\"/home/path/to/bcalc.sh\"
 
 			
 	Floating numbers with a comma in the input have it swapped to a dot
