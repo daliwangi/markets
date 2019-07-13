@@ -166,7 +166,7 @@ mcapf() {
 		printf "%s %'19.2f\n" "${i^^}" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.usd)")" 2>/dev/null
 	done
 
-	printf "\n## Coin volume (USD/24-H)\n"
+	printf "\n## Coin Volume (24-H)\n"
 	for i in "${DOMINANCEARRAY[@]}"; do
 		printf "%s %'19.2f\n" "${i^^}" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r ".data.total_volume.${i}")" 2>/dev/null
 	done
