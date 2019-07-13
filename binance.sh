@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.4 	11/jul/2019   by mountaineer_br
+# v0.2.5 	13/jul/2019   by mountaineer_br
 # 
 
 LICENSE_WARRANTY_NOTICE="
@@ -296,7 +296,7 @@ while getopts ":def:hjlckistuw" opt; do
       M6EXTRAOPT=1
       ;;
     f )
-      if [[ "${#OPTARG}" -le 2 ]]; then
+      if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
 	   FSTR="%.${OPTARG}f"
 	   else
 	   FSTR="${OPTARG}"
