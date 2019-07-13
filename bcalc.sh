@@ -18,12 +18,12 @@ DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features
 	for use within Bash.
 
-	It creates a Record file in ~/.bcalc_record. Use of \"ans\" in new 
+	It creates a Record file at ~/.bcalc_record. Use of \"ans\" in new 
 	expression greps last result from Record.
 
 	Use of the extensions otions, will try to download a copy of a table of
 	values for scientific variables and extra math functions to ~/.bcalc_extensions
-	in a format readable by Bash Calcultor ( bc ).
+	in a format readable by Bash Calculator ( bc ).
 
 
 		Usage examples:	
@@ -59,13 +59,12 @@ DESCRIPTION
 			$ bashc.sh -c 0.234*na
 
 
-	You may need escape () with backslashes, \"\" or ''.
+	You may need escape equations containing () with backslashes, \"\" or ''.
 
-	Also, you may consider adding a bash alias to this script and easier use
-	of the calc fucntions it offers. A suggestion to add to you ~/.bashrc :
+	Also, you may consider creating a bash alias to this script for easier use
+	of the calc fucntions it offers. A suggestion is to add to you ~/.bashrc :
 	alias c=\"/home/path/to/bcalc.sh\"
 
-			
 	Floating numbers with a comma in the input have it swapped to a dot
 	automatically for processing. Print format does use local LC_NUMERIC.
 
