@@ -62,7 +62,7 @@ while getopts ":acsnjlbetuhix" opt; do
       echo "This programme fetches information of Bitcoin blocks, addresses and"
       echo "transactions from Blockchain.info (same as Blockchain.com) public APIs."
       echo "It is intended to be used as a simple Bitcoin blockchain explorer."
-      echo "It only accepts one argument for lookup a time."
+      echo "It only accepts one argument for lookup at a time."
       echo ""
       echo "Blockchain.info still does not support segwit addresses."
       echo "A workaround is to fetch information from Blockchair.com."
