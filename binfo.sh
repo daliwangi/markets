@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# Blockchain.info API & Websocket Access
-# v0.3.2  2019/07/14 by mountaineer_br
+# Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
+# v0.3.3  2019/07/14 by mountaineer_br
 
 
 LC_NUMERIC=en_US.UTF-8
@@ -57,15 +57,15 @@ while getopts ":acsnjlbetuhix" opt; do
       echo "\"This programme is licensed under the latest GNU General Public License\"."
       echo ""
       echo ""
-      echo "   Binfo.sh  --  Blockchain.info API & Websocket Access"
+      echo "   Binfo.sh  -- Bash Interface for Blockchain.info API & Websocket Access"
       echo ""
       echo "This programme fetches information of Bitcoin blocks, addresses and"
-      echo "transactions from Blockchain.com public APIs. It is intended to be"
-      echo "used as a simple Bitcoin blockchain explorer. It only accepts one"
-      echo "argument for lookup."
+      echo "transactions from Blockchain.info (same as Blockchain.com) public APIs."
+      echo "It is intended to be used as a simple Bitcoin blockchain explorer."
+      echo "It only accepts one argument for lookup a time."
       echo ""
-      echo "Blockchain.com still does not support segwit addresses."
-      echo "A workaround is to fetch address information from blockchair.com."
+      echo "Blockchain.info still does not support segwit addresses."
+      echo "A workaround is to fetch information from Blockchair.com."
       echo "Blockchair.com supports segwit and other types of addresses."
       echo ""
       echo "Usage:"
@@ -75,10 +75,10 @@ while getopts ":acsnjlbetuhix" opt; do
       echo "Blockhain"
       echo "  -i 	24-H Rolling Ticker for the Bitcoin Blockchain."
       echo "Block"
-      echo "  -b 	Block information by hash or id (index)."
+      echo "  -b 	Block information by hash or id (index number)."
       echo "  -n 	Block information by height."
       echo "  -e 	Socket stream for new blocks."
-      echo "  -l 	Latest block information."
+      echo "  -l 	Latest block summary information."
       echo "Address"
       echo "  -a 	Address information."
       echo "  -s 	Summary Address information."
@@ -390,7 +390,7 @@ fi
 #
 
 printf "\nTransaction info:\n\n"
-printf "%s\n" "${TXCHAIR}" | jq -er '. as $p | .data[].inputs as $i | .data[].outputs as $o | .data[] | .transaction | "","--------",
+printf "%s\n" "${TXCHAIR}" | jq -er '.data[].inputs as $i | .data[].outputs as $o | .data[] | .transaction | "","--------",
 	"Tx hash:","\t\(.hash)",
 	"Tx id:\t\(.id)\tBlk Id:\t\(.block_id)  \(if .is_coinbase == "true" then "(Coinbase Tx)" else "" end)",
 	"Size:\t\(.size) bytes\tLock T:\t\(.lock_time)\t\tVer: \(.version)",
