@@ -69,7 +69,7 @@ while getopts ":acsnjlbetuhix" opt; do
       echo "Blockchair.com supports segwit and other types of addresses."
       echo ""
       echo "Usage:"
-      echo "   binfo.sh [option] [block|address|tx]"
+      echo "   binfo.sh [option] [block|address|tx|id]"
       echo ""
       echo "Options:"
       echo "Blockhain"
