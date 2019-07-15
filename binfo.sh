@@ -3,7 +3,7 @@
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
 # v0.3.3  2019/07/14 by mountaineer_br
 
-
+## Some defalts
 LC_NUMERIC=en_US.UTF-8
 
 ## Check if there is any argument
@@ -351,9 +351,9 @@ fi
 ## -u Unconfirmed Txs ( Memory Pool )
 ## Uses blockchain.info and blockchair.com
 utxf() {
-printf "All addresses in mempool transactions and\n"
-printf "their change in balance will be shown.\n"
-printf "Pipe it to grep info for a particular address.\n\n"
+printf "All addresses in mempool transactions and\n" 1>&2
+printf "their change in balance will be shown.\n" 1>&2
+printf "Pipe it to grep info for a particular address.\n\n" 1>&2
 MEMPOOL="$(curl -s https://api.blockchair.com/bitcoin/state/changes/mempool)"
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
@@ -411,7 +411,7 @@ fi
 
 ## -i 24-H Ticker for the Bitcoin Blockchain
 blkinfof() {
-printf "Bitcoin Blockchain General Information.\n"
+printf "Bitcoin Blockchain General Information.\n" 1>&2
 CHAINJSON="$(curl -s https://api.blockchain.info/stats)"
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
