@@ -174,6 +174,7 @@ mode6() { # Depth of order book (depth=10)
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10 |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 "\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
+"",
 "\t\(.asks[9]|.[0]|tonumber)   \t\(.asks[9]|.[1]|tonumber)",
 "ASKS\t\(.asks[8]|.[0]|tonumber)   \t\(.asks[8]|.[1]|tonumber)",
 "\t\(.asks[7]|.[0]|tonumber)   \t\(.asks[7]|.[1]|tonumber)",
@@ -201,6 +202,7 @@ mode6extra() { # Depth of order book (depth=20)
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20 |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 "\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
+"",
 "\t\(.asks[19]|.[0]|tonumber)   \t\(.asks[19]|.[1]|tonumber)",
 "\t\(.asks[18]|.[0]|tonumber)   \t\(.asks[18]|.[1]|tonumber)",
 "\t\(.asks[17]|.[0]|tonumber)   \t\(.asks[17]|.[1]|tonumber)",
