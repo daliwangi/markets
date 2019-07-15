@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Blockchain.info API & Websocket Access
-# v0.3.1  2019/07/11 by mountaineer_br
+# v0.3.2  2019/07/14 by mountaineer_br
 
 
 LC_NUMERIC=en_US.UTF-8
@@ -13,7 +13,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":acsnjlbetuhi" opt; do
+while getopts ":acsnjlbetuhix" opt; do
   case ${opt} in
     a ) # Address info
       ADDOPT=1
@@ -43,6 +43,9 @@ while getopts ":acsnjlbetuhi" opt; do
     t ) # Transaction info
       TXOPT=1
       ;;
+    x ) # Transaction info from Blockchair.com
+      TXBCHAIROPT=1
+      ;;
     u ) # Unconfirmed Txs
       UTXOPT=1
       ;;
@@ -63,6 +66,7 @@ while getopts ":acsnjlbetuhi" opt; do
       echo ""
       echo "Blockchain.com still does not support segwit addresses."
       echo "A workaround is to fetch address information from blockchair.com."
+      echo "Blockchair.com supports segwit and other types of addresses."
       echo ""
       echo "Usage:"
       echo "   binfo.sh [option] [block|address|tx]"
@@ -78,9 +82,10 @@ while getopts ":acsnjlbetuhi" opt; do
       echo "Address"
       echo "  -a 	Address information."
       echo "  -s 	Summary Address information."
-      echo "  -c 	Address information from BlockChair (supports segwit)."
+      echo "  -c 	Address information from BlockChair."
       echo "Transaction"
       echo "  -t 	Transaction information by hash or id."
+      echo "  -x 	Transaction information by hash or id from Blockchair."
       echo "  -u 	Unconfirmed transactions (mempool) from BlockChair;"
       echo "     	You can pipe the output to grep a specific address."
       echo "Other"
@@ -123,7 +128,7 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 	"Size:\t\(.size/1000) KB\tTxs:\t\(.nTx)",
 	"Output:\t\(.totalBTCSent/100000000) BTC\tEst Tx Vol:\t\(.estimatedBTCSent)",
 	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
-	"Now:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	"\t\t\t\tNow:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	"Ip:\t\(.foundBy.ip)  \tDesc:\t\(.foundBy.description)",
 	"Link:","\t\(.foundBy.link)"'
 #{"op":"blocks_sub"}
@@ -372,6 +377,37 @@ if [[ -n "${UTXOPT}" ]]; then
 	exit
 fi
 
+
+
+## -x Transaction info from Blockchair.com
+txinfobcf() {
+TXCHAIR=$(curl -s https://api.blockchair.com/bitcoin/dashboards/transaction/${1})
+# Print JSON?
+if [[ -n  "${PJSON}" ]]; then
+	printf "%s\n" "${TXCHAIR}"
+	exit
+fi
+#
+
+printf "\nTransaction info:\n\n"
+printf "%s\n" "${TXCHAIR}" | jq -er '. as $p | .data[].inputs as $i | .data[].outputs as $o | .data[] | .transaction | "","--------",
+	"Tx hash:","\t\(.hash)",
+	"Tx id:\t\(.id)\tBlk Id:\t\(.block_id)  \(if .is_coinbase == "true" then "(Coinbase Tx)" else "" end)",
+	"Size:\t\(.size) bytes\tLock T:\t\(.lock_time)\t\tVer: \(.version)",
+	"Fee:\t\(.fee // "??") sat  \tFee:\t\(.fee_per_kb // "??") sat/KB",
+	"Fee:\t\(.fee_usd // "??") USD  \tFee:\t\(.fee_per_kb_usd // "??") USD/KB",
+	"Time:\t\(.time)Z\tLocal:\t\(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	" From:",
+	($i[]|"\t\(.recipient)  \(.value)  \(if .is_spent == true then "SPENT" else "UNSPENT" end)"),
+	" To:",
+	($o[]|"\t\(.recipient)  \(.value) \(if .is_spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_transaction_id)")'
+
+
+}
+if [[ -n "${TXBCHAIROPT}" ]]; then
+	txinfobcf ${*}
+	exit
+fi
 
 ## -i 24-H Ticker for the Bitcoin Blockchain
 blkinfof() {
