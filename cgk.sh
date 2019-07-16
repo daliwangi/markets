@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.1 - 2019/jul/16   by mountaineerbr
+# v0.4.2 - 2019/jul/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -107,6 +107,27 @@ while getopts ":bmlhjks:t" opt; do
 done
 shift $((OPTIND -1))
 
+## Some recurring functions
+# List of from_currencies
+clistf() {
+	CLIST="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries')"
+	export CLIST
+}
+# List of vs_currencies
+tolistf() {
+	TOLIST="$(curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]')"
+	export TOLIST
+}
+# Check if you are using currency id (correct) or code (incorrect) as FROM_CURRENCY arg
+# and export currency id as GREPID
+changevscf() {
+	if ! printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${*}$"; then
+	printf "Grepping currency id...\n" >&2
+	GREPID="$(printf "%s\n" "${CLIST}" | jq -r .${*,,})"
+ 	export GREPID
+	fi
+}
+
 ## Print currency lists
 listsf() {
 	FCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json")"	
@@ -204,42 +225,43 @@ fi
 bankf() {
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
-		printf "No specific JSON for Bank Currency Function.\n" 
+		printf "No specific JSON for Bank Currency Function.\n" >&2 
 		exit 1
 	fi
+
+	# Call CGK.com less
+	# Get currency lists (they will be exported by the fucntion)
+	clistf
+	tolistf
+
+	# Grep possible currency ids
+	if printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${2}$" ||
+	   printf "%s\n" "${CLIST}" | jq -r keys[] | grep -qi "^${2}$"; then
+		changevscf ${2} 2>/dev/null
+		MAYBE1="${GREPID}"
+	fi
+	if printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${3}$" ||
+	   printf "%s\n" "${CLIST}" | jq -r keys[] | grep -qi "^${3}$"; then
+		changevscf ${3} 2>/dev/null
+		MAYBE2="${GREPID}"
+	fi
+
+	# Get CoinGecko JSON
+	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1}&vs_currencies=btc,${2,,},${3,,},${MAYBE2}" -H  "accept: application/json")
+	export CGKRATERAW
 	# Get rates to from_currency anyways
-	if [[ ${2,,} = "btc" ]]; then
-		BTCBANK=1
-	else
-		BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"
-		if [[ -z ${BTCBANK} ]]; then
-		BTCBANK="(1/$(${0} bitcoin ${2,,}))"
-		fi
+	if ! BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"; then
+		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))" ||
+			echo "Function error; check currencies."; exit 1
 	fi
 	# Get rates to to_currency anyways
-	if [[ ${3,,} = "btc" ]]; then
-		BTCTOCUR=1
-	else
-		BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"
-#echo ${BTCTOCUR}-btctocur >&2		
-		if [[ -z ${BTCTOCUR} ]]; then
-		BTCTOCUR="(1/$(${0} bitcoin ${3,,}))"
-		fi
+	if ! BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"; then
+		BTCTOCUR="(1/$(${0} bitcoin ${3,,} 2>/dev/null))" ||
+			echo "Function error; check currencies."; exit 1
 	fi
 	# Timestamp? No timestamp for this API
 	if [[ -n "${TIMEST}" ]]; then
 		printf "%s\n" "No timestamp." 1>&2
-	fi
-#echo $1-$2-$3-$4-$SCL-"${BTCTOCUR}"-"$BTCBANK" >&2
-	# If you asked for a too exquisite currency, returns an error
-	if [[ -z ${BTCBANK} ]]; then
-		printf "%s\n" "${BTCBANK}" 1>&2
-		printf "Bank currency function error\n" 1>&2
-		exit 1
-	elif [[ -z ${BTCTOCUR} ]]; then
-		printf "%s\n" "${BTCTOCUR}" 1>&2
-		printf "Bank currency function error\n" 1>&2
-		exit 1
 	fi
 	# Calculate result
 	RESULT="$(printf "scale=%s; (%s*%s)/%s\n" "${SCL}" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
@@ -254,7 +276,9 @@ if [[ -n "${BANK}" ]]; then
 fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
-CLIST="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries')"
+if [[ -z ${CLIST} ]]; then
+	clistf
+fi
 if ! printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${2}$" &&
 	! printf "%s\n" "${CLIST}" | jq -r keys[] | grep -qi "^${2}$"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
@@ -264,7 +288,9 @@ if ! printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${2}$" &&
 fi
 
 ## Check you are not requesting some unsupported TO_CURRENCY
-TOLIST="$(curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]')"
+if [[ -z ${TOLIST} ]]; then
+	tolistf
+fi
 if [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
 	printf "Unsupported TO_CURRENCY %s at CGK.\n" "${3^^}" 1>&2
 	printf "Try \"-l\" to grep a list of suported currencies.\n" 1>&2
@@ -272,11 +298,9 @@ if [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
 fi
 
 # Check if you are using currency id (correct) or code (incorrect) as FROM_CURRENCY arg
-#CLIST="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" | jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries')"
-if ! printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${2}$"; then
-	printf "Grepping currency id...\n" 1>&2
-	GREPID="$(printf "%s\n" "${CLIST}" | jq -r .${2,,})"
-	set -- ${1} ${GREPID} ${@:3:6}
+changevscf ${2}
+if [[ -n ${GREPID} ]]; then
+	set -- ${1} ${GREPID} ${3}
 fi
 
 ## Ticker Function
@@ -300,17 +324,16 @@ if [[ -n ${TOPT} ]]; then
 fi
 
 # Get CoinGecko JSON
-CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq ".${2,,}.${3,,}")
-
-CGKRATE=$(printf "%s\n" "${CGKRATERAW}" | sed 's/e/*10^/g')
-#echo ${CGKRATE}-cgkrate >&2
+if [[ -z ${CGKRATERAW} ]]; then
+	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json")
+fi
+CGKRATE=$(printf "%s\n" "${CGKRATERAW}" | jq ".${2,,}.${3,,}" | sed 's/e/*10^/g')
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CGKRATE}" 
 	exit
 fi
 #echo -$1-$2-$3-$4-${*}-$CGKRATE
-
 ## Print JSON timestamp ?
 if [[ -n ${TIMEST} ]]; then
 	printf "%s\n" "No timestamp. Try -k for tickers." 1>&2
