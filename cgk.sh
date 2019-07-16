@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.3.1 - 2019/jul/13   by mountaineerbr
+# v0.4 - 2019/jul/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -207,13 +207,31 @@ bankf() {
 		printf "No specific JSON for Bank Currency Function.\n" 
 		exit 1
 	fi
-	BTCBANK="$(${0} bitcoin ${2,,})"
-	BTCTOCUR="$(${0} bitcoin ${3,,})"
+	# Get rates to from_currency anyways
+	if [[ ${2,,} = "btc" ]]; then
+		BTCBANK=1
+	else
+		BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"
+		if [[ -z ${BTCBANK} ]]; then
+		BTCBANK="(1/$(${0} bitcoin ${2,,}))"
+		fi
+	fi
+	# Get rates to to_currency anyways
+	if [[ ${3,,} = "btc" ]]; then
+		BTCTOCUR=1
+	else
+		BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"
+		if [[ -z ${BTCTOCUR} ]]; then
+		BTCTOCUR="(1/$(${0} bitcoin ${3,,}))"
+		fi
+
+	fi
+	# Timestamp? No timestamp for this API
 	if [[ -n "${TIMEST}" ]]; then
 		printf "%s\n" "No timestamp." 1>&2
 	fi
-	#echo $1-$2-$3-$4-$SCL-"${BTCTOCUR}"-"$BTCBANK"
-	
+#echo $1-$2-$3-$4-$SCL-"${BTCTOCUR}"-"$BTCBANK"
+	# If you asked for a too exquisite currency, returns an error
 	if [[ -z ${BTCBANK} ]]; then
 		printf "%s\n" "${BTCBANK}" 1>&2
 		printf "Bank currency function error\n" 1>&2
@@ -223,8 +241,8 @@ bankf() {
 		printf "Bank currency function error\n" 1>&2
 		exit 1
 	fi
-	# Calc result
-	RESULT="$(printf "scale=%s; (%s*%s)/%s\n" "${SCL}" "${1}" "${BTCTOCUR}" "${BTCBANK}" | bc -l)"
+	# Calculate result
+	RESULT="$(printf "scale=%s; (%s*%s)/%s\n" "${SCL}" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
 	printf "%s\n" "${RESULT}"
 	# Check for bad internet
 	icheck
@@ -247,8 +265,7 @@ fi
 
 ## Check you are not requesting some unsupported TO_CURRENCY
 TOLIST="$(curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]')"
-CHECKTC=$(printf "%s\n" "${TOLIST}" | grep -i "^${3}$")
-if [[ -z "${BANK}" ]] && [[ -z "${CHECKTC}" ]]; then
+if [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
 	printf "Unsupported TO_CURRENCY %s at CGK.\n" "${3^^}" 1>&2
 	printf "Try \"-l\" to grep a list of suported currencies.\n" 1>&2
 	exit 1
@@ -283,7 +300,7 @@ if [[ -n ${TOPT} ]]; then
 fi
 
 # Get CoinGecko JSON
-CGKRATE=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq ".\"${2,,}\".\"${3,,}\"")
+CGKRATE=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq ".${2,,}.${3,,}")
 
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
