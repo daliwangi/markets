@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.2 - 2019/jul/16   by mountaineerbr
+# v0.4.3 - 2019/jul/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -251,7 +251,7 @@ bankf() {
 	export CGKRATERAW
 	# Get rates to from_currency anyways
 	if ! BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"; then
-		BTCBANK="(1/$(${0} bitcoin ${2,,} ))"
+		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
 	# Get rates to to_currency anyways
