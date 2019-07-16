@@ -247,17 +247,17 @@ bankf() {
 	fi
 
 	# Get CoinGecko JSON
-	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1}&vs_currencies=btc,${2,,},${3,,},${MAYBE2}" -H  "accept: application/json")
+	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1},${MAYBE2}&vs_currencies=btc,${2,,},${3,,},${MAYBE1},${MAYBE2}" -H  "accept: application/json")
 	export CGKRATERAW
 	# Get rates to from_currency anyways
 	if ! BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"; then
-		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))" ||
-			echo "Function error; check currencies."; exit 1
+		BTCBANK="(1/$(${0} bitcoin ${2,,} ))"
+		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
 	# Get rates to to_currency anyways
 	if ! BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"; then
-		BTCTOCUR="(1/$(${0} bitcoin ${3,,} 2>/dev/null))" ||
-			echo "Function error; check currencies."; exit 1
+		BTCTOCUR="(1/$(${0} bitcoin ${3,,} 2>/dev/null))"
+		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
 	# Timestamp? No timestamp for this API
 	if [[ -n "${TIMEST}" ]]; then
