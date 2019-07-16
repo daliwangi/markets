@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4 - 2019/jul/16   by mountaineerbr
+# v0.4.1 - 2019/jul/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -221,16 +221,16 @@ bankf() {
 		BTCTOCUR=1
 	else
 		BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"
+#echo ${BTCTOCUR}-btctocur >&2		
 		if [[ -z ${BTCTOCUR} ]]; then
 		BTCTOCUR="(1/$(${0} bitcoin ${3,,}))"
 		fi
-
 	fi
 	# Timestamp? No timestamp for this API
 	if [[ -n "${TIMEST}" ]]; then
 		printf "%s\n" "No timestamp." 1>&2
 	fi
-#echo $1-$2-$3-$4-$SCL-"${BTCTOCUR}"-"$BTCBANK"
+#echo $1-$2-$3-$4-$SCL-"${BTCTOCUR}"-"$BTCBANK" >&2
 	# If you asked for a too exquisite currency, returns an error
 	if [[ -z ${BTCBANK} ]]; then
 		printf "%s\n" "${BTCBANK}" 1>&2
@@ -290,7 +290,7 @@ tickerf() {
 		exit
 	fi
 	# UNDER DEVELOPMENT!
-	echo "This ticker function is under development."
+	echo "This ticker function is under development." >&2
 	echo ${TJSON} | jq .
 	exit 1
 }
@@ -300,8 +300,10 @@ if [[ -n ${TOPT} ]]; then
 fi
 
 # Get CoinGecko JSON
-CGKRATE=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq ".${2,,}.${3,,}")
+CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq ".${2,,}.${3,,}")
 
+CGKRATE=$(printf "%s\n" "${CGKRATERAW}" | sed 's/e/*10^/g')
+#echo ${CGKRATE}-cgkrate >&2
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CGKRATE}" 
@@ -316,7 +318,7 @@ fi
 
 
 # Make equation and print result
-RESULT="$(printf "scale=%s; %s*%s\n" "${SCL}" "${1}" "${CGKRATE}" | bc -l)"
+RESULT="$(printf "scale=%s; %s*(%s)\n" "${SCL}" "${1}" "${CGKRATE}" | bc -l)"
 printf "%s\n" "${RESULT}"
 # Check for bad internet
 icheck
