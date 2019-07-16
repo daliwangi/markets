@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.3 - 2019/jul/16   by mountaineerbr
+# v0.4.4 - 2019/jul/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -22,8 +22,8 @@ DESCRIPTION
 	Coin Gecko also has a public API. It is a little harder to use than
 	other exchange APIs because you need to specify the id of the
 	FROM_CURRENCY (not the usual \"codes\"), whereas VS_CURRENCY does use
-	common codes for crypto and central bank currencies (*UPDATE:  it now
-	tries to grep currency id automatically!).
+	common codes for crypto and central bank currencies. Cgk.sh does try to
+	grep currency id automatically.
 	
 	You can see Lists of these currencies running the function with the
 	argument \"-l\" 
@@ -41,8 +41,8 @@ DESCRIPTION
 
 
 OPTIONS
-		-b 	Activate Bank Currency Mode: FROM_CURRENCY can be
-			any central bank currency supported by CGK.
+		-b 	Activate Bank Currency function; it extends support for
+			converting any central bank or crypto currency to any other.
 
 		-h 	Show this help.
 
