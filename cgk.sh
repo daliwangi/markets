@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.5 - 2019/jul/17   by mountaineerbr
+# v0.4.6 - 2019/jul/17   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -255,10 +255,9 @@ bankf() {
 		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
-#echo $BTCBANK-$BTCTOCUR-${1}-${2}-${3}
 	# Get rates to to_currency anyways
 	if ! BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"; then
-		BTCTOCUR="(1/ $(${0} bitcoin ${3,,} ))"
+		BTCTOCUR="(1/$(${0} bitcoin ${3,,} ))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
 #echo $BTCBANK-$BTCTOCUR
@@ -267,8 +266,9 @@ bankf() {
 		printf "%s\n" "No timestamp." 1>&2
 	fi
 	# Calculate result
-	RESULT="$(printf "scale=%s; (%s*%s)/%s\n" "${SCL}" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
-	printf "%s\n" "${RESULT}"
+	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
+	printf "%.${SCL}f\n" "${RESULT}"
+#echo ${SCL}-${1}-$BTCBANK-$BTCTOCUR-----${1}-${2}-${3}-${4}-${SCL}-${EQ}
 	# Check for bad internet
 	icheck
 	exit
@@ -344,8 +344,8 @@ fi
 
 
 # Make equation and print result
-RESULT="$(printf "scale=%s; %s*(%s)\n" "${SCL}" "${1}" "${CGKRATE}" | bc -l)"
-printf "%s\n" "${RESULT}"
+RESULT="$(printf "%s*(%s)\n" "${1}" "${CGKRATE}" | bc -l)"
+printf "%.${SCL}f\n" "${RESULT}"
 # Check for bad internet
 icheck
 exit
