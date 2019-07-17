@@ -69,7 +69,7 @@ DESCRIPTION
 	automatically for processing. Print format does use local LC_NUMERIC.
 
 	Noughts are truncated automatically. Grouping \"-g\" option merely adds
-	thousand separtors and result is printed with two decimal plates, unless
+	thousand separtors and prints answer with two decimal plates, unless
 	otherwise specifiec with \"-s\".
 		    
 	Results may round, depending on the scale setting.
@@ -83,7 +83,7 @@ OPTIONS
 		-e 	Print cientific extensions;
 			Only works with \"-c\" opt.
     		
-		-g 	Group thousands.
+		-g 	Group thousands; if no expression is given, uses last answer.
 
     		-h 	Show this help.
 
@@ -95,7 +95,8 @@ OPTIONS
     		
 		-r 	Print calc Record.
     		
-		-s 	Set scale ( decimal plates ).
+		-s 	Set scale ( decimal plates ); if no expression is given,
+			uses last answer.
 		
 		-t 	Truncation of trailling noughts
 			( Does not work in cientific mode; also it throws syntax
@@ -214,7 +215,8 @@ else
 fi
 
 # If you just want to format last result ( -s and/or -g )
-if [[ -z ${*} ]] && [[ -n ${SCL} ]] || [[ -n ${GROUP} ]]; then
+if [[ -z ${*} ]] && [[ -n ${SCL} || -n ${GROUP} ]]; then
+	printf "Formatting last answer...\n" >&2
 	EQ="$(tail -1 ~/.bcalc_record)"
 fi
 
