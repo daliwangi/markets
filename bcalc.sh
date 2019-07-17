@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 #
-# Bcalc.sh -- Easy Calculator in Bash
-# v0.2.1   2019/jul/13     by mountaineerbr
+# Bcalc.sh -- Easy Calculator for Bash
+# v0.2.2   2019/jul/17     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
- 	\033[01;36mBcalc.sh -- Easy Calculator in bash\033[00m
+ 	\033[01;36mBcalc.sh -- Easy Calculator for Bash\033[00m
 
 
 SYNOPSIS
@@ -21,8 +21,8 @@ DESCRIPTION
 	It creates a Record file at ~/.bcalc_record. Use of \"ans\" in new 
 	expression greps last result from Record.
 
-	Use of the extensions otions, will try to download a copy of a table of
-	values for scientific variables and extra math functions to ~/.bcalc_extensions
+	The extensions option will try to download a copy of a table of
+	values of scientific variables and extra math functions to ~/.bcalc_extensions
 	in a format readable by Bash Calculator ( bc ).
 
 
@@ -48,7 +48,7 @@ DESCRIPTION
 			$ bcalc.sh -t 1/10000000
 
 		
-		Define variables to use in the equation:
+		Define variables for use in the equation:
 		
 			$ bashc.sh \"s=5; -s+20\"
 
@@ -62,7 +62,7 @@ DESCRIPTION
 	You may need escape equations containing () with backslashes, \"\" or ''.
 
 	Also, you may consider creating a bash alias to this script for easier use
-	of the calc fucntions it offers. A suggestion is to add to you ~/.bashrc :
+	of the calc functions it offers. A suggestion to add to you ~/.bashrc :
 	alias c=\"/home/path/to/bcalc.sh\"
 
 	Floating numbers with a comma in the input have it swapped to a dot
@@ -72,7 +72,7 @@ DESCRIPTION
 	thousand separtors and result is printed with two decimal plates, unless
 	otherwise specifiec with \"-s\".
 		    
-	Results may be rounded up, depending on the scale setting.
+	Results may round, depending on the scale setting.
 
 
 OPTIONS
