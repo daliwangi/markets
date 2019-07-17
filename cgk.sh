@@ -270,7 +270,7 @@ bankf() {
 	printf "%.${SCL}f\n" "${RESULT}"
 #echo ${SCL}-${1}-$BTCBANK-$BTCTOCUR-----${1}-${2}-${3}-${4}-${SCL}-${EQ}
 	# Check for bad internet
-	icheck
+	#icheck
 	exit
 }
 if [[ -n "${BANK}" ]]; then
@@ -347,7 +347,7 @@ fi
 RESULT="$(printf "%s*(%s)\n" "${1}" "${CGKRATE}" | bc -l)"
 printf "%.${SCL}f\n" "${RESULT}"
 # Check for bad internet
-icheck
+#icheck
 exit
 ## CGK APIs
 # https://www.coingecko.com/pt/api#explore-api
