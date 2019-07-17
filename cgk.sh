@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.4 - 2019/jul/16   by mountaineerbr
+# v0.4.5 - 2019/jul/17   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -247,18 +247,21 @@ bankf() {
 	fi
 
 	# Get CoinGecko JSON
-	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1},${MAYBE2}&vs_currencies=btc,${2,,},${3,,},${MAYBE1},${MAYBE2}" -H  "accept: application/json")
-	export CGKRATERAW
+	#CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1},${MAYBE2}&vs_currencies=btc,${2,,},${3,,},${MAYBE1},${MAYBE2}" -H  "accept: application/json")
+	#export CGKRATERAW
 	# Get rates to from_currency anyways
 	if ! BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"; then
+#echo $BTCBANK-$BTCTOCUR
 		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
+#echo $BTCBANK-$BTCTOCUR-${1}-${2}-${3}
 	# Get rates to to_currency anyways
 	if ! BTCTOCUR="$(${0} ${3,,} btc 2>/dev/null)"; then
-		BTCTOCUR="(1/$(${0} bitcoin ${3,,} 2>/dev/null))"
+		BTCTOCUR="(1/ $(${0} bitcoin ${3,,} ))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
+#echo $BTCBANK-$BTCTOCUR
 	# Timestamp? No timestamp for this API
 	if [[ -n "${TIMEST}" ]]; then
 		printf "%s\n" "No timestamp." 1>&2
@@ -296,7 +299,7 @@ if [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
 	printf "Try \"-l\" to grep a list of suported currencies.\n" 1>&2
 	exit 1
 fi
-
+GREPID=
 # Check if you are using currency id (correct) or code (incorrect) as FROM_CURRENCY arg
 changevscf ${2}
 if [[ -n ${GREPID} ]]; then
