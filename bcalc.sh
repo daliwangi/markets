@@ -43,7 +43,7 @@ DESCRIPTION
 			
 			$ bcalc.sh ans+33
 			
-			$ bcalc.sh -g -s4 100/3
+			$ bcalc.sh -g -s4 50000*5
 
 			$ bcalc.sh -t 1/10000000
 
