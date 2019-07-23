@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.2.2   2019/jul/17     by mountaineerbr
+# v0.2.3   2019/jul/23     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -245,9 +245,9 @@ fi
 if [[ -n ${GROUP} && -n ${SCL} ]]; then
 	if [[ -z ${COMMA} ]]; then
 		# Maximum Scale Result - printf cannot get more decimals than 58
-		MXS="$(printf "scale=50; (%s)/1\n" "${EQ}" | bc -l)"
+		MXS="$(printf "scale=25; (%s)/1\n" "${EQ}" | bc -l)"
 	else
-		MXS="$(printf "scale=50; (%s)/1\n" "${EQ}" | bc -l | sed 's/\./\,/')"
+		MXS="$(printf "scale=25; (%s)/1\n" "${EQ}" | bc -l | sed 's/\./\,/')"
 	fi
 	printf "%'.${SCL}f\n" "${MXS}"
 	exit
