@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.2.3   2019/jul/23     by mountaineerbr
+# v0.2.4   2019/jul/23     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -89,9 +89,8 @@ OPTIONS
 
 		-n 	Add Note to Record;
 			Useful to tag previous result for later manual consult;
-			It should be used after a new result computed.
-			Should not be used together with a equation, as it will
-			not be calculated in any way.
+			It should be used after a new result is computed.
+			Should not be used together with a equation.
     		
 		-r 	Print calc Record.
     		
