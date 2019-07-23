@@ -54,7 +54,8 @@ DESCRIPTION
 
 
 		Use of cientific constants.
-		Discover how many molecules in 0.234 M of solution:
+		Discover how many molecules in 0.234 M of solution;
+		na = Avogadro's constant :
 			
 			$ bashc.sh -c 0.234*na
 
