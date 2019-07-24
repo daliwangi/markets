@@ -9,6 +9,7 @@ Other packages that may be required to run some functions are:
 
 Curl, JQ, Websocat and Lolcat.
 
+-------------------------------------------------------------------------------------------------
 
 bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
