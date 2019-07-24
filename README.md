@@ -5,7 +5,7 @@ These scripts use the latest version of Bash
 and show a help page if run with "-h".
 
 
-bcalc.sh -- Simple Bash calculator taht uses bc and keeps a record of results;
+bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
 binance.sh -- Access Binance public API, prices, book depth, coin ticker;
 
