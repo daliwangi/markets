@@ -23,4 +23,4 @@ erates.sh -- Currency converter using ExchangeRates.com public API;
 
 myc.sh -- Central bank currency converter using MyCurrency.net public API;
 
-openx.sh -- Central bank currency converter using MyCurrency.net public API
+openx.sh -- Central bank currency converter using MyCurrency.net API.
