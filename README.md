@@ -1,11 +1,13 @@
 # markets
 Related to crypto and bank currency markets.
 
+Run them with "-h" for a Help Page.
+
 These scripts use the latest version of Bash.
 
-Other packages that may be required to run some
-functions are Curl, JQ, Websocat and Lolcat.
-Run them with "-h" for a Help Page.
+Other packages that may be required to run some functions are:
+
+Curl, JQ, Websocat and Lolcat.
 
 
 bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
