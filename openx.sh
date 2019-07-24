@@ -8,7 +8,6 @@
 ## Please make a free account and update this script
 ## with *your* Open Exchange Rates API IDi ( app_id ).
 # Below is a general ID which may stop working at any time
-#APPID="a66bbee5ac8d4ea2838074cfffde390d"
 #APPID="ab605d846f3f40fabd4db64bf2258519"
 #witacecu@crypto-net.club -- https://temp-mail.org/pt/ 
 #https://openexchangerates.org -- senha: hellodear
