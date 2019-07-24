@@ -7,7 +7,7 @@ and show a help page if run with "-h".
 
 bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
-binance.sh -- Access Binance public API, prices, book depth, coin ticker;
+binance.sh -- Crypto converter and access Binance public API, prices, book depth, coin ticker;
 
 binfo.sh -- Access Blockchain.info (Blockchain.com) public API;
 
