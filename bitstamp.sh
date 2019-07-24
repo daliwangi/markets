@@ -13,8 +13,8 @@ USAGE:
 
 
 DESCRIPTION:
-	This script accesses the Bitstamp Exchange API and fetches market
-	data. Currently, only the order price live stream is implemented.
+	This script accesses the Bitstamp Exchange public API and fetches
+	market data. Currently, only the order price live stream is implemented.
 	Options \"-s\" and \"-w\" shows the same data as in:
 		<https://www.bitstamp.net/s/webapp/examples/live_trades_v2.html>
 
