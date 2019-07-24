@@ -2,6 +2,7 @@
 Related to crypto and bank currency markets.
 
 These scripts use the latest version of Bash.
+
 Other packages that may be required to run some
 functions are Curl, JQ, Websocat and Lolcat.
 Run them with "-h" for a Help Page.
