@@ -9,7 +9,7 @@ LC_NUMERIC="en_US.utf8"
 ## CMC API Personal KEY
 #APIKEY=""
 # Spare key:
-APIKEY="f70ef502-0d91-496b-bd5b-5c0f20334720"
+APIKEY="30394e61-6fdf-4552-8f95-7e228b598f98"
 # dirufit@mailmetal.com -- hellodear
 
 
