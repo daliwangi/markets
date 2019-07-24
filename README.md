@@ -15,7 +15,7 @@ bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
 binance.sh -- Crypto converter and access Binance public API, prices, book depth, coin ticker;
 
-binfo.sh -- Access Blockchain.info (Blockchain.com) public API;
+binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & Blockchair.com public API;
 
 bitstamp.sh -- Access Bitstamp live price roll API;
 
