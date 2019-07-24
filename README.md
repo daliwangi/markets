@@ -25,8 +25,8 @@ clay.sh -- Central bank currency, precious metal and (BTC) crypto converter usin
 
 cmc.sh -- Currency converter using CoinMarketCap.com API, market ticker;
 
-erates.sh -- Currency converter using ExchangeRates.com public API;
+erates.sh -- Currency converter using ExchangeRatesAPI.io public API;
 
 myc.sh -- Central bank currency converter using MyCurrency.net public API;
 
-openx.sh -- Central bank currency converter using MyCurrency.net API.
+openx.sh -- Central bank currency converter using OpenExchangeRates.org API.
