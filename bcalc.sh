@@ -50,14 +50,14 @@ DESCRIPTION
 		
 		Define variables for use in the equation:
 		
-			$ bashc.sh \"s=5; -s+20\"
+			$ bcalc.sh \"s=5; -s+20\"
 
 
 		Use of cientific constants.
 		Discover how many molecules in 0.234 M of solution;
 		na = Avogadro's constant :
 			
-			$ bashc.sh -c 0.234*na
+			$ bcalc.sh -c 0.234*na
 
 
 	You may need escape equations containing () with backslashes, \"\" or ''.
