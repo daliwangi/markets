@@ -1,4 +1,6 @@
 # markets
+SUMMARY:
+
 Related to crypto and bank currency markets. Run them with "-h" for a Help Page.
 
 These scripts use the latest version of Bash. Other packages that may be required to run some functions are:
@@ -8,6 +10,9 @@ Curl, JQ, Websocat and Lolcat.
 Check below for script descriptions, download and run basic instructions.
 
 -------------------------------------------------------------------------------------------------
+
+SUMÁRIO:
+
 ESTE REPOSITÓRIO é relacionado com mercados de cripto e de moedas de banco centrais.
 
 Rode os scripts com "-h" para ver uma página de Ajuda (em Inglês).
@@ -19,6 +24,8 @@ no sistema para que todas as funções trabalhem corretamente são:
 Curl, JQ, Websocat and Lolcat.
 
 -------------------------------------------------------------------------------------------------
+
+INDEX:
 
 bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
@@ -41,6 +48,8 @@ myc.sh -- Central bank currency converter using MyCurrency.net public API;
 openx.sh -- Central bank currency converter using OpenExchangeRates.org API.
 
 -------------------------------------------------------------------------------------------------
+
+INSTRUÇÕES BÁSICAS:
 
 No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos repos oficiais.
 
@@ -88,6 +97,8 @@ Nada impede que se crie atalhos de bash em ~/.bashrc para os scripts (aliases)
 ou ainda que se os mova para pasta /bin ou para alguma outra pasta no seu PATH.
 
 -------------------------------------------------------------------------------------------------
+
+BASIC INSTRUCTIONS:
 
 On Ubuntu 19.04, you can install curl, jq and lolcat packages easily from the official repos.
 
