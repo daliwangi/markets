@@ -77,7 +77,7 @@ DESCRIPTION
 
 
 OPTIONS
-		-c 	Run calc with extensions;
+		-c 	Run calc with the scientific extension;
 			it enables use of many cientific constants and
 			disables options \"-g\" and \"-s\".
     		
