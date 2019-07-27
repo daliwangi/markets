@@ -20,6 +20,28 @@ Curl, JQ, Websocat and Lolcat.
 
 -------------------------------------------------------------------------------------------------
 
+bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
+
+binance.sh -- Crypto converter and access Binance public API, prices, book depth, coin ticker;
+
+binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs;
+
+bitstamp.sh -- Access Bitstamp live price roll API;
+
+cgk.sh -- Currency converter using CoingGecko.com public API, market ticker;
+
+clay.sh -- Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
+
+cmc.sh -- Currency converter using CoinMarketCap.com API, market ticker;
+
+erates.sh -- Currency converter using ExchangeRatesAPI.io public API;
+
+myc.sh -- Central bank currency converter using MyCurrency.net public API;
+
+openx.sh -- Central bank currency converter using OpenExchangeRates.org API.
+
+-------------------------------------------------------------------------------------------------
+
 No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos repos oficiais.
 Já o pacote websocat é um pouco mais complicado. Teria que construir do código fonte.
 Achei um script que pode tentar instalar o websocat automaticamente no Ubuntu:
@@ -77,25 +99,3 @@ $ bash binance.sh
 
 Nothing prevents you from creating bash aliases in ~ / .bashrc for these scripts
 or move them to the /bin folder or some other folder under your PATH.
-
--------------------------------------------------------------------------------------------------
-
-bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
-
-binance.sh -- Crypto converter and access Binance public API, prices, book depth, coin ticker;
-
-binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs;
-
-bitstamp.sh -- Access Bitstamp live price roll API;
-
-cgk.sh -- Currency converter using CoingGecko.com public API, market ticker;
-
-clay.sh -- Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
-
-cmc.sh -- Currency converter using CoinMarketCap.com API, market ticker;
-
-erates.sh -- Currency converter using ExchangeRatesAPI.io public API;
-
-myc.sh -- Central bank currency converter using MyCurrency.net public API;
-
-openx.sh -- Central bank currency converter using OpenExchangeRates.org API.
