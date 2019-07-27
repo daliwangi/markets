@@ -99,7 +99,7 @@ OPTIONS
 			uses last answer.
 		
 		-t 	Truncation of trailling noughts
-			( Does not work in cientific mode; also it throws syntax
+			( Does not work in scientific mode; also it throws syntax
 			errors if you define variables for equations ).
 
 
