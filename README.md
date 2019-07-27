@@ -28,7 +28,7 @@ binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.c
 
 bitstamp.sh -- Access Bitstamp live price roll API;
 
-cgk.sh -- Currency converter using CoingGecko.com public API, market ticker;
+cgk.sh -- [under development] Currency converter using CoingGecko.com public API, market ticker;
 
 clay.sh -- Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
