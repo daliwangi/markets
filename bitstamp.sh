@@ -45,7 +45,7 @@ while true; do
 			websocat  --no-close --ping-interval 16 wss://ws.bitstamp.net |
 			jq --unbuffered -r .data.price |
 			xargs -n1 printf "\n%.2f" |
-			lolcat -p) 2>/dev/null
+			lolcat -p 2000 -F 5) 2>/dev/null
 	fi
 	echo -e "\n\n Press Ctrl+C twice to exit\n"
 	sleep 2
