@@ -21,7 +21,7 @@ DESCRIPTION
 	It creates a Record file at ~/.bcalc_record. Use of \"ans\" in new 
 	expression greps last result from Record.
 
-	The extensions option will try to download a copy of a table of
+	The cientific extension will try to download a copy of a table of
 	values of scientific variables and extra math functions to ~/.bcalc_extensions
 	in a format readable by Bash Calculator ( bc ).
 
