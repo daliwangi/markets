@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.7 - 2019/jul/18   by mountaineerbr
+# v0.4.8 - 2019/jul/30   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -33,11 +33,11 @@ DESCRIPTION
 
 	Default precision is 16. Trailing zeroes are trimmed by default.
 
-	Usage example:
+	Usage example:       UNDER DEVELOPMENT!!!
 		
-		(1)
+		(1)     REFAZER MANUAL DE INSTRUÇÕES!!!!!!!!!!!!!!!!!!!!
 
-		$ cgk.sh -s3 0.5 djf cny 
+		$ cgk.sh -s3 -b 0.5 dkk cny 
 
 
 OPTIONS
@@ -63,6 +63,8 @@ OPTIONS
 BUGS
  	This programme is distributed without support or bug corrections.
 	Licensed under GPLv3 and above.
+	Give me a nickle! =)
+          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 		"
 
 # Check if there is any argument

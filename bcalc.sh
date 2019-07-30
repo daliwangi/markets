@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.2.4   2019/jul/23     by mountaineerbr
+# v0.2.5   2019/jul/30     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -107,6 +107,8 @@ BUGS
 	Made and tested with Bash 5.0.
  	This programme is distributed without support or bug corrections.
 	Licensed under GPLv3 and above.
+	Give me a nickle! =)
+          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 		"
 # Parse options
 while getopts ":ceghnrs:t" opt; do

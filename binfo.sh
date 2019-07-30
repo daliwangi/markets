@@ -93,6 +93,8 @@ while getopts ":acsnjlbetuhix" opt; do
       echo "  -j 	Fetch and print JSON."
       echo ""
       echo "This programme needs latest Bash, Curl, JQ and Websocat."
+      echo "Give me a nickle!"
+      echo "bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr"
       echo ""
       exit 0
       ;;
