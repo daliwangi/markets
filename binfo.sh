@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.5  2019/07/22 by mountaineer_br
+# v0.3.6  2019/07/30 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -194,9 +194,9 @@ printf "%s\n" "${RAWTX}" | jq -er '. | "","--------",
 	"Relayed by:  \(.relayed_by//empty)",
 	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	" From:",
-	"\t\(.inputs[] | .prev_out | "\(.addr)  \(.value)  \(if .spent == true then "SPENT" else "UNSPENT" end)  From txid: \(.tx_index)  \(.addr_tag // "")")",
+	"\t\(.inputs[] | .prev_out | "\(.addr)  \(.value/100000000)  \(if .spent == true then "SPENT" else "UNSPENT" end)  From txid: \(.tx_index)  \(.addr_tag // "")")",
 	" To:",
-	"\t\(.out[] | "\(.addr)  \(.value)  \(if .spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_outpoints // [] | .[] // { "tx_index": "00" } | .tx_index // "")  \(.addr_tag // "")")"'
+	"\t\(.out[] | "\(.addr)  \(.value/100000000)  \(if .spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_outpoints // [] | .[] // { "tx_index": "00" } | .tx_index // "")  \(.addr_tag // "")")"'
 
 }
 if [[ -n "${TXOPT}" ]]; then
@@ -398,9 +398,9 @@ printf "%s\n" "${TXCHAIR}" | jq -er '.data[].inputs as $i | .data[].outputs as $
 	"Fee:\t\(.fee_usd // "??") USD  \tFee:\t\(.fee_per_kb_usd // "??") USD/KB",
 	"Time:\t\(.time)Z\tLocal:\t\(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	" From:",
-	($i[]|"\t\(.recipient)  \(.value)  \(if .is_spent == true then "SPENT" else "UNSPENT" end)"),
+	($i[]|"\t\(.recipient)  \(.value/100000000)  \(if .is_spent == true then "SPENT" else "UNSPENT" end)"),
 	" To:",
-	($o[]|"\t\(.recipient)  \(.value) \(if .is_spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_transaction_id)")'
+	($o[]|"\t\(.recipient)  \(.value/100000000) \(if .is_spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_transaction_id)")'
 
 
 }
