@@ -147,3 +147,9 @@ $ bash binance.sh
 Nothing prevents you from creating bash aliases in ~ / .bashrc for these scripts
 
 or move them to the /bin folder or some other folder under your PATH.
+
+-------------------------------------------------------------------------------------------------
+Uma doação será uma surpresa muito boa!
+	Give me a nickle! =)
+          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
