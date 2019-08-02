@@ -149,7 +149,7 @@ Nothing prevents you from creating bash aliases in ~ / .bashrc for these scripts
 or move them to the /bin folder or some other folder under your PATH.
 
 -------------------------------------------------------------------------------------------------
-Uma doação de uns bitcents será uma surpresa muito boa!
+Uma doação de uns bitcoins será uma surpresa muito boa!
 
 	Give me a nickle! =)
 
