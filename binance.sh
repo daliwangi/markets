@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.6 	15/jul/2019   by mountaineer_br
+# v0.2.7 	03/ago/2019   by mountaineer_br
 # 
 
 LICENSE_WARRANTY_NOTICE="
@@ -104,7 +104,7 @@ fi
 printf "\nDetailed Stream of %s\n" "${2^^} ${3^^}"
 printf -- "Price, Quantity and Time.\n\n"
 
-websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S(%Z)"))"'
 
 }
@@ -163,7 +163,7 @@ fi
 
 	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
 	
- 	websocat  -nt --ping-interval 20  wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+ 	websocat  -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
 	#stdbuf -i0 -o0 -e0 cut -c-8 | 
 	exit
@@ -369,6 +369,9 @@ while getopts ":def:hjlckistuw" opt; do
       echo ""
       echo "   This programme needs Curl, JQ , Websocat, Xargs and Lolcat to"
       echo "   work properly."
+      echo "   I noticed that using the book depth functions with XTerm will cause"
+      echo "   horrible memory leak after running straight for a couple of days."
+      echo "   Using other terminals, for example xfce4-terminal, avoids that."
       echo ""
       exit 0
       ;;
