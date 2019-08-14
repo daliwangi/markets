@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.8 - 2019/jul/30   by mountaineerbr
+# v0.4.9 - 2019/ago/13   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -44,6 +44,8 @@ OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
 			converting any central bank or crypto currency to any other.
 
+		-g 	Use gramme instead of ounce for precious metals
+
 		-h 	Show this help.
 
 		-j 	Fetch JSON file and send to STOUT.
@@ -74,10 +76,13 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bmlhjks:t" opt; do
+while getopts ":bgmlhjks:t" opt; do
   case ${opt} in
-	b )
+	b ) ## Activate the Bank currency function
 		BANK=1
+		;;
+	g ) ## Use gramme instead of ounce for precious metals
+		GRAM=1
 		;;
 	m ) ## Make Market Cap Table
 		MCAP=1
@@ -268,7 +273,12 @@ bankf() {
 		printf "%s\n" "No timestamp." 1>&2
 	fi
 	# Calculate result
-	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
+
+	if [[ -z ${GRAM} ]]; then
+		RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
+	else
+		RESULT="$(printf "((1/28.349523125)*%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
+	fi
 	printf "%.${SCL}f\n" "${RESULT}"
 #echo ${SCL}-${1}-$BTCBANK-$BTCTOCUR-----${1}-${2}-${3}-${4}-${SCL}-${EQ}
 	# Check for bad internet
@@ -354,7 +364,11 @@ fi
 
 
 # Make equation and print result
-RESULT="$(printf "%s*(%s)\n" "${1}" "${CGKRATE}" | bc -l)"
+if [[ -z ${GRAM} ]]; then
+	RESULT="$(printf "%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
+else
+	RESULT="$(printf "(1/28.349523125)*%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
+fi
 printf "%.${SCL}f\n" "${RESULT}"
 # Check for bad internet
 #icheck

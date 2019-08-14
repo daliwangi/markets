@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.2.5 - 2019/jul/30   by mountaineerbr
+# v0.2.6 - 2019/ago/14   by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -44,6 +44,8 @@ OPTIONS
 		-b 	Activate Bank Currency Mode: FROM_CURRENCY can be
 			any central bank currency supported by CMC.
 		
+		-g 	Use gramme instead of ounce for precious metals
+
 		-h 	Show this help.
 
 		-j 	Print JSON.
@@ -170,10 +172,13 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	exit
 fi
 # Parse options
-while getopts ":blmhjs:t" opt; do
+while getopts ":bglmhjs:t" opt; do
   case ${opt} in
 	b ) ## Hack central bank currency rates
 		BANK=1
+		;;
+	g ) ## Use gramme instead of ounce for precious metals
+		GRAM=1
 		;;
   	l ) ## List available currencies
 		LISTS=1
@@ -257,9 +262,13 @@ bankf() {
 	#echo kkkkk$1-$2-$3-$4-$5-$SCL-"${BTCTOCURTAIL}"-$BTCTOCURHEAD"-${BTCTOCUR}"
 
 	# Calculate result, print result or check for internet error
-	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
+	if [[ -z ${GRAM} ]]; then
+		RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
+	else	
+		RESULT="$(printf "((1/28.349523125)*%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
+	fi
 	printf "%.${SCL}f\n" "${RESULT}"
-	icheck
+	#icheck
 	exit
 }
 if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
@@ -343,8 +352,12 @@ fi
 
 
 ## Make equation and calculate result
-RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
+if [[ -z ${GRAM} ]]; then
+	RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
+else
+	RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc((1/28.349523125)*%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
+fi
 
 printf "%.${SCL}f\n" "${RESULT}"
-icheck
+#icheck
 
