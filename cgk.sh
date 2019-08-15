@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5 - 2019/ago/15   by mountaineerbr
+# v0.5.2 - 2019/ago/15   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -46,8 +46,34 @@ DESCRIPTION
 	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
 	are trimmed by default.
 
-	Usage example:
+
+OPTIONS
+		-b 	Activate Bank Currency function; it extends support for
+			converting any central bank or crypto currency to any other.
+
+		-g 	Use gramme instead of ounce (for precious metals).
+
+		-h 	Show this help.
+
+		-j 	Fetch JSON file and send to STOUT.
+
+		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
+			it can only retrive data from existing/supported market pairs;
+			Results may be sorted with flag \"-z\".
+
+		-l 	List supported currencies.
+
+		-m 	Market Capitulation table.
+	 	
+		-s 	Set scale ( decimal plates ).
 		
+		-z 	Ticker function results may be sorted according to:
+			defaults: sort by name;
+			       1: sort by market;
+			       2: sort by market volume.
+
+
+USAGE EXAMPLES:		
 		(1)     One Bitcoin in U.S.A. Dollars:
 			
 			$ cgk.sh btc
@@ -95,26 +121,13 @@ DESCRIPTION
 			$ cgk.sh -bg xag nzd 
 
 
-OPTIONS
-		-b 	Activate Bank Currency function; it extends support for
-			converting any central bank or crypto currency to any other.
+		(9)     Ticker for all Bitcoin market pairs:
+			
+			$ cgk.sh -k btc 
 
-			-g 	Use gramme instead of ounce (for precious metals).
-
-		-h 	Show this help.
-
-		-j 	Fetch JSON file and send to STOUT.
-
-		-k 	Fetch tickers for currency (under development).
-
-		-l 	List supported currencies.
-
-		-m 	Market Capitulation table.
-	 	
-		-s 	Set scale ( decimal plates ).
-
-		-t 	No Timestamp in Coingecko.com JSON.
-			Updates are usually around every 5 minutes.
+		(10)    Ticker for Bitcoin/USD only:
+			
+			$ cgk.sh -k btc 
 
 
 BUGS
@@ -131,7 +144,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bgmlhjks:t" opt; do
+while getopts ":bgmlhjks:tz:" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
@@ -160,6 +173,10 @@ while getopts ":bgmlhjks:t" opt; do
 		;;
 	t ) # Print Timestamp with result
 		TIMEST=1
+		;;
+	z ) # Set Sort option for Ticker Function
+	    # defaults: 0: sort by name; 1: sort by market; 2: sort by market volume
+	    	ZOPT=${OPTARG}
 		;;
 	\? )
 		echo "Invalid Option: -$OPTARG" 1>&2
@@ -275,6 +292,11 @@ if [[ -z ${SCL} ]]; then
 fi
 
 # Set equation arguments
+# Let's keep a copy of the original argument
+# for use with the Ticker function
+ORIGARG1="${1}"
+ORIGARG2="${2}"
+
 if ! [[ ${1} =~ [0-9] ]]; then
 	set -- 1 ${@:1:2}
 fi
@@ -367,14 +389,15 @@ fi
 if [[ -z ${TOLIST} ]]; then
 	tolistf
 fi
-if [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
+if [[ -z "${TOPT}" ]] && [[ -z "${BANK}" ]] && ! printf "%s\n" "${TOLIST}" | grep -qi "^${3}$"; then
 	printf "Unsupported TO_CURRENCY %s at CGK.\n" "${3^^}" 1>&2
 	printf "Try \"-l\" to grep a list of suported currencies.\n" 1>&2
+	printf "Or try to use the Bank Currency Function flag \"-b\" (even for crypto).\n" 1>&2
 	exit 1
 fi
 GREPID=
-# Check if I can help changing from currency code (incorrect) to its id (correct)
-# (for FROM_CURRENCY)
+# Check if I can help changing from currency code (incorrect) 
+# to its id (correct) (for FROM_CURRENCY)
 changevscf ${2}
 if [[ -n ${GREPID} ]]; then
 	set -- ${1} ${GREPID} ${3}
@@ -384,16 +407,31 @@ fi
 tickerf() {
 	#read -r -p "Which currency id to see exchange tickers? " EX
 	#echo ${1}-${2}-${3}
-	TJSON=$(curl -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" -H  "accept: application/json")
+	TJSON=$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" -H  "accept: application/json")
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${TJSON}" 
 		exit
 	fi
-	# UNDER DEVELOPMENT!
-	echo "This ticker function is under development." >&2
-	echo ${TJSON} | jq .
-	exit 1
+	## Set column sort option with $ZOPT
+	# 0: defaults: sort by 1st col; 1:exchange (2nd col); 2: volume (4th col); 3: spread (5th col)
+	test "${ZOPT}" = "3" && ZOPT=5; ZOPTFLAG="-rn"
+	test "${ZOPT}" = "2" && ZOPT=4; ZOPTFLAG="-rn"
+	test "${ZOPT}" = "1" && ZOPT=2; ZOPTFLAG="-f"
+	test -z "${ZOPT}" && ZOPT=1; ZOPTFLAG="-f"
+	## If there is ARG 2, then make sure you get only those pairs specified
+	GREPARG="[aA-zZ]"
+	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
+#echo ">$ZOPT-${1}-${2}-${3}-${ORIGARG2}<"	
+	printf "\nTickers for %s %s\n" "${ORIGARG1}" "${ORIGARG2}" 
+	printf "\tTip: sort with flag \"-z\" plus an option number (for e.g. -z2):\n"
+	printf "\tdefaults: sort by pair name; 1: by exchange; 2: by volume; 3: by spread\n\n"
+	printf "%s\n" "${TJSON}" |
+		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
+		grep -i "${GREPARG}" |
+		sort -k"${ZOPT}" "${ZOPTFLAG}" |
+		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD,TIME_LAST_TRADE)"
+	exit 0
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
