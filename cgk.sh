@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.4.9 - 2019/ago/13   by mountaineerbr
+# v0.5 - 2019/ago/15   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -19,25 +19,80 @@ SYNOPSIS
 
 
 DESCRIPTION
-	Coin Gecko also has a public API. It is a little harder to use than
-	other exchange APIs because you need to specify the id of the
-	FROM_CURRENCY (not the usual \"codes\"), whereas VS_CURRENCY does use
-	common codes for crypto and central bank currencies. Cgk.sh does try to
-	grep currency id automatically.
-	
-	You can see Lists of these currencies running the function with the
-	argument \"-l\" 
-
-	This programme fetches updated currency rates from the internet	and can
+	This programme fetches updated currency rates from CoinGecko.com and can
 	convert any amount of one supported currency into another.
+	
+	Coin Gecko has got a public API for many crypto and bank currency rates.
+	Central bank currency conversions are not supported directly, but we can
+	derive bank currency rates undirectly, for e.g. USD vs CNY. As CoinGecko
+	updates frequently, it is one of the best API for bank currenciy artes.
 
-	Default precision is 16. Trailing zeroes are trimmed by default.
+	All these unofficially supported markets can be calculated with the \"Bank
+	Currency Function\", called with the flag \"-b\". Unofficially supported
+	crypto markets can also be calculated, such as ZCash vs. DigiByte.
 
-	Usage example:       UNDER DEVELOPMENT!!!
+	Due to how CoinGecko API works, this programme does a lot of checking and
+	multiple calls to the API every run. For example, it tries to grep currency
+	*ids* when FROM_CURRENCY input is rather a currency *code* and it checks
+	if input is a supported currency, too. A small percentage of cryptocurrencies 
+	that CoinGecko supports may not really be supported by this script, due 
+	to their weird currency ids/names or codes.
+	
+	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
+	
+	You can see a List of supported currencies running the script with the
+	argument \"-l\". 
+
+	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
+	are trimmed by default.
+
+	Usage example:
 		
-		(1)     REFAZER MANUAL DE INSTRUÇÕES!!!!!!!!!!!!!!!!!!!!
+		(1)     One Bitcoin in U.S.A. Dollars:
+			
+			$ cgk.sh btc
+			
+			$ cgk.sh 1 btc usd
 
-		$ cgk.sh -s3 -b 0.5 dkk cny 
+
+		(2)     0.1 Bitcoin in Ether:
+			
+			$ cgk.sh 0.1 btc eth 
+
+
+		(3)     One Bitcoin in DigiBytes (unoficially supported market;
+			it needs to use the Bank Currency Function flag \"-b\"):
+			
+			$ cgk.sh -b btc digibyte 
+
+
+		(4)     100 ZCash in Digibyte (unoficially supported market) 
+			with 8 decimal plates:
+			
+			$ cgk.sh -bs8 100 zcash digibyte 
+
+		
+		(5)     One Canadian Dollar in Japanese Yen (must use the Bank
+			Currency Function):
+			
+			$ cgk.sh -b cad jpy 
+
+
+		(6)     One thousand Brazilian Real in U.S.A. Dollars with 4 decimal plates:
+			
+			$ cgk.sh -b -s4 1000 brl usd 
+
+
+		(7)     One ounce of Gold in U.S.A. Dollar:
+			
+			$ cgk.sh -b xau 
+			
+			$ cgk.sh -b 1 xau usd 
+
+		
+		(8)     One gramme of Silver in New Zealand Dollar:
+			
+			$ cgk.sh -bg xag nzd 
 
 
 OPTIONS
@@ -145,11 +200,11 @@ listsf() {
 		printf "%s\n" "${VSCLISTS}" 
 		exit
 	fi
-	printf "\nList of supported FROM_CURRENCY IDs\n\n"
+	printf "\nList of supported FROM_CURRENCY IDs (also precious metals codes)\n\n"
 	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '-----FROM_CURRENCY NAME----,---------------ID---------------'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
-	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | column -c 100
+	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr [a-z] [A-Z] | sort | column -c 100
 	printf "\n"
 }
 if [[ -n "${LISTS}" ]]; then
