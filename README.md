@@ -1,5 +1,5 @@
 # markets
-SUMMARY:
+<b>SUMMARY:</b>
 
 Related to crypto and bank currency markets. Run them with "-h" for a Help Page.
 
@@ -11,7 +11,7 @@ Check below for script descriptions, download and run basic instructions.
 
 -------------------------------------------------------------------------------------------------
 
-SUMÁRIO:
+<b>SUMÁRIO:</b>
 
 ESTE REPOSITÓRIO é relacionado com mercados de cripto e de moedas de banco centrais.
 
@@ -49,7 +49,7 @@ openx.sh -- Central bank currency converter using OpenExchangeRates.org API.
 
 -------------------------------------------------------------------------------------------------
 
-INSTRUÇÕES BÁSICAS:
+<b>INSTRUÇÕES BÁSICAS:</b>
 
 No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos repos oficiais.
 
@@ -98,7 +98,7 @@ ou ainda que se os mova para pasta /bin ou para alguma outra pasta no seu PATH.
 
 -------------------------------------------------------------------------------------------------
 
-BASIC INSTRUCTIONS:
+<b>BASIC INSTRUCTIONS:</b>
 
 On Ubuntu 19.04, you can install curl, jq and lolcat packages easily from the official repos.
 
@@ -149,9 +149,8 @@ Nothing prevents you from creating bash aliases in ~ / .bashrc for these scripts
 or move them to the /bin folder or some other folder under your PATH.
 
 -------------------------------------------------------------------------------------------------
-Uma doação de uns bitcoins será uma surpresa muito boa!
-
-	Give me a nickle! =)
+<b>Uma doação de uns bitcoins será uma surpresa muito boa!
+   Give me a nickle! =)</b>
 
 bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
