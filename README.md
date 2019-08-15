@@ -31,7 +31,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>binance.sh --</b> Crypto converter and access Binance public API, prices, book depth, coin ticker;
 
-<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs;
+<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; show notification on new block found for the Bitcoin blockchain;
 
 <b>bitstamp.sh --</b> Access Bitstamp live price roll API;
 
