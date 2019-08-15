@@ -37,8 +37,6 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>cgk.sh --</b> Currency converter using CoingGecko.com public API, market ticker;
 
-   ->[Currency ticker under development!]
-
 <b>clay.sh --</b> Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
 <b>cmc.sh --</b> Currency converter using CoinMarketCap.com API, market ticker
