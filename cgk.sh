@@ -430,7 +430,7 @@ tickerf() {
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
 		grep -i "${GREPARG}" |
 		sort -k"${ZOPT}" "${ZOPTFLAG}" |
-		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD,TIME_LAST_TRADE)"
+		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME"
 	exit 0
 }
 if [[ -n ${TOPT} ]]; then
