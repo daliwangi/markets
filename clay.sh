@@ -9,8 +9,10 @@
 # Dev key:
 #APIKEY="6f72de44bee2e5411640f522437e9a64"
 # Spare Key:
-APIKEY="35324a150b81290d9fb15e434ed3d264"
+#APIKEY="35324a150b81290d9fb15e434ed3d264"
 # somabal@emailate.com -- hellodear
+#João silva piruto@hd-mail.com "**g*h*"https://temp-mail.org
+APIKEY="eda835237fd59b44e8d03c2df80a6a00"
 
 
 ## Manual and help
@@ -114,7 +116,16 @@ set -- "${@:1:2}" "USD"
 fi
 
 ## Get JSON once
-CLJSON=$(curl -s http://www.apilayer.net/api/live?access_key=${APIKEY}&callback=CALLBACK_FUNCTION)
+cljsonf() {
+	CLJSON=$(curl -s http://www.apilayer.net/api/live?access_key=${APIKEY}&callback=CALLBACK_FUNCTION)
+}
+cljsonf
+
+# Test and try a different APIKEY
+#if printf "%s\n" "${CLJSON}" | grep -iq '"success":false'; then
+#	APIKEY="6f72de44bee2e5411640f522437e9a64"
+#	cljsonf
+#fi
 
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
