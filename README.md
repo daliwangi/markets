@@ -39,7 +39,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>clay.sh --</b> Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
-<b>cmc.sh --</b> [instruction manual needs improvement!!] Currency converter using CoinMarketCap.com API, market ticker [will show more info soon for alts!];
+<b>cmc.sh --</b> [instruction manual needs improvement!!] Currency converter using CoinMarketCap.com API, market ticker [will show more info for alts soon!];
 
 <b>erates.sh --</b> Currency converter using ExchangeRatesAPI.io public API;
 
