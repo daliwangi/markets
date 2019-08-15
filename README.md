@@ -25,7 +25,7 @@ Curl, JQ, Websocat and Lolcat.
 
 -------------------------------------------------------------------------------------------------
 
-INDEX:
+<b>INDEX</b>:
 
 bcalc.sh -- Simple Bash calculator that uses bc and keeps a record of results;
 
@@ -35,7 +35,7 @@ binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.c
 
 bitstamp.sh -- Access Bitstamp live price roll API;
 
-cgk.sh -- [under development & manual needs improvement!!] Currency converter using CoingGecko.com public API, market ticker;
+cgk.sh -- [RELEASED!] Currency converter using CoingGecko.com public API, market ticker;
 
 clay.sh -- Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
