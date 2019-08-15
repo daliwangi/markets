@@ -35,11 +35,11 @@ binfo.sh -- Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.c
 
 bitstamp.sh -- Access Bitstamp live price roll API;
 
-cgk.sh -- [under development] Currency converter using CoingGecko.com public API, market ticker;
+cgk.sh -- [under development & manual needs improvement!!] Currency converter using CoingGecko.com public API, market ticker;
 
 clay.sh -- Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
-cmc.sh -- Currency converter using CoinMarketCap.com API, market ticker;
+cmc.sh -- [manual needs improvement!!] Currency converter using CoinMarketCap.com API, market ticker;
 
 erates.sh -- Currency converter using ExchangeRatesAPI.io public API;
 
