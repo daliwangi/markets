@@ -36,12 +36,14 @@ Curl, JQ, Websocat and Lolcat.
 <b>bitstamp.sh --</b> Access Bitstamp live price roll API;
 
 <b>cgk.sh --</b> Currency converter using CoingGecko.com public API, market ticker;
-[ALMOST READY! MARKET TICKERS NEEDS WORK ON]
+
+[Currency ticker under development!]
 
 <b>clay.sh --</b> Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
 <b>cmc.sh --</b> Currency converter using CoinMarketCap.com API, market ticker
-[instruction manual needs improvement!! market ticker will show more info for alts soon!];
+
+[Instruction manual needs improvement and market ticker will show more info for alts soon!]
 
 <b>erates.sh --</b> Currency converter using ExchangeRatesAPI.io public API;
 
