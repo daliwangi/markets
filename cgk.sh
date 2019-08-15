@@ -99,7 +99,7 @@ OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
 			converting any central bank or crypto currency to any other.
 
-		-g 	Use gramme instead of ounce for precious metals
+			-g 	Use gramme instead of ounce (for precious metals).
 
 		-h 	Show this help.
 
