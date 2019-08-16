@@ -29,23 +29,23 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>bcalc.sh --</b> Simple Bash calculator that uses bc and keeps a record of results;
 
-<b>binance.sh --</b> Crypto converter and access Binance public API, prices, book depth, coin ticker;
+<b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker;
 
 <b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; show notification on new block found for the Bitcoin blockchain;
 
-<b>bitstamp.sh --</b> Access Bitstamp live price roll API;
+<b>bitstamp.sh --</b> Bitstamp exchange public API for live price rolling;
 
-<b>cgk.sh --</b> Currency converter using CoingGecko.com public API, market ticker, cryptocurrency ticker;
+<b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
 
-<b>clay.sh --</b> Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
+<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and (BTC) crypto converter;
 
-<b>cmc.sh --</b> Currency converter using CoinMarketCap.com API, market ticker;
+<b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker;
 
-<b>erates.sh --</b> Currency converter using ExchangeRatesAPI.io public API;
+<b>erates.sh --</b> ExchangeRatesAPI.io API, currency converter;
 
-<b>myc.sh --</b> Central bank currency converter using MyCurrency.net public API;
+<b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
 
-<b>openx.sh --</b> Central bank currency converter using OpenExchangeRates.org API.
+<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
 
 -------------------------------------------------------------------------------------------------
 
