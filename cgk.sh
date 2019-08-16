@@ -97,7 +97,7 @@ USAGE EXAMPLES:
 			$ cgk.sh -b 1 xau usd 
 
 		
-		(9)     One gramme of Silver in New Zealand Dollar:
+		(9)     One gram of Silver in New Zealand Dollar:
 			
 			$ cgk.sh -bg xag nzd 
 
@@ -115,7 +115,7 @@ OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
 			converting any central bank or crypto currency to any other.
 
-		-g 	Use gramme instead of ounce (for precious metals).
+		-g 	Use gram instead of ounce (for precious metals).
 
 		-h 	Show this help.
 
