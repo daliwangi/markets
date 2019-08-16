@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.2.6 - 2019/ago/14   by mountaineerbr
+# v0.3 - 2019/ago/16   by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -21,9 +21,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cmc.sh \e[0;35;40m[-f|-h|-l|-m]\033[00m
+	cmc.sh \e[0;35;40m[-h|-j|-l|-m]\033[00m
 
-	cmc.sh \e[0;35;40m[-b|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
+	cmc.sh \e[0;35;40m[-b|-g|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
 \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
 DESCRIPTION
@@ -32,31 +32,93 @@ DESCRIPTION
 
 	CMC does not convert from a central bank currency to another,
 	but it does convert from crypto to ~93 central bank currencies
+	
+	Central bank currency conversions are not supported directly, but we can
+	derive bank currency rates undirectly, for e.g. USD vs CNY. As CoinMarketCap
+	updates frequently, it is one of the best API for bank currency rates.
 
-	Default precision is 16. Trailing zeroes are trimmed by default.
+	All these unofficially supported market pairs can be calculated with the
+	\"Bank Currency Function\", called with the flag \"-b\". It can also be
+	used with crypto currencies that may not be supported otherwise.
 
-	Usage example:
+	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
+	
+	You can see a List of supported currencies running the script with the
+	argument \"-l\". 
 
-		\e[1;30;40m$ \e[1;34;40mcmc.sh 0.5 xmr brl -s3\033[00m
+	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
+	are trimmed by default.
+
+
+USAGE EXAMPLES:		
+		(1)     One Bitcoin in U.S.A. Dollar:
+			
+			$ cmc.sh btc
+			
+			$ cmc.sh 1 btc usd
+
+
+		(2) 	One Bitcoin in Brazilian Real:
+
+			$ cmc.sh btc brl
+
+
+		(3)     0.1 Bitcoin in Ether:
+			
+			$ cmc.sh 0.1 btc eth 
+
+
+		(4)     One Dash in ZCash:
+			
+			$ cmc.sh dash zec 
+
+
+		(5)     One Canadian Dollar in Japanese Yen (must use the Bank
+			Currency Function):
+			
+			$ cmc.sh -b cad jpy 
+
+
+		(6)     One thousand Brazilian Real in U.S.A. Dollars with 4 decimal plates:
+			
+			$ cmc.sh -b -s4 1000 brl usd 
+
+
+		(7)     One ounce of Gold in U.S.A. Dollar:
+			
+			$ cmc.sh -b xau 
+			
+			$ cmc.sh -b 1 xau usd 
+
+		
+		(8)     One gramme of Silver in New Zealand Dollar:
+			
+			$ cmc.sh -bg xag nzd 
+
+
+		(9)     Ticker for all Bitcoin market pairs:
+			
+			$ cmc.sh -k btc 
 
 
 OPTIONS
-		-b 	Activate Bank Currency Mode: FROM_CURRENCY can be
-			any central bank currency supported by CMC.
+		-b 	Activate Bank Currency Mode: FROM_CURRENCY and
+			TO_CURRENCY can be any central bank or crypto currency
+			supported by CMC.
 		
-		-g 	Use gramme instead of ounce for precious metals
+		-g 	Use gramme instead of ounce (useful for precious metals).
 
 		-h 	Show this help.
 
-		-j 	Print JSON.
+		-j 	Print JSON (useful for debugging).
 
 		-l 	List supported currencies.
 
 		-m 	Market Ticker.
 
-		-s 	Set scale ( decimal plates ).
+		-s 	Set scale (decimal plates).
 
-		-t 	Print JSON timestamp.
+		-t 	Print JSON timestamp, if any.
 
 
 BUGS
@@ -64,6 +126,13 @@ BUGS
 	Licensed under GPLv3 and above.
 	Give me a nickle! =)
           bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
+
+IMPORTANT NOTICE
+	Please take a little time to register at <https://coinmarketcap.com/api/>
+	for a free API key and change the APIKEY variable in the script source
+	code for yours. The default API key may stop working at any moment and
+	without any warning!
 		"
 OTHERCUR="
 2781 = USD = United States Dollar ($)
@@ -259,6 +328,7 @@ bankf() {
 		printf "%s (to   currency)\n" "${BTCTOCURHEAD}"
 	fi
 	#echo iiiii$1-$2-$3-$4-$5-$SCL-"${BTCBANKTAIL}"-$BTCBANKHEAD"-${BTCTOCUR}"
+	#exit
 	#echo kkkkk$1-$2-$3-$4-$5-$SCL-"${BTCTOCURTAIL}"-$BTCTOCURHEAD"-${BTCTOCUR}"
 
 	# Calculate result, print result or check for internet error
@@ -291,7 +361,7 @@ mcapf() {
 	fi
 
 	LASTUP=$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.last_updated')
-	date --date "$CGKTIME"  "+%n## %FT%T%Z%n"
+	date --date "${LASTUP}"  "+%n## %FT%T%Z%n"
 	LC_NUMERIC="en_US.utf8"
 	
 	printf "CRYPTO MARKET STATS\n\n"
@@ -299,10 +369,26 @@ mcapf() {
 	printf "## Active cryptos: %s\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.active_cryptocurrencies')"
 	printf "## Market pairs  : %s\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.active_market_pairs')"
 
-	printf "\n## All crypto market volume (USD)\n"
+	printf "\n## All Crypto Market Cap (USD)\n"
 	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_market_cap')"
-	printf "## Last 24h volume (USD/24-H)\n"
+	printf "## Last 24h Volume (USD/24-H)\n"
 	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_volume_24h')"
+	printf "## Last 24h Reported Volume (USD/24-H)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_volume_24h_reported')"
+
+	printf "\n## Bitcoin Market Cap (USD)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_market_cap-.data.quote.USD.altcoin_market_cap)')"
+	printf "## Last 24h Volume (USD/24-H)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_volume_24h-.data.quote.USD.altcoin_volume_24h)')"
+	printf "## Last 24h Reported Volume (USD/24-H)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_volume_24h_reported-.data.quote.USD.altcoin_volume_24h_reported)')"
+
+	printf "\n## AltCoin Market Cap (USD)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_market_cap')"
+	printf "## Last 24h Volume (USD/24-H)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_volume_24h')"
+	printf "## Last 24h Reported Volume (USD/24-H)\n"
+	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_volume_24h_reported')"
 
 	printf "\n## Dominance (%%)\n"
 	printf "BTC: %'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.btc_dominance')"
@@ -311,6 +397,9 @@ mcapf() {
 	printf "\n## Market Cap per Coin (USD)\n"
 	printf "BTC: %'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '((.data.btc_dominance/100)*.data.quote.USD.total_market_cap)')"
 	printf "ETH: %'.2f\n\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '((.data.eth_dominance/100)*.data.quote.USD.total_market_cap)')"
+# v1.15.0 on Jul 10, 2019
+#/v1/global-metrics/quotes/latest now updates more frequently, every minute. It aslo now includes total_volume_24h_reported, altcoin_volume_24h, altcoin_volume_24h_reported, and altcoin_market_cap.
+
 }
 if [[ -n "${MCAP}" ]]; then
 	mcapf

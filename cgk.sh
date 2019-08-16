@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.4 - 2019/ago/15   by mountaineerbr
+# v0.5.6 - 2019/ago/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -13,9 +13,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cgk.sh \e[0;35;40m[-c|-h|-j|-k|-l]\033[00m
+	cgk.sh \e[0;35;40m[-c|-h|-j|-m|-l]\033[00m
 
-	cgk.sh \e[0;35;40m[-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
+	cgk.sh \e[0;35;40m[-g|-j|-k|-s|-z]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
 
 
 DESCRIPTION
@@ -25,11 +25,11 @@ DESCRIPTION
 	Coin Gecko has got a public API for many crypto and bank currency rates.
 	Central bank currency conversions are not supported directly, but we can
 	derive bank currency rates undirectly, for e.g. USD vs CNY. As CoinGecko
-	updates frequently, it is one of the best API for bank currenciy artes.
+	updates frequently, it is one of the best API for bank currency rates.
 
-	All these unofficially supported markets can be calculated with the \"Bank
-	Currency Function\", called with the flag \"-b\". Unofficially supported
-	crypto markets can also be calculated, such as ZCash vs. DigiByte.
+	All these unofficially supported market paris can be calculated with the
+	\"Bank Currency Function\", called with the flag \"-b\". Unofficially
+	supported crypto markets can also be calculated, such as ZCash vs. DigiByte.
 
 	Due to how CoinGecko API works, this programme does a lot of checking and
 	multiple calls to the API every run. For example, it tries to grep currency
@@ -48,25 +48,30 @@ DESCRIPTION
 
 
 USAGE EXAMPLES:		
-		(1)     One Bitcoin in U.S.A. Dollars:
+		(1)     One Bitcoin in U.S.A. Dollar:
 			
 			$ cgk.sh btc
 			
 			$ cgk.sh 1 btc usd
 
 
-		(2)     0.1 Bitcoin in Ether:
+		(2) 	One Bitcoin in Brazilian Real:
+
+			$ cmc.sh btc brl
+
+
+		(3)     0.1 Bitcoin in Ether:
 			
 			$ cgk.sh 0.1 btc eth 
 
 
-		(3)     One Bitcoin in DigiBytes (unoficially supported market;
+		(4)     One Bitcoin in DigiBytes (unoficially supported market;
 			it needs to use the Bank Currency Function flag \"-b\"):
 			
 			$ cgk.sh -b btc dgb 
 
 
-		(4)     100 ZCash in Digibyte (unoficially supported market) 
+		(5)     100 ZCash in Digibyte (unoficially supported market) 
 			with 8 decimal plates:
 			
 			$ cgk.sh -bs8 100 zcash digibyte 
@@ -74,34 +79,34 @@ USAGE EXAMPLES:
 			$ cgk.sh -bs8 100 zec dgb 
 
 		
-		(5)     One Canadian Dollar in Japanese Yen (must use the Bank
+		(6)     One Canadian Dollar in Japanese Yen (must use the Bank
 			Currency Function):
 			
 			$ cgk.sh -b cad jpy 
 
 
-		(6)     One thousand Brazilian Real in U.S.A. Dollars with 4 decimal plates:
+		(7)     One thousand Brazilian Real in U.S.A. Dollars with 4 decimal plates:
 			
 			$ cgk.sh -b -s4 1000 brl usd 
 
 
-		(7)     One ounce of Gold in U.S.A. Dollar:
+		(8)     One ounce of Gold in U.S.A. Dollar:
 			
 			$ cgk.sh -b xau 
 			
 			$ cgk.sh -b 1 xau usd 
 
 		
-		(8)     One gramme of Silver in New Zealand Dollar:
+		(9)     One gramme of Silver in New Zealand Dollar:
 			
 			$ cgk.sh -bg xag nzd 
 
 
-		(9)     Ticker for all Bitcoin market pairs:
+		(10)     Ticker for all Bitcoin market pairs:
 			
 			$ cgk.sh -k btc 
 
-		(10)    Ticker for Bitcoin/USD only:
+		(11)    Ticker for Bitcoin/USD only:
 			
 			$ cgk.sh -k btc 
 
