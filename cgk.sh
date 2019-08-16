@@ -122,8 +122,8 @@ OPTIONS
 		-j 	Fetch JSON file and send to STOUT.
 
 		-k 	Sort tickers by column; only works with \"-t\"
-			defaults: sort by name;
-			       1: sort by market;
+			defaults: sort by currency pair name;
+			       1: sort by market (exchange);
 			       2: sort by market volume;
 			       3: sort by spread;
 
