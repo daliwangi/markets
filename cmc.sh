@@ -92,7 +92,7 @@ USAGE EXAMPLES:
 			$ cmc.sh -b 1 xau usd 
 
 		
-		(8)     One gramme of Silver in New Zealand Dollar:
+		(8)     One gram of Silver in New Zealand Dollar:
 			
 			$ cmc.sh -bg xag nzd 
 
@@ -107,7 +107,7 @@ OPTIONS
 			TO_CURRENCY can be any central bank or crypto currency
 			supported by CMC.
 		
-		-g 	Use gramme instead of ounce (useful for precious metals).
+		-g 	Use gram instead of ounce (useful for precious metals).
 
 		-h 	Show this help.
 
@@ -247,7 +247,7 @@ while getopts ":bglmhjs:t" opt; do
 	b ) ## Hack central bank currency rates
 		BANK=1
 		;;
-	g ) ## Use gramme instead of ounce for precious metals
+	g ) ## Use gram instead of ounce for precious metals
 		GRAM=1
 		;;
   	l ) ## List available currencies
