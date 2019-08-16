@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.7 	03/ago/2019   by mountaineer_br
+# v0.2.8 	16/ago/2019   by mountaineer_br
 # 
 
 LICENSE_WARRANTY_NOTICE="
@@ -333,17 +333,15 @@ while getopts ":def:hjlckistuw" opt; do
       echo ""
       echo "Options:"
       echo "  -f 	Number of decimal plates; for use with -c, -k, -s and -w only;"
-      echo "     		   e.g.: -f6"
-      echo "      	You may also specify printf-style formatting;"
-      echo "      		   e.g.: -f\"%'.4f\""
-      echo "      		default: \"%.2f\""
+      echo "      	Also accepts printf-style formatting; defaults: \"2\" (\"%.2f\");"
+      echo "      		e.g.: -f6 ; -f\"%'.4f\""
       echo "  -h 	Show this help."
       echo "  -j 	Fetch and print JSON (for debugging, only for some opts)."
       echo "  -l 	List all markets (coin pairs and rates)."
       echo ""
-      echo "View/Watch Modes"
-      echo "Modes below accept currency pair (a Binance market) as argument, otherwise"
-      echo "they will default to \"btc usdt\"."
+      echo " View/Watch Modes"
+      echo " Modes below accept currency pair (a Binance market) as argument, otherwise"
+      echo " they will default to \"btc usdt\"."
       echo "  -c 	Price in columns; trade prices may overlap as screen"
       echo "     	updates if the number of orders between updates is"
       echo "      	smaller than 250 orders; prices should be updated from"
