@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.6 - 2019/ago/16   by mountaineerbr
+# v0.5.7 - 2019/ago/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -15,7 +15,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh \e[0;35;40m[-c|-h|-j|-m|-l]\033[00m
 
-	cgk.sh \e[0;35;40m[-g|-j|-k|-s|-z]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
+	cgk.sh \e[0;35;40m[-g|-j|-k|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
 
 
 DESCRIPTION
@@ -104,11 +104,11 @@ USAGE EXAMPLES:
 
 		(10)     Ticker for all Bitcoin market pairs:
 			
-			$ cgk.sh -k btc 
+			$ cgk.sh -t btc 
 
 		(11)    Ticker for Bitcoin/USD only:
 			
-			$ cgk.sh -k btc 
+			$ cgk.sh -t btc 
 
 
 OPTIONS
@@ -121,20 +121,21 @@ OPTIONS
 
 		-j 	Fetch JSON file and send to STOUT.
 
-		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
-			make sure input is an existing/supported market pair;
-			Results may be sorted with flag \"-z\".
+		-k 	Sort tickers by column; only works with \"-t\"
+			defaults: sort by name;
+			       1: sort by market;
+			       2: sort by market volume;
+			       3: sort by spread;
 
 		-l 	List supported currencies.
 
 		-m 	Market Capitulation table.
 	 	
-		-s 	Set scale ( decimal plates ).
+		-s 	Scale setting ( decimal plates ).
 		
-		-z 	Ticker function results may be sorted according to:
-			defaults: sort by name;
-			       1: sort by market;
-			       2: sort by market volume.
+		-t 	Tickers for a cryptocurrency or cryptocurrency pair;
+			make sure input is an existing/supported market pair;
+			Results may be sorted with flag \"-z\".
 
 
 BUGS
@@ -151,7 +152,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bgmlhjks:tz:" opt; do
+while getopts ":bgmlhjk:s:t" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
@@ -172,16 +173,16 @@ while getopts ":bgmlhjks:tz:" opt; do
 	j ) # Print JSON
 		PJSON=1
 		;;
-	k ) # Tickers
+	t ) # Tickers
 		TOPT=1
 		;;
-	s ) # Decimal plates
+	s ) # Scale, Decimal plates
 		SCL=${OPTARG}
 		;;
 	t ) # Print Timestamp with result
 		TIMEST=1
 		;;
-	z ) # Set Sort option for Ticker Function
+	k ) # Sort option for Ticker Function
 	    # defaults: 0: sort by name; 1: sort by market; 2: sort by market volume
 	    	ZOPT=${OPTARG}
 		;;
@@ -413,7 +414,7 @@ fi
 ## Ticker Function
 tickerf() {
 	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
-	printf "\tTip: check flag \"-z\" for sorting opts.\n\n"
+	printf "\tTip: check flag \"-k\" for sorting opts.\n\n"
 	printf "It may take a while now; if it returns empty, make sure\n"
 	printf "input is a valid cryptocurrency code or maket pair.\n\n"
 	
