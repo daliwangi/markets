@@ -467,7 +467,7 @@ fi
 
 ## Print JSON timestamp ?
 if [[ -n ${TIMEST} ]]; then
-	printf "%s\n" "No timestamp. Try -k for tickers." 1>&2
+	printf "%s\n" "No timestamp. Try -t for tickers." 1>&2
 fi
 
 
