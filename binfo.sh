@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.6  2019/07/30 by mountaineer_br
+# v0.3.7  2019/08/16 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -128,7 +128,7 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 	"Blk Id:\t\(.blockIndex)\t\tPrevId:\t\(.prevBlockIndex)",
 	"Height:\t\(.height)\t\tVer:\t\(.version)\tReward:\t\(.reward)",
 	"Size:\t\(.size/1000) KB\tTxs:\t\(.nTx)",
-	"Output:\t\(.totalBTCSent/100000000) BTC\tEst Tx Vol:\t\(.estimatedBTCSent)",
+	"Output:\t\(.totalBTCSent/100000000) BTC\tEst Tx Vol:\t\(.estimatedBTCSent/100000000) BTC",
 	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	"\t\t\t\tNow:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	"Ip:\t\(.foundBy.ip)  \tDesc:\t\(.foundBy.description)",
