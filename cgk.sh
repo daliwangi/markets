@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.7 - 2019/ago/16   by mountaineerbr
+# v0.5.8 - 2019/ago/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -121,7 +121,7 @@ OPTIONS
 
 		-j 	Fetch JSON file and send to STOUT.
 
-		-k 	Sort tickers by column; only works with \"-t\"
+		-k 	Sort tickers by column; only works with \"-t\";
 			defaults: sort by currency pair name;
 			       1: sort by market (exchange);
 			       2: sort by market volume;
@@ -179,9 +179,6 @@ while getopts ":bgmlhjk:s:t" opt; do
 	s ) # Scale, Decimal plates
 		SCL=${OPTARG}
 		;;
-	t ) # Print Timestamp with result
-		TIMEST=1
-		;;
 	k ) # Sort option for Ticker Function
 	    # defaults: 0: sort by name; 1: sort by market; 2: sort by market volume
 	    	ZOPT=${OPTARG}
@@ -229,7 +226,7 @@ listsf() {
 	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '-----FROM_CURRENCY NAME----,---------------ID---------------'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
-	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr [a-z] [A-Z] | sort | column -c 100
+	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[a-z]" "[A-Z]" | sort | column -c 100
 	printf "\n"
 }
 if [[ -n "${LISTS}" ]]; then
@@ -343,7 +340,6 @@ bankf() {
 	export CGKRATERAW
 	# Get rates to from_currency anyways
 	if ! BTCBANK="$(${0} ${2,,} btc 2>/dev/null)"; then
-#echo $BTCBANK-$BTCTOCUR
 		BTCBANK="(1/$(${0} bitcoin ${2,,} 2>/dev/null))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
@@ -352,11 +348,7 @@ bankf() {
 		BTCTOCUR="(1/$(${0} bitcoin ${3,,} ))"
 		test "${?}" -ne 0 && echo "Function error; check currencies." && exit 1
 	fi
-#echo $BTCBANK-$BTCTOCUR
 	# Timestamp? No timestamp for this API
-	if [[ -n "${TIMEST}" ]]; then
-		printf "%s\n" "No timestamp." 1>&2
-	fi
 	# Calculate result
 
 	if [[ -z ${GRAM} ]]; then
@@ -365,9 +357,6 @@ bankf() {
 		RESULT="$(printf "((1/28.349523125)*%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
 	fi
 	printf "%.${SCL}f\n" "${RESULT}"
-#echo ${SCL}-${1}-$BTCBANK-$BTCTOCUR-----${1}-${2}-${3}-${4}-${SCL}-${EQ}
-	# Check for bad internet
-	#icheck
 	exit
 }
 if [[ -n "${BANK}" ]]; then
@@ -385,13 +374,6 @@ if ! printf "%s\n" "${CLISTRAW}" | jq -r .[][] | grep -qi "^${2}$"; then
 	printf "try \"-l\" to grep a list of suported currencies.\n" 1>&2
 	exit 1
 fi
-#if ! printf "%s\n" "${CLIST}" | jq -r .[] | grep -qi "^${2}$" &&
-#	! printf "%s\n" "${CLIST}" | jq -r keys[] | grep -qi "^${2}$"; then
-#	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
-#	printf "Try the Bank currency function or\n" 1>&2
-#	printf "try \"-l\" to grep a list of suported currencies.\n" 1>&2
-#	exit 1
-#fi
 
 ## Check you are not requesting some unsupported TO_CURRENCY
 if [[ -z ${TOLIST} ]]; then
@@ -478,8 +460,6 @@ else
 	RESULT="$(printf "(1/28.349523125)*%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
 fi
 printf "%.${SCL}f\n" "${RESULT}"
-# Check for bad internet
-#icheck
 exit
 ## CGK APIs
 # https://www.coingecko.com/pt/api#explore-api
