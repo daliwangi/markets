@@ -115,8 +115,7 @@ OPTIONS
 		-j 	Fetch JSON file and send to STOUT.
 
 		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
-			it can only retrive data from existing/supported market pairs;
-			Only the first most 100 results are shown at most;
+			make sure input is an existing/supported market pair;
 			Results may be sorted with flag \"-z\".
 
 		-l 	List supported currencies.
@@ -406,12 +405,22 @@ fi
 
 ## Ticker Function
 tickerf() {
-	#read -r -p "Which currency id to see exchange tickers? " EX
-	#echo ${1}-${2}-${3}
-	TJSON=$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" -H  "accept: application/json")
+	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
+	printf "\tTip: check flag \"-z\" for sorting opts.\n\n"
+	printf "It may take a while now; if it returns empty, make sure\n"
+	printf "input is a valid cryptocurrency code or maket pair.\n\n"
+	
+	## Grep 6 pages of results instead of only 1
+	CGKTEMP=$(mktemp /tmp/cgk.rates.XXXXX) || exit 1
+	i=1
+	while [ $i -le 6 ]; do
+		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" >> "${CGKTEMP}"
+		echo "" >> "${CGKTEMP}"
+		i=$[$i+1]
+	done
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${TJSON}" 
+		cat "${CGKTEMP}" 
 		exit
 	fi
 	## Set column sort option with $ZOPT
@@ -424,10 +433,7 @@ tickerf() {
 	GREPARG="[aA-zZ]"
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
 #echo ">$ZOPT-${1}-${2}-${3}-${ORIGARG2}<"	
-	printf "\nTickers for %s %s\n" "${ORIGARG1}" "${ORIGARG2}" 
-	printf "\tTip: sort with flag \"-z\" plus an option number (for e.g. -z2):\n"
-	printf "\tdefaults: sort by pair name; 1: by exchange; 2: by volume; 3: by spread\n\n"
-	printf "%s\n" "${TJSON}" |
+	cat "${CGKTEMP}" |
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
 		grep -i "${GREPARG}" |
 		sort -k"${ZOPT}" "${ZOPTFLAG}" |
