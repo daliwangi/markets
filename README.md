@@ -29,17 +29,17 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>bcalc.sh --</b> Simple Bash calculator that uses bc and keeps a record of results;
 
-<b>*binance.sh --</b> Crypto converter and access Binance public API, prices, book depth, coin ticker;
+<b>binance.sh --</b> Crypto converter and access Binance public API, prices, book depth, coin ticker;
 
-<b>*binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; show notification on new block found for the Bitcoin blockchain;
+<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; show notification on new block found for the Bitcoin blockchain;
 
 <b>bitstamp.sh --</b> Access Bitstamp live price roll API;
 
-<b>*cgk.sh --</b> Currency converter using CoingGecko.com public API, market ticker, cryptocurrency ticker;
+<b>cgk.sh --</b> Currency converter using CoingGecko.com public API, market ticker, cryptocurrency ticker;
 
 <b>clay.sh --</b> Central bank currency, precious metal and (BTC) crypto converter using CurrencyLayer.com API;
 
-<b>*cmc.sh --</b> Currency converter using CoinMarketCap.com API, market ticker;
+<b>cmc.sh --</b> Currency converter using CoinMarketCap.com API, market ticker;
 
 <b>erates.sh --</b> Currency converter using ExchangeRatesAPI.io public API;
 
@@ -47,7 +47,6 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>openx.sh --</b> Central bank currency converter using OpenExchangeRates.org API.
 
-* Probably the most interesting ones
 -------------------------------------------------------------------------------------------------
 
 <b>INSTRUÇÕES BÁSICAS:</b>
