@@ -77,20 +77,20 @@ e selecionar a caixa "Permitir execução do arquivo como programa".
 
 ou
 
-$ chmod +x ~/Downloads/binance.sh
+<i>$ chmod +x ~/Downloads/binance.sh</i>
 
 Então, caminhe até a pasta onde script se encontra.
 
-$ cd ~/Downloads
+<i>$ cd ~/Downloads</i>
 
 
 Para executá-lo, não se esqueça de adeicionar ./ antes do nome do script:
 
-$ ./binance.sh
+<i>$ ./binance.sh</i>
 
 ou
 
-$ bash binance.sh
+<i>$ bash binance.sh</i>
 
 
 Nada impede que se crie atalhos de bash em ~/.bashrc para os scripts (aliases)
@@ -127,21 +127,21 @@ and check the "Allow executing file as programme" box.
 
 or
 
-$ chmod + x ~ / Downloads / binance.sh
+<i>$ chmod + x ~ / Downloads / binance.sh</i>
 
 
 Then cd to the folder where the script is located.
 
-$ cd ~ / Downloads
+<i>$ cd ~ / Downloads</i>
 
 
 To execute it, be sure to add ./ before the script name:
 
-$ ./binance.sh
+<i>$ ./binance.sh</i>
 
 or
 
-$ bash binance.sh
+<i>$ bash binance.sh</i>
 
 
 Nothing prevents you from creating bash aliases in ~ / .bashrc for these scripts
