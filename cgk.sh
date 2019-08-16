@@ -157,7 +157,7 @@ while getopts ":bgmlhjk:s:t" opt; do
 	b ) ## Activate the Bank currency function
 		BANK=1
 		;;
-	g ) ## Use gramme instead of ounce for precious metals
+	g ) ## Use gram instead of ounce for precious metals
 		GRAM=1
 		;;
 	m ) ## Make Market Cap Table
