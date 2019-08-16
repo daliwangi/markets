@@ -47,7 +47,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>openx.sh --</b> Central bank currency converter using OpenExchangeRates.org API.
 
- * Probably the most interesting ones
+* Probably the most interesting ones
 -------------------------------------------------------------------------------------------------
 
 <b>INSTRUÇÕES BÁSICAS:</b>
