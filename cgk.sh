@@ -116,6 +116,7 @@ OPTIONS
 
 		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
 			it can only retrive data from existing/supported market pairs;
+			Only the first most 100 results are shown at most;
 			Results may be sorted with flag \"-z\".
 
 		-l 	List supported currencies.
