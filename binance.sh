@@ -333,7 +333,7 @@ while getopts ":def:hjlckistuw" opt; do
       echo ""
       echo "Options:"
       echo "  -f 	Number of decimal plates; for use with -c, -k, -s and -w only;"
-      echo "      	Also accepts printf-style formatting; defaults: \"2\" (\"%.2f\");"
+      echo "      	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");"
       echo "      		e.g.: -f6 ; -f\"%'.4f\""
       echo "  -h 	Show this help."
       echo "  -j 	Fetch and print JSON (for debugging, only for some opts)."
