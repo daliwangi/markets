@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.8 - 2019/ago/16   by mountaineerbr
+# v0.5.9 - 2019/ago/16   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -200,15 +200,12 @@ clistf() {
 # List of vs_currencies
 tolistf() {
 	TOLIST="$(curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]')"
-	#export TOLIST
 }
 # Check if you are using currency id (correct) or code (incorrect) as FROM_CURRENCY arg
 # and export currency id as GREPID
 changevscf() {
 	if printf "%s\n" "${CLIST}" | jq -r keys[] | grep -qi "^${*}$"; then
-	printf "Grepping currency id...\n" >&2
 	GREPID="$(printf "%s\n" "${CLIST}" | jq -r .${*,,})"
- 	#export GREPID
 	fi
 }
 
