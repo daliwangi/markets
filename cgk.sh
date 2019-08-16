@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.3 - 2019/ago/15   by mountaineerbr
+# v0.5.4 - 2019/ago/15   by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -63,13 +63,15 @@ USAGE EXAMPLES:
 		(3)     One Bitcoin in DigiBytes (unoficially supported market;
 			it needs to use the Bank Currency Function flag \"-b\"):
 			
-			$ cgk.sh -b btc digibyte 
+			$ cgk.sh -b btc dgb 
 
 
 		(4)     100 ZCash in Digibyte (unoficially supported market) 
 			with 8 decimal plates:
 			
 			$ cgk.sh -bs8 100 zcash digibyte 
+			
+			$ cgk.sh -bs8 100 zec dgb 
 
 		
 		(5)     One Canadian Dollar in Japanese Yen (must use the Bank
@@ -411,7 +413,7 @@ tickerf() {
 	printf "input is a valid cryptocurrency code or maket pair.\n\n"
 	
 	## Grep 6 pages of results instead of only 1
-	CGKTEMP=$(mktemp /tmp/cgk.rates.XXXXX) || exit 1
+	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
 	i=1
 	while [ $i -le 6 ]; do
 		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" >> "${CGKTEMP}"
