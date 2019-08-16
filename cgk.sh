@@ -47,32 +47,6 @@ DESCRIPTION
 	are trimmed by default.
 
 
-OPTIONS
-		-b 	Activate Bank Currency function; it extends support for
-			converting any central bank or crypto currency to any other.
-
-		-g 	Use gramme instead of ounce (for precious metals).
-
-		-h 	Show this help.
-
-		-j 	Fetch JSON file and send to STOUT.
-
-		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
-			it can only retrive data from existing/supported market pairs;
-			Results may be sorted with flag \"-z\".
-
-		-l 	List supported currencies.
-
-		-m 	Market Capitulation table.
-	 	
-		-s 	Set scale ( decimal plates ).
-		
-		-z 	Ticker function results may be sorted according to:
-			defaults: sort by name;
-			       1: sort by market;
-			       2: sort by market volume.
-
-
 USAGE EXAMPLES:		
 		(1)     One Bitcoin in U.S.A. Dollars:
 			
@@ -128,6 +102,32 @@ USAGE EXAMPLES:
 		(10)    Ticker for Bitcoin/USD only:
 			
 			$ cgk.sh -k btc 
+
+
+OPTIONS
+		-b 	Activate Bank Currency function; it extends support for
+			converting any central bank or crypto currency to any other.
+
+		-g 	Use gramme instead of ounce (for precious metals).
+
+		-h 	Show this help.
+
+		-j 	Fetch JSON file and send to STOUT.
+
+		-k 	Fetch tickers for a cryptocurrency or cryptocurrency pair;
+			it can only retrive data from existing/supported market pairs;
+			Results may be sorted with flag \"-z\".
+
+		-l 	List supported currencies.
+
+		-m 	Market Capitulation table.
+	 	
+		-s 	Set scale ( decimal plates ).
+		
+		-z 	Ticker function results may be sorted according to:
+			defaults: sort by name;
+			       1: sort by market;
+			       2: sort by market volume.
 
 
 BUGS
