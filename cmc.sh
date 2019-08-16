@@ -27,8 +27,9 @@ SYNOPSIS
 \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
 DESCRIPTION
-	This programme fetches updated currency rates from the internet	and can
-	convert any amount of one supported currency into another.
+	This programme fetches updated currency rates from CoinMarketCap.com
+	through a Private API key. It can convert any amount of one supported
+	currency into another.
 
 	CMC does not convert from a central bank currency to another,
 	but it does convert from crypto to ~93 central bank currencies
