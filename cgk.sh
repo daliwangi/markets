@@ -1,7 +1,8 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.9 - 2019/ago/16   by mountaineerbr
+# v0.5.11 - 2019/ago/17   by mountaineerbr
+#set -x
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -367,8 +368,8 @@ if [[ -z ${CLISTRAW} ]]; then
 fi
 if ! printf "%s\n" "${CLISTRAW}" | jq -r .[][] | grep -qi "^${2}$"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
-	printf "Try the Bank currency function or\n" 1>&2
-	printf "try \"-l\" to grep a list of suported currencies.\n" 1>&2
+	printf "Try the bank currency function \"-b\",\n" 1>&2
+	printf "list of suported currencies \"-l\" or help \"-h\".\n" 1>&2
 	exit 1
 fi
 
@@ -419,7 +420,6 @@ tickerf() {
 	## If there is ARG 2, then make sure you get only those pairs specified
 	GREPARG="[aA-zZ]"
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
-#echo ">$ZOPT-${1}-${2}-${3}-${ORIGARG2}<"	
 	cat "${CGKTEMP}" |
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
 		grep -i "${GREPARG}" |
@@ -443,12 +443,6 @@ if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CGKRATERAW}" 
 	exit
 fi
-
-## Print JSON timestamp ?
-if [[ -n ${TIMEST} ]]; then
-	printf "%s\n" "No timestamp. Try -t for tickers." 1>&2
-fi
-
 
 # Make equation and print result
 if [[ -z ${GRAM} ]]; then
