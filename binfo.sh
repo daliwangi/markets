@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.8  2019/08/17 by mountaineer_br
+# v0.3.9  2019/08/18 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -187,6 +187,11 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWTX}"
 	exit
 fi
+# Test response from server
+if [[ "$(printf "%s\n" "${RAWTX}" | wc -l)" -le "1" ]]; then
+	printf "%s\n" "${RAWTX}"
+	exit 1
+fi
 printf "\nTransaction info:\n\n"
 printf "%s\n" "${RAWTX}" | jq -er '. | "","--------",
 	"Tx hash:","\t\(.hash)",
@@ -221,6 +226,12 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWB}"
 	exit
 fi
+# Test response from server
+if [[ "$(printf "%s\n" "${RAWB}" | wc -l)" -le "1" ]]; then
+	printf "%s\n" "${RAWB}"
+	exit 1
+fi
+
 # Print Txs info
 # Grep txs and call rawtxf function
 RAWTX="$(printf "%s\n" "${RAWB}" | jq -r '.tx[]')"
@@ -261,7 +272,14 @@ fi
 
 ## -n Block info by height
 hblockf() {
-RAWB="$(curl -s https://blockchain.info/block-height/${1}?format=json | jq .blocks[])"
+RAWBORIG="$(curl -s https://blockchain.info/block-height/${1}?format=json)"
+# Test response from server
+if [[ "$(printf "%s\n" "${RAWBORIG}" | wc -l)" -le "1" ]]; then
+	printf "%s\n" "${RAWBORIG}"
+	exit 1
+fi
+RAWB="$(printf "%s\n" "${RAWBORIG}" | jq .blocks[])"
+# Print JSON?
 if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWB}"
 	exit
@@ -276,22 +294,40 @@ fi
 
 ## -a Address info
 raddf() {
+  # -s Address Sumary?
+if [[ -n "${SUMMARYOPT}" ]]; then
+	SUMADD=$(curl -s https://blockchain.info/balance?active=${1})
+	# Print JSON?
+	if [[ -n  "${PJSON}" ]]; then
+		printf "%s\n" "${SUMADD}"
+		exit
+	fi
+	# Test response from server
+	if [[ "$(printf "%s\n" "${SUMADD}" | wc -l)" -le "1" ]]; then
+		printf "%s\n" "${SUMADD}"
+		exit 1
+	fi
+	printf "\n\n--------\n"
+	printf "Summary Address Info\n\n"
+	printf "%s\n" "${SUMADD}" | jq -r '"Address:    \(keys[])",
+	"N of tx:    \(.[].n_tx)",
+	"T Recv:     \(.[].total_received) sat    (\(.[].total_received/100000000) BTC)",
+	"Balance:    \(.[].final_balance) sat    (\(.[].final_balance/100000000) BTC)\n"'
+	exit
+fi
+# Get RAW ADDR
 RAWADD=$(curl -s https://blockchain.info/rawaddr/${1})
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWADD}"
 	exit
 fi
-# -s Address Sumary?
-if [[ -n "${SUMMARYOPT}" ]]; then
-	printf "\n\n--------\n"
-	printf "Summary Address info\n\n"
-	curl -s https://blockchain.info/balance?active=${1} | jq -r '"Address:    \(keys[])",
-	"N of tx:    \(.[].n_tx)",
-	"T Recv:     \(.[].total_received) sat    (\(.[].total_received/100000000) BTC)",
-	"Balance:    \(.[].final_balance) sat    (\(.[].final_balance/100000000) BTC)\n"'
-	exit
+# Test response from server
+if [[ "$(printf "%s\n" "${RAWADD}" | wc -l)" -le "1" ]]; then
+	printf "%s\n" "${RAWADD}"
+	exit 1
 fi
+
 # Tx info
 # Grep txs and call rawtxf function
 RAWTX="$(printf "%s\n" "${RAWADD}" | jq -r '.txs[]')"
@@ -345,6 +381,11 @@ printf "%s\n" "${CHAIRADD}" | jq -r '. | "",
 	"Updated:\t\t\tNext Update:",
 	"\t\(.context.cache.since)Z\t\(.context.cache.until)Z",
 	""'
+# Test response from server
+if printf "%s\n" "${CHAIRADD}" | jq -r '. | .data[] | "\t\(.address[type])"' | grep -iq "null"; then
+	printf "\n\e[1;33;44mWarning:\e[0m This Address does not \"seem\" to be valid...\n" 1>&2
+	exit 1
+fi
 }
 if [[ -n "${CHAIROPT}" ]]; then
 	chairaddf "${1}"
@@ -391,8 +432,11 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${TXCHAIR}"
 	exit
 fi
-#
-
+# Test response from server
+if printf "%s\n" "${TXCHAIR}" | grep -iq "DOCTYPE html"; then
+	printf "Error: Transaction not found.\n" 1>&2
+	exit 1
+fi
 printf "\nTransaction info:\n\n"
 printf "%s\n" "${TXCHAIR}" | jq -er '.data[].inputs as $i | .data[].outputs as $o | .data[] | .transaction | "","--------",
 	"Tx hash:","\t\(.hash)",
