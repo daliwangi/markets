@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.13 - 2019/ago/18   by mountaineerbr
+# v0.5.14 - 2019/ago/18   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -125,11 +125,16 @@ OPTIONS
 		-l 	List supported currencies.
 
 		-m 	Market Capitulation table.
+
+		-p 	Number of pages retrieved from the server, defaults 
+			is 4*100 results/page. For use with the Ticker function.
 	 	
 		-s 	Scale setting ( decimal plates ).
 		
 		-t 	Tickers for a cryptocurrency or cryptocurrency pair;
-			make sure input is an existing/supported market pair;
+			to change how many result pages are fetched from the server,
+			check flag \"-p\"; input must be an existing/supported 
+			currency or currency pair;
 
 
 BUGS
@@ -146,7 +151,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bgmlhjk:s:t" opt; do
+while getopts ":bgmlhjp:s:t" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
@@ -169,6 +174,9 @@ while getopts ":bgmlhjk:s:t" opt; do
 		;;
 	t ) # Tickers
 		TOPT=1
+		;;
+	p ) # Number of pages to retrieve with the Ticker Function
+		TPAGES=${OPTARG}
 		;;
 	s ) # Scale, Decimal plates
 		SCL=${OPTARG}
@@ -383,17 +391,18 @@ fi
 ## Ticker Function
 tickerf() {
 	printf "\nTickers for %s %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
-	printf "It may take a while now; if it returns empty, make sure\n"
-	printf "input is a valid cryptocurrency code or maket pair.\n\n"
 	
-	## Grep 6 pages of results instead of only 1
+	## Grep 4 pages of results instead of only 1
 	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
 	i=1
-	while [ $i -le 6 ]; do
+	test -z "${TPAGES}" && TPAGES=4
+	while [ $i -le "${TPAGES}" ]; do
+		printf "Fetching page %s of %s...\n" "${i}" "${TPAGES}"
 		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" >> "${CGKTEMP}"
 		echo "" >> "${CGKTEMP}"
 		i=$[$i+1]
 	done
+	printf "\n"
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		cat "${CGKTEMP}" 
