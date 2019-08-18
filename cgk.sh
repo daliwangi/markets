@@ -390,14 +390,14 @@ fi
 
 ## Ticker Function
 tickerf() {
-	printf "\nTickers for %s %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
+	printf "\nTickers for %s %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 
 	
 	## Grep 4 pages of results instead of only 1
 	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
 	i=1
 	test -z "${TPAGES}" && TPAGES=4
 	while [ $i -le "${TPAGES}" ]; do
-		printf "Fetching page %s of %s...\n" "${i}" "${TPAGES}"
+		printf "Fetching page %s of %s...\n" "${i}" "${TPAGES}" 1>&2
 		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" >> "${CGKTEMP}"
 		echo "" >> "${CGKTEMP}"
 		i=$[$i+1]
