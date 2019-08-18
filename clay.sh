@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.2.1 - 2019/jul/24   by mountaineerbr
+# v0.2.2 - 2019/ago/17   by mountaineerbr
 
 ## Some defaults
 # Get your own personal API KEY
@@ -28,26 +28,36 @@ SYNOPSIS
 \e[0;31;40m[TO_CURRENCY]\033[00m
 
 DESCRIPTION
-	Free plans should get currency updates idaily only.
-	It supports very few cyrpto currencies.
-	
 	This programme fetches updated currency rates from the internet	and can
 	convert any amount of one supported currency into another.
 
+	Free plans should get currency updates daily only. It supports very few 
+	cyrpto currencies. You may want to access <https://currencylayer.com/>
+	and sign up for a free private API key and change it in the script source
+	code (look for variable APIKEY), as the script default API key may start 
+	stop wrking at any moment and without warning!
+	
 	Default precision is 16. Trailing zeroes are trimmed by default.
 
 	Usage example:
 		
-		(1)
+		(1) One Brazilian real in US Dollar:
 
-		\e[1;30;40m$ \e[1;34;40mclay.sh 0.5 djf cny -s3\033[00m
+		$ clay.sh brl
+
+		$ clay.sh 1 brl usd
+
+
+		(2) Fifty a Djiboutian Franc in Chinese Yuan with 3 decimal plates (scale):
+
+		$ clay.sh -s3 50 djf cny
 
 
 OPTIONS
 	 	
 		-h 	Show this help.
 
-		-j 	Fetch JSON file and send to STOUT.
+		-j 	Print JSON to stdout (useful for debugging).
 
 		-l 	List supported currencies.
 
@@ -103,10 +113,6 @@ fi
 
 
 # Set equation arquments
-if [[ -z ${2} ]]; then
-	set -- USD ${1^^}
-fi
-
 if ! [[ ${1} =~ [0-9] ]]; then
 	set -- 1 "${@:1:2}"
 fi

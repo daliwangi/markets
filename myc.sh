@@ -29,9 +29,21 @@ DESCRIPTION
 
 	Usage example:
 		
-		(1)
+		(1) One Brazilian real in US Dollar:
 
-		\e[1;30;40m$ \e[1;34;40mmyc.sh 0.5 djf cny -s3\033[00m
+		$ myc.sh brl
+
+		$ myc.sh 1 brl usd
+
+		
+		(2) One Euro to Japanese yen (one-EUR-worth of JPY):
+		
+		$ myc.sh eur jpy
+
+
+		(3) Half a Danish Krone to Chinese Yuan with 3 decimal plates (scale):
+
+		$ myc.sh -s3 0.5 dkk cny
 
 
 OPTIONS
@@ -98,10 +110,6 @@ fi
 
 
 # Set equation arquments
-if [[ -z ${2} ]]; then
-	set -- USD ${1^^}
-fi
-
 if ! [[ ${1} =~ [0-9] ]]; then
 	set -- 1 ${@:1:2}
 fi

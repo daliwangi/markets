@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-# erates.sh -- Currency converter Bash wrapper for exchangerates.io API
-# v0.1.2 - 2019/jul/13
+# erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
+# v0.1.3 - 2019/ago/17
 # by mountaineerbr
 
 SCRIPTBASECUR="USD"
@@ -9,7 +9,7 @@ SCRIPTBASECUR="USD"
 ## Manual and help
 ## Usage: $ erates.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
- 	\033[01;36mErates.sh -- Currency converter and Bash wrapper for exchangerates.io API\033[00m
+ 	\033[01;36mErates.sh -- Currency converter and Bash wrapper for exchangeratesapi.io API\033[00m
 
 
 SYNOPSIS
@@ -34,8 +34,8 @@ DESCRIPTION
 	which normally takes place at 14:15 CET.
 
 	Even though we get the raw data with rates against the EUR, I prefer
-	to check rates against USD by default (see usage example 1); you may
-	change/revert that to EUR or any other currency setting the \"SCRIPTBASECUR\"
+	to check rates against USD by default (when TO_CURRENCY is not specified).
+	You may change that to EUR or any other currency setting the \"SCRIPTBASECUR\"
 	variable in the script source code.
 
 	Bash Calculator uses dot for floating numbers.
@@ -44,20 +44,21 @@ DESCRIPTION
 
 	Usage examples:
 		
-		(1) To show 1-USD-equivalent of a currency:
+		(1) One Brazilian real in US Dollar:
 
-		\e[1;30;40m$ \e[1;34;40merates.sh Brl\033[00m
+		$ erates.sh brl
+
+		$ erates.sh 1 brl usd
+
 		
-
-		(2) One-EUR-worth of JPY:
+		(2) One Euro to Japanese yen (one-EUR-worth of JPY):
 		
-		\e[1;30;40m$ \e[1;34;40merates.sh eur jpy\033[00m
+		$ erates.sh eur jpy
 
 
-		(3) Specify decimal plate number and amount for converting
-		    from \"from_currency\" to \"to_currency\":
+		(3) Half a Danish Krone to Chinese Yuan with 3 decimal plates (scale):
 
-		\e[1;30;40m$ \e[1;34;40merates.sh -s3 0.5 dkk cny\033[00m
+		$ erates.sh -s3 0.5 dkk cny
 
 
 OPTIONS
@@ -138,10 +139,6 @@ if [[ -z ${SCL} ]]; then
 fi
 
 # Set equation arquments
-if [[ -z ${2} ]]; then
-	set -- "${SCRIPTBASECUR}" ${1^^}
-fi
-
 if ! [[ ${1} =~ [0-9] ]]; then
 	set -- 1 ${@:1:2}
 fi
