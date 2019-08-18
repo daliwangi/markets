@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.11 - 2019/ago/17   by mountaineerbr
+# v0.5.13 - 2019/ago/18   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -16,7 +16,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh \e[0;35;40m[-c|-h|-j|-m|-l]\033[00m
 
-	cgk.sh \e[0;35;40m[-g|-j|-k|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
+	cgk.sh \e[0;35;40m[-g|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
 
 
 DESCRIPTION
@@ -103,13 +103,13 @@ USAGE EXAMPLES:
 			$ cgk.sh -bg xag nzd 
 
 
-		(10)     Ticker for all Bitcoin market pairs:
+		(10)    Ticker for all Bitcoin market pairs:
 			
 			$ cgk.sh -t btc 
 
 		(11)    Ticker for Bitcoin/USD only:
 			
-			$ cgk.sh -t btc 
+			$ cgk.sh -t btc usd 
 
 
 OPTIONS
@@ -122,12 +122,6 @@ OPTIONS
 
 		-j 	Fetch JSON file and send to STOUT.
 
-		-k 	Sort tickers by column; only works with \"-t\";
-			defaults: sort by currency pair name;
-			       1: sort by market (exchange);
-			       2: sort by market volume;
-			       3: sort by spread;
-
 		-l 	List supported currencies.
 
 		-m 	Market Capitulation table.
@@ -136,7 +130,6 @@ OPTIONS
 		
 		-t 	Tickers for a cryptocurrency or cryptocurrency pair;
 			make sure input is an existing/supported market pair;
-			Results may be sorted with flag \"-z\".
 
 
 BUGS
@@ -179,10 +172,6 @@ while getopts ":bgmlhjk:s:t" opt; do
 		;;
 	s ) # Scale, Decimal plates
 		SCL=${OPTARG}
-		;;
-	k ) # Sort option for Ticker Function
-	    # defaults: 0: sort by name; 1: sort by market; 2: sort by market volume
-	    	ZOPT=${OPTARG}
 		;;
 	\? )
 		echo "Invalid Option: -$OPTARG" 1>&2
@@ -393,8 +382,7 @@ fi
 
 ## Ticker Function
 tickerf() {
-	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
-	printf "\tTip: check flag \"-k\" for sorting opts.\n\n"
+	printf "\nTickers for %s %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 
 	printf "It may take a while now; if it returns empty, make sure\n"
 	printf "input is a valid cryptocurrency code or maket pair.\n\n"
 	
@@ -411,19 +399,13 @@ tickerf() {
 		cat "${CGKTEMP}" 
 		exit
 	fi
-	## Set column sort option with $ZOPT
-	# 0: defaults: sort by 1st col; 1:exchange (2nd col); 2: volume (4th col); 3: spread (5th col)
-	test "${ZOPT}" = "3" && ZOPT=5; ZOPTFLAG="-rn"
-	test "${ZOPT}" = "2" && ZOPT=4; ZOPTFLAG="-rn"
-	test "${ZOPT}" = "1" && ZOPT=2; ZOPTFLAG="-f"
-	test -z "${ZOPT}" && ZOPT=1; ZOPTFLAG="-f"
 	## If there is ARG 2, then make sure you get only those pairs specified
 	GREPARG="[aA-zZ]"
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
 	cat "${CGKTEMP}" |
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
 		grep -i "${GREPARG}" |
-		sort -k"${ZOPT}" "${ZOPTFLAG}" |
+		sort |
 		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME"
 	exit 0
 }
