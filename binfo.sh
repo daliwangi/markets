@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.7  2019/08/16 by mountaineer_br
+# v0.3.8  2019/08/17 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -112,7 +112,7 @@ sstreamf() {
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
 	printf "Raw JSON will be printed when received...\n\n"
-	echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 20 wss://ws.blockchain.info/inv | jq -r . 
+	echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 20 wss://ws.blockchain.info/inv
 	exit 0
 fi
 # Start websocket connection and loop for recconeccting
@@ -126,7 +126,7 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 	"\t\(.mrklRoot)",
 	"Bits:\t\(.bits)\tNonce:\t\(.nonce)",
 	"Blk Id:\t\(.blockIndex)\t\tPrevId:\t\(.prevBlockIndex)",
-	"Height:\t\(.height)\t\tVer:\t\(.version)\tReward:\t\(.reward)",
+	"Height:\t\(.height)\t\tVer:\t\(.version)\tReward:\t\(if .reward == 0 then "??" else .reward end)",
 	"Size:\t\(.size/1000) KB\tTxs:\t\(.nTx)",
 	"Output:\t\(.totalBTCSent/100000000) BTC\tEst Tx Vol:\t\(.estimatedBTCSent/100000000) BTC",
 	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
@@ -196,9 +196,9 @@ printf "%s\n" "${RAWTX}" | jq -er '. | "","--------",
 	"Relayed by:  \(.relayed_by//empty)",
 	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	" From:",
-	"\t\(.inputs[] | .prev_out | "\(.addr)  \(.value/100000000)  \(if .spent == true then "SPENT" else "UNSPENT" end)  From txid: \(.tx_index)  \(.addr_tag // "")")",
+	"\t\(.inputs[] | .prev_out | "\(.addr)  \(if .value == null then "??" else (.value/100000000) end)  \(if .spent == true then "SPENT" else "UNSPENT" end)  From txid: \(.tx_index)  \(.addr_tag // "")")",
 	" To:",
-	"\t\(.out[] | "\(.addr)  \(.value/100000000)  \(if .spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_outpoints // [] | .[] // { "tx_index": "00" } | .tx_index // "")  \(.addr_tag // "")")"'
+	"\t\(.out[] | "\(.addr)  \(if .value == null then "??" else (.value/100000000) end)  \(if .spent == true then "SPENT" else "UNSPENT" end)  To txid: \(.spending_outpoints // [] | .[] // { "tx_index": "00" } | .tx_index // "")  \(.addr_tag // "")")"'
 
 }
 if [[ -n "${TXOPT}" ]]; then
@@ -248,6 +248,8 @@ II=($(printf "%s\n" "${RAWB}" | jq -r '.tx[] | .inputs[] | .prev_out.value // em
 OO=($(printf "%s\n" "${RAWB}" | jq -r '.tx[] | .out[] | .value // empty'))
 VIN=$( echo "(${II[@]/%/+}0)/100000000" | bc -l)
 VOUT=$(echo "(${OO[@]/%/+}0)/100000000" | bc -l)
+BLKREWARD=$(printf "%s-%s\n" "${VOUT}" "${VIN}" | bc -l)
+printf "Reward:\t%'.8f BTC\n" "${BLKREWARD}"
 printf "Input:\t%'.8f BTC\n" "${VIN}"
 printf "Output:\t%'.8f BTC\n\n" "${VOUT}"
 }
