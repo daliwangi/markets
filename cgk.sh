@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.20 - 2019/ago/19   by mountaineerbr
+# v0.5.21 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -207,6 +207,7 @@ clistf() {
 # List of vs_currencies
 if [[ -z "${CGKTEMPLIST3}" ]]; then
 	CGKTEMPLIST3=$(mktemp /tmp/cgk.list3.XXXXX) || exit 1
+	export CGKTEMPLIST3
 fi
 tolistf() {
 	#TOLIST=
@@ -214,8 +215,18 @@ tolistf() {
 	curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]' >> "${CGKTEMPLIST3}"
 	fi
 }
-# Check if you are using currency id (correct) or code (incorrect) as FROM_CURRENCY arg
-# and export currency id as GREPID
+## Trap cleaning temp files
+if [[ -z ${CLEANER1} ]]; then
+	CLEANER1=1
+	export CLEANER1
+	cleanf1() {
+		rm -f "${CGKTEMPLIST}" "${CGKTEMPLIST2}" "${CGKTEMPLIST3}"
+		exit 130
+	}
+	trap "cleanf1" EXIT SIGINT
+fi
+# Change currency code to ID in FROM_CURRENCY
+# export currency id as GREPID
 changevscf() {
 	if jq -r keys[] <"${CGKTEMPLIST2}" | grep -qi "^${*}$"; then
 	GREPID="$(jq -r ".${*,,}" <"${CGKTEMPLIST2}")"
@@ -410,8 +421,18 @@ tickerf() {
 	curl -s --head https://api.coingecko.com/api/v3/coins/bitcoin/tickers |
 		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
-	## Grep 4 pages of results instead of only 1
+	## Trap cleaning temp files
 	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
+	if [[ -z ${CLEANER2} ]]; then
+	CLEANER2=1
+	export CLEANER2
+	cleanf2() {
+		rm -f "${CGKTEMP}"
+		exit 130
+	}
+	trap "cleanf2" EXIT SIGINT
+	fi
+	## Grep 4 pages of results instead of only 1
 	i=1
 	test -z "${TPAGES}" && TPAGES=4
 	while [ $i -le "${TPAGES}" ]; do
