@@ -22,6 +22,8 @@ SYNOPSIS
 		
 	cgk.sh \e[0;35;40m[-p|-t]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m optional:\e[0;31;40m[ID|SYMBOL]\033[00m
 
+	# [AMOUNT] is optinal.
+
 
 DESCRIPTION
 	This programme fetches updated currency rates from CoinGecko.com and can
