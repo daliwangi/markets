@@ -280,9 +280,6 @@ mcapf() {
 
 	printf "\n## Total Market Cap\n"
 	printf "# Equivalent in:\n"
-	printf "BTC           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.btc')")"
-	printf "ETH           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.eth')")"
-	printf "XRP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.xrp')")"
 	printf "USD           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.usd')")"
 	printf "EUR           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.eur')")"
 	printf "GBP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.gbp')")"
@@ -290,6 +287,9 @@ mcapf() {
 	printf "CNY           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.cny')")"
 	printf "BRL           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.brl')")"
 	printf "XAU           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.xau')")"
+	printf "BTC           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.btc')")"
+	printf "ETH           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.eth')")"
+	printf "XRP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.xrp')")"
 	printf "Change(%%/24h) : "
 	printf "%.4f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.market_cap_change_percentage_24h_usd')"
 
