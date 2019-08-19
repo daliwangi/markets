@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.23 - 2019/ago/19   by mountaineerbr
+# v0.5.24 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -278,7 +278,7 @@ mcapf() {
 	printf "Ongoing       : %s\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.ongoing_icos')"
 	printf "Ended         : %s\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.ended_icos')"
 
-	printf "\n## Market Cap\n"
+	printf "\n## Total Market Cap\n"
 	printf "# Equivalent in:\n"
 	printf "BTC           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.btc')")"
 	printf "ETH           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_market_cap.eth')")"
