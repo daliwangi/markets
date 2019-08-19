@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.14 - 2019/ago/18   by mountaineerbr
+# v0.5.15 - 2019/ago/18   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -390,8 +390,10 @@ fi
 
 ## Ticker Function
 tickerf() {
-	printf "\nTickers for %s %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 
-	
+	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 
+	printf "Results:\n" 1>&2 
+	curl -sD - https://api.coingecko.com/api/v3/coins/bitcoin/tickers -o /dev/null | grep -ie "total:" -e "per-page:" | sort -r 1>&2
+	printf "\n" 1>&2 
 	## Grep 4 pages of results instead of only 1
 	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
 	i=1
