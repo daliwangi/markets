@@ -392,7 +392,8 @@ fi
 tickerf() {
 	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 
 	printf "Results:\n" 1>&2 
-	curl -sD - https://api.coingecko.com/api/v3/coins/bitcoin/tickers -o /dev/null | grep -ie "total:" -e "per-page:" | sort -r 1>&2
+	curl -s --head https://api.coingecko.com/api/v3/coins/bitcoin/tickers |
+		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
 	## Grep 4 pages of results instead of only 1
 	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
@@ -419,7 +420,7 @@ tickerf() {
 		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" |
 		grep -i [a-z]
 	test "${?}" != 0 &&
-		printf "No match for %s/%s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 &&
+		printf "No match for %s %s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 &&
 		exit 1
 	exit 0
 }
