@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.25 - 2019/ago/19   by mountaineerbr
+# v0.5.26 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -118,6 +118,9 @@ OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
 			converting any central bank or crypto currency to any other.
 
+		-e 	Exchange list; for information on trading incentives and
+			normalized volume, check <https://blog.coingecko.com/trust-score/>.
+
 		-g 	Use gram instead of ounce (for precious metals).
 
 		-h 	Show this help.
@@ -153,10 +156,13 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bgmlhjp:s:t" opt; do
+while getopts ":begmlhjp:s:t" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
+		;;
+	e ) ## List supported Exchanges
+		EXOPT=1
 		;;
 	g ) ## Use gram instead of ounce for precious metals
 		GRAM=1
@@ -235,7 +241,7 @@ changevscf() {
 	fi
 }
 
-## Print currency lists
+## -l Print currency lists
 listsf() {
 	FCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json")"	
 	VSCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/supported_vs_currencies" -H  "accept: application/json")"	
@@ -246,7 +252,7 @@ listsf() {
 		exit
 	fi
 	printf "\nList of supported FROM_CURRENCY IDs (also precious metals codes)\n\n"
-	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '---FROM_CURRENCY_NAME---,---ID---,---SYMBOL/CODE---'
+	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' | column -s'=' -et -W'FROM_CURRENCY_NAME,ID' -o'|' -N'FROM_CURRENCY_NAME,ID,SYMBOL/CODE'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
 	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[:lower:]" "[:upper:]" | sort | column -c 100
@@ -257,7 +263,7 @@ if [[ -n "${LISTS}" ]]; then
 	exit
 fi
 
-## Market Cap function		
+## -m Market Cap function		
 mcapf() {
 	CGKGLOBAL=$(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")
 	# Print JSON?
@@ -323,7 +329,25 @@ if [[ -n "${MCAP}" ]]; then
 mcapf
 fi
 
-## Check for internet connection function
+## -e Show Exchange info function
+exf() {
+	EXRAW="$(curl -sX GET "https://api.coingecko.com/api/v3/exchanges" -H  "accept: application/json")"
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n" "${EXRAW}" 
+		exit
+	fi
+	protablef() {
+		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(.country)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)= " else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == "true" then "YES" else "NO" end)=\(.id)=\(.url)"'
+	}
+	printf "\nTable of Exchanges\n\n"
+	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
+	printf "%s\n" "${EXRAW}"| protablef | sort | column -ts'=' -eN"NAME   ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID    ,URL" -T'NAME   ,ID    ,COUNTRY,URL'
+	exit
+}
+test -n "${EXOPT}" && exf "${*}"
+
+## Check for internet connection function ( CURRENTLY UNUSED )
 icheck() {
 if [[ -z "${RESULT}" ]] &&
 	   ! ping -q -w7 -c2 8.8.8.8 &> /dev/null; then
