@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.30 - 2019/ago/19   by mountaineerbr
+# v0.5.31 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -307,9 +307,6 @@ mcapf() {
 
 	printf "\n## Market Volume (last 24-H)\n"
 	printf "# Equivalent in:\n"
-	printf "BTC           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.btc')")"
-	printf "ETH           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.eth')")"
-	printf "XRP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.xrp')")"
 	printf "USD           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.usd')")"
 	printf "EUR           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.eur')")"
 	printf "GBP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.gbp')")"
@@ -317,6 +314,9 @@ mcapf() {
 	printf "CNY           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.cny')")"
 	printf "BRL           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.brl')")"
 	printf "XAU           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.xau')")"
+	printf "BTC           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.btc')")"
+	printf "ETH           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.eth')")"
+	printf "XRP           : %s\n" "$(printf "%'.2f\n" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r '.data.total_volume.xrp')")"
 
 
 	printf "\n## Dominance\n"
