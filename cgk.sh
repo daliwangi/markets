@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.24 - 2019/ago/19   by mountaineerbr
+# v0.5.25 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -315,11 +315,6 @@ mcapf() {
 	DOMINANCEARRAY=($(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json" | jq -r '.data.market_cap_percentage | keys_unsorted[]'))
 	for i in "${DOMINANCEARRAY[@]}"; do
 		printf "%s %'19.2f\n" "${i^^}" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.usd)")" 2>/dev/null
-	done
-
-	printf "\n## Coin Volume (24-H)\n"
-	for i in "${DOMINANCEARRAY[@]}"; do
-		printf "%s %'19.2f\n" "${i^^}" "$(printf "%s\n" "${CGKGLOBAL}" | jq -r ".data.total_volume.${i}")" 2>/dev/null
 	done
 
 	exit
