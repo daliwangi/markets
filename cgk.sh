@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.28 - 2019/ago/19   by mountaineerbr
+# v0.5.29 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -14,9 +14,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cgk.sh \e[0;35;40m[-c|-h|-j|-m|-l]\033[00m
+	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m]\033[00m
 
-	cgk.sh \e[0;35;40m[-g|-j|-p|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
+	cgk.sh \e[0;35;40m[-b|-g|-j|-p|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
 
 
 DESCRIPTION
