@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.27 - 2019/ago/19   by mountaineerbr
+# v0.5.28 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -338,7 +338,7 @@ exf() {
 		exit
 	fi
 	protablef() {
-		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)= " else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == "true" then "YES" else "NO" end)=\(.id)=\(.url)"'
+		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == "true" then "YES" else "NO" end)=\(.id)=\(.url)"'
 	}
 	printf "\nTable of Exchanges\n\n"
 	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
