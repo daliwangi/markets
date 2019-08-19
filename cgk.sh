@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.29 - 2019/ago/19   by mountaineerbr
+# v0.5.30 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -16,7 +16,11 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m]\033[00m
 
-	cgk.sh \e[0;35;40m[-b|-g|-j|-p|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY]\033[00m
+	cgk.sh \e[0;35;40m[-b|-g|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
+	
+	cgk.sh \e[0;35;40m[-b|-g]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m \e[0;31;40m[ID|SYMBOL]\033[00m
+		
+	cgk.sh \e[0;35;40m[-p|-t]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m optional:\e[0;31;40m[ID|SYMBOL]\033[00m
 
 
 DESCRIPTION
@@ -458,10 +462,11 @@ if [[ -n ${GREPID} ]]; then
 	set -- ${1} ${GREPID} ${3}
 fi
 
-## Ticker Function
+## -t Ticker Function
 tickerf() {
-	printf "\nTickers for %s %s\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 
-	printf "Results:\n" 1>&2 
+	printf "\nTickers for %s\n" "${ORIGARG1^^}" 1>&2 
+	printf "Results\n" 1>&2
+
 	curl -s --head https://api.coingecko.com/api/v3/coins/bitcoin/tickers |
 		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
@@ -498,7 +503,7 @@ tickerf() {
 		grep -i "${GREPARG}" |
 		sort |
 		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" |
-		grep -i [a-z]
+		grep -i "[a-z]"
 	test "${?}" != 0 &&
 		printf "No match for %s %s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 &&
 		exit 1
