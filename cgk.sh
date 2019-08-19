@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.16 - 2019/ago/19   by mountaineerbr
+# v0.5.17 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -221,7 +221,7 @@ listsf() {
 	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '-----FROM_CURRENCY NAME----,---------------ID---------------'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
-	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[a-z]" "[A-Z]" | sort | column -c 100
+	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "a-z" "A-Z" | sort | column -c 100
 	printf "\n"
 }
 if [[ -n "${LISTS}" ]]; then
