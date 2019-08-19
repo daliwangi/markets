@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.21 - 2019/ago/19   by mountaineerbr
+# v0.5.22 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -28,16 +28,18 @@ DESCRIPTION
 	derive bank currency rates undirectly, for e.g. USD vs CNY. As CoinGecko
 	updates frequently, it is one of the best API for bank currency rates.
 
-	All these unofficially supported market paris can be calculated with the
-	\"Bank Currency Function\", called with the flag \"-b\". Unofficially
+	The Bak Currency Function \"-b\" can calculate central bank currency rates,
+	such as USD/BRL or any crypto currency pair rate even if there is no official
+	market for it (i.e. no exchange uses that pair for trading). Unofficially
 	supported crypto markets can also be calculated, such as ZCash vs. DigiByte.
 
 	Due to how CoinGecko API works, this programme does a lot of checking and
 	multiple calls to the API every run. For example, it tries to grep currency
-	*ids* when FROM_CURRENCY input is rather a currency *code* and it checks
+	\"ids\" when FROM_CURRENCY input is rather a currency \"code\" and it checks
 	if input is a supported currency, too. A small percentage of cryptocurrencies 
 	that CoinGecko supports may not really be supported by this script, due 
 	to their weird currency ids/names or codes.
+
 	
 	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
 	
@@ -244,7 +246,7 @@ listsf() {
 		exit
 	fi
 	printf "\nList of supported FROM_CURRENCY IDs (also precious metals codes)\n\n"
-	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '-----FROM_CURRENCY NAME----,---------------ID---------------'
+	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' | column -s '=' -c 60 -T 1 -e -t -o '|' -N '---FROM_CURRENCY_NAME---,---ID---,---SYMBOL/CODE---'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
 	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[:lower:]" "[:upper:]" | sort | column -c 100
