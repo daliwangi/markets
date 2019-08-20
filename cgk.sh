@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.33 - 2019/ago/19   by mountaineerbr
+# v0.5.35 - 2019/ago/20   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -155,7 +155,7 @@ BUGS
           bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 		"
 
-# Check if there is any argument
+# Check if there is any argument or option
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
 	exit
@@ -202,6 +202,12 @@ while getopts ":begmlhjp:s:t" opt; do
   esac
 done
 shift $((OPTIND -1))
+
+# Ticker function Check for NO currency 
+if [[ -n "${TOPT}" ]] && [[ -z "${1}" ]]; then
+	printf "No currency given.\n" 1>&2
+	exit 1
+fi
 
 ## Some recurring functions
 # List of from_currencies
@@ -373,14 +379,14 @@ fi
 ORIGARG1="${1}"
 ORIGARG2="${2}"
 
-if ! [[ ${1} =~ [0-9] ]]; then
+if ! [[ ${1} =~ [0-9] ]]; then 
 	set -- 1 "${@:1:2}"
 fi
 
 if [[ -z ${3} ]]; then
 	set -- "${@:1:2}" usd
 fi
-
+echo ${*}
 ## Bank currency rate function
 bankf() {
 	# Print JSON?
@@ -441,7 +447,7 @@ fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
 clistf
-if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$" && test -z "${TOPT}"; then
+if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
 	printf "Try the bank currency function \"-b\",\n" 1>&2
 	printf "list of suported currencies \"-l\" or help \"-h\".\n" 1>&2
@@ -466,10 +472,6 @@ fi
 
 ## -t Ticker Function
 tickerf() {
-	# Check for NO currency
-	test -z "${ORIGARG1}" &&
-		printf "No currency given.\n" 1>&2 &&
-		exit 1
 	# Start print Heading
 	printf "\nTickers\n" 1>&2 
 	printf "Results for %s\n" "${ORIGARG1^^}" 1>&2
