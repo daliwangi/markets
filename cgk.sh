@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.32 - 2019/ago/19   by mountaineerbr
+# v0.5.33 - 2019/ago/19   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -441,7 +441,7 @@ fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
 clistf
-if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
+if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$" && test -z "${TOPT}"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
 	printf "Try the bank currency function \"-b\",\n" 1>&2
 	printf "list of suported currencies \"-l\" or help \"-h\".\n" 1>&2
@@ -466,10 +466,14 @@ fi
 
 ## -t Ticker Function
 tickerf() {
-	printf "\nTickers for %s\n" "${ORIGARG1^^}" 1>&2 
-	printf "Results\n" 1>&2
-
-	curl -s --head https://api.coingecko.com/api/v3/coins/bitcoin/tickers |
+	# Check for NO currency
+	test -z "${ORIGARG1}" &&
+		printf "No currency given.\n" 1>&2 &&
+		exit 1
+	# Start print Heading
+	printf "\nTickers\n" 1>&2 
+	printf "Results for %s\n" "${ORIGARG1^^}" 1>&2
+	curl -s --head "https://api.coingecko.com/api/v3/coins/${2}/tickers" |
 		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
 	## Trap cleaning temp files
@@ -500,15 +504,17 @@ tickerf() {
 	fi
 	## If there is ARG 2, then make sure you get only those pairs specified
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}=" ||	GREPARG="[aA-zZ]"
-	cat "${CGKTEMP}" |
-		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' |
+	ttablef() {
+		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' <"${CGKTEMP}" |
 		grep -i "${GREPARG}" |
 		sort |
-		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" |
-		grep -i "[a-z]"
+		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME"
+		}
+		ttablef | grep -i "[a-z]"
 	test "${?}" != 0 &&
 		printf "No match for %s %s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 &&
 		exit 1
+		printf "\nRetrieved matches for %s %s: %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" "$(ttablef | wc -l)"
 	exit 0
 }
 if [[ -n ${TOPT} ]]; then
