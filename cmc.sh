@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3-1 - 2019/ago/16   by mountaineerbr
+# v0.3.1 - 2019/ago/20   by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -308,7 +308,7 @@ fi
 
 
 ## Set arguments
-if ! [[ ${1} =~ [0-9] ]]; then
+if ! [[ ${1} =~ ^[0-9]+$ ]]; then
 	set -- 1 ${@:1:2}
 fi
 
