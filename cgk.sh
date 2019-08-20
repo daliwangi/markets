@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.36 - 2019/ago/20   by mountaineerbr
+# v0.5.37 - 2019/ago/20   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -42,10 +42,7 @@ DESCRIPTION
 	Due to how CoinGecko API works, this programme does a lot of checking and
 	multiple calls to the API every run. For example, it tries to grep currency
 	\"ids\" when FROM_CURRENCY input is rather a currency \"code\" and it checks
-	if input is a supported currency, too. A small percentage of cryptocurrencies 
-	that CoinGecko supports may not really be supported by this script, due 
-	to their weird currency ids/names or codes.
-
+	if input is a supported currency, too.
 	
 	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
 	
