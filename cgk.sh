@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.35 - 2019/ago/20   by mountaineerbr
+# v0.5.36 - 2019/ago/20   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -379,14 +379,14 @@ fi
 ORIGARG1="${1}"
 ORIGARG2="${2}"
 
-if ! [[ ${1} =~ [0-9] ]]; then 
+if ! [[ ${1} =~ ^[0-9]+$ ]]; then 
 	set -- 1 "${@:1:2}"
 fi
 
 if [[ -z ${3} ]]; then
 	set -- "${@:1:2}" usd
 fi
-echo ${*}
+
 ## Bank currency rate function
 bankf() {
 	# Print JSON?
