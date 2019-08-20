@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.37 - 2019/ago/20   by mountaineerbr
+# v0.5.40 - 2019/ago/20   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -209,39 +209,36 @@ fi
 ## Some recurring functions
 # List of from_currencies
 # Only if there is no path created already
-if [[ -z "${CGKTEMPLIST2}" ]]; then
-	CGKTEMPLIST=$(mktemp /tmp/cgk.list.XXXXX) || exit 1
-	CGKTEMPLIST2=$(mktemp /tmp/cgk.list2.XXXXX) || exit 1
-	export CGKTEMPLIST #As $CLISTRAW
-	export CGKTEMPLIST2 #As $CLIST
-fi
 clistf() {
-	if ! [[ -s "${CGKTEMPLIST2}" ]]; then
+	if [[ -z "${CGKTEMPLIST2}" ]]; then
+		# Make Temp files
+		CGKTEMPLIST=$(mktemp /tmp/cgk.list.XXXXX) || exit 1
+		CGKTEMPLIST2=$(mktemp /tmp/cgk.list2.XXXXX) || exit 1
+		export CGKTEMPLIST #As otherwise  $CLISTRAW
+		export CGKTEMPLIST2 #As otherwise $CLIST
+		## Trap cleaning temp files
+		rm1f() { rm -f ${CGKTEMPLIST} ${CGKTEMPLIST2}; }
+		trap "rm1f; exit 130" EXIT SIGINT
+		
+		# Retrieve list from CGK if no other is already downloaded
 		curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" >> "${CGKTEMPLIST}"
 		jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries' <"${CGKTEMPLIST}" >> "${CGKTEMPLIST2}"
 	fi
 }
 # List of vs_currencies
-if [[ -z "${CGKTEMPLIST3}" ]]; then
-	CGKTEMPLIST3=$(mktemp /tmp/cgk.list3.XXXXX) || exit 1
-	export CGKTEMPLIST3
-fi
 tolistf() {
-	#TOLIST=
-	if ! [[ -s "${CGKTEMPLIST3}" ]]; then
-	curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]' >> "${CGKTEMPLIST3}"
+# Temp files
+	if [[ -z "${CGKTEMPLIST3}" ]]; then
+		CGKTEMPLIST3=$(mktemp /tmp/cgk.list3.XXXXX) || exit 1
+		export CGKTEMPLIST3
+		## Trap cleaning temp files
+		rm2f() { rm -f ${CGKTEMPLIST3}; }
+		trap "rm1f; rm2f; exit 130" EXIT SIGINT
+		
+		curl -s https://api.coingecko.com/api/v3/simple/supported_vs_currencies | jq -r '.[]' >> "${CGKTEMPLIST3}"
 	fi
 }
-## Trap cleaning temp files
-if [[ -z ${CLEANER1} ]]; then
-	CLEANER1=1
-	export CLEANER1
-	cleanf1() {
-		rm -f "${CGKTEMPLIST}" "${CGKTEMPLIST2}" "${CGKTEMPLIST3}"
-		exit 130
-	}
-	trap "cleanf1" EXIT SIGINT
-fi
+
 # Change currency code to ID in FROM_CURRENCY
 # export currency id as GREPID
 changevscf() {
@@ -475,16 +472,13 @@ tickerf() {
 	curl -s --head "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" |
 		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
-	## Trap cleaning temp files
-	CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
-	if [[ -z ${CLEANER2} ]]; then
-	CLEANER2=1
-	export CLEANER2
-	cleanf2() {
-		rm -f "${CGKTEMP}"
-		exit 130
-	}
-	trap "cleanf2" EXIT SIGINT
+	# Create Temp file if not available already
+	if [[ -z ${CGKTEMP} ]]; then
+		CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || exit 1
+		export CGKTEMP
+		## Trap cleaning temp files
+		rm3f() { rm -f ${CGKTEMP}; }
+		trap "rm1f; rm2f; rm3f; exit 130" EXIT SIGINT
 	fi
 	## Grep 4 pages of results instead of only 1
 	i=1
