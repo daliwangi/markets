@@ -473,7 +473,7 @@ tickerf() {
 	# Start print Heading
 	printf "\nTickers\n" 1>&2 
 	printf "Results for %s\n" "${ORIGARG1^^}" 1>&2
-	curl -s --head "https://api.coingecko.com/api/v3/coins/${2}/tickers" |
+	curl -s --head "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" |
 		grep -ie "total:" -e "per-page:" | sort -r 1>&2
 	printf "\n" 1>&2 
 	## Trap cleaning temp files
