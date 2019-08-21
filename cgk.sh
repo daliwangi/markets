@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.42 - 2019/ago/21   by mountaineerbr
+# v0.5.45 - 2019/ago/23   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -16,10 +16,8 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m]\033[00m
 
-	cgk.sh \e[0;35;40m[-b|-g|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
+	cgk.sh \e[0;35;40m[-b|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
 	
-	cgk.sh \e[0;35;40m[-b|-g]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m \e[0;31;40m[ID|SYMBOL]\033[00m
-		
 	cgk.sh \e[0;35;40m[-p|-t]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m optional:\e[0;31;40m[ID|SYMBOL]\033[00m
 
 	# [AMOUNT] is optinal.
@@ -103,16 +101,11 @@ USAGE EXAMPLES:
 			$ cgk.sh -b 1 xau usd 
 
 		
-		(9)     One gram of Silver in New Zealand Dollar:
-			
-			$ cgk.sh -bg xag nzd 
-
-
-		(10)    Ticker for all Bitcoin market pairs:
+		(9)    Ticker for all Bitcoin market pairs:
 			
 			$ cgk.sh -t btc 
 
-		(11)    Ticker for Bitcoin/USD only:
+		(10)    Ticker for Bitcoin/USD only:
 			
 			$ cgk.sh -t btc usd 
 
@@ -123,8 +116,6 @@ OPTIONS
 
 		-e 	Exchange list; for information on trading incentives and
 			normalized volume, check <https://blog.coingecko.com/trust-score/>.
-
-		-g 	Use gram instead of ounce (for precious metals).
 
 		-h 	Show this help.
 
@@ -159,16 +150,13 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":begmlhjp:s:t" opt; do
+while getopts ":bemlhjp:s:t" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
 		;;
 	e ) ## List supported Exchanges
 		EXOPT=1
-		;;
-	g ) ## Use gram instead of ounce for precious metals
-		GRAM=1
 		;;
 	m ) ## Make Market Cap Table
 		MCAP=1
@@ -427,12 +415,7 @@ bankf() {
 	fi
 	# Timestamp? No timestamp for this API
 	# Calculate result
-
-	if [[ -z ${GRAM} ]]; then
-		RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
-	else
-		RESULT="$(printf "((1/28.349523125)*%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
-	fi
+	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCBANK}" "${BTCTOCUR}" | bc -l)"
 	printf "%.${SCL}f\n" "${RESULT}"
 	exit
 }
@@ -530,11 +513,7 @@ if [[ -n ${PJSON} ]]; then
 fi
 
 # Make equation and print result
-if [[ -z ${GRAM} ]]; then
-	RESULT="$(printf "%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
-else
-	RESULT="$(printf "(1/28.349523125)*%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
-fi
+RESULT="$(printf "%s*%s\n" "${1}" "${CGKRATE}" | bc -l)"
 printf "%.${SCL}f\n" "${RESULT}"
 exit
 ## CGK APIs

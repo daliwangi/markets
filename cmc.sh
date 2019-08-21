@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.3 - 2019/ago/21   by mountaineerbr
+# v0.3.5 - 2019/ago/21   by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -12,8 +12,6 @@ APIKEY="29f3d386-d47d-4b54-9790-278e1faa7cdc"
 #APIKEY="f70ef502-0d91-496b-bd5b-5c0f20334720"
 # dirufit@mailmetal.com -- hellodear
 
-
-
 ## Manual and help
 ## Usage: $ cmc.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
@@ -23,7 +21,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	cmc.sh \e[0;35;40m[-h|-j|-l|-m]\033[00m
 
-	cmc.sh \e[0;35;40m[-b|-g|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
+	cmc.sh \e[0;35;40m[-b|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
 \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
 DESCRIPTION
@@ -42,7 +40,8 @@ DESCRIPTION
 	\"Bank Currency Function\", called with the flag \"-b\". It can also be
 	used with crypto currencies that may not be supported otherwise.
 
-	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
+	It is _not_ advisable to depend solely on CoinMarketCap rates for serious
+	trading.
 	
 	You can see a List of supported currencies running the script with the
 	argument \"-l\". 
@@ -92,12 +91,7 @@ USAGE EXAMPLES:
 			$ cmc.sh -b 1 xau usd 
 
 		
-		(8)     One gram of Silver in New Zealand Dollar:
-			
-			$ cmc.sh -bg xag nzd 
-
-
-		(9)     Ticker for all Bitcoin market pairs:
+		(8)     Ticker for all Bitcoin market pairs:
 			
 			$ cmc.sh -k btc 
 
@@ -107,8 +101,6 @@ OPTIONS
 			TO_CURRENCY can be any central bank or crypto currency
 			supported by CMC.
 		
-		-g 	Use gram instead of ounce (useful for precious metals).
-
 		-h 	Show this help.
 
 		-j 	Print JSON (useful for debugging).
@@ -242,13 +234,10 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	exit
 fi
 # Parse options
-while getopts ":bglmhjs:t" opt; do
+while getopts ":blmhjs:t" opt; do
   case ${opt} in
 	b ) ## Hack central bank currency rates
 		BANK=1
-		;;
-	g ) ## Use gram instead of ounce for precious metals
-		GRAM=1
 		;;
   	l ) ## List available currencies
 		LISTS=1
@@ -330,16 +319,9 @@ bankf() {
 		printf "%s (from currency)\n" "${BTCBANKHEAD}"
 		printf "%s (to   currency)\n" "${BTCTOCURHEAD}"
 	fi
-	#echo iiiii$1-$2-$3-$4-$5-$SCL-"${BTCBANKTAIL}"-$BTCBANKHEAD"-${BTCTOCUR}"
-	#exit
-	#echo kkkkk$1-$2-$3-$4-$5-$SCL-"${BTCTOCURTAIL}"-$BTCTOCURHEAD"-${BTCTOCUR}"
 
-	# Calculate result, print result or check for internet error
-	if [[ -z ${GRAM} ]]; then
-		RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
-	else	
-		RESULT="$(printf "((1/28.349523125)*%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
-	fi
+	# Calculate result & print result 
+	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
 	printf "%.${SCL}f\n" "${RESULT}"
 	#icheck
 	exit
@@ -444,11 +426,7 @@ fi
 
 
 ## Make equation and calculate result
-if [[ -z ${GRAM} ]]; then
 	RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
-else
-	RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc((1/28.349523125)*%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
-fi
 
 printf "%.${SCL}f\n" "${RESULT}"
 #icheck
