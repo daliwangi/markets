@@ -383,8 +383,10 @@ shift $((OPTIND -1))
 
 
 # Arrange arguments
-if ! [[ ${1} =~ [0-9] ]]; then
-	set -- 1 ${@:1:2}
+# If first argument does not have numbers OR isn't a  valid expression
+if ! [[ "${1}" =~ [0-9] ]] ||
+	[[ -z "$(printf "%s\n" "${1}" | bc -l 2>/dev/null)" ]]; then
+	set -- 1 "${@:1:2}"
 fi
 
 # Sets btc as "from_currency" for market code formation
