@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.5 - 2019/ago/21   by mountaineerbr
+# v0.3.6 - 2019/ago/21   by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -95,6 +95,25 @@ USAGE EXAMPLES:
 			
 			$ cmc.sh -k btc 
 
+
+		(11)    One Bitcoin in grams of Gold:
+					
+			$ cmc.sh \"28.3495\" btc xau 
+
+			    Just multiply amount by the gram/ounce rate.
+
+
+		(12)   	1 gram of GOLD in USD:
+					
+			$ cmc.sh -b \"1/28.3495\" xau usd 
+			
+			    1/28.3495 is the rate of one gram/ounce.
+
+
+		(13)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
+					
+			$ cmc.sh -b \"(1/28.3495)\e[0;33;40m*100\033[00m\" xau eur 
+			
 
 OPTIONS
 		-b 	Activate Bank Currency Mode: FROM_CURRENCY and

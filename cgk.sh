@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.45 - 2019/ago/23   by mountaineerbr
+# v0.5.46 - 2019/ago/23   by mountaineerbr
 #set -x
 
 # Some defaults
@@ -45,7 +45,9 @@ DESCRIPTION
 	It is _not_ advisable to depend solely on CoinGecko rates for serious trading.
 	
 	You can see a List of supported currencies running the script with the
-	argument \"-l\". 
+	argument \"-l\".
+
+	Gold and other metals are priced in Ounces. One ounce equals 28.349523125 grams.
 
 	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
 	are trimmed by default.
@@ -105,10 +107,30 @@ USAGE EXAMPLES:
 			
 			$ cgk.sh -t btc 
 
+
 		(10)    Ticker for Bitcoin/USD only:
 			
 			$ cgk.sh -t btc usd 
 
+
+		(11)    One Bitcoin in grams of Gold:
+					
+			$ cgk.sh \"28.3495\" btc xau 
+
+			    Just multiply amount by the gram/ounce rate.
+
+
+		(12)    1 gram of GOLD in USD:
+					
+			$ cgk.sh -b \"1/28.3495\" xau usd 
+			
+			    1/28.3495 is the rate of one gram/ounce.
+
+
+		(13)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
+					
+			$ cgk.sh -b \"(1/28.3495)\e[0;33;40m*100\033[00m\" xau eur 
+			
 
 OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
