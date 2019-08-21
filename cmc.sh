@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.8  2019/ago/21  by mountaineerbr
+# v0.3.9  2019/ago/21  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -292,10 +292,10 @@ shift $((OPTIND -1))
 listsf() {
 	printf "\n=============CRYPTOCURRENCIES============\n"
 	curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map |
-	jq -r '.data[] | "\(.id) = \(.symbol) = \(.name)"' |
-	column -s '=' -c 46 -T 2 -e -t -o '|' -N '---ID---,---SYMBOL---,----------NAME----------'
+	jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' |
+	column -s '=' -et -o '|' -N 'ID,SYMBOL,NAME'
 	printf "\n\n===========BANK CURRENCIES===========\n"
-	printf "%s\n" "${OTHERCUR}" | column -s '=' -c 46 -T 2 -e -t -o '|' -N '---ID---,---SYMBOL---,----------NAME----------'
+	printf "%s\n" "${OTHERCUR}" | column -s '=' -et -o '|' -N 'ID,SYMBOL,NAME'
 	}
 if [[ -n "${LISTS}" ]]; then
 	listsf
