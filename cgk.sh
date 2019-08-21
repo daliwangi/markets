@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.46 - 2019/ago/23   by mountaineerbr
+# v0.5.46  2019/ago/23  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -14,7 +14,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m]\033[00m
+	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m|-v]\033[00m
 
 	cgk.sh \e[0;35;40m[-b|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
 	
@@ -155,7 +155,9 @@ OPTIONS
 		-t 	Tickers for a cryptocurrency or cryptocurrency pair;
 			to change how many result pages are fetched from the server,
 			check flag \"-p\"; input must be an existing/supported 
-			currency or currency pair;
+			currency or currency pair.
+		
+		-v 	Show this programme version.
 
 
 BUGS
@@ -271,7 +273,7 @@ listsf() {
 	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' | column -s'=' -et -W'FROM_CURRENCY_NAME,ID' -o'|' -N'FROM_CURRENCY_NAME,ID,SYMBOL/CODE'
 	printf "\n\n"
 	printf "List of supported VS_CURRENCY Codes\n\n"
-	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[:lower:]" "[:upper:]" | sort | column -c 100
+	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[:lower:]" "[:upper:]" | sort | column -c 80
 	printf "\n"
 }
 if [[ -n "${LISTS}" ]]; then

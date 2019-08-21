@@ -1,7 +1,7 @@
 #!/bin/bash
 #
-#   Bitstamp.sh  -- Websocket access to Bitstamp.com
-#   v 0.2 	24/07/2019 	by mountainner_br
+# Bitstamp.sh  -- Websocket access to Bitstamp.com
+# v0.2.2  21/08/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -9,7 +9,7 @@ LC_NUMERIC=en_US.UTF-8
 HELP="
 USAGE:
 	Bitstamp.sh [-s|-w] [market]
-	Bitstamp.sh [-h|-l]
+	Bitstamp.sh [-h|-l|-v]
 
 
 DESCRIPTION:
@@ -24,6 +24,7 @@ OPTIONS:
 		-l 	List available markets.
 		-s 	Live stream price.
 		-w 	Coloured live stream price.
+		-v 	Show this programme version.
 
 NOTICE:
 	This programme needs latest version of Bash, JQ, websocat and lolcat.
@@ -76,7 +77,7 @@ CPAIRS=(btcusd btceur eurusd xrpusd xrpeur xrpbtc ltcusd ltceur
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of
 # handling the errors yourself.
-while getopts ":lhsw" opt; do
+while getopts ":lhswv" opt; do
   case ${opt} in
 	b )
 		;;
@@ -98,6 +99,10 @@ while getopts ":lhsw" opt; do
 		;;
 	w ) # Coloured price stream
 		CSTREAMOPT=1
+		;;
+	v ) # Version of Script
+		head "${0}" | grep -e '# v'
+		exit
 		;;
 	\? )
 		echo "Invalid Option: -$OPTARG" 1>&2

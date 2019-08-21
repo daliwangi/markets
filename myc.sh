@@ -1,9 +1,6 @@
-# curl -s https://www.mycurrency.net/US.json 
 #!/bin/bash
-#
 # openx.sh - bash (crypto)currency converter
-# v0 - 2019/jun/26
-# by mountaineerbr
+# v0.2  2019/jun/26  by mountaineerbr
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -12,7 +9,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	myc.sh \e[0;35;40m[-h|-j|-l]\033[00m
+	myc.sh \e[0;35;40m[-h|-j|-l|-v]\033[00m
 
 	myc.sh \e[0;35;40m[-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \
 \e[0;31;40m[TO_CURRENCY]\033[00m
@@ -55,6 +52,8 @@ OPTIONS
 		-l 	List supported currencies.
 
 		-s 	Set scale ( decimal plates ).
+		
+		-v 	Show this programme version.
 
 
 BUGS
@@ -75,7 +74,7 @@ fi
 
 
 # Parse options
-while getopts ":lhjs:t" opt; do
+while getopts ":lhjs:tv" opt; do
   case ${opt} in
   	l ) ## List available currencies
 		LISTOPT=1
@@ -92,6 +91,10 @@ while getopts ":lhjs:t" opt; do
 		;;
 	t ) # Print Timestamp with result
 		printf "No timestamp for this API. Rates update every hour.\n" 1>&2
+		;;
+	v ) # Version of Script
+		head "${0}" | grep -e '# v'
+		exit
 		;;
 	\? )
 		printf "%s\n" "Invalid Option: -$OPTARG" 1>&2

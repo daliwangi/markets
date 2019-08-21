@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.2.2 - 2019/ago/17   by mountaineerbr
+# v0.2.4  2019/ago/21  by mountaineerbr
 
 ## Some defaults
 # Get your own personal API KEY
@@ -12,7 +12,9 @@
 #APIKEY="35324a150b81290d9fb15e434ed3d264"
 # somabal@emailate.com -- hellodear
 #João silva piruto@hd-mail.com "**g*h*"https://temp-mail.org
-APIKEY="eda835237fd59b44e8d03c2df80a6a00"
+#APIKEY="eda835237fd59b44e8d03c2df80a6a00"
+#ForFriends Friendz --sahijowo@alltopmail.com-- hellodr
+APIKEY="e2b3e4e50fae3bcfa7c9cd43abb84541"
 
 
 ## Manual and help
@@ -22,7 +24,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	clay.sh \e[0;35;40m[-h|-j|-l]\033[00m
+	clay.sh \e[0;35;40m[-h|-j|-l|-v]\033[00m
 
 	clay.sh \e[0;35;40m[-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \
 \e[0;31;40m[TO_CURRENCY]\033[00m
@@ -64,6 +66,8 @@ OPTIONS
 		-s 	Set scale ( decimal plates ).
 
 		-t 	Print JSON timestamp.
+		
+		-v 	Show this programme version.
 
 
 BUGS
@@ -77,7 +81,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	exit
 fi
 # Parse options
-while getopts ":lhjs:t" opt; do
+while getopts ":lhjs:tv" opt; do
   case ${opt} in
   	l ) ## List available currencies
 		curl -s https://currencylayer.com/site_downloads/cl-currencies-table.txt |  sed -e 's/<[^>]*>//g'
@@ -95,6 +99,10 @@ while getopts ":lhjs:t" opt; do
 		;;
 	t ) # Print Timestamp with result
 		TIMEST=1
+		;;
+	v ) # Version of Script
+		head "${0}" | grep -e '# v'
+		exit
 		;;
 	\? )
 		printf "%s\n" "Invalid Option: -$OPTARG" 1>&2
@@ -138,7 +146,6 @@ if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CLJSON}"
 	exit 0
 fi
-
 
 ## Get currency rates
 if ! [[ ${2^^} = USD && ${3^^} = USD ]]; then

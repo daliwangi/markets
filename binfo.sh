@@ -1,10 +1,54 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.9  2019/08/18 by mountaineer_br
+# v0.3.12  2019/08/18 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
+
+HELP="\"This programme is licensed under the latest GNU General Public License\".
+
+
+   Binfo.sh  -- Bash Interface for Blockchain.info API & Websocket Access
+
+This programme fetches information of Bitcoin blocks, addresses and
+transactions from Blockchain.info (same as Blockchain.com) public APIs.
+It is intended to be used as a simple Bitcoin blockchain explorer.
+It only accepts one argument for lookup at a time.
+
+Blockchain.info still does not support segwit addresses.
+A workaround is to fetch information from Blockchair.com.
+Blockchair.com supports segwit and other types of addresses.
+
+Usage:
+   binfo.sh [option] [block|address|tx|id]
+
+Options:
+Blockhain
+  -i 	24-H Rolling Ticker for the Bitcoin Blockchain.
+Block
+  -b 	Block information by hash or id (index number).
+  -n 	Block information by height.
+  -e 	Socket stream for new blocks.
+  -l 	Latest block summary information.
+Address
+  -a 	Address information.
+  -s 	Summary Address information.
+  -c 	Address information from BlockChair.
+Transaction
+  -t 	Transaction information by hash or id.
+  -x 	Transaction information by hash or id from Blockchair.
+  -u 	Unconfirmed transactions (mempool) from BlockChair;
+     	You can pipe the output to grep a specific address.
+Other
+  -h 	Help (this textpage).
+  -j 	Fetch and print JSON.
+  -v    Show this programme version.
+
+This programme needs latest Bash, Curl, JQ and Websocat.
+Give me a nickle!
+bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+"
 
 ## Check if there is any argument
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
@@ -13,7 +57,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":acsnjlbetuhix" opt; do
+while getopts ":acsnjlbetuhixv" opt; do
   case ${opt} in
     a ) # Address info
       ADDOPT=1
@@ -54,49 +98,13 @@ while getopts ":acsnjlbetuhix" opt; do
       ;;
     h ) # Help
       echo ""
-      echo "\"This programme is licensed under the latest GNU General Public License\"."
-      echo ""
-      echo ""
-      echo "   Binfo.sh  -- Bash Interface for Blockchain.info API & Websocket Access"
-      echo ""
-      echo "This programme fetches information of Bitcoin blocks, addresses and"
-      echo "transactions from Blockchain.info (same as Blockchain.com) public APIs."
-      echo "It is intended to be used as a simple Bitcoin blockchain explorer."
-      echo "It only accepts one argument for lookup at a time."
-      echo ""
-      echo "Blockchain.info still does not support segwit addresses."
-      echo "A workaround is to fetch information from Blockchair.com."
-      echo "Blockchair.com supports segwit and other types of addresses."
-      echo ""
-      echo "Usage:"
-      echo "   binfo.sh [option] [block|address|tx|id]"
-      echo ""
-      echo "Options:"
-      echo "Blockhain"
-      echo "  -i 	24-H Rolling Ticker for the Bitcoin Blockchain."
-      echo "Block"
-      echo "  -b 	Block information by hash or id (index number)."
-      echo "  -n 	Block information by height."
-      echo "  -e 	Socket stream for new blocks."
-      echo "  -l 	Latest block summary information."
-      echo "Address"
-      echo "  -a 	Address information."
-      echo "  -s 	Summary Address information."
-      echo "  -c 	Address information from BlockChair."
-      echo "Transaction"
-      echo "  -t 	Transaction information by hash or id."
-      echo "  -x 	Transaction information by hash or id from Blockchair."
-      echo "  -u 	Unconfirmed transactions (mempool) from BlockChair;"
-      echo "     	You can pipe the output to grep a specific address."
-      echo "Other"
-      echo "  -h 	Help (this textpage)."
-      echo "  -j 	Fetch and print JSON."
-      echo ""
-      echo "This programme needs latest Bash, Curl, JQ and Websocat."
-      echo "Give me a nickle!"
-      echo "bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr"
+      echo -e "${HELP}"
       echo ""
       exit 0
+      ;;
+    v ) # Version of Script
+      head "${0}" | grep -e '# v'
+      exit
       ;;
    \? )
      echo "Invalid Option: -$OPTARG" 1>&2

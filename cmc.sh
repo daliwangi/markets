@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.6 - 2019/ago/21   by mountaineerbr
+# v0.3.8  2019/ago/21  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -19,7 +19,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cmc.sh \e[0;35;40m[-h|-j|-l|-m]\033[00m
+	cmc.sh \e[0;35;40m[-h|-j|-l|-m|-v]\033[00m
 
 	cmc.sh \e[0;35;40m[-b|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
 \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
@@ -131,6 +131,8 @@ OPTIONS
 		-s 	Set scale (decimal plates).
 
 		-t 	Print JSON timestamp, if any.
+		
+		-v 	Show this programme version.
 
 
 BUGS

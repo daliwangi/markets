@@ -1,8 +1,12 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.8 	16/ago/2019   by mountaineer_br
+# v0.2.10  21/ago/2019  by mountaineer_br
 # 
+
+# Some defaults
+LC_NUMERIC=en_US.UTF-8
+FSTR="%.2f" 
 
 LICENSE_WARRANTY_NOTICE="
       \033[012;36mBinance.sh - Binance cryptocurrency converter
@@ -24,11 +28,51 @@ LICENSE_WARRANTY_NOTICE="
 
       A tip would be such great surprise: 1KV3ksx5vZgdCvQzf4jGZ9Faerz4N6mDpx
 	"
-# Some defaults
-LC_NUMERIC=en_US.UTF-8
-FSTR="%.2f" 
+HELP="Usage:
+   binance.sh [amount] [from_crypto] [to_crypto]
+   binance.sh [options|mode] [from_crypto] [to_crypto]
 
-#N=0
+Options:
+  -f 	Number of decimal plates; for use with -c, -k, -s and -w only;
+      	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");
+      		e.g.: -f6 ; -f\"%'.4f\"
+  -h 	Show this help.
+  -j 	Fetch and print JSON (for debugging, only for some opts).
+  -l 	List all markets (coin pairs and rates).
+
+ View/Watch Modes
+ Modes below accept currency pair (a Binance market) as argument, otherwise
+ they will default to \"btc usdt\".
+  -c 	Price in columns; trade prices may overlap as screen
+     	updates if the number of orders between updates is
+      	smaller than 250 orders; prices should be updated from
+       	bottom right to top left; uses curl API.
+  -k 	Colored price in columns, shows 200 orders; uses curl API.
+  -d 	Order Book Depth view; depth is 10; uses websocket.
+  -e	Extended Order Book Depth view; depth is 20; uses websocket.
+  -i 	Detailed Information for the trade stream; uses websocket.
+  -s 	Stream of trade prices; uses websocket.
+  -w 	Colored stream of trade prices; uses websocket.
+  -t 	24-H Ticker for a single currency pair; uses websocket.
+  -u  	Uses the Curl mode of -s, -w and -i options (updates a little slower).
+  -v    Show this programme version.
+
+   OBS:
+   Choose supported Binance markets!
+   You may write the code of a market instead of entering from_currency
+   and to_currency; if there is any problems, try entering each
+   currency separately.
+
+   Curl API functions update a little slower, because they depend
+   on reconecting to the server repeatedly to fetch newest info,
+        whereas websocket streams updates with only one connection.
+
+   This programme needs Curl, JQ , Websocat, Xargs and Lolcat to
+   work properly.
+   I noticed that using the book depth functions with XTerm will cause
+   horrible memory leak after running straight for a couple of days.
+   Using other terminals, for example xfce4-terminal, avoids that.
+"
 
 ## Error Check Function
 errf() {
@@ -136,9 +180,6 @@ fi
 	#stdbuf -i0 -o0 -e0 cut -c-8
 	#websocat -E --ping-interval 480 --text wss://stream.binance.com:9443/ws/btcusdt@aggTrade | jq -r .p # --no-close
 	exit
-
-
-
 }
 
 mode5() {  # Colored stream of prices
@@ -243,7 +284,6 @@ mode6extra() { # Depth of order book (depth=20)
 "\t\(.bids[17]|.[0]|tonumber)    \t\(.bids[17]|.[1]|tonumber)",
 "\t\(.bids[18]|.[0]|tonumber)    \t\(.bids[18]|.[1]|tonumber)",
 "\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
-
 exit
 }
 
@@ -263,8 +303,6 @@ websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ti
 	"Last trade:\tP: \(.c|tonumber)\tQ: \(.Q)",
 	"Best bid:\tP: \(.b|tonumber)\tQ: \(.B)",
 	"Best ask:\tP: \(.a|tonumber)\tQ: \(.A)"'
-
-#jq -r --arg FCUR "${2}" --arg TCUR "${3}" '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S(%Z)")),"\nP. change:\t\t\(.p|tonumber)","P. change:\t\t\(.P|tonumber) %","T trade number:\t\t\(.n) trades","T. traded vol(base):\t\(.v|tonumber)","T. traded vol(quote):\t\(.q|tonumber)","\nOpen:\t\t\t\(.o|tonumber)","High:\t\t\t\(.h|tonumber)","Low:\t\t\t\(.l|tonumber)","\nWeighted avg. p.:\tP: \(.w|tonumber|round)","Last trade:\t\tP: \(.c|tonumber)\tQ: \(.Q)","Best bid:\t\tP: \(.b|tonumber)\tQ: \(.B)","Best ask:\t\tP: \(.a|tonumber)\tQ: \(.A)","Stats timeframe:\t\(((.C-.O)/1000)/(24*60*60)) day"'
 exit
 }
 
@@ -275,7 +313,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":def:hjlckistuw" opt; do
+while getopts ":def:hjlckistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
      curl -s "https://api.binance.com/api/v1/ticker/allPrices"
@@ -283,10 +321,8 @@ while getopts ":def:hjlckistuw" opt; do
      ;;
      l ) # List markets (coins and respective rates)
      curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
-	     jq -r '.[] | "\(.symbol) = \(.price)"' |
-	     column -s '=' -c10 -T 1 -e -t -N '-----MARKETS-----,-----RATE-----'
-     # Make JSON with CODE and ID
-     # curl -H "X-CMC_PRO_API_KEY: 29f3d386-d47d-4b54-9790-278e1faa7cdc" -H "Accept: application/json" -d "limit=5000" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map ^C.data[] | { key: .symbol, value: .id } ] | from_entries'
+	     jq -r '.[] | "\(.symbol)=\(.price)"' |
+	     sort | column -s '=' -e -t -N 'MARKET_PAIR,RATE'
      exit
      ;;
     c )
@@ -327,51 +363,13 @@ while getopts ":def:hjlckistuw" opt; do
       echo ""
       echo -e "${LICENSE_WARRANTY_NOTICE}"
       echo ""
-      echo "Usage:"
-      echo "   binance.sh [amount] [from_crypto] [to_crypto]"
-      echo "   binance.sh [options|mode] [from_crypto] [to_crypto]"
-      echo ""
-      echo "Options:"
-      echo "  -f 	Number of decimal plates; for use with -c, -k, -s and -w only;"
-      echo "      	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");"
-      echo "      		e.g.: -f6 ; -f\"%'.4f\""
-      echo "  -h 	Show this help."
-      echo "  -j 	Fetch and print JSON (for debugging, only for some opts)."
-      echo "  -l 	List all markets (coin pairs and rates)."
-      echo ""
-      echo " View/Watch Modes"
-      echo " Modes below accept currency pair (a Binance market) as argument, otherwise"
-      echo " they will default to \"btc usdt\"."
-      echo "  -c 	Price in columns; trade prices may overlap as screen"
-      echo "     	updates if the number of orders between updates is"
-      echo "      	smaller than 250 orders; prices should be updated from"
-      echo "       	bottom right to top left; uses curl API."
-      echo "  -k 	Colored price in columns, shows 200 orders; uses curl API."
-      echo "  -d 	Order Book Depth view; depth is 10; uses websocket."
-      echo "  -e	Extended Order Book Depth view; depth is 20; uses websocket."
-      echo "  -i 	Detailed Information for the trade stream; uses websocket."
-      echo "  -s 	Stream of trade prices; uses websocket."
-      echo "  -w 	Colored stream of trade prices; uses websocket."
-      echo "  -t 	24-H Ticker for a single currency pair; uses websocket."
-      echo "  -u  	Uses the Curl mode of -s, -w and -i options (updates a little slower)"
-      echo ""
-      echo "   OBS:"
-      echo "   Choose supported Binance markets!"
-      echo "   You may write the code of a market instead of entering from_currency"
-      echo "   and to_currency; if there is any problems, try entering each"
-      echo "   currency separately."
-      echo ""
-      echo "   Curl API functions update a little slower, because they depend"
-      echo "   on reconecting to the server repeatedly to fetch newest info,"
-      echo "        whereas websocket streams updates with only one connection."
-      echo ""
-      echo "   This programme needs Curl, JQ , Websocat, Xargs and Lolcat to"
-      echo "   work properly."
-      echo "   I noticed that using the book depth functions with XTerm will cause"
-      echo "   horrible memory leak after running straight for a couple of days."
-      echo "   Using other terminals, for example xfce4-terminal, avoids that."
+      echo -e "${HELP}"
       echo ""
       exit 0
+      ;;
+    v ) # Version of Script
+      head "${0}" | grep -e '# v'
+      exit
       ;;
    \? )
      echo "Invalid Option: -$OPTARG" 1>&2

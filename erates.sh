@@ -1,8 +1,7 @@
 #!/bin/bash
 #
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
-# v0.1.3 - 2019/ago/17
-# by mountaineerbr
+# v0.1.6  2019/ago/21  by mountaineerbr
 
 SCRIPTBASECUR="USD"
 
@@ -13,7 +12,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	erates.sh \e[0;35;40m[-h|-l]\033[00m
+	erates.sh \e[0;35;40m[-h|-l|-v]\033[00m
 
 	erates.sh \e[0;35;40m[-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
@@ -71,6 +70,8 @@ OPTIONS
 			and their rates agains EUR.
 
 		-s 	Set scale (defaults=16).
+		
+		-v 	Show this programme version.
 
 
 WARRANTY & LICENSE
@@ -105,7 +106,7 @@ fi
 
 
 # Parse options
-while getopts ":lhjs:t" opt; do
+while getopts ":lhjs:tv" opt; do
   case ${opt} in
   	l ) ## List available currencies
 		LISTOPT=1
@@ -122,6 +123,10 @@ while getopts ":lhjs:t" opt; do
 		;;
 	t ) # Print Timestamp with result
 		printf "No timestamp for this API; check -h.\n" 1>&2
+		;;
+	v ) # Version of Script
+		head "${0}" | grep -e '# v'
+		exit
 		;;
 	\? )
 		printf "%s\n" "Invalid Option: -$OPTARG" 1>&2
@@ -164,10 +169,11 @@ if [[ -n ${LISTOPT} ]]; then
 	exit
 fi
 ## Check if request is a supported currency:
-if ! [[ "${2^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "${2}"; then
+if ! [[ "${2^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "^${2}$"; then
 	printf "Not a supported currency at exchangeratesapi.io: %s\n" "${2}" 1>&2
 	exit 1
-elif ! [[ "${3^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "${3}"; then
+fi
+if ! [[ "${3^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "^${3}$"; then
 	printf "Not a supported currency at exchangeratesapi.io: %s\n" "${3}" 1>&2
 	exit 1
 fi
