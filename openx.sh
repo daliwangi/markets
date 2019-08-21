@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.4.1 - 2019/ago/21
+# v0.4.2 - 2019/ago/21
 # by mountaineerbr
 #set -ex
 
@@ -131,10 +131,8 @@ OPTIONS
 
 		-l	List available currency codes.
 
-		-s	Set how many decimal plates are shown. Defaults=8.
+		-s	Set how many decimal plates are shown. Defaults=16.
 			Rounding and removal of trailing noughts is active.
-			If you are converting very small amounts of a currency,
-			try changing scale to a big number such as 10 or 20.
 
 	 	-w 	Show Warrantyi notice.
 
