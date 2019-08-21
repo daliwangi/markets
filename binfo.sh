@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.12  2019/08/18 by mountaineer_br
+# v0.3.13  2019/08/21 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -171,7 +171,8 @@ if [[ -n  "${PJSON}" ]]; then
 fi
 # Print tx indexes first
 TXIDS="$(printf "%s\n" "${LBLOCK}" | jq -r .txIndexes[] | sort)"
-printf "\nTx Index:\n%s\n" "${TXIDS[@]}" | column -i"\n"
+printf "\nTx Index:\n\n"
+printf "%s\n" "${TXIDS[@]}" | column
 # Print the other info
 printf "%s\n" "${LBLOCK}" | jq -r '. | "",
 	"Block Hash:","\t\(.hash)",
