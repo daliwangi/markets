@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.4 - 2019/ago/21
+# v0.4.1 - 2019/ago/21
 # by mountaineerbr
+#set -ex
 
 ## Some defaults
 ## Please make a free account and update this script
@@ -269,13 +270,13 @@ if [[ -n "${TIMES}" ]]; then
 fi
 
 ## Get currency rates
-FROMCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${2^^}")
-TOCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${3^^}")
+FROMCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${2^^}" | sed 's/e/*10^/g')
+TOCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${3^^}" | sed 's/e/*10^/g')
 #echo "${TOCURRENCY}" "${FROMCURRENCY}"
 
 # Make currency exchange rate equation 
 # and send to Bash Calculator to get results
-printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=%s; trunc((%s*%s)/%s)\n" "${SCL}" "${1}" "${TOCURRENCY}" "${FROMCURRENCY}" | bc -l
+printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=%s; trunc((%s*%s)/(%s))\n" "${SCL}" "${1}" "${TOCURRENCY}" "${FROMCURRENCY}" | bc -l
 
 exit
 #
