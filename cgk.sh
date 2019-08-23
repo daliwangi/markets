@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.46  2019/ago/23  by mountaineerbr
+# v0.5.47  2019/ago/23  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -16,7 +16,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh \e[0;35;40m[-e|-h|-j|-l|-m|-v]\033[00m
 
-	cgk.sh \e[0;35;40m[-b|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
+	cgk.sh \e[0;35;40m[-b|-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY_ID|SYMBOL]\033[00m \e[0;31;40m[VS_CURRENCY_SYMBOL]\033[00m
 	
 	cgk.sh \e[0;35;40m[-p|-t]\033[00m \e[0;32;40m[ID|SYMBOL]\033[00m optional:\e[0;31;40m[ID|SYMBOL]\033[00m
 
@@ -356,7 +356,7 @@ exf() {
 		exit
 	fi
 	protablef() {
-		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == "true" then "YES" else "NO" end)=\(.id)=\(.url)"'
+		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"'
 	}
 	printf "\nTable of Exchanges\n\n"
 	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
