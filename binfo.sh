@@ -140,7 +140,7 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	"\t\t\t\tNow:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
 	"Ip:\t\(.foundBy.ip)  \tDesc:\t\(.foundBy.description)",
-	"Link:","\t\(.foundBy.link)"'
+	"Link:\t\(.foundBy.link)"'
 #{"op":"blocks_sub"}
 #{"op":"ping"}
 printf "\nPress Ctrl+C twice to exit.\n\n"
