@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.13  2019/08/21 by mountaineer_br
+# v0.3.14  2019/08/23 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -449,7 +449,7 @@ fi
 printf "\nTransaction info:\n\n"
 printf "%s\n" "${TXCHAIR}" | jq -er '.data[].inputs as $i | .data[].outputs as $o | .data[] | .transaction | "","--------",
 	"Tx hash:","\t\(.hash)",
-	"Tx id:\t\(.id)\tBlk Id:\t\(.block_id)  \(if .is_coinbase == "true" then "(Coinbase Tx)" else "" end)",
+	"Tx id:\t\(.id)\tBlk Id:\t\(.block_id)  \(if .is_coinbase == true then "(Coinbase Tx)" else "" end)",
 	"Size:\t\(.size) bytes\tLock T:\t\(.lock_time)\t\tVer: \(.version)",
 	"Fee:\t\(.fee // "??") sat  \tFee:\t\(.fee_per_kb // "??") sat/KB",
 	"Fee:\t\(.fee_usd // "??") USD  \tFee:\t\(.fee_per_kb_usd // "??") USD/KB",
