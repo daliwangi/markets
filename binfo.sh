@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.16  2019/08/23 by mountaineer_br
+# v0.3.17  2019/08/25 by mountaineer_br
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -137,8 +137,8 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 	"Height:\t\(.height)\t\tVer:\t\(.version)\tReward:\t\(if .reward == 0 then "??" else .reward end)",
 	"Size:\t\(.size/1000) KB\tTxs:\t\(.nTx)",
 	"Output:\t\(.totalBTCSent/100000000) BTC\tEst Tx Vol:\t\(.estimatedBTCSent/100000000) BTC",
-	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
-	"\t\t\t\tNow:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	"Time:\t\(.foundBy.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.foundBy.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+	"\t\t\t\tNow:\t\(now|round | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	"Ip:\t\(.foundBy.ip)  \tDesc:\t\(.foundBy.description)",
 	"Link:\t\(.foundBy.link)"'
 #{"op":"blocks_sub"}
@@ -146,7 +146,7 @@ echo '{"op":"blocks_sub"}' | websocat --text --no-close --ping-interval 18 wss:/
 printf "\nPress Ctrl+C twice to exit.\n\n"
 sleep 2
 N=$(( ${N} + 1 ))
-printf "This is reconnection try number %s at %s.\n" "${N}" "$(date "+%Y-%m-%dT%H:%M:%S(%Z)")" | tee -a /tmp/binfo.sh_connect_retries.log
+printf "This is reconnection try number %s at %s.\n" "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log
 printf "Log file at: /tmp/binfo.sh_connect_retries.log\n"
 printf "It will try reconnecting to websocket in some seconds.\n\n"
 sleep 8
@@ -178,7 +178,7 @@ printf "%s\n" "${LBLOCK}" | jq -r '. | "",
 	"Block Hash:","\t\(.hash)",
 	"Index:\t\(.block_index)","Height:\t\(.height)",
 	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))",
-	"Local:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))"'
+	"Local:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"'
 }
 if [[ -n "${LATESTOPT}" ]]; then
 	latestf
@@ -208,7 +208,7 @@ printf "%s\n" "${RAWTX}" | jq -er '. | "","--------",
 	"Size:\t\(.size) bytes\tLock T:\t\(.lock_time)\t\tVer: \(.ver)",
 	"Fee:\t\(.fee // "??") sat  \tFee:\t\(if .fee == null then "??" else (.fee/.size) end) sat/byte",
 	"Relayed by:  \(.relayed_by//empty)",
-	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	" From:",
 	"\t\(.inputs[] | .prev_out | "\(.addr)  \(if .value == null then "??" else (.value/100000000) end)  \(if .spent == true then "SPENT" else "UNSPENT" end)  From txid: \(.tx_index)  \(.addr_tag // "")")",
 	" To:",
@@ -255,7 +255,7 @@ printf "%s\n" "${RAWB}" | jq -r '. | "Hash:\t\(.hash)",
 	"Next block:",
 	"\t\(.next_block[])",
 	"",
-	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	"Time:\t\(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	"Bits:\t\(.bits)\tNonce:\t\(.nonce)",
 	"Index:\t\(.block_index)  \tVer:\t\(.ver)",
 	"Height:\t\(.height)   \tChain:\t\(if .main_chain == true then "Main" else "Secondary" end)",
@@ -453,7 +453,7 @@ printf "%s\n" "${TXCHAIR}" | jq -er '.data[].inputs as $i | .data[].outputs as $
 	"Size:\t\(.size) bytes\tLock T:\t\(.lock_time)\t\tVer: \(.version)",
 	"Fee:\t\(.fee // "??") sat  \tFee:\t\(.fee_per_kb // "??") sat/KB",
 	"Fee:\t\(.fee_usd // "??") USD  \tFee:\t\(.fee_per_kb_usd // "??") USD/KB",
-	"Time:\t\(.time)Z\tLocal:\t\(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	"Time:\t\(.time)Z\tLocal:\t\(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	" From:",
 	($i[]|"\t\(.recipient)  \(.value/100000000)  \(if .is_spent == true then "SPENT" else "UNSPENT" end)"),
 	" To:",
@@ -477,7 +477,7 @@ if [[ -n  "${PJSON}" ]]; then
 fi
 # Print the 24-H ticker
 printf "%s\n" "${CHAINJSON}" | 
-	jq -r '"Time:\t\((.timestamp/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S(%Z)"))",
+	jq -r '"Time:\t\((.timestamp/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	"",
 	"Blockchain",
 	"Total Mined:",
