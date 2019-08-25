@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.47  2019/ago/23  by mountaineerbr
+# v0.5.48  2019/ago/23  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -120,16 +120,16 @@ USAGE EXAMPLES:
 			    Just multiply amount by the gram/ounce rate.
 
 
-		(12)    1 gram of GOLD in USD:
+		(12)    \e[0;33;40m1\033[00m gram of GOLD in USD:
 					
-			$ cgk.sh -b \"1/28.3495\" xau usd 
+			$ cgk.sh -b \"\e[0;33;40m1\033[00m/28.3495\" xau usd 
 			
 			    1/28.3495 is the rate of one gram/ounce.
 
 
 		(13)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
 					
-			$ cgk.sh -b \"(1/28.3495)\e[0;33;40m*100\033[00m\" xau eur 
+			$ cgk.sh -b \"\e[0;33;40m100\033[00m*28.3495\" xau eur 
 			
 
 OPTIONS
