@@ -43,7 +43,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>currency_bash-snipet.sh --</b> Copy of Alexander Epstein script <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
-<b>erates.sh --</b> ExchangeRatesAPI.io API, currency converter;
+<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter;
 
 <b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
 
