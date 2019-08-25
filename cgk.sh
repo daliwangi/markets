@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.48  2019/ago/23  by mountaineerbr
+# v0.5.50  2019/ago/25  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -111,26 +111,31 @@ USAGE EXAMPLES:
 		(10)    Ticker for Bitcoin/USD only:
 			
 			$ cgk.sh -t btc usd 
+		
 
-
-		(11)    One Bitcoin in grams of Gold:
+		(11)    One Bitcoin in ounces of Gold:
 					
-			$ cgk.sh \"28.3495\" btc xau 
+			$ cgk.sh 1 btc xau 
+
+
+		(12)    \e[0;33;40mOne\033[00m Bitcoin in grams of Gold:
+					
+			$ cgk.sh \"\e[0;33;40m1\033[00m*28.3495\" btc xau 
 
 			    Just multiply amount by the gram/ounce rate.
 
 
-		(12)    \e[0;33;40m1\033[00m gram of GOLD in USD:
+		(13)    \e[0;33;40m1\033[00m gram of GOLD in USD:
 					
 			$ cgk.sh -b \"\e[0;33;40m1\033[00m/28.3495\" xau usd 
 			
 			    1/28.3495 is the rate of one gram/ounce.
 
-
-		(13)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
+		
+		(14)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
 					
 			$ cgk.sh -b \"\e[0;33;40m100\033[00m*28.3495\" xau eur 
-			
+
 
 OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
