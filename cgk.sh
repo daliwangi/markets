@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.50  2019/ago/25  by mountaineerbr
+# v0.5.51  2019/ago/25  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -135,6 +135,17 @@ USAGE EXAMPLES:
 		(14)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
 					
 			$ cgk.sh -b \"\e[0;33;40m100\033[00m*28.3495\" xau eur 
+
+
+
+		(15)    Tickers for any Ethereum pair;
+					
+			$ cgk.sh -t eth 
+
+
+		(16)    Tickers for Ethereum/Bitcoin only and retrive 10 pages of results;
+					
+			$ cgk.sh -t -p10 eth btc 
 
 
 OPTIONS
