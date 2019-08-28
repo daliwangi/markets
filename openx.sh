@@ -1,8 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.4.2 - 2019/ago/21
-# by mountaineerbr
+# v0.4.3 - 2019/ago/28  by mountaineerbr
 #set -ex
 
 ## Some defaults
@@ -264,7 +263,7 @@ fi
 ## -t Timestamp option
 if [[ -n "${TIMES}" ]]; then
 	TIMES=$(printf "%s\n" "${JSON}" | jq -c ".timestamp")
-	date -d@"$TIMES" "+# %Y-%m-%dT%H:%M:%S(%Z)"
+	date -d@"$TIMES" "+# %Y-%m-%dT%H:%M:%S%Z"
 fi
 
 ## Get currency rates

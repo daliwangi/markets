@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.10  21/ago/2019  by mountaineer_br
+# v0.2.12  28/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -37,7 +37,7 @@ Options:
       	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");
       		e.g.: -f6 ; -f\"%'.4f\"
   -h 	Show this help.
-  -j 	Fetch and print JSON (for debugging, only for some opts).
+  -j 	Print script lines that fetch Binance JSON data (for debugging).
   -l 	List all markets (coin pairs and rates).
 
  View/Watch Modes
@@ -149,7 +149,7 @@ printf "\nDetailed Stream of %s\n" "${2^^} ${3^^}"
 printf -- "Price, Quantity and Time.\n\n"
 
 websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
-	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S(%Z)"))"'
+	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 
 }
 
@@ -290,7 +290,7 @@ exit
 
 mode7() { # 24-H Ticker
 websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
-	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S(%Z)")),
+	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
 	"Roll window:\t\(((.C-.O)/1000)/(60*60)) hrs",
 	"\nChange:\t\t\(.p|tonumber) \($TCUR)","Change:\t\t\(.P|tonumber) %",
 	"Trade sum:\t\(.n) trades",
@@ -316,8 +316,9 @@ fi
 while getopts ":def:hjlckistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
-     curl -s "https://api.binance.com/api/v1/ticker/allPrices"
-     exit
+	printf "\nCheck below script lines that fetch raw data:\n\n"
+	grep -i -e "curl -s" -e "websocat" <"${0}"
+	exit
      ;;
      l ) # List markets (coins and respective rates)
      curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
