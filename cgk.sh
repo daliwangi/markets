@@ -223,7 +223,7 @@ while getopts ":bemlhjp:s:tv" opt; do
     	v ) # Version of Script
       		head "${0}" | grep -e '# v'
       		exit
-      ;;
+      		;;
 	\? )
 		echo "Invalid Option: -$OPTARG" 1>&2
 		exit 1
