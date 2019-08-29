@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.3.17  2019/08/25 by mountaineer_br
+# v0.3.18  2019/08/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -362,6 +362,10 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${CHAIRADD}"
 	exit
 fi
+## Test response from server
+#if printf "%s\n" "${CHAIRADD}" | jq -r '. | .data[] | "\t\(.address[type])"' | grep -iq "null"; then
+#	printf "\n\e[1;33;44mWarning:\e[0m This Address does not \"seem\" to be valid...\n" 1>&2
+#fi
 # Print Tx Hashes (only last 100)
 printf "\nTx Hashes (last 100):\n"
 printf "%s\n" "${CHAIRADD}" | jq -r '. | .data[] | "\t\(.transactions[])"'
@@ -390,11 +394,6 @@ printf "%s\n" "${CHAIRADD}" | jq -r '. | "",
 	"Updated:\t\t\tNext Update:",
 	"\t\(.context.cache.since)Z\t\(.context.cache.until)Z",
 	""'
-# Test response from server
-if printf "%s\n" "${CHAIRADD}" | jq -r '. | .data[] | "\t\(.address[type])"' | grep -iq "null"; then
-	printf "\n\e[1;33;44mWarning:\e[0m This Address does not \"seem\" to be valid...\n" 1>&2
-	exit 1
-fi
 }
 if [[ -n "${CHAIROPT}" ]]; then
 	chairaddf "${1}"
