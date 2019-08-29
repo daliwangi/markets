@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.12  28/ago/2019  by mountaineerbr
+# v0.2.14  28/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -37,7 +37,7 @@ Options:
       	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");
       		e.g.: -f6 ; -f\"%'.4f\"
   -h 	Show this help.
-  -j 	Print script lines that fetch Binance JSON data (for debugging).
+  -j 	Print script lines that fetch Binance raw JSON data (for debugging).
   -l 	List all markets (coin pairs and rates).
 
  View/Watch Modes
@@ -89,7 +89,6 @@ errf() {
 mode1() {  #Price in columns
 while true;
   do
-	#echo ${1}-${2}-${3}-${4}
 	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=250")
 	errf
 	ARRAY1=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
@@ -99,10 +98,6 @@ while true;
 	printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column
 	printf "\n"
 	ARRAY2=
-	#sleep 0.4
-	#echo $SECONDS
-	#(( N++ ))
-	#echo $N
 done
 }
 
@@ -122,10 +117,8 @@ do
 done
 }
 
-
 mode3() {  # Price and trade info
 # Note: Only with this method you can access QuoteQty!!
-
 curlmode() {
 while true;
   do
@@ -147,7 +140,6 @@ fi
 
 printf "\nDetailed Stream of %s\n" "${2^^} ${3^^}"
 printf -- "Price, Quantity and Time.\n\n"
-
 websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 
@@ -162,9 +154,6 @@ curlmode() {
 
 	RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
 	printf "\n%.2f" "${RATE}"   
-
-	#(( N++ ))
-	#echo $N
 done
 }
 if [[ -n "${CURLOPT}" ]]; then
@@ -176,9 +165,7 @@ fi
 
 	websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq --unbuffered -r .p | xargs -n1 printf "\n${FSTR}"
-
 	#stdbuf -i0 -o0 -e0 cut -c-8
-	#websocat -E --ping-interval 480 --text wss://stream.binance.com:9443/ws/btcusdt@aggTrade | jq -r .p # --no-close
 	exit
 }
 
@@ -192,9 +179,6 @@ while true;
 	RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
 	
 	printf "\n%.2f" "${RATE}" | lolcat -p 200 -a -d 6 -s 10 
-					   #secs = d/s = 15/30 = 0.5
-	#(( N++ ))
-	#echo $N
 done
 }
 if [[ -n "${CURLOPT}" ]]; then
@@ -206,7 +190,6 @@ fi
 	
  	websocat  -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
-	#stdbuf -i0 -o0 -e0 cut -c-8 | 
 	exit
 }
 
@@ -316,16 +299,16 @@ fi
 while getopts ":def:hjlckistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
-	printf "\nCheck below script lines that fetch raw data:\n\n"
-	grep -i -e "curl -s" -e "websocat" <"${0}"
+	printf "\nCheck below script lines that fetch raw JSON data:\n\n"
+	grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort | uniq
 	exit
-     ;;
+      ;;
      l ) # List markets (coins and respective rates)
-     curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
+	curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
 	     jq -r '.[] | "\(.symbol)=\(.price)"' |
 	     sort | column -s '=' -e -t -N 'MARKET_PAIR,RATE'
-     exit
-     ;;
+	exit
+      ;;
     c )
       M1OPT=1
       ;;
@@ -458,11 +441,7 @@ printf "%s*%s\n" "${1}" "${BRATE}" | bc -l
 # Dead code:
 # [[ ${#2} -le 5 ]] checks the number of chars in field 2
 ## Make an ARRAY
-#AA=$(curl -s "https://api.binance.com/api/v1/ticker/allPrices")
-#AR=($(echo "$AA" | json_pp | grep symbol | sed -e 's/symbol//g' -e 's/"//g' -e 's/://g' -e 's/ //g' -e 's/,//g'))
 #echo ${AR[@]}
-
 #https://api.binance.com/api/v1/ticker/price?symbol=LTCBTC
 #https://www.reddit.com/r/binance/comments/7e5vsn/how_can_i_get_a_specific_ticker_binance_api/
-#$ set -- "${@:1:2}" "new" "${@:4}" -- https://stackoverflow.com/questions/4827690/how-to-change-a-command-line-argument-in-bash
 
