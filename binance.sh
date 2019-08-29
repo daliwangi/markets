@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.14  28/ago/2019  by mountaineerbr
+# v0.2.15  28/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -188,7 +188,7 @@ fi
 
 	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
 	
- 	websocat  -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+ 	websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
 	exit
 }
