@@ -158,7 +158,7 @@ if [[ "${1,,}" = "btc" ]]; then
 	for i in "${ENAMES[@]}"; do
 		EFN="$(eval "echo \${$i}")"
 		#Or: eval printf "%s'\n'" "\${${i}}"
-		printf "%'.2f\t%s  %s\n" "$(printf "%s\n" "${BVJSON}" | jq -r ".ticker_24h.exchanges.${i}.last")" "${i}" "${EFN}"
+		printf "%'.2f\t%s  %s\n" "$(printf "%s\n" "${BVJSON}" | jq -r ".ticker_24h.exchanges.${i}.last")" "${EFN}" "${i}"
 	done
 fi
 #https://bitvalor.com/api
