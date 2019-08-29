@@ -35,7 +35,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>bitstamp.sh --</b> Bitstamp exchange public API for live price rolling;
 
-<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetch Brazilian Echanges rates for Bitcoin;
+<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges;
 
 <b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
 
