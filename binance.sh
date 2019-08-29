@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.17  29/ago/2019  by mountaineerbr
+# v0.2.18  29/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -281,18 +281,18 @@ websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ti
 	"W Average: \(.w|tonumber)",
 	"Open:      \(.o|tonumber)",
 	"High:      \(.h|tonumber)",
-	"Low:       \(.l|tonumber)",
+	"Low :      \(.l|tonumber)",
 	"",
 	"Total Volume",
-	"Base:      \(.v|tonumber)",
+	"Base :     \(.v|tonumber)",
 	"Quote:     \(.q|tonumber)",
 	"",
 	"Trades",
-	"N of T:    \(.n)",
+	"N of  T :  \(.n)",
 	"First ID:  \(.F)",
 	"Last  ID:  \(.L)",
 	"First T-1: \(.x)",
-	"Last T:    \(.c|tonumber)  Qty: \(.Q)",
+	"Last  T :  \(.c|tonumber)  Qty: \(.Q)",
 	"Best Bid:  \(.b|tonumber)  Qty: \(.B)",
 	"Best Ask:  \(.a|tonumber)  Qty: \(.A)"'
 exit
