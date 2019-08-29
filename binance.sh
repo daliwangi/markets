@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.15  28/ago/2019  by mountaineerbr
+# v0.2.16  28/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -300,7 +300,7 @@ while getopts ":def:hjlckistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
 	printf "\nCheck below script lines that fetch raw JSON data:\n\n"
-	grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort | uniq
+	grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort
 	exit
       ;;
      l ) # List markets (coins and respective rates)
