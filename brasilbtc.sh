@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1.3  29/08/2019  by mountaineerbr
+# v0.1.4  29/08/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -82,7 +82,7 @@ test -z "${1}" && set -- btc
 printf "Valores diretamente das APIs:\n"
 
 ## 3xBIT
-printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.dollar_brl|tonumber))")"
+printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
 #https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 
 ## Braziliex
