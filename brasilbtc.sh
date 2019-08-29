@@ -15,7 +15,7 @@ SINOPSE
 	$ brasilbtc.sh                    #Padrão: btc (Bitcoin)
 	
 	$ brasilbtc.sh [código_da_moeda]
-	        Ex: btc, eth, ltc, dash, etc.
+	        Ex: btc, ltc, eth, dash, etc.
 
 
 DESCRIÇÃO
