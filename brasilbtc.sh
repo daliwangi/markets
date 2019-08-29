@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1  29/08/2019  by mountaineerbr
+# v0.1.1  29/08/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -126,7 +126,7 @@ printf "%'.2f\tOmniTrade\n" "$(curl -s https://omnitrade.io/api/v2/tickers/${1,,
 
 ## Walltime
 if [[ "${1,,}" = "btc" ]]; then
-	printf "%'.2f\tBitCambio\n" "$(curl -s https://s3.amazonaws.com/data-production-walltime-info/production/dynamic/walltime-info.json | jq -r '(.BRL_XBT.last_inexact)')"
+	printf "%'.2f\tWalltime\n" "$(curl -s https://s3.amazonaws.com/data-production-walltime-info/production/dynamic/walltime-info.json | jq -r '(.BRL_XBT.last_inexact)')"
 fi
 #https://walltime.info/api.html#orgaa3116b
 
@@ -157,6 +157,7 @@ if [[ "${1,,}" = "btc" ]]; then
 	# Print nomes e valores das exchanges
 	for i in "${ENAMES[@]}"; do
 		EFN="$(eval "echo \${$i}")"
+		#Or: eval printf "%s'\n'" "\${${i}}"
 		printf "%'.2f\t%s  %s\n" "$(printf "%s\n" "${BVJSON}" | jq -r ".ticker_24h.exchanges.${i}.last")" "${i}" "${EFN}"
 	done
 fi
