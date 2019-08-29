@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.51  2019/ago/25  by mountaineerbr
+# v0.5.52  2019/ago/29  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -376,7 +376,7 @@ exf() {
 	}
 	printf "\nTable of Exchanges\n\n"
 	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
-	printf "%s\n" "${EXRAW}"| protablef | sort | column -ts'=' -eN"NAME   ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID    ,URL" -T'NAME   ,ID    ,COUNTRY,URL'
+	printf "%s\n" "${EXRAW}"| protablef | sort | column -ts'=' -eN"NAME        ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID        ,URL" -W'NAME        ,ID        ,COUNTRY,URL'
 	exit
 }
 test -n "${EXOPT}" && exf "${*}"
