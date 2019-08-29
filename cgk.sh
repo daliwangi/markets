@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.52  2019/ago/29  by mountaineerbr
+# v0.5.53  2019/ago/29  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -190,7 +190,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":bemlhjp:s:t" opt; do
+while getopts ":bemlhjp:s:tv" opt; do
   case ${opt} in
 	b ) ## Activate the Bank currency function
 		BANK=1
@@ -220,6 +220,10 @@ while getopts ":bemlhjp:s:t" opt; do
 	s ) # Scale, Decimal plates
 		SCL=${OPTARG}
 		;;
+    	v ) # Version of Script
+      		head "${0}" | grep -e '# v'
+      		exit
+      ;;
 	\? )
 		echo "Invalid Option: -$OPTARG" 1>&2
 		exit 1
