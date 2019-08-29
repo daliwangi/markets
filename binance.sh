@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.16  28/ago/2019  by mountaineerbr
+# v0.2.17  29/ago/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -273,19 +273,28 @@ exit
 
 mode7() { # 24-H Ticker
 websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
-	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
-	"Roll window:\t\(((.C-.O)/1000)/(60*60)) hrs",
-	"\nChange:\t\t\(.p|tonumber) \($TCUR)","Change:\t\t\(.P|tonumber) %",
-	"Trade sum:\t\(.n) trades",
-	"Traded vol:\t\(.v|tonumber) \($FCUR)",
-	"Traded vol:\t\(.q|tonumber) \($TCUR)",
-	"\nOpen:\t\t\(.o|tonumber)",
-	"High:\t\t\(.h|tonumber)",
-	"Low:\t\t\(.l|tonumber)",
-	"\nWeighted avg:\tP: \(.w|tonumber)",
-	"Last trade:\tP: \(.c|tonumber)\tQ: \(.Q)",
-	"Best bid:\tP: \(.b|tonumber)\tQ: \(.B)",
-	"Best ask:\tP: \(.a|tonumber)\tQ: \(.A)"'
+	jq -r '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
+	"Roll window:  \(((.C-.O)/1000)/(60*60)) hrs",
+	"",
+	"Price",
+	"Change:    \(.p|tonumber)  (\(.P|tonumber) %)",
+	"W Average: \(.w|tonumber)",
+	"Open:      \(.o|tonumber)",
+	"High:      \(.h|tonumber)",
+	"Low:       \(.l|tonumber)",
+	"",
+	"Total Volume",
+	"Base:      \(.v|tonumber)",
+	"Quote:     \(.q|tonumber)",
+	"",
+	"Trades",
+	"N of T:    \(.n)",
+	"First ID:  \(.F)",
+	"Last  ID:  \(.L)",
+	"First T-1: \(.x)",
+	"Last T:    \(.c|tonumber)  Qty: \(.Q)",
+	"Best Bid:  \(.b|tonumber)  Qty: \(.B)",
+	"Best Ask:  \(.a|tonumber)  Qty: \(.A)"'
 exit
 }
 
