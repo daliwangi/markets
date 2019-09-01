@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.53  2019/ago/29  by mountaineerbr
+# v0.5.54  2019/set/01  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -525,14 +525,14 @@ tickerf() {
 		exit
 	fi
 	## If there is ARG 2, then make sure you get only those pairs specified
-	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}=" ||	GREPARG="[a-zA-Z]"
+	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}=" 
 	ttablef() {
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' <"${CGKTEMP}" |
 		grep -i "${GREPARG}" |
 		sort |
 		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME"
 		}
-		ttablef | grep -i "[a-z]"
+		ttablef    #? | grep -i "[a-z]"
 	test "${?}" != 0 &&
 		printf "No match for %s %s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2 &&
 		exit 1
