@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1.4  29/08/2019  by mountaineerbr
+# v0.1.5  01/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -23,6 +23,10 @@ DESCRIÇÃO
 	Por padrão, puxarã as taxas para o Bitcoin. Caso seja fornecida uma outra
 	moeda, os resultados dependerão se a moeda solicitada é suportada em cada
 	exchange. Além disso, alguns APIs só puxam cotações para o Bitcoin.
+
+	Para cotações de Bitcoins, usa-se, também, a API do BitValor, uma empresa
+	como o CoinGecko ou CoinMarketCap, que analisa algumas agências de câmbio
+	brasileiras.
 	
 	No momento, somente algumas agências de câmbio são suportadas. Por exemplo,
 	a FoxBit não tem um API fácil e a documentação está ruim e ela até mesmo
@@ -132,7 +136,7 @@ fi
 
 ## BitValor (Análise de Agências de Câmbio do Brasil)
 if [[ "${1,,}" = "btc" ]]; then
-	printf "\nBitValor (Análise de Exchanges):\n"
+	printf "\nBitValor:\n"
 	# Nome das exchanges analisadas pelo BitValor
 	ARN="Arena Bitcoin"
 	B2U="BitcoinToYou"
