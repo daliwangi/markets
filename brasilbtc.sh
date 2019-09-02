@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1.5  01/09/2019  by mountaineerbr
+# v0.1.6  02/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -102,7 +102,7 @@ fi
 
 ## BitcoinToYou
 if [[ "${1,,}" = "btc" ]] || [[ "${1,,}" = "ltc" ]] ; then
-	test "${1,,}" = "btc" && BTYN=""
+	test "${1,,}" = "btc"
 	test "${1,,}" = "ltc" && BTYN="_litecoin"
 	printf "%'.2f\tBitcoinToYou\n" "$(curl -s https://api_v1.bitcointoyou.com/ticker${BTYN}.aspx | jq -r '.ticker.last')"
 fi
