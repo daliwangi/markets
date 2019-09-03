@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.13  2019/set/03  by mountaineerbr
+# v0.3.14  2019/set/03  by mountaineerbr
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
 
@@ -472,8 +472,13 @@ fi
 # Make a list of currencies names and ids and their symvols
 test -z "${BANKFSET}" &&
 	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": .name, "value": .symbol}] | from_entries')"
-if test -z "${BANKFSET}" && printf "%s\n" "${SYMBOLLIST}" | jq -er ".${2}" &>/dev/null; then
-	set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${2}")" "${3}"
+if test -z "${BANKFSET}" && ! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${2}$"; then
+	if printf "%s\n" "${SYMBOLLIST}" | jq -er ".${2}" &>/dev/null; then
+		set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${2}")" "${3}"
+	else
+		printf "Unsupported FROM_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${2^^}"
+		exit 1
+	fi
 fi
 
 ## NOTES: Multiple values for keys jq
@@ -483,9 +488,15 @@ fi
 
 ## Check you are NOT requesting some unsupported TO_CURRENCY
 TOCURLIST=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND  XAUXAG XPT XPD) 
-if test -z "${BANKFSET}" && ! printf "%s\n" "${TOCURLIST[@]}" | grep -qi "^${3}$"; then
-	printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
-	exit 1
+if test -z "${BANKFSET}" &&
+	! printf "%s\n" "${TOCURLIST[@]}" | grep -qi "^${3}$" &&
+	! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${3}$"; then
+		if printf "%s\n" "${SYMBOLLIST}" | jq -er ".${3}" &>/dev/null; then
+			set -- "${1}" "${2}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${3}")"
+		else
+			printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
+			exit 1
+		fi
 fi
 
 ## Get Rate JSON
