@@ -49,13 +49,13 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
 
-Also check/Também veja:
+<ib>Also check/Também veja:</b>
 
 Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
-MiguelMota "Cointop" at https://github.com/miguelmota/cointop for crypto currency tickers;
+MiguelMota "Cointop" at <https://github.com/miguelmota/cointop> for crypto currency tickers;
 
-8go "CoinBash.sh" at https://github.com/8go/coinbash/blob/master/coinbash.sh for CoinMarketCap simple tickers.
+8go "CoinBash.sh" at <https://github.com/8go/coinbash> for CoinMarketCap simple tickers.</i>
 
 
 -------------------------------------------------------------------------------------------------
