@@ -49,7 +49,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
 
-<ib>Also check/Também veja:</b>
+<b><i>Also check/Também veja:</b>
 
 Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
