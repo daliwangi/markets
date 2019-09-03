@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.9  2019/ago/21  by mountaineerbr
+# v0.3.10  2019/set/03  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -19,9 +19,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cmc.sh \e[0;35;40m[-h|-j|-l|-m|-v]\033[00m
+	cmc.sh \e[0;35;40m[-h|-j|-l|-m|-t|-v]\033[00m
 
-	cmc.sh \e[0;35;40m[-b|-j|-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
+	cmc.sh \e[0;35;40m[-b|-j|-s|-p]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
 \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
 DESCRIPTION
@@ -84,33 +84,38 @@ USAGE EXAMPLES:
 			$ cmc.sh -b -s4 1000 brl usd 
 
 
-		(7)     One ounce of Gold in U.S.A. Dollar:
+		(7) 	Market Ticker
+
+			$ cmc.sh -m
+
+
+		(8) 	Top 20 crypto currency tickers
+
+			$ cmc.sh -k 20
+
+
+		(9)     One ounce of Gold in U.S.A. Dollar:
 			
 			$ cmc.sh -b xau 
 			
 			$ cmc.sh -b 1 xau usd 
 
 		
-		(8)     Ticker for all Bitcoin market pairs:
-			
-			$ cmc.sh -k btc 
-
-
-		(11)    One Bitcoin in grams of Gold:
+		(10)    One Bitcoin in grams of Gold:
 					
 			$ cmc.sh \"28.3495\" btc xau 
 
 			    Just multiply amount by the gram/ounce rate.
 
 
-		(12)   	1 gram of GOLD in USD:
+		(11)   	1 gram of GOLD in USD:
 					
 			$ cmc.sh -b \"1/28.3495\" xau usd 
 			
 			    1/28.3495 is the rate of one gram/ounce.
 
 
-		(13)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
+		(12)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
 					
 			$ cmc.sh -b \"(1/28.3495)\e[0;33;40m*100\033[00m\" xau eur 
 			
@@ -130,8 +135,13 @@ OPTIONS
 
 		-s 	Set scale (decimal plates).
 
-		-t 	Print JSON timestamp, if any.
+		-p 	Print JSON timestamp, if available.
 		
+		-t 	Top Crypto Tickers; enter the number of currencies
+			to show; Defaults=10, Max=100;
+			TIP: you may manually pipe results to Grep in order to 
+			filter results.
+
 		-v 	Show this programme version.
 
 
@@ -255,10 +265,15 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	exit
 fi
 # Parse options
-while getopts ":blmhjs:t" opt; do
+while getopts ":blmhjs:tp" opt; do
   case ${opt} in
 	b ) ## Hack central bank currency rates
 		BANK=1
+		;;
+  	t ) ## Tickers for crypto currencies
+		# How many top cryptos should be printed? Defaults=10
+		printf "%s\n" "${2}" | grep -q "[0-9]" && TICKERNUMBER="${2}"
+		TICKEROPT=1
 		;;
   	l ) ## List available currencies
 		LISTS=1
@@ -276,7 +291,7 @@ while getopts ":blmhjs:t" opt; do
 	s ) # Decimal plates
 		SCL=${OPTARG}
 		;;
-	t ) # Print Timestamp with result
+	p ) # Print Timestamp with result
 		TIMEST=1
 		;;
 	\? )
@@ -330,10 +345,10 @@ fi
 
 ## Bank currency rate function
 bankf() {
-	BTCBANK="$(${0} -t BTC ${2^^})"
+	BTCBANK="$(${0} -p BTC ${2^^})"
 	BTCBANKHEAD=$(printf "%s\n" "${BTCBANK}" | head -n1) # Timestamp
 	BTCBANKTAIL=$(printf "%s\n" "${BTCBANK}" | tail -n1) # Rate
-	BTCTOCUR="$(${0} -t BTC ${3^^})"
+	BTCTOCUR="$(${0} -p BTC ${3^^})"
 	BTCTOCURHEAD=$(printf "%s\n" "${BTCTOCUR}" | head -n1) # Timestamp
 	BTCTOCURTAIL=$(printf "%s\n" "${BTCTOCUR}" | tail -n1) # Rate
 	if [[ -n "${TIMEST}" ]]; then
@@ -412,6 +427,32 @@ if [[ -n "${MCAP}" ]]; then
 	exit
 fi
 
+
+## -t Top Tickers Function
+tickerf() {
+	# Get JSON
+	if [[ -n "${TICKERNUMBER}" ]]; then
+		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${TICKERNUMBER}")"
+	else
+		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/")"
+	fi
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n" "${CMCJSON}"
+		exit 0
+	fi
+	printf "%s\n" "${TICKERJSON}" |
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_usd)=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_usd")=\(.market_cap_usd)=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' |
+		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price,D1h,D24h,D7D,MarketCap,Vol24h,AvailableSupply/Total,LastUpdate"
+# https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
+# https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
+
+
+}
+if [[ -n "${TICKEROPT}" ]]; then
+	tickerf
+	exit
+fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
 NOFCUR=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL
