@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.10  2019/set/03  by mountaineerbr
+# v0.3.11  2019/set/03  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -438,12 +438,12 @@ tickerf() {
 	fi
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${CMCJSON}"
+		printf "%s\n" "${TICKERJSON}"
 		exit 0
 	fi
 	printf "%s\n" "${TICKERJSON}" |
 		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_usd)=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_usd")=\(.market_cap_usd)=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' |
-		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price,D1h,D24h,D7D,MarketCap,Vol24h,AvailableSupply/Total,LastUpdate"
+		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,PriceUSD,D1h,D24h,D7D,Vol24hUSD,MarketCapUSD,AvailableSupply/Total,LastUpdate"
 # https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
 # https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
 
