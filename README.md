@@ -43,13 +43,20 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker;
 
-<b>currency_bash-snipet.sh --</b> Copy of Alexander Epstein script <https://github.com/alexanderepstein>; uses the same API as Erates.sh
-
 <b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter;
 
 <b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
+
+Also check/Também veja:
+
+Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
+
+MiguelMota "Cointop" at https://github.com/miguelmota/cointop for crypto currency tickers;
+
+8go "CoinBash.sh" at https://github.com/8go/coinbash/blob/master/coinbash.sh for CoinMarketCap simple tickers.
+
 
 -------------------------------------------------------------------------------------------------
 
