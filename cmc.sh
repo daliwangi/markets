@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.11  2019/set/03  by mountaineerbr
+# v0.3.12  2019/set/03  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -89,9 +89,9 @@ USAGE EXAMPLES:
 			$ cmc.sh -m
 
 
-		(8) 	Top 20 crypto currency tickers
+		(8) 	Top 20 crypto currency tickers in EUR (Defaults: 10,USD):
 
-			$ cmc.sh -k 20
+			$ cmc.sh -t 20 eur
 
 
 		(9)     One ounce of Gold in U.S.A. Dollar:
@@ -271,9 +271,20 @@ while getopts ":blmhjs:tp" opt; do
 		BANK=1
 		;;
   	t ) ## Tickers for crypto currencies
-		# How many top cryptos should be printed? Defaults=10
-		printf "%s\n" "${2}" | grep -q "[0-9]" && TICKERNUMBER="${2}"
 		TICKEROPT=1
+		# How many top cryptos should be printed? Defaults=10
+		# If number of tickers is in ARG2
+		if [[ -z "${2}" ]]; then
+			set -- "${1}" 10 bitcoin USD
+		elif printf "%s\n" "${2}" | grep -q "[0-9]"; then
+			TICKEROPT="${2}"
+			set -- "${1}" "${2}" bitcoin "${3}"
+		# If number of tickers is in ARG3
+		elif printf "%s\n" "${3}" | grep -q "[0-9]"; then
+			set -- "${1}" "${3}" bitcoin "${2}"
+		else
+			set -- "${1}" 10 bitcoin "${2}"
+		fi
 		;;
   	l ) ## List available currencies
 		LISTS=1
@@ -289,7 +300,7 @@ while getopts ":blmhjs:tp" opt; do
 		PJSON=1
 		;;
 	s ) # Decimal plates
-		SCL=${OPTARG}
+		SCL="${OPTARG}"
 		;;
 	p ) # Print Timestamp with result
 		TIMEST=1
@@ -430,31 +441,27 @@ fi
 
 ## -t Top Tickers Function
 tickerf() {
+	# Prepare retrive query to server
 	# Get JSON
-	if [[ -n "${TICKERNUMBER}" ]]; then
-		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${TICKERNUMBER}")"
-	else
-		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/")"
-	fi
+	TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${3^^}")"
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${TICKERJSON}"
 		exit 0
 	fi
 	printf "%s\n" "${TICKERJSON}" |
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_usd)=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_usd")=\(.market_cap_usd)=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' |
-		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,PriceUSD,D1h,D24h,D7D,Vol24hUSD,MarketCapUSD,AvailableSupply/Total,LastUpdate"
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${3,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${3,,}"'")=\(.market_cap_'"${3,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' |
+		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price${3^^},D1h,D24h,D7D,Vol24h${3^^},MarketCap${3^^},AvailableSupply/Total,LastUpdate"
 # https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
 # https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
 
 
 }
 if [[ -n "${TICKEROPT}" ]]; then
-	tickerf
+	tickerf ${*}
 	exit
 fi
-
-## Check you are not requesting some unsupported FROM_CURRENCY
+## Check you are NOT requesting some unsupported FROM_CURRENCY
 NOFCUR=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL
 	BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR
 	GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY
@@ -462,10 +469,16 @@ NOFCUR=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL
 	NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP
 	QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB
 	TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD)
-if [[ -z ${JSONM} ]] &&	printf "%s\n" "${NOFCUR[*]}" | grep -qi "${2}" &> /dev/null; then
+if [[ -z ${JSONM} ]] &&	printf "%s\n" "${NOFCUR[@]}" | grep -qi "^${2}$" &> /dev/null; then
 	printf "Unsupported FROM_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${2^^}"
 	exit 1
 fi
+## Check you are NOT requesting some unsupported TO_CURRENCY
+if [[ -z ${JSONM} ]] &&	! printf "%s\n" "${NOFCUR[@]}" | grep -qi "^${3}$" &> /dev/null; then
+	printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
+	exit 1
+fi
+
 
 ## Get JSON
 CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
