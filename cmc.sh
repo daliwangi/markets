@@ -1,8 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.12  2019/set/03  by mountaineerbr
-
+# v0.3.13  2019/set/03  by mountaineerbr
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
 
@@ -356,6 +355,8 @@ fi
 
 ## Bank currency rate function
 bankf() {
+	# Rerun script, get artes and process data	
+	(
 	BTCBANK="$(${0} -p BTC ${2^^})"
 	BTCBANKHEAD=$(printf "%s\n" "${BTCBANK}" | head -n1) # Timestamp
 	BTCBANKTAIL=$(printf "%s\n" "${BTCBANK}" | tail -n1) # Rate
@@ -366,10 +367,15 @@ bankf() {
 		printf "%s (from currency)\n" "${BTCBANKHEAD}"
 		printf "%s (to   currency)\n" "${BTCTOCURHEAD}"
 	fi
-
 	# Calculate result & print result 
 	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
 	printf "%.${SCL}f\n" "${RESULT}"
+	# Check for errors
+	if ! printf "%s\n" "${RESULT}" | grep -q "[1-9]"; then
+		printf "Input must have valid currency symbols; check for eventual mistakes.\n"
+		exit 1
+	fi
+	) 2>/dev/null
 	#icheck
 	exit
 }
@@ -378,6 +384,7 @@ if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
 	printf "No specific JSON for the bank currency function.\n"
 	exit 1
 elif [[ -n "${BANK}" ]]; then
+	export BANKFSET=1
 	bankf ${*}
 fi
 
@@ -454,33 +461,34 @@ tickerf() {
 		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price${3^^},D1h,D24h,D7D,Vol24h${3^^},MarketCap${3^^},AvailableSupply/Total,LastUpdate"
 # https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
 # https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
-
-
 }
 if [[ -n "${TICKEROPT}" ]]; then
 	tickerf ${*}
 	exit
 fi
+
+
 ## Check you are NOT requesting some unsupported FROM_CURRENCY
-NOFCUR=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL
-	BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR
-	GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY
-	JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK
-	NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP
-	QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB
-	TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD)
-if [[ -z ${JSONM} ]] &&	printf "%s\n" "${NOFCUR[@]}" | grep -qi "^${2}$" &> /dev/null; then
-	printf "Unsupported FROM_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${2^^}"
-	exit 1
+# Make a list of currencies names and ids and their symvols
+test -z "${BANKFSET}" &&
+	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": .name, "value": .symbol}] | from_entries')"
+if test -z "${BANKFSET}" && printf "%s\n" "${SYMBOLLIST}" | jq -er ".${2}" &>/dev/null; then
+	set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${2}")" "${3}"
 fi
+
+## NOTES: Multiple values for keys jq
+#jq '[.data[]| {"key": .symbol, "value": [.slug,.name] } ] | from_entries'
+#https://github.com/stedolan/jq/issues/785
+#https://michaelheap.com/extract-keys-using-jq/
+
 ## Check you are NOT requesting some unsupported TO_CURRENCY
-if [[ -z ${JSONM} ]] &&	! printf "%s\n" "${NOFCUR[@]}" | grep -qi "^${3}$" &> /dev/null; then
+TOCURLIST=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND  XAUXAG XPT XPD) 
+if test -z "${BANKFSET}" && ! printf "%s\n" "${TOCURLIST[@]}" | grep -qi "^${3}$"; then
 	printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
 	exit 1
 fi
 
-
-## Get JSON
+## Get Rate JSON
 CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
 
 # Print JSON?
