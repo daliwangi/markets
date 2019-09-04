@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.54  2019/set/01  by mountaineerbr
+# v0.5.55  2019/set/04  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -469,6 +469,8 @@ if [[ -n "${BANK}" ]]; then
 fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
+# Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
+test "${2,,}" = "xag" && exit 1
 clistf
 if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
@@ -525,6 +527,7 @@ tickerf() {
 		exit
 	fi
 	## If there is ARG 2, then make sure you get only those pairs specified
+	GREPARG=
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}=" 
 	ttablef() {
 		jq -r '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' <"${CGKTEMP}" |
