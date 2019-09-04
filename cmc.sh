@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.14  2019/set/03  by mountaineerbr
+# v0.3.16  2019/set/03  by mountaineerbr
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
 
@@ -471,10 +471,10 @@ fi
 ## Check you are NOT requesting some unsupported FROM_CURRENCY
 # Make a list of currencies names and ids and their symvols
 test -z "${BANKFSET}" &&
-	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": .name, "value": .symbol}] | from_entries')"
+	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 if test -z "${BANKFSET}" && ! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${2}$"; then
-	if printf "%s\n" "${SYMBOLLIST}" | jq -er ".${2}" &>/dev/null; then
-		set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${2}")" "${3}"
+	if printf "%s\n" "${SYMBOLLIST}" | jq -er '.["'"${2^^}"'"]' &>/dev/null; then
+		set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r '.["'"${2^^}"'"]')" "${3}"
 	else
 		printf "Unsupported FROM_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${2^^}"
 		exit 1
@@ -491,8 +491,8 @@ TOCURLIST=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD C
 if test -z "${BANKFSET}" &&
 	! printf "%s\n" "${TOCURLIST[@]}" | grep -qi "^${3}$" &&
 	! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${3}$"; then
-		if printf "%s\n" "${SYMBOLLIST}" | jq -er ".${3}" &>/dev/null; then
-			set -- "${1}" "${2}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r ".${3}")"
+		if printf "%s\n" "${SYMBOLLIST}" | jq -er '.["'"${3^^}"'"]' &>/dev/null; then
+			set -- "${1}" "${2}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r '.["'"${3^^}"'"]')"
 		else
 			printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
 			exit 1
