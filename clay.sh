@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.2.4  2019/ago/21  by mountaineerbr
+# v0.2.5  2019/set/05  by mountaineerbr
 
 ## Some defaults
 # Get your own personal API KEY
@@ -84,7 +84,10 @@ fi
 while getopts ":lhjs:tv" opt; do
   case ${opt} in
   	l ) ## List available currencies
-		curl -s https://currencylayer.com/site_downloads/cl-currencies-table.txt |  sed -e 's/<[^>]*>//g'
+		curl -s https://currencylayer.com/site_downloads/cl-currencies-table.txt | 
+			sed -e 's/<[^>]*>//g' |
+			sed -e 's/^[ \t]*//' |
+			sed '/^$/d'
 		exit
 		;;
 	h ) # Show Help
