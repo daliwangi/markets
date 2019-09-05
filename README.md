@@ -47,7 +47,11 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
 
-<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
+<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter;
+
+<b>ourominas.sh --</b> Pega taxas da Ag. de Câmbio Ouro Minas (somente de moedas de banco centrais);
+
+<b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal
 
 <b><i>Also check/Também veja:</b>
 
