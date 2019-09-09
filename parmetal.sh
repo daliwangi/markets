@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.1  09/set/2019 by mountaineer_br
+# v0.2.2  09/set/2019 by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -16,6 +16,21 @@ htmlfilter() {
 	sed -E 's/<[^>]*>//g'
 }
 
+# Pegar taxas somente das Barras da Parmetal "-p"
+if [[ "${1}" = "-p" ]]; then
+	# Can also use to parse XML files   grep -oPm1 -e "(?<=<descr>)[^<]+"
+	# From:https://unix.stackexchange.com/questions/277861/parse-xml-returned-from-curl-within-a-bash-script
+	PRICE="$(curl -s "https://www.parmetal.com.br/app/metais/" |
+		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' |
+		sed 's/]]]/[/g' | sed 's/]]/[/g' |
+		sed 's/\[/\n/g' |
+		grep --color=never -A2 -e "Barra Parmetal/RBM")"
+	printf "%s\n" "${PRICE}"
+	SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${PRICE}" | tail -n 1)" "$(printf "%s\n" "${PRICE}" | tail -n 2 | head -n 1)" | tr ',' '.' | bc -l)"
+	printf "Spread: %'.3f %%\n" "${SPREAD}"
+	exit
+fi
+
 # Função Cotações Metais
 metaisf() {
 	METAIS="$(curl -s "https://www.parmetal.com.br/app/metais/" |
@@ -27,18 +42,6 @@ metaisf() {
 	UPDATES="$(printf "%s\n" "${METAIS}" | grep -i -e "../../...." | sort | uniq)"
 	UPTIMES="$(printf "%s\n" "${METAIS}" | grep -i -e "..:..:.." | sort | uniq)"
 	}
-# Pegar taxas somente das Barras da Parmetal "-p"
-if [[ "${1}" = "-p" ]]; then
-	PRICE="$(curl -s "https://www.parmetal.com.br/app/metais/" |
-		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' |
-		sed 's/]]]/[/g' | sed 's/]]/[/g' |
-		sed 's/\[/\n/g' |
-		grep --color=never -A2 -e "Barra Parmetal/RBM")"
-	printf "%s\n" "${PRICE}"
-	SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${PRICE}" | tail -n 1)" "$(printf "%s\n" "${PRICE}" | tail -n 2 | head -n 1)" | tr ',' '.' | bc -l)"
-	printf "Spread: %'.3f %%\n" "${SPREAD}"
-	exit
-fi
 
 # Moedas de Câmbios
 moedasf() {
@@ -57,19 +60,20 @@ moedasf() {
 # Imprimir Tabela
 # Metais
 metaisf
-printf "Updates: %s  %s\n" "${UPDATES}" "${UPTIMES}"
 printf "%s\n%s\n%s\n" "${BPARM[*]}" "${BTRAD[*]}" "${BOUTR[*]}" |
-	column -t -s"=" -N'Ativo,Compra,Venda' -R'Ativo'
+	column -t -s"=" -N'Ativo,Compra,Venda' -R'Ativo,Compra,Venda'
 
-
-# Spread dos metais
+# Spread
 #printf "%s\n" "${BPARM[2]%\=}" 
 #printf "%s\n" "${BPARM[3]%\=}"
-SPREAD1="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
-printf "Spread, Barras Parmetal/RBM  %'.3f %%\n\n" "${SPREAD1}"
+SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
+printf "*SPD B Parmetal/RBM     %'.3f%%\n" "${SPREAD}"
+# Update timestamps
+printf "Updates: %s %s\n\n" "${UPDATES}" "${UPTIMES}"
 
 # Outras moedas
 moedasf
 printf "%s\n%s\n%s\n%s\n" "${USD[*]}" "${GBP[*]}" "${XAU[*]}" "${EUR[*]}" |
-	column -dt -s"=" -N'              Ativo,Compra' -R'              Ativo'
+	column -t -s"=" -N'              Índice,Taxa' -R'              Índice'
+#printf "Update: ??\n"
 
