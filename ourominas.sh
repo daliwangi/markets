@@ -1,6 +1,8 @@
 #!/bin/bash
-# v0.2 05/set/2019  by mountaineer_br
+# v0.2.2 09/set/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
+
+LC_NUMERIC=en_US.UTF-8
 
 ## Taxas da Ouro Minas
 DATA="$(curl -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" |
@@ -34,4 +36,15 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	"${UYU[*]}" "${COP[*]}" "${ZAR[*]}" "${RUB[*]}" "${ILS[*]}" |
 	sed -e 's/Dlar/Dólar/g' -e 's/Suio/Suiço/g' -e 's/Chins/Chinês/g' |
 	column -t -s"=" -N'Moeda,Venda,Compra' -R'Moeda'
+
+# Calcular o preço de venda com o CGK.sh
+if [[ -e "/home/jsn/_Scripts/markets/cgk.sh" ]]; then
+	CGKXAU="$(~/_Scripts/markets/cgk.sh -b xau usd)"
+	USDP="${USD[@]:1:1}"
+	USDP="${USDP%\=}"
+	printf "Venda Ouro Estimada:  %s\n" "$(printf "scale=3; %s*%s/28.349523125\n" "${CGKXAU}" "${USDP/,/.}" | bc -l)"
+	#Não trampam com Prata!
+	#CGKXAG="$(~/_Scripts/markets/cgk.sh -b xag usd)"
+	#printf "Venda Prata Estimada:  %s\n" "$(printf "scale=3; %s*%s/28.349523125\n" "${CGKXAG}" "${USDP/,/.}" | bc -l)"
+fi
 
