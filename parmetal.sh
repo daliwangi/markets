@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.2  09/set/2019 by mountaineer_br
+# v0.2.3  09/set/2019 by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -27,7 +27,7 @@ if [[ "${1}" = "-p" ]]; then
 		grep --color=never -A2 -e "Barra Parmetal/RBM")"
 	printf "%s\n" "${PRICE}"
 	SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${PRICE}" | tail -n 1)" "$(printf "%s\n" "${PRICE}" | tail -n 2 | head -n 1)" | tr ',' '.' | bc -l)"
-	printf "Spread: %'.3f %%\n" "${SPREAD}"
+	printf "SPD: %'.3f %%\n" "${SPREAD}"
 	exit
 fi
 
@@ -67,7 +67,7 @@ printf "%s\n%s\n%s\n" "${BPARM[*]}" "${BTRAD[*]}" "${BOUTR[*]}" |
 #printf "%s\n" "${BPARM[2]%\=}" 
 #printf "%s\n" "${BPARM[3]%\=}"
 SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
-printf "*SPD B Parmetal/RBM     %'.3f%%\n" "${SPREAD}"
+printf "SPD B Parmetal/RBM     %'.3f%%\n" "${SPREAD}"
 # Update timestamps
 printf "Updates: %s %s\n\n" "${UPDATES}" "${UPTIMES}"
 
