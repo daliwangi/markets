@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.2.18  29/ago/2019  by mountaineerbr
+# v0.3  13/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -69,9 +69,9 @@ Options:
 
    This programme needs Curl, JQ , Websocat, Xargs and Lolcat to
    work properly.
-   I noticed that using the book depth functions with XTerm will cause
-   horrible memory leak after running straight for a couple of days.
-   Using other terminals, for example xfce4-terminal, avoids that.
+   I noticed that using the book depth functions with *any* terminal
+   emulator will cause progressive increase of memory usage, only *if*
+   terminal is set to infinite scrollbac. 
 "
 
 ## Error Check Function
