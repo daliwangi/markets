@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.55  2019/set/04  by mountaineerbr
+# v0.5.56  2019/set/15  by mountaineerbr
 #set -x
 
 # Some defaults
@@ -152,8 +152,11 @@ OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
 			converting any central bank or crypto currency to any other.
 
-		-e 	Exchange list; for information on trading incentives and
-			normalized volume, check <https://blog.coingecko.com/trust-score/>.
+		-e 	Exchange list; the list is very wide, allow at least 100
+			columns for the table. If available columns are over 150,
+			URLs will be printed as well. For information on trading 
+			incentives ( column \"INC?\" ) and normalized volume, check
+			<https://blog.coingecko.com/trust-score/>.
 
 		-h 	Show this help.
 
@@ -380,7 +383,12 @@ exf() {
 	}
 	printf "\nTable of Exchanges\n\n"
 	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
-	printf "%s\n" "${EXRAW}"| protablef | sort | column -ts'=' -eN"NAME        ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID        ,URL" -W'NAME        ,ID        ,COUNTRY,URL'
+	# Check terminal column number
+	test "$(tput cols)" -lt "150" && HCOL=",URL"
+
+	# Make table
+	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
+	printf "%s\n" "${EXRAW}" | protablef | sort | column -ts'=' -eN"NAME,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID,URL,NONE" -W'NAME,COUNTRY' -H"NONE${HCOL}" 
 	exit
 }
 test -n "${EXOPT}" && exf "${*}"
@@ -470,7 +478,9 @@ fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
 # Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
-test "${2,,}" = "xag" && exit 1
+test "${2,,}" = "xag" &&
+	printf "Did you mean xrpalike-gene?\n"
+	exit 1
 clistf
 if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
 	printf "Unsupported FROM_CURRENCY %s at CGK.\n" "${2^^}" 1>&2
