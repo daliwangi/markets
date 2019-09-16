@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1.6  02/09/2019  by mountaineerbr
+# v0.1.7  16/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -83,7 +83,7 @@ test -z "${1}" && set -- btc
 (
 
 # Exchanges e Valores
-printf "Valores diretamente das APIs:\n"
+printf "Valores diretamente das APIs:\n" 1>&2
 
 ## 3xBIT
 printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
@@ -136,7 +136,7 @@ fi
 
 ## BitValor (Análise de Agências de Câmbio do Brasil)
 if [[ "${1,,}" = "btc" ]]; then
-	printf "\nBitValor:\n"
+	printf "\nBitValor:\n" 1>&2
 	# Nome das exchanges analisadas pelo BitValor
 	ARN="Arena Bitcoin"
 	B2U="BitcoinToYou"
