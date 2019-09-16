@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.5.56  2019/set/15  by mountaineerbr
-#set -x
+# v0.5.6  2019/set/16  by mountaineerbr
+#set -vx
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -479,7 +479,7 @@ fi
 ## Check you are not requesting some unsupported FROM_CURRENCY
 # Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
 test "${2,,}" = "xag" &&
-	printf "Did you mean xrpalike-gene?\n"
+	printf "Did you mean xrpalike-gene?\n" &&
 	exit 1
 clistf
 if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
