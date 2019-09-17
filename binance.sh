@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.3  13/set/2019  by mountaineerbr
+# v0.4  17/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -140,7 +140,7 @@ fi
 
 printf "\nDetailed Stream of %s\n" "${2^^} ${3^^}"
 printf -- "Price, Quantity and Time.\n\n"
-websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 
 }
@@ -163,7 +163,7 @@ fi
 
 	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
 
-	websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq --unbuffered -r .p | xargs -n1 printf "\n${FSTR}"
 	#stdbuf -i0 -o0 -e0 cut -c-8
 	exit
@@ -188,7 +188,7 @@ fi
 
 	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
 	
- 	websocat -nt autoreconnect:- --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+ 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
 	exit
 }
