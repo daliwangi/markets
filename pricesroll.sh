@@ -2,9 +2,11 @@
 
 uxterm -T 'BNB Stream' -geometry 6x29+0+24 -e '/home/jsn/_Scripts/markets/binance.sh -f3 -w bnbusdt' &
 
-uxterm -T 'LTC Stream' -geometry 6x24+0+0 -e '/home/jsn/_Scripts/markets/binance.sh -f3 -s ltcusdt' &
+uxterm -T 'LTC Stream' -geometry 6x24+0+0 -e '/home/jsn/_Scripts/markets/binance.sh -s ltcusdt' &
 
-uxterm -T 'BTC Bitstamp Stream' -geometry 8x53+52+0 -e "/home/jsn/_Scripts/markets/bitstamp.sh -w" &
+uxterm -T 'BTC Bitstamp Stream' -geometry 8x29+52+24 -e "/home/jsn/_Scripts/markets/bitstamp.sh -w" &
+
+uxterm -T 'XRP Binance Stream' -geometry 6x24+70+0 -e "/home/jsn/_Scripts/markets/binance -f3 -s xrpusdt" &
 
 uxterm -T 'BTC Detailed Stream' -geometry 77x53+121+0 -e '/home/jsn/_Scripts/markets/binance.sh -i' &
 
