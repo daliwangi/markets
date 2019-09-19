@@ -53,9 +53,9 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal
 
-<b><i>Also check/Também veja:</b>
-  
 <b>Other Scripts/Outros Scripts --</b> Experimental
+
+<i>Also check/Também veja:
 
 Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
