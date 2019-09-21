@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2  21/09/2019  by mountaineerbr
+# v0.2.1  21/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -31,7 +31,8 @@ DESCRIÇÃO
 	No momento, somente algumas agências de câmbio são suportadas.
 	
 	IMPORTANTE: Cuidado com agências de câmbio golpistas! Faça seus estudos!
-		    Não recomendamos nenhuma em particular.
+		    Não recomendamos nenhuma em particular. São suspeitas
+		    no momento: NegocieCoins e 3xBIT.
 
 	São necessários os pacotes cURL, JQ, Bash e Coreutils.
 
@@ -94,12 +95,12 @@ printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.
 #https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 
 ## AtlasQuantum
-printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py4colq0.execute-api.us-west-2.amazonaws.com/prod/price' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Origin: https://atlasquantum.com' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: https://atlasquantum.com/' -H 'TE: Trailers'| jq -r '.[]'|tr -d 'R$.'|tr ',' '.')"
+test "${1^^}" = "BTC" && printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py4colq0.execute-api.us-west-2.amazonaws.com/prod/price' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Origin: https://atlasquantum.com' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: https://atlasquantum.com/' -H 'TE: Trailers'| jq -r '.[]'|tr -d 'R$.'|tr ',' '.')"
 #https://atlasquantum.com/
 
 
 ## BitBlue
-printf "%'.2f\tBitBlue\n" "$(curl -s --request GET "https://bitblue.com/api/transactions?market=btc&currency=brl"|jq '.[].data[0].price')"
+printf "%'.2f\tBitBlue\n" "$(curl -s --request GET "https://bitblue.com/api/transactions?market=${1,,}&currency=brl"|jq '.[].data[0].price')"
 #https://bitblue.com/api-docs.php
 
 ## BitCambio
@@ -142,7 +143,7 @@ printf "%'.2f\tCoinNext\n" "$(curl -s -X POST -d '{"OMSId": 1, "InstrumentId": '
 #https://coinext.com.br/api.html
 
 ## FlowBTC
-printf "%'.2f\tFlowBTC\n" "$(curl -s  --request GET "https://publicapi.flowbtc.com.br/v1/ticker/BTCBRL"|jq -r '.data.LastTradedPx')"
+printf "%'.2f\tFlowBTC\n" "$(curl -s  --request GET "https://publicapi.flowbtc.com.br/v1/ticker/${1^^}BRL"|jq -r '.data.LastTradedPx')"
 #https://www.flowbtc.com.br/api.html
 
 ## MercadoBitcoin
@@ -158,7 +159,7 @@ printf "%'.2f\tNovaDAX\n" "$(curl -s "https://api.novadax.com/v1/market/ticker?s
 #https://doc.novadax.com/pt-BR/#get-latest-tickers-for-all-trading-pairs
 
 ## NoxBitcoin
-printf "%'.2f\tNoxBitcoin\n" "$(curl -s 'https://api.nox.trading/ticker/1' | jq -r '.venda')"
+test "${1^^}" = "BTC" && printf "%'.2f\tNoxBitcoin\n" "$(curl -s 'https://api.nox.trading/ticker/1' | jq -r '.venda')"
 #https://www.noxbitcoin.com.br/
 
 ## OmniTrade
@@ -172,7 +173,7 @@ fi
 #https://walltime.info/api.html#orgaa3116b
 
 ## BitValor (Análise de Agências de Câmbio do Brasil)
-if [[ "${1,,}" = "btc" ]]; then
+if [[ "${1^^}" = "BTC" ]]; then
 	printf "\nBitValor:\n"
 	# Nome das exchanges analisadas pelo BitValor
 	ARN="Arena Bitcoin"
