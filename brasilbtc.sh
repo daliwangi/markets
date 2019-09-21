@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.1.8  16/09/2019  by mountaineerbr
+# v0.2  21/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -28,9 +28,10 @@ DESCRIÇÃO
 	como o CoinGecko ou CoinMarketCap, que analisa algumas agências de câmbio
 	brasileiras.
 	
-	No momento, somente algumas agências de câmbio são suportadas. Por exemplo,
-	a FoxBit não tem um API fácil e a documentação está ruim e ela até mesmo
-	não está listada no CoinGecko.com, e portanto, não terá suporte por enquanto.
+	No momento, somente algumas agências de câmbio são suportadas.
+	
+	IMPORTANTE: Cuidado com agências de câmbio golpistas! Faça seus estudos!
+		    Não recomendamos nenhuma em particular.
 
 	São necessários os pacotes cURL, JQ, Bash e Coreutils.
 
@@ -82,6 +83,9 @@ test -z "${1}" && set -- btc
 ## Avoid errors being printed (check last line)
 (
 
+# Imprimir referência de hora
+date
+
 # Exchanges e Valores
 printf "Valores diretamente das APIs:\n"
 
@@ -89,9 +93,14 @@ printf "Valores diretamente das APIs:\n"
 printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
 #https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 
-## Braziliex
-printf "%'.2f\tBraziliex\n" "$(curl -s  https://braziliex.com/api/v1/public/ticker/${1,,}_brl| jq -r '.last')"
-#https://braziliex.com/exchange/api.php
+## AtlasQuantum
+printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py4colq0.execute-api.us-west-2.amazonaws.com/prod/price' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Origin: https://atlasquantum.com' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: https://atlasquantum.com/' -H 'TE: Trailers'| jq -r '.[]'|tr -d 'R$.'|tr ',' '.')"
+#https://atlasquantum.com/
+
+
+## BitBlue
+printf "%'.2f\tBitBlue\n" "$(curl -s --request GET "https://bitblue.com/api/transactions?market=btc&currency=brl"|jq '.[].data[0].price')"
+#https://bitblue.com/api-docs.php
 
 ## BitCambio
 if [[ "${1,,}" = "btc" ]]; then
@@ -99,6 +108,10 @@ if [[ "${1,,}" = "btc" ]]; then
 fi
 #https://bitcambiohelp.zendesk.com/hc/pt-br/articles/360006575172-Documenta%C3%A7%C3%A3o-para-API
 #https://blinktrade.com/docs/?shell#ticker
+
+## BitPreço
+printf "%'.2f\tBitPreço\n" "$(curl -s "https://api.bitpreco.com/${1,,}-brl/ticker" | jq '.last')"
+#https://bitpreco.com/api.html
 
 ## BitcoinToYou
 if [[ "${1,,}" = "btc" ]] || [[ "${1,,}" = "ltc" ]] ; then
@@ -112,17 +125,41 @@ fi
 printf "%'.2f\tBitcoinTrade\n" "$(curl -s https://api.bitcointrade.com.br/v2/public/BRL${1^^}/ticker | jq -r '.data.last')"
 #https://apidocs.bitcointrade.com.br/?version=latest#e3302798-a406-4150-8061-e774b2e5eed5
 
+## BrasilBitcoin
+printf "%'.2f\tBrasilBitcoin\n" "$(curl -s --location --request GET "https://brasilbitcoin.com.br/API/prices/${1^^}" | jq -r '.last')"
+#
+
+## Braziliex
+printf "%'.2f\tBraziliex\n" "$(curl -s  https://braziliex.com/api/v1/public/ticker/${1,,}_brl| jq -r '.last')"
+#https://braziliex.com/exchange/api.php
+
+## CoinNext
+test "${1^^}" = "BTC" && CN="1"
+test "${1^^}" = "LTC" && CN="2"
+test "${1^^}" = "ETH" && CN="4"
+test "${1^^}" = "XRP" && CN="6"
+printf "%'.2f\tCoinNext\n" "$(curl -s -X POST -d '{"OMSId": 1, "InstrumentId": '"${CN}"', "Depth": 1}' -H 'Content-type: application/json' 'https://api.coinext.com.br:8443/AP/GetL2Snapshot'|jq '.[0]|.[4]')"
+#https://coinext.com.br/api.html
+
+## FlowBTC
+printf "%'.2f\tFlowBTC\n" "$(curl -s  --request GET "https://publicapi.flowbtc.com.br/v1/ticker/BTCBRL"|jq -r '.data.LastTradedPx')"
+#https://www.flowbtc.com.br/api.html
+
 ## MercadoBitcoin
 printf "%'.2f\tMercadoBitcoin\n" "$(curl -s https://www.mercadobitcoin.net/api/${1^^}/ticker/ | jq -r '.ticker.last')"
 #https://www.mercadobitcoin.com.br/api-doc/
 
-## NegocieCoins
-printf "%'.2f\tNegocieCoins\n" "$(curl -s https://broker.negociecoins.com.br/api/v3/${1,,}brl/ticker | jq -r '.last')"
+## NegocieCoins -- Provavelmente é Golpe!
+#printf "%'.2f\tNegocieCoins\n" "$(curl -s https://broker.negociecoins.com.br/api/v3/${1,,}brl/ticker | jq -r '.last')"
 #https://www.negociecoins.com.br/documentacao-api
 
 ## NovaDAX
 printf "%'.2f\tNovaDAX\n" "$(curl -s "https://api.novadax.com/v1/market/ticker?symbol=${1^^}_BRL" | jq -r '.data.lastPrice')"
 #https://doc.novadax.com/pt-BR/#get-latest-tickers-for-all-trading-pairs
+
+## NoxBitcoin
+printf "%'.2f\tNoxBitcoin\n" "$(curl -s 'https://api.nox.trading/ticker/1' | jq -r '.venda')"
+#https://www.noxbitcoin.com.br/
 
 ## OmniTrade
 printf "%'.2f\tOmniTrade\n" "$(curl -s https://omnitrade.io/api/v2/tickers/${1,,}brl | jq -r '.ticker.last')"
