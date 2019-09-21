@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.4  21/09/2019  by mountaineerbr
+# v0.2.6  21/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -35,7 +35,8 @@ DESCRIÇÃO
 		    Não recomendamos nenhuma em particular. São suspeitas
 		    no momento: NegocieCoins e 3xBIT.
 
-	São necessários os pacotes cURL, JQ, Bash e Coreutils.
+		    São necessários os pacotes cURL, JQ, Bash e Coreutils (grep,
+		    tr, etc).
 
 
 OPÇÕES
@@ -229,5 +230,5 @@ fi
 #https://unix.stackexchange.com/questions/41406/use-a-variable-reference-inside-another-variable
 
 ## Avoid errors being printed
-) 2>/dev/null
+) 2>/dev/null | tr ',.' '.,'
 
