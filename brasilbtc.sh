@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.1  21/09/2019  by mountaineerbr
+# v0.2.4  21/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -8,7 +8,7 @@ LC_NUMERIC=en_US.UTF-8
 ## Manual and help
 # printf "brasilbtc [código_da_moeda] #Ex: btc, eth ltc"
 HELP_LINES="NOME
- 	\033[01;36mBrazilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil\033[00m
+ 	\033[01;36mBrazilbtc.sh -- Puxa Taxas de Bitcoin/Criptos de Exchanges do Brasil\033[00m
 
 
 SINOPSE
@@ -19,10 +19,11 @@ SINOPSE
 
 
 DESCRIÇÃO
-	Este programa puxa taxas/cotações de algumas agências de câmbio brasileiras.
-	Por padrão, puxarã as taxas para o Bitcoin. Caso seja fornecida uma outra
-	moeda, os resultados dependerão se a moeda solicitada é suportada em cada
-	exchange. Além disso, alguns APIs só puxam cotações para o Bitcoin.
+	Este programa puxa taxas/cotações de algumas agências de câmbio brasilei-
+	ras. Por padrão, puxara as taxas para o Bitcoin. Caso seja fornecida uma
+	outra moeda, os resultados serão exibidos caso a moeda solicitada seja 
+	suportada em cada uma das agências de câmbio. Alguns APIs só oferecem co-
+	tações para o Bitcoin.
 
 	Para cotações de Bitcoins, usa-se, também, a API do BitValor, uma empresa
 	como o CoinGecko ou CoinMarketCap, que analisa algumas agências de câmbio
@@ -91,7 +92,9 @@ date
 printf "Valores diretamente das APIs:\n"
 
 ## 3xBIT
-printf "%'.2f\t3xBIT\n" "$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
+RATE="$(curl -s --request GET https://api.exchange.3xbit.com.br/ticker/ | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
+test "${RATE//./}" -gt "0" && printf "%'.2f\t3xBIT\n" "${RATE}"
+unset RATE
 #https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 
 ## AtlasQuantum
@@ -100,38 +103,47 @@ test "${1^^}" = "BTC" && printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py
 
 
 ## BitBlue
-printf "%'.2f\tBitBlue\n" "$(curl -s --request GET "https://bitblue.com/api/transactions?market=${1,,}&currency=brl"|jq '.[].data[0].price')"
+(test "${1^^}" = "BTC" || test "${1^^}" = "ETH" || test "${1^^}" = "DASH") &&
+	RATE="$(curl -s --request GET "https://bitblue.com/api/transactions?market=${1,,}&currency=brl"|jq '.[].data[0].price')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBitBlue\n" "${RATE}"
+unset RATE
 #https://bitblue.com/api-docs.php
 
 ## BitCambio
-if [[ "${1,,}" = "btc" ]]; then
-	printf "%'.2f\tBitCambio\n" "$(curl -s "https://bitcambio_api.blinktrade.com/api/v1/BRL/ticker"| jq -r '.last')"
-fi
+test "${1^^}" = "BTC" && printf "%'.2f\tBitCambio\n" "$(curl -s "https://bitcambio_api.blinktrade.com/api/v1/BRL/ticker"| jq -r '.last')"
 #https://bitcambiohelp.zendesk.com/hc/pt-br/articles/360006575172-Documenta%C3%A7%C3%A3o-para-API
 #https://blinktrade.com/docs/?shell#ticker
 
 ## BitPreço
-printf "%'.2f\tBitPreço\n" "$(curl -s "https://api.bitpreco.com/${1,,}-brl/ticker" | jq '.last')"
+RATE="$(curl -s "https://api.bitpreco.com/${1,,}-brl/ticker" | jq '.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBitPreço\n" "${RATE}"
+unset RATE
 #https://bitpreco.com/api.html
 
 ## BitcoinToYou
-if [[ "${1,,}" = "btc" ]] || [[ "${1,,}" = "ltc" ]] ; then
-	test "${1,,}" = "btc"
-	test "${1,,}" = "ltc" && BTYN="_litecoin"
-	printf "%'.2f\tBitcoinToYou\n" "$(curl -s https://api_v1.bitcointoyou.com/ticker${BTYN}.aspx | jq -r '.ticker.last')"
-fi
+test "${1,,}" = "ltc" && BTYN="_litecoin"
+test "${1,,}" = "btc" || test "{1,,}" = "ltc" &&
+	RATE="$(curl -s https://api_v1.bitcointoyou.com/ticker${BTYN}.aspx | jq -r '.ticker.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBitcoinToYou\n" "${RATE}"
+unset RATE
 #https://www.bitcointoyou.com/blog/api-b2u/
 
 ## BitcoinTrade
-printf "%'.2f\tBitcoinTrade\n" "$(curl -s https://api.bitcointrade.com.br/v2/public/BRL${1^^}/ticker | jq -r '.data.last')"
+RATE="$(curl -s https://api.bitcointrade.com.br/v2/public/BRL${1^^}/ticker | jq -r '.data.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBitcoinTrade\n" "${RATE}"
+unset RATE
 #https://apidocs.bitcointrade.com.br/?version=latest#e3302798-a406-4150-8061-e774b2e5eed5
 
 ## BrasilBitcoin
-printf "%'.2f\tBrasilBitcoin\n" "$(curl -s --location --request GET "https://brasilbitcoin.com.br/API/prices/${1^^}" | jq -r '.last')"
+RATE="$(curl -s --location --request GET "https://brasilbitcoin.com.br/API/prices/${1^^}" | jq -r '.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBrasilBitcoin\n" "${RATE}"
+unset RATE
 #
 
 ## Braziliex
-printf "%'.2f\tBraziliex\n" "$(curl -s  https://braziliex.com/api/v1/public/ticker/${1,,}_brl| jq -r '.last')"
+RATE="$(curl -s  https://braziliex.com/api/v1/public/ticker/${1,,}_brl| jq -r '.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tBraziliex\n" "${RATE}"
+unset RATE
 #https://braziliex.com/exchange/api.php
 
 ## CoinNext
@@ -139,15 +151,21 @@ test "${1^^}" = "BTC" && CN="1"
 test "${1^^}" = "LTC" && CN="2"
 test "${1^^}" = "ETH" && CN="4"
 test "${1^^}" = "XRP" && CN="6"
-printf "%'.2f\tCoinNext\n" "$(curl -s -X POST -d '{"OMSId": 1, "InstrumentId": '"${CN}"', "Depth": 1}' -H 'Content-type: application/json' 'https://api.coinext.com.br:8443/AP/GetL2Snapshot'|jq '.[0]|.[4]')"
+RATE="$(curl -s -X POST -d '{"OMSId": 1, "InstrumentId": '"${CN}"', "Depth": 1}' -H 'Content-type: application/json' 'https://api.coinext.com.br:8443/AP/GetL2Snapshot'|jq '.[0]|.[4]')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tCoinNext\n" "${RATE}"
+unset RATE
 #https://coinext.com.br/api.html
 
 ## FlowBTC
-printf "%'.2f\tFlowBTC\n" "$(curl -s  --request GET "https://publicapi.flowbtc.com.br/v1/ticker/${1^^}BRL"|jq -r '.data.LastTradedPx')"
+RATE="$(curl -s  --request GET "https://publicapi.flowbtc.com.br/v1/ticker/${1^^}BRL"|jq -r '.data.LastTradedPx')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tFlowBTC\n" "${RATE}"
+unset RATE
 #https://www.flowbtc.com.br/api.html
 
 ## MercadoBitcoin
-printf "%'.2f\tMercadoBitcoin\n" "$(curl -s https://www.mercadobitcoin.net/api/${1^^}/ticker/ | jq -r '.ticker.last')"
+RATE="$(curl -s https://www.mercadobitcoin.net/api/${1^^}/ticker/ | jq -r '.ticker.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tMercadoBitcoin\n" "${RATE}"
+unset RATE
 #https://www.mercadobitcoin.com.br/api-doc/
 
 ## NegocieCoins -- Provavelmente é Golpe!
@@ -155,21 +173,25 @@ printf "%'.2f\tMercadoBitcoin\n" "$(curl -s https://www.mercadobitcoin.net/api/$
 #https://www.negociecoins.com.br/documentacao-api
 
 ## NovaDAX
-printf "%'.2f\tNovaDAX\n" "$(curl -s "https://api.novadax.com/v1/market/ticker?symbol=${1^^}_BRL" | jq -r '.data.lastPrice')"
+RATE="$(curl -s "https://api.novadax.com/v1/market/ticker?symbol=${1^^}_BRL" | jq -r '.data.lastPrice')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tNovaDAX\n" "${RATE}"
+unset RATE
 #https://doc.novadax.com/pt-BR/#get-latest-tickers-for-all-trading-pairs
 
 ## NoxBitcoin
 test "${1^^}" = "BTC" && printf "%'.2f\tNoxBitcoin\n" "$(curl -s 'https://api.nox.trading/ticker/1' | jq -r '.venda')"
+unset RATE
 #https://www.noxbitcoin.com.br/
 
 ## OmniTrade
-printf "%'.2f\tOmniTrade\n" "$(curl -s https://omnitrade.io/api/v2/tickers/${1,,}brl | jq -r '.ticker.last')"
+RATE="$(curl -s https://omnitrade.io/api/v2/tickers/${1,,}brl | jq -r '.ticker.last')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tOmniTrade\n" "${RATE}"
+unset RATE
 #https://help.omnitrade.io/pt-BR/articles/1572451-apis-como-integrar-seu-sistema
 
 ## Walltime
-if [[ "${1,,}" = "btc" ]]; then
-	printf "%'.2f\tWalltime\n" "$(curl -s https://s3.amazonaws.com/data-production-walltime-info/production/dynamic/walltime-info.json | jq -r '(.BRL_XBT.last_inexact)')"
-fi
+test "${1^^}" = "BTC" && printf "%'.2f\tWalltime\n" "$(curl -s https://s3.amazonaws.com/data-production-walltime-info/production/dynamic/walltime-info.json | jq -r '(.BRL_XBT.last_inexact)')"
+unset RATE
 #https://walltime.info/api.html#orgaa3116b
 
 ## BitValor (Análise de Agências de Câmbio do Brasil)
