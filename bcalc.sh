@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.2.5   2019/jul/30     by mountaineerbr
+# v0.2.6   2019/set/23     by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -163,9 +163,9 @@ fi
 cientificf() {
 	# Grab extensions and scientific constants
 	if ! [[ -e ~/.bcalc_extensions ]]; then
-		curl -s http://x-bc.sourceforge.net/scientific_constants.bc > ~/.bcalc_extensions
+		curl -s "http://x-bc.sourceforge.net/scientific_constants.bc" > ~/.bcalc_extensions
 		printf "\n" >> ~/.bcalc_extensions
-		curl -s http://x-bc.sourceforge.net/extensions.bc >> ~/.bcalc_extensions
+		curl -s "http://x-bc.sourceforge.net/extensions.bc" >> ~/.bcalc_extensions
 		printf "\n" >> ~/.bcalc_extensions
 	fi
 	if [[ -n "${PEXT}" ]]; then
@@ -176,11 +176,11 @@ cientificf() {
 	fi
 
 	# Grep last ans
-	if printf "%s\n" "${*}" | grep ans &> /dev/null; then 
+	if grep -q ans <<< "${*}"; then 
 		ANS=$(tail -1 ~/.bcalc_record)
-		EQ=$(printf "%s\n" "${*}" | sed -e "s/ans/(${ANS})/" -e "s/,/./")
+		EQ=$(sed -e "s/ans/(${ANS})/" -e "s/,/./" <<< "${*}")
 	else
-		EQ=$(printf "%s\n" "${*}" | sed 's/,/./g')
+		EQ="${*//,/.}"
 	fi
 
 
@@ -209,11 +209,11 @@ if [[ -n "${CIENTIFIC}" ]]; then
 fi		
 
 ## Grep last answer result from calc Record and prepare equation
-if printf "%s\n" "${*}" | grep ans &> /dev/null; then 
+if grep -q ans <<< "${*}"; then 
 	ANS=$(tail -1 ~/.bcalc_record)
-	EQ=$(printf "%s\n" "${*}" | sed -e "s/ans/(${ANS})/" -e "s/,/./")
+	EQ=$(sed -e "s/ans/(${ANS})/" -e "s/,/./" <<< "${*}")
 else
-	EQ=$(printf "%s\n" "${*}" | sed 's/,/./g')
+	EQ="${*//,/.}"
 fi
 
 # If you just want to format last result ( -s and/or -g )
@@ -223,22 +223,22 @@ if [[ -z ${*} ]] && [[ -n ${SCL} || -n ${GROUP} ]]; then
 fi
 
 ## Check if equation syntax is valid
-if [[ -z $(printf "%s\n" "${EQ}" | bc -l) ]]; then
+if [[ -z $(bc -l <<< "${EQ}") ]]; then
 	exit 1
 fi
 
 ## Check if your locale uses a comma or dot for decimal separation
-if [[ -z $(printf "%f\n" "1" | grep "\.") ]]; then
+if ! printf "%f\n" "1" | grep -q "\."; then
 	COMMA=1
 fi
 
 ## Calculate result
 ## If result is the same as last result, do not print it to Record again
-if ! [[ $(printf "%s\n" "${EQ}" | bc -l) = $(tail -1 ~/.bcalc_record) ]]; then
+if ! [[ $(bc -l <<< "${EQ}") = $(tail -1 ~/.bcalc_record) ]]; then
 	## Print timestamp in Record
 	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> ~/.bcalc_record
 	## Print original result to Record (default bc mathlib scale is 20)
-	printf "%s\n" "${EQ}" | bc -l >> ~/.bcalc_record
+	bc -l <<< "${EQ}" >> ~/.bcalc_record
 fi
 
 ## Format viewing result ( scale and thousands grouping )
