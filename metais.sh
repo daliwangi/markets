@@ -1,6 +1,6 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
-# v0.2  18//set/2019  by mountaineer_br
+# v0.2.1  23/set/2019  by mountaineer_br
 
 # Ounce in Grams reference
 OZ="28.349523125"
@@ -12,10 +12,10 @@ oz() {
 # https://en.wikipedia.org/wiki/Ounce
 
 ## Funções de metais ( em BRL )
-cmcouro() { echo "$(~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xau brl)" | bc -l; }
-cmcprata() { echo "$(~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xag brl)" | bc -l; }
-cgkouro() { echo "$(~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xau brl)" | bc -l; }
-cgkprata() { echo "$(~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xag brl)" | bc -l; }
+cmcouro() { ~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xau brl; }
+cmcprata() { ~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xag brl; }
+cgkouro() { ~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xau brl; }
+cgkprata() { ~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xag brl; }
 openxouro() { echo "scale=6; $(~/_Scripts/markets/openx.sh xau brl)/${OZ}" | bc -l; }
 openxprata() { echo "scale=6; $(~/_Scripts/markets/openx.sh xag brl)/${OZ}" | bc -l; }
 clayouro() { echo "scale=6; $(~/_Scripts/markets/clay.sh xau brl)/${OZ}" | bc -l; }
