@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4  2019/09/25  by mountaineerbr
+# v0.4.2  2019/09/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -121,8 +121,8 @@ Usage
       -x 	Transaction information by hash or id from Blockchair.
     Other
       -h 	Help (this textpage).
-      -j 	Fetch and print JSON for debugging (with another option).
-      -m 	Mememory pool (unconfirmed) transaction Addresses and Balance
+      -j 	Fetch and print JSON (for debugging).
+      -m 	Memory pool (unconfirmed) transaction Addresses and Balance
       		deltas from BlockChair; pipe output to grep a specific address.
       -v        Print version of this script."
 
@@ -276,14 +276,9 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWTX}"
 	exit
 fi
-# Test response from server
-if [[ "$(wc -l <<< "${RAWTX}")" -le "1" ]]; then
-	printf "%s\n" "${RAWTX}"
-	exit 1
-fi
 printf "Transaction Info\n"
 jq -er '. | "--------",
-	"TxHash:"," \(.hash)",
+	"TxHash: \(.hash)",
 	"Tx ID : \(.tx_index)\tBlk ID: \(.block_index)\t\tDSpent: \(.double_spend)",
 	"Size  : \(.size) bytes\tLockT : \(.lock_time)\t\tVer   : \(.ver)",
 	"Fee   : \(.fee // "??") sat  \tFee   : \(if .fee == null then "??" else (.fee/.size) end) sat/byte",
@@ -310,14 +305,9 @@ elif [[ -z "${RAWB}" ]]; then
 	RAWB="$(curl -s "https://blockchain.info/rawblock/${1}")"
 fi
 # print JSON?
-if [[ -n  "${PJSON}" ]]; then
+if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${RAWB}"
 	exit
-fi
-# Test response from server
-if [[ "$(wc -l <<< "${RAWB}")" -le "1" ]]; then
-	printf "%s\n" "${RAWB}"
-	exit 1
 fi
 
 # Print Txs info
@@ -331,10 +321,10 @@ jq -r '. | "Hash  : \(.hash)",
 	"MrklRt: \(.mrkl_root)",
 	"PrevB : \(.prev_block)",
 	"NextB : \(.next_block[])",
-	"Time  : \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocal:\t\(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-	"Bits  : \(.bits)\tNonce:\t\(.nonce)",
-	"Index : \(.block_index)  \tVer   : \(.ver)",
-	"Height: \(.height)   \tChain : \(if .main_chain == true then "Main" else "Secondary" end)",
+	"Time  : \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))  LocalT: \(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+	"Bits  : \(.bits)\tNonce : \(.nonce)",
+	"Index : \(.block_index)   \tVer   : \(.ver)",
+	"Height: \(.height)      \tChain : \(if .main_chain == true then "Main" else "Secondary" end)",
 	"Size  : \(.size/1000) KB\tTxs   : \(.n_tx)",
 	"Fees  : \(.fee/100000000) BTC",
 	"Avg F : \(.fee/.size) sat/byte",
@@ -358,11 +348,6 @@ fi
 ## -n Block info by height
 hblockf() {
 RAWBORIG="$(curl -s "https://blockchain.info/block-height/${1}?format=json")"
-# Test response from server
-if [[ "$(wc -l <<< "${RAWBORIG}")" -le "1" ]]; then
-	printf "%s\n" "${RAWBORIG}"
-	exit 1
-fi
 RAWB="$(jq -r '.blocks[]' <<< "${RAWBORIG}")"
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
@@ -401,11 +386,6 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWADD}"
 	exit
 fi
-# Test response from server
-if [[ "$(wc -l <<< "${RAWADD}")" -le "1" ]]; then
-	printf "%s\n" "${RAWADD}"
-	exit 1
-fi
 
 # Tx info
 # Grep txs and call rawtxf function
@@ -433,10 +413,6 @@ if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${CHAIRADD}"
 	exit
 fi
-## Test response from server
-#if printf "%s\n" "${CHAIRADD}" | jq -r '. | .data[] | "\t\(.address[type])"' | grep -iq "null"; then
-#	printf "\n\e[1;33;44mWarning:\e[0m This Address does not \"seem\" to be valid...\n" 1>&2
-#fi
 # -u Summary Address Information
 if [[ -n "${SUMMARYOPTB}" ]]; then
 	printf "Summary Address Info (Blockchair)\n"
@@ -526,7 +502,7 @@ if grep -iq "DOCTYPE html" <<< "${TXCHAIR}"; then
 fi
 printf "Transaction Info (Blockchair)\n"
 jq -er '.data[].inputs as $i | .data[].outputs as $o | .data[].transaction | "--------",
-	"Hash  : \(.hash)",
+	"TxHash: \(.hash)",
 	"Tx ID : \(.id)\tBlk ID: \(.block_id)\t\(if .is_coinbase == true then "(Coinbase Tx)" else "" end)",
 	"Size  : \(.size) bytes\tLockT : \(.lock_time)\t\tVer   : \(.version)",
 	"Fee   :\t\tF Rate:",
@@ -668,6 +644,10 @@ if [[ -n "${BLKCHAINOPTCHAIR}" ]]; then
 	exit
 fi
 
-
+# Run -j without any other opt?
+if [[ -n "${PJSON}" ]]; then
+	printf "Option \"-j\" is for debugging only and requires other opts.\n"
+	exit 0
+fi
 ## Dead Code
 
