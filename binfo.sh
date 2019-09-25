@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.2  2019/09/25  by mountaineerbr
+# v0.4.3  2019/09/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -220,7 +220,7 @@ websocat --text --no-close --ping-interval 18 "wss://ws.blockchain.info/inv" <<<
 	"Output: \(.totalBTCSent/100000000) BTC\tETxVol: \(.estimatedBTCSent/100000000) BTC",
 	"Time  : \(.foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.foundBy.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 	"\t\t\t\tRecvT : \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-	"IP    : \(.foundBy.ip)  \tDesc :\t\(.foundBy.description)",
+	"IP    : \(.foundBy.ip)  \tDesc  : \(.foundBy.description)",
 	"Link  : \(.foundBy.link)"'
 #{"op":"blocks_sub"}
 #{"op":"unconfirmed_sub"}
