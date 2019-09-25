@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.6  21/09/2019  by mountaineerbr
+# v0.2.7  25/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -33,7 +33,7 @@ DESCRIÇÃO
 	
 	IMPORTANTE: Cuidado com agências de câmbio golpistas! Faça seus estudos!
 		    Não recomendamos nenhuma em particular. São suspeitas
-		    no momento: NegocieCoins e 3xBIT.
+		    no momento: 3xBIT, AltasQuantum e NegocieCoins.
 
 		    São necessários os pacotes cURL, JQ, Bash e Coreutils (grep,
 		    tr, etc).
