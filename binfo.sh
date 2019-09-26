@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.3  2019/09/25  by mountaineerbr
+# v0.4.4  2019/09/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -417,7 +417,7 @@ fi
 if [[ -n "${SUMMARYOPTB}" ]]; then
 	printf "Summary Address Info (Blockchair)\n"
 	jq -r '. | "Tx Num: \(.data[].address.transaction_count)",
-	"T Rcv : \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
+	"T Recv: \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
 	"T Sent: \(.data[].address.spent/100000000) BTC  (\(.data[].address.spent_usd|round) USD)",
 	"Bal   : \(.data[].address.balance/100000000) BTC  (\(.data[].address.balance_usd|round) USD)"' <<< "${CHAIRADD}"
 	exit
