@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.7  25/09/2019  by mountaineerbr
+# v0.2.9  25/09/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -99,7 +99,7 @@ unset RATE
 #https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 
 ## AtlasQuantum
-test "${1^^}" = "BTC" && printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py4colq0.execute-api.us-west-2.amazonaws.com/prod/price' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Origin: https://atlasquantum.com' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: https://atlasquantum.com/' -H 'TE: Trailers'| jq -r '.[]'|tr -d 'R$.'|tr ',' '.')"
+test "${1^^}" = "BTC" && printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py4colq0.execute-api.us-west-2.amazonaws.com/prod/price' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Origin: https://atlasquantum.com' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Referer: https://atlasquantum.com/' -H 'TE: Trailers'| jq -r '.[]'|tr ',' '.')"
 #https://atlasquantum.com/
 
 
