@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.2.5  2019/set/05  by mountaineerbr
+# v0.3  2019/set/25  by mountaineerbr
 
 ## Some defaults
 # Get your own personal API KEY
@@ -38,21 +38,68 @@ DESCRIPTION
 	and sign up for a free private API key and change it in the script source
 	code (look for variable APIKEY), as the script default API key may start 
 	stop wrking at any moment and without warning!
+
+	Gold and other metals are priced in Ounces.
+		
+		\"Gram/Ounce\" rate: 28.349523125
+
+
+	It is also useful to define a variable OZ in your \".bashrc\" to work 
+	with precious metals (see usage examples 3-6).
+
+		OZ=\"28.349523125\"
+
 	
 	Default precision is 16. Trailing zeroes are trimmed by default.
 
-	Usage example:
+
+USAGE EXAMPLES
 		
 		(1) One Brazilian real in US Dollar:
 
-		$ clay.sh brl
+			$ clay.sh brl
 
-		$ clay.sh 1 brl usd
+			$ clay.sh 1 brl usd
 
 
 		(2) Fifty a Djiboutian Franc in Chinese Yuan with 3 decimal plates (scale):
 
-		$ clay.sh -s3 50 djf cny
+			$ clay.sh -s3 50 djf cny
+		
+
+		(3) \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
+					
+			$ cgk.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
+
+			    Just multiply amount by the \"gram/ounce\" rate.
+
+
+		(4) \e[1;33;40m1\033[00m EUR in grams of Gold:
+					
+			$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+		(5) \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
+					
+			$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			
+			    Just divide amount by the \"gram/ounce\" rate.
+
+		
+		(6) \e[1;33;40m1\033[00m gram of Gold in EUR:
+					
+			$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+
+
+
+
+WARRANTY
+	Licensed under the GNU Public License v3 or better.
+ 	This programme is distributed without support or bug corrections.
+
+	Give me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPTIONS
@@ -67,13 +114,7 @@ OPTIONS
 
 		-t 	Print JSON timestamp.
 		
-		-v 	Show this programme version.
-
-
-BUGS
- 	This programme is distributed without support or bug corrections.
-	Licensed under GPLv3 and above.
-		"
+		-v 	Show this programme version."
 
 # Check if there is any argument
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
@@ -152,38 +193,38 @@ fi
 
 ## Get currency rates
 if ! [[ ${2^^} = USD && ${3^^} = USD ]]; then
-	FROMCURRENCY=$(printf "%s\n" "${CLJSON}" | jq ".quotes.USD${2^^}")
-	TOCURRENCY=$(printf "%s\n" "${CLJSON}" | jq ".quotes.USD${3^^}")
+	FROMCURRENCY=$(jq ".quotes.USD${2^^}" <<< "${CLJSON}")
+	TOCURRENCY=$(jq ".quotes.USD${3^^}" <<< "${CLJSON}")
 elif [[ ${2^^} = USD ]]; then
 	FROMCURRENCY=1
-	TOCURRENCY=$(printf "%s\n" "${CLJSON}" | jq ".quotes.USD${3^^}")
+	TOCURRENCY=$(jq ".quotes.USD${3^^}" <<< "${CLJSON}")
 elif [[ ${3^^} = USD ]]; then
-	FROMCURRENCY=$(printf "%s\n" "${CLJSON}" | jq ".quotes.USD${2^^}")
+	FROMCURRENCY=$(jq ".quotes.USD${2^^}" <<< "${CLJSON}")
 	TOCURRENCY=1
 fi
 
 ## Transform "e" to "*10^" in rates
-if printf "%s\n" "${FROMCURRENCY}" | grep "e" &> /dev/null; then
-	FROMCURRENCY=$(printf "%s\n" "${FROMCURRENCY}" | sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g')
+if grep -q "e" <<< "${FROMCURRENCY}"; then
+	FROMCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${FROMCURRENCY}")
 	if [[ ${SCL} < 6 ]]; then
-		SCL=8
-		printf "%s\n" "Scale changed to 8."
+		SCL=10
+		printf "%s\n" "Scale changed to 10." 1>&2
 	fi
 fi
-if printf "%s\n" "${TOCURRENCY}" | grep "e" &> /dev/null; then
-	TOCURRENCY=$(printf "%s\n" "${TOCURRENCY}" | sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g') 
+if grep -q "e" <<< "${TOCURRENCY}"; then
+	TOCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${TOCURRENCY}") 
 	if [[ ${SCL} < 6 ]]; then
-		SCL=8
-		printf "%s\n" "Scale changed to 8."
+		SCL=10
+		printf "%s\n" "Scale changed to 10." 1>&2
 	fi
 fi
 
 ## Print JSON timestamp ?
 if [[ -n ${TIMEST} ]]; then
-	JSONTIME=$(printf "%s\n" "${CLJSON}" | jq ".timestamp")
+	JSONTIME=$(jq ".timestamp" <<< "${CLJSON}")
 	date -d@"$JSONTIME" "+## %FT%T%Z"
 fi
 
 ## Make equation and print result
-printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=%s; trunc((%s*%s)/%s)\n" "${SCL}" "${1}" "${TOCURRENCY}" "${FROMCURRENCY}" | bc -lq
+bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/${FROMCURRENCY})"
 
