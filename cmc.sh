@@ -1,7 +1,8 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.3.16  2019/set/03  by mountaineerbr
+# v0.4  2019/set/25  by mountaineerbr
+
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
 
@@ -14,39 +15,60 @@ APIKEY="29f3d386-d47d-4b54-9790-278e1faa7cdc"
 ## Manual and help
 ## Usage: $ cmc.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
- 	\033[01;36mCmc.sh -- Coinmarketcap.com API Access\033[00m
+	Cmc.sh -- Currency Converter and Market Information
+		  Coinmarketcap.com API Access
 
 
 SYNOPSIS
-	cmc.sh \e[0;35;40m[-h|-j|-l|-m|-t|-v]\033[00m
+	cmc.sh [options] [amount] [from_currency] [to_currency]
 
-	cmc.sh \e[0;35;40m[-b|-j|-s|-p]\033[00m \e[0;33;40m[AMOUNT]\033[00m \
-\e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
+	cmc.sh [-b|-j|-s|-p] [amount] [from_code] [to_code]
+
+	cmc.sh [-h|-j|-l|-m|-t|-v]
+
 
 DESCRIPTION
 	This programme fetches updated currency rates from CoinMarketCap.com
 	through a Private API key. It can convert any amount of one supported
-	currency into another.
+	crypto currency into another. CMC also converts crypto to ~93 central 
+	bank currencies.
 
-	CMC does not convert from a central bank currency to another,
-	but it does convert from crypto to ~93 central bank currencies
-	
-	Central bank currency conversions are not supported directly, but we can
-	derive bank currency rates undirectly, for e.g. USD vs CNY. As CoinMarketCap
-	updates frequently, it is one of the best API for bank currency rates.
+	Only central bank currency conversions are not supported directly, but 
+	we can derive bank currency rates undirectly, for e.g. USD vs CNY. As 
+	CoinMarketCap updates frequently, it is one of the best APIs for bank 
+	currency rates, too.
 
-	All these unofficially supported market pairs can be calculated with the
-	\"Bank Currency Function\", called with the flag \"-b\". It can also be
-	used with crypto currencies that may not be supported otherwise.
+	The  Bank  Currency  Function \"-b\" can calculate central bank currency
+	rates, such  as USD/BRL.
 
-	It is _not_ advisable to depend solely on CoinMarketCap rates for serious
-	trading.
+	It  is  _not_  advisable  to depend  solely on CoinMarketCap rates for 
+	serious	trading.
 	
 	You can see a List of supported currencies running the script with the
-	argument \"-l\". 
+	argument \"-l\".
+
+	Gold and other metals are priced in Ounces.
+		
+		\"Gram/Ounce\" rate: 28.349523125
+
+
+	It is also useful to define a variable OZ in your \".bashrc\" to work 
+	with precious metals (see usage examples 10-13).
+
+		OZ=\"28.349523125\"
+
 
 	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
 	are trimmed by default.
+
+
+WARRANTY
+	Licensed under the GNU Public License v3 or better.
+ 	This programme is distributed without support or bug corrections.
+
+	Give me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 USAGE EXAMPLES:		
@@ -93,36 +115,38 @@ USAGE EXAMPLES:
 			$ cmc.sh -t 20 eur
 
 
-		(9)     One ounce of Gold in U.S.A. Dollar:
+		(9)    One Bitcoin in ounces of Gold:
+					
+			$ cgk.sh 1 btc xau 
+
+
+		(10)    \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
+					
+			$ cgk.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
+
+			    Just multiply amount by the \"gram/ounce\" rate.
+
+
+		(11)    \e[1;33;40m1\033[00m EUR in grams of Gold:
+					
+			$ cgk.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+		(12)    \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
+					
+			$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
 			
-			$ cmc.sh -b xau 
-			
-			$ cmc.sh -b 1 xau usd 
+			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(10)    One Bitcoin in grams of Gold:
+		(13)    \e[1;33;40m1\033[00m gram of Gold in EUR:
 					
-			$ cmc.sh \"28.3495\" btc xau 
-
-			    Just multiply amount by the gram/ounce rate.
-
-
-		(11)   	1 gram of GOLD in USD:
-					
-			$ cmc.sh -b \"1/28.3495\" xau usd 
-			
-			    1/28.3495 is the rate of one gram/ounce.
-
-
-		(12)    \e[0;33;40m100\033[00m grams of GOLD in EUR:
-					
-			$ cmc.sh -b \"(1/28.3495)\e[0;33;40m*100\033[00m\" xau eur 
+			$ cgk.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 			
 
 OPTIONS
-		-b 	Activate Bank Currency Mode: FROM_CURRENCY and
-			TO_CURRENCY can be any central bank or crypto currency
-			supported by CMC.
+		-b 	Bank currency function: from_ and to_currency can be 
+			any central bank or crypto currency supported by CMC.
 		
 		-h 	Show this help.
 
@@ -130,33 +154,23 @@ OPTIONS
 
 		-l 	List supported currencies.
 
-		-m 	Market Ticker.
+		-m 	Market ticker.
 
 		-s 	Set scale (decimal plates).
 
 		-p 	Print JSON timestamp, if available.
 		
-		-t 	Top Crypto Tickers; enter the number of currencies
-			to show; Defaults=10, Max=100;
-			TIP: you may manually pipe results to Grep in order to 
-			filter results.
+		-t 	Tickers for top cryptos; enter the number of top cur-
+			rencies to show; defaults=10, max=100;
 
 		-v 	Show this programme version.
-
-
-BUGS
- 	This programme is distributed without support or bug corrections.
-	Licensed under GPLv3 and above.
-	Give me a nickle! =)
-          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
-
 
 IMPORTANT NOTICE
 	Please take a little time to register at <https://coinmarketcap.com/api/>
 	for a free API key and change the APIKEY variable in the script source
 	code for yours. The default API key may stop working at any moment and
-	without any warning!
-		"
+	without any warning!"
+
 OTHERCUR="
 2781 = USD = United States Dollar ($)
 3526 = ALL = Albanian Lek (L)
@@ -261,8 +275,9 @@ OTHERCUR="
 # Check if there is any argument
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
-	exit
+	exit 1
 fi
+
 # Parse options
 while getopts ":blmhjs:tp" opt; do
   case ${opt} in
@@ -275,11 +290,11 @@ while getopts ":blmhjs:tp" opt; do
 		# If number of tickers is in ARG2
 		if [[ -z "${2}" ]]; then
 			set -- "${1}" 10 bitcoin USD
-		elif printf "%s\n" "${2}" | grep -q "[0-9]"; then
+		elif grep -q "[0-9]" <<< "${2}"; then
 			TICKEROPT="${2}"
 			set -- "${1}" "${2}" bitcoin "${3}"
 		# If number of tickers is in ARG3
-		elif printf "%s\n" "${3}" | grep -q "[0-9]"; then
+		elif grep -q "[0-9]" <<< "${3}"; then
 			set -- "${1}" "${3}" bitcoin "${2}"
 		else
 			set -- "${1}" 10 bitcoin "${2}"
@@ -312,7 +327,6 @@ while getopts ":blmhjs:tp" opt; do
 done
 shift $((OPTIND -1))
 
-
 ## Print currency lists
 listsf() {
 	printf "\n=============CRYPTOCURRENCIES============\n"
@@ -321,19 +335,11 @@ listsf() {
 	column -s '=' -et -o '|' -N 'ID,SYMBOL,NAME'
 	printf "\n\n===========BANK CURRENCIES===========\n"
 	printf "%s\n" "${OTHERCUR}" | column -s '=' -et -o '|' -N 'ID,SYMBOL,NAME'
+	exit 0
 	}
 if [[ -n "${LISTS}" ]]; then
 	listsf
-	exit
 fi
-
-## Check for internet connection function
-icheck() {
-if [[ -z "${RESULT}" ]] &&
-	   ! ping -q -w7 -c2 8.8.8.8 &> /dev/null; then
-	printf "Bad internet connection.\n"
-fi
-}
 
 ## Set default scale if no custom scale
 SCLDEFAULTS=16
@@ -341,11 +347,10 @@ if [[ -z ${SCL} ]]; then
 	SCL="${SCLDEFAULTS}"
 fi
 
-
 ## Set arguments
 # If first argument does not have numbers OR isn't a  valid expression
 if ! [[ "${1}" =~ [0-9] ]] ||
-	[[ -z "$(printf "%s\n" "${1}" | bc -l 2>/dev/null)" ]]; then
+	[[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
 	set -- 1 "${@:1:2}"
 fi
 
@@ -355,29 +360,28 @@ fi
 
 ## Bank currency rate function
 bankf() {
-	# Rerun script, get artes and process data	
+	# Rerun script, get rates and process data	
 	(
-	BTCBANK="$(${0} -p BTC ${2^^})"
-	BTCBANKHEAD=$(printf "%s\n" "${BTCBANK}" | head -n1) # Timestamp
-	BTCBANKTAIL=$(printf "%s\n" "${BTCBANK}" | tail -n1) # Rate
-	BTCTOCUR="$(${0} -p BTC ${3^^})"
-	BTCTOCURHEAD=$(printf "%s\n" "${BTCTOCUR}" | head -n1) # Timestamp
-	BTCTOCURTAIL=$(printf "%s\n" "${BTCTOCUR}" | tail -n1) # Rate
+	BTCBANK="$(${0} -p BTC "${2^^}")"
+	BTCBANKHEAD=$(head -n1 <<< "${BTCBANK}") # Timestamp
+	BTCBANKTAIL=$(tail -n1 <<< "${BTCBANK}") # Rate
+	BTCTOCUR="$(${0} -p BTC "${3^^}")"
+	BTCTOCURHEAD=$(head -n1 <<< "${BTCTOCUR}") # Timestamp
+	BTCTOCURTAIL=$(tail -n1 <<< "${BTCTOCUR}") # Rate
 	if [[ -n "${TIMEST}" ]]; then
 		printf "%s (from currency)\n" "${BTCBANKHEAD}"
-		printf "%s (to   currency)\n" "${BTCTOCURHEAD}"
+		printf "%s ( to  currency)\n" "${BTCTOCURHEAD}"
 	fi
 	# Calculate result & print result 
-	RESULT="$(printf "(%s*%s)/%s\n" "${1}" "${BTCTOCURTAIL}" "${BTCBANKTAIL}" | bc -l)"
+	RESULT="$(bc -l <<< "(${1}*${BTCTOCURTAIL})/${BTCBANKTAIL}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 	# Check for errors
-	if ! printf "%s\n" "${RESULT}" | grep -q "[1-9]"; then
+	if ! grep -q "[1-9]" <<< "${RESULT}"; then
 		printf "Input must have valid currency symbols; check for eventual mistakes.\n"
 		exit 1
 	fi
 	) 2>/dev/null
-	#icheck
-	exit
+	exit 0
 }
 if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
 	# Print JSON?
@@ -388,63 +392,57 @@ elif [[ -n "${BANK}" ]]; then
 	bankf ${*}
 fi
 
-
 ## Market Capital Function
 mcapf() {
 	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${APIKEY}" -H "Accept: application/json" -d "convert=USD" -G https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest)
-
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CMCGLOBAL}"
 		exit 0
 	fi
-
-	LASTUP=$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.last_updated')
-	date --date "${LASTUP}"  "+%n## %FT%T%Z%n"
+	LASTUP=$(jq -r '.data.last_updated' <<< "${CMCGLOBAL}")
 	LC_NUMERIC="en_US.utf8"
-	
-	printf "CRYPTO MARKET STATS\n\n"
-	printf "## Exchanges     : %s\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.active_exchanges')"
-	printf "## Active cryptos: %s\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.active_cryptocurrencies')"
-	printf "## Market pairs  : %s\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.active_market_pairs')"
+	printf "## CRYPTO MARKET INFORMATION\n"
+	date --date "${LASTUP}"  "+#  %FT%T%Z"
+	printf "\n# Exchanges     : %s\n" "$(jq -r '.data.active_exchanges' <<< "${CMCGLOBAL}")"
+	printf "# Active cryptos: %s\n" "$(jq -r '.data.active_cryptocurrencies' <<< "${CMCGLOBAL}")"
+	printf "# Market pairs  : %s\n" "$(jq -r '.data.active_market_pairs' <<< "${CMCGLOBAL}")"
 
-	printf "\n## All Crypto Market Cap (USD)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_market_cap')"
-	printf "## Last 24h Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_volume_24h')"
-	printf "## Last 24h Reported Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.total_volume_24h_reported')"
+	printf "\n## Dominance\n"
+	printf " # BTC: %'.2f %%\n" "$(jq -r '.data.btc_dominance' <<< "${CMCGLOBAL}")"
+	printf " # ETH: %'.2f %%\n" "$(jq -r '.data.eth_dominance' <<< "${CMCGLOBAL}")"
 
-	printf "\n## Bitcoin Market Cap (USD)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_market_cap-.data.quote.USD.altcoin_market_cap)')"
-	printf "## Last 24h Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_volume_24h-.data.quote.USD.altcoin_volume_24h)')"
-	printf "## Last 24h Reported Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '(.data.quote.USD.total_volume_24h_reported-.data.quote.USD.altcoin_volume_24h_reported)')"
+	printf "\n## Market Cap per Coin\n"
+	printf " # BTC: %'.2f USD\n" "$(jq -r '((.data.btc_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
+	printf " # ETH: %'.2f USD\n" "$(jq -r '((.data.eth_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
 
-	printf "\n## AltCoin Market Cap (USD)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_market_cap')"
-	printf "## Last 24h Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_volume_24h')"
-	printf "## Last 24h Reported Volume (USD/24-H)\n"
-	printf "%'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.quote.USD.altcoin_volume_24h_reported')"
+	printf "\n## All Crypto Market Cap\n"
+	printf "   %'.2f USD\n" "$(jq -r '.data.quote.USD.total_market_cap' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.total_volume_24h' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Reported Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.total_volume_24h_reported' <<< "${CMCGLOBAL}")"
 
-	printf "\n## Dominance (%%)\n"
-	printf "BTC: %'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.btc_dominance')"
-	printf "ETH: %'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '.data.eth_dominance')"
+	printf "\n## Bitcoin Market Cap\n"
+	printf "   %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_market_cap-.data.quote.USD.altcoin_market_cap)' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_volume_24h-.data.quote.USD.altcoin_volume_24h)' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Reported Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_volume_24h_reported-.data.quote.USD.altcoin_volume_24h_reported)' <<< "${CMCGLOBAL}")"
 
-	printf "\n## Market Cap per Coin (USD)\n"
-	printf "BTC: %'.2f\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '((.data.btc_dominance/100)*.data.quote.USD.total_market_cap)')"
-	printf "ETH: %'.2f\n\n" "$(printf "%s" "${CMCGLOBAL}" | jq -r '((.data.eth_dominance/100)*.data.quote.USD.total_market_cap)')"
+	printf "\n## AltCoin Market Cap\n"
+	printf "   %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_market_cap' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_volume_24h' <<< "${CMCGLOBAL}")"
+	printf " # Last 24h Reported Volume\n"
+	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_volume_24h_reported' <<< "${CMCGLOBAL}")"
 # v1.15.0 on Jul 10, 2019
 #/v1/global-metrics/quotes/latest now updates more frequently, every minute. It aslo now includes total_volume_24h_reported, altcoin_volume_24h, altcoin_volume_24h_reported, and altcoin_market_cap.
-
+	exit 0
 }
 if [[ -n "${MCAP}" ]]; then
 	mcapf
-	exit
 fi
-
 
 ## -t Top Tickers Function
 tickerf() {
@@ -456,15 +454,14 @@ tickerf() {
 		printf "%s\n" "${TICKERJSON}"
 		exit 0
 	fi
-	printf "%s\n" "${TICKERJSON}" |
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${3,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${3,,}"'")=\(.market_cap_'"${3,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' |
+	jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${3,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${3,,}"'")=\(.market_cap_'"${3,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" |
 		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price${3^^},D1h,D24h,D7D,Vol24h${3^^},MarketCap${3^^},AvailableSupply/Total,LastUpdate"
 # https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
 # https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
+	exit 0
 }
 if [[ -n "${TICKEROPT}" ]]; then
 	tickerf ${*}
-	exit
 fi
 
 
@@ -472,11 +469,11 @@ fi
 # Make a list of currencies names and ids and their symvols
 test -z "${BANKFSET}" &&
 	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
-if test -z "${BANKFSET}" && ! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${2}$"; then
-	if printf "%s\n" "${SYMBOLLIST}" | jq -er '.["'"${2^^}"'"]' &>/dev/null; then
-		set -- "${1}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r '.["'"${2^^}"'"]')" "${3}"
+if test -z "${BANKFSET}" && ! jq -er ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
+	if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
+		set -- "${1}" "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")" "${3}"
 	else
-		printf "Unsupported FROM_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${2^^}"
+		printf "ERR: FROM_CURRENCY -- %s\nCheck symbol or \"-h\" for help.\n" "${2^^}" 1>&2
 		exit 1
 	fi
 fi
@@ -488,13 +485,12 @@ fi
 
 ## Check you are NOT requesting some unsupported TO_CURRENCY
 TOCURLIST=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND  XAUXAG XPT XPD) 
-if test -z "${BANKFSET}" &&
-	! printf "%s\n" "${TOCURLIST[@]}" | grep -qi "^${3}$" &&
-	! printf "%s\n" "${SYMBOLLIST}" | jq -r ".[]" | grep -iq "^${3}$"; then
-		if printf "%s\n" "${SYMBOLLIST}" | jq -er '.["'"${3^^}"'"]' &>/dev/null; then
-			set -- "${1}" "${2}" "$(printf "%s\n" "${SYMBOLLIST}" | jq -r '.["'"${3^^}"'"]')"
+if test -z "${BANKFSET}" && ! grep -qi "^${3}$" <<< "${TOCURLIST[@]}" &&
+	! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${3}$"; then
+		if jq -er '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
+			set -- "${1}" "${2}" "$(jq -r '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}")"
 		else
-			printf "Unsupported TO_CURRENCY %s at CMC.\nTry the Bank currency function.\n" "${3^^}"
+			printf "ERR: TO_CURRENCY -- %s\nCheck symbol or \"-h\" for help.\n" "${3^^}" 1>&2
 			exit 1
 		fi
 fi
@@ -509,19 +505,28 @@ if [[ -n ${PJSON} ]]; then
 fi
 
 ## Get pair rate
-CMCRATE=$(printf "%s\n" "${CMCJSON}" | jq -r ".data[] | .quote.${3^^}.price") 
+CMCRATE=$(jq -r ".data[] | .quote.${3^^}.price" <<< "${CMCJSON}" | sed 's/e/*10^/g') 
 
 
 ## Print JSON timestamp ?
 if [[ -n ${TIMEST} ]]; then
-JSONTIME=$(printf "%s\n" "${CMCJSON}" | jq -r ".data.${2^^}.quote.${3^^}.last_updated")
+JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
 	date --date "$JSONTIME" "+## %FT%T%Z"
 fi
 
 
 ## Make equation and calculate result
-	RESULT="$(printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s*%s)\n" "${1}" "${CMCRATE}" | bc -l)"
+	RESULT="$(bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${1}*${CMCRATE})")"
 
 printf "%.${SCL}f\n" "${RESULT}"
-#icheck
+
+exit
+#Dead Code
+## Check for internet connection function
+#icheck() {
+#if [[ -z "${RESULT}" ]] &&
+#	   ! ping -q -w7 -c2 8.8.8.8 &> /dev/null; then
+#	printf "Bad internet connection.\n"
+#fi
+#}
 

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.2.6   2019/set/23     by mountaineerbr
+# v0.3  2019/set/25  by mountaineerbr
 
 ## Manual and help
 HELP_LINES="NAME
@@ -18,12 +18,12 @@ DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features
 	for use within Bash.
 
-	It creates a Record file at ~/.bcalc_record. Use of \"ans\" in new 
+	It creates a Record file at \"~/.bcalc_record\". Use of \"ans\" in new 
 	expression greps last result from Record.
 
-	The sCientific extension will try to download a copy of a table of
-	values of scientific variables and extra math functions to ~/.bcalc_extensions
-	in a format readable by Bash Calculator ( bc ).
+	The  sCientific  extension  will  try to download a copy of a table of
+	values   of   scientific   variables  and  extra  math  functions  to
+	\"~/.bcalc_extensions\" in a format readable by Bash Calculator (bc).
 
 
 		Usage examples:	
@@ -62,18 +62,29 @@ DESCRIPTION
 
 	You may need escape equations containing () with backslashes, \"\" or ''.
 
-	Also, you may consider creating a bash alias to this script for easier use
-	of the calc functions it offers. A suggestion to add to you ~/.bashrc :
-	alias c=\"/home/path/to/bcalc.sh\"
+	Also, you may consider creating a bash alias to this script for easier
+	use. A suggestion to add to you ~/.bashrc :
+	
+	  alias c=\"/home/path/to/bcalc.sh\"
 
-	Floating numbers with a comma in the input have it swapped to a dot
-	automatically for processing. Print format does use local LC_NUMERIC.
+	Floating numbers with a comma in the input have it swapped to a dot au-
+	tomatically for processing. Print format tries to use local LC_NUMERIC.
 
 	Noughts are truncated automatically. Grouping \"-g\" option merely adds
 	thousand separtors and prints answer with two decimal plates, unless
-	otherwise specifiec with \"-s\".
+	otherwise further specified with \"-s\".
 		    
 	Results may round, depending on the scale setting.
+
+
+BUGS
+	Made and tested with Bash 5.0.
+ 	This programme is distributed without support or bug corrections.
+	Licensed under GPLv3 and above.
+
+	Give me a nickle! =)
+        
+	  bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPTIONS
@@ -100,16 +111,7 @@ OPTIONS
 		
 		-t 	Truncation of trailling noughts
 			( Does not work in scientific mode; also it throws syntax
-			errors if you define variables for equations ).
-
-
-BUGS
-	Made and tested with Bash 5.0.
- 	This programme is distributed without support or bug corrections.
-	Licensed under GPLv3 and above.
-	Give me a nickle! =)
-          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
-		"
+			errors if you define variables for equations )."
 # Parse options
 while getopts ":ceghnrs:t" opt; do
   case ${opt} in
@@ -186,7 +188,7 @@ cientificf() {
 
 	# Calculate Results
 	## Try to execute expression ( get a Result )
-	RES=$(printf "%s; %s\n" "$(cat ~/.bcalc_extensions)" "${EQ}" | bc -l)
+	RES=$(bc -l <<< "$(cat ~/.bcalc_extensions); ${EQ}")
 
 	## Check if equation syntax is valid
 	if [[ -z "${RES}" ]]; then
@@ -247,18 +249,18 @@ fi
 if [[ -n ${GROUP} && -n ${SCL} ]]; then
 	if [[ -z ${COMMA} ]]; then
 		# Maximum Scale Result - printf cannot get more decimals than 58
-		MXS="$(printf "scale=25; (%s)/1\n" "${EQ}" | bc -l)"
+		MXS="$(bc -l <<< "scale=25; (${EQ})/1")"
 	else
-		MXS="$(printf "scale=25; (%s)/1\n" "${EQ}" | bc -l | sed 's/\./\,/')"
+		MXS="$(bc -l <<< "scale=25; (${EQ})/1" | sed 's/\./\,/')"
 	fi
 	printf "%'.${SCL}f\n" "${MXS}"
 	exit
 # Set only thousands grouping
 elif [[ -n ${GROUP} ]]; then
 	if [[ -z ${COMMA} ]]; then
-		printf "%'.2f\n" "$(printf "%s\n" "${EQ}" | bc -l)"
+		printf "%'.2f\n" "$(bc -l <<< "${EQ}")"
 	else
-		printf "%'.2f\n" "$(printf "%s\n" "${EQ}" | bc -l | sed 's/\./\,/')"
+		printf "%'.2f\n" "$(bc -l <<< "${EQ}" | sed 's/\./\,/')"
 	fi
 	exit
 fi
@@ -268,9 +270,9 @@ if [[ -z ${SCL} ]]; then
 fi
 if [[ -n "${TR}" ]]; then
 	TFUNC="define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}"
-	printf "%s; scale=%s; trunc((%s)/1)\n" "${TFUNC}" "${SCL}" "${EQ}" | bc -l
+	bc -l <<< "${TFUNC}; scale=${SCL}; trunc((${EQ})/1)"
 else
-	printf "scale=%s; %s/1\n" "${SCL}" "${EQ}" | bc -l
+	bc -l <<< "scale=${SCL}; ${EQ}/1"
 
 fi
 
