@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3  2019/set/25  by mountaineerbr
+# v0.3.1  2019/set/25  by mountaineerbr
 
 ## Some defaults
-# Get your own personal API KEY
+# Get your own personal API KEY, please!
 #APIKEY=""
-# Dev key:
+# Dev keys
 #APIKEY="6f72de44bee2e5411640f522437e9a64"
 # Spare Key:
 #APIKEY="35324a150b81290d9fb15e434ed3d264"
@@ -16,28 +16,33 @@
 #ForFriends Friendz --sahijowo@alltopmail.com-- hellodr
 APIKEY="e2b3e4e50fae3bcfa7c9cd43abb84541"
 
+## You should not change this:
+LC_NUMERIC="en_US.UTF-8"
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
- 	\033[01;36mClay.sh -- Currencylayer.com API Access\033[00m
+ 	Clay.sh -- Currency Converter
+		   CurrencyLayer.com API Access
 
 
 SYNOPSIS
-	clay.sh \e[0;35;40m[-h|-j|-l|-v]\033[00m
+	clay.sh [options] [from_currency] [to_currency]
 
-	clay.sh \e[0;35;40m[-s|-t]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \
-\e[0;31;40m[TO_CURRENCY]\033[00m
+	clay.sh [-s|-t] [amount] [from_currency] [to_currency]
+
+	clay.sh [-h|-j|-l|-v]
+
 
 DESCRIPTION
 	This programme fetches updated currency rates from the internet	and can
 	convert any amount of one supported currency into another.
 
 	Free plans should get currency updates daily only. It supports very few 
-	cyrpto currencies. You may want to access <https://currencylayer.com/>
-	and sign up for a free private API key and change it in the script source
-	code (look for variable APIKEY), as the script default API key may start 
-	stop wrking at any moment and without warning!
+	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
+	up for a free private API key and change it in the script source code 
+	(look for variable APIKEY), as the script default API key may stop wor-
+	king at any moment and without warning!
 
 	Gold and other metals are priced in Ounces.
 		
@@ -45,51 +50,12 @@ DESCRIPTION
 
 
 	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage examples 3-6).
+	with precious metals (see usage examples 4-7).
 
 		OZ=\"28.349523125\"
 
 	
 	Default precision is 16. Trailing zeroes are trimmed by default.
-
-
-USAGE EXAMPLES
-		
-		(1) One Brazilian real in US Dollar:
-
-			$ clay.sh brl
-
-			$ clay.sh 1 brl usd
-
-
-		(2) Fifty a Djiboutian Franc in Chinese Yuan with 3 decimal plates (scale):
-
-			$ clay.sh -s3 50 djf cny
-		
-
-		(3) \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
-					
-			$ cgk.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
-
-			    Just multiply amount by the \"gram/ounce\" rate.
-
-
-		(4) \e[1;33;40m1\033[00m EUR in grams of Gold:
-					
-			$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
-
-
-		(5) \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
-					
-			$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
-			
-			    Just divide amount by the \"gram/ounce\" rate.
-
-		
-		(6) \e[1;33;40m1\033[00m gram of Gold in EUR:
-					
-			$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
-
 
 
 
@@ -102,8 +68,51 @@ WARRANTY
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
+USAGE EXAMPLES
+		
+		(1) One Brazilian real in US Dollar:
+
+			$ clay.sh brl
+
+			$ clay.sh 1 brl usd
+
+
+		(2) One US Dollar in Brazilian Real:
+
+			$ clay.sh usd brl
+
+
+		(3) 50 Djiboutian Franc in Chinese Yuan with three decimal 
+		    plates (scale):
+
+			$ clay.sh -s3 50 djf cny
+		
+
+		(4) \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
+					
+			$ clay.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
+
+			    Just multiply amount by the \"gram/ounce\" rate.
+
+
+		(5) \e[1;33;40m1\033[00m EUR in grams of Gold:
+					
+			$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+		(6) \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
+					
+			$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			
+			    Just divide amount by the \"gram/ounce\" rate.
+
+		
+		(7) \e[1;33;40m1\033[00m gram of Gold in EUR:
+					
+			$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+
+
 OPTIONS
-	 	
 		-h 	Show this help.
 
 		-j 	Print JSON to stdout (useful for debugging).
@@ -125,11 +134,11 @@ fi
 while getopts ":lhjs:tv" opt; do
   case ${opt} in
   	l ) ## List available currencies
-		curl -s https://currencylayer.com/site_downloads/cl-currencies-table.txt | 
+		curl -s "https://currencylayer.com/site_downloads/cl-currencies-table.txt" | 
 			sed -e 's/<[^>]*>//g' |
-			sed -e 's/^[ \t]*//' |
-			sed '/^$/d'
-		exit
+			sed '1d'| sed -e 's/^[ \t]*//' |
+			sed '$!N;s/\n/ /' | awk 'NF'
+		exit 0
 		;;
 	h ) # Show Help
 		echo -e "${HELP_LINES}"
