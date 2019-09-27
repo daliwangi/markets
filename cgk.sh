@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6  2019/set/25  by mountaineerbr
+# v0.6.1  2019/set/26  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -146,7 +146,7 @@ USAGE EXAMPLES:
 			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(13)    \e[1;33;40m1\033[00m EUR in grams of Gold:
+		(13)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
 
@@ -158,7 +158,7 @@ USAGE EXAMPLES:
 			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(15)    \e[1;33;40m1\033[00m gram of Gold in EUR:
+		(15)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.5 - 2019/set/25  by mountaineerbr
+# v0.5.1 - 2019/set/26  by mountaineerbr
 
 ## Some defaults
 ## Please make a free account and update this script
@@ -130,7 +130,7 @@ USAGE EXAMPLES
 			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(5) \e[1;33;40m1\033[00m EUR in grams of Gold:
+		(5) \e[1;33;40mOne\033[00m EUR in grams of Gold:
 					
 			$ openx.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
 
@@ -142,7 +142,7 @@ USAGE EXAMPLES
 			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(7) \e[1;33;40m1\033[00m gram of Gold in EUR:
+		(7) \e[1;33;40mOne\033[00m gram of Gold in EUR:
 					
 			$ openx.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 

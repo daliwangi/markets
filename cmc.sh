@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4  2019/set/25  by mountaineerbr
+# v0.4.1  2019/set/26  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -127,7 +127,7 @@ USAGE EXAMPLES:
 			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(11)    \e[1;33;40m1\033[00m EUR in grams of Gold:
+		(11)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
 
@@ -139,7 +139,7 @@ USAGE EXAMPLES:
 			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(13)    \e[1;33;40m1\033[00m gram of Gold in EUR:
+		(13)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 			

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3.1  2019/set/25  by mountaineerbr
+# v0.3.2  2019/set/26  by mountaineerbr
 
 ## Some defaults
 # Get your own personal API KEY, please!
@@ -95,7 +95,7 @@ USAGE EXAMPLES
 			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(5) \e[1;33;40m1\033[00m EUR in grams of Gold:
+		(5) \e[1;33;40mOne\033[00m EUR in grams of Gold:
 					
 			$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
 
@@ -107,7 +107,7 @@ USAGE EXAMPLES
 			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(7) \e[1;33;40m1\033[00m gram of Gold in EUR:
+		(7) \e[1;33;40mOne\033[00m gram of Gold in EUR:
 					
 			$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 
