@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.6  27/set/2019 by mountaineer_br
+# v0.2.8  27/set/2019 by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -24,7 +24,8 @@ if [[ "${1}" = "-p" ]]; then
 		sed 's/]]]/[/g' | sed 's/]]/[/g' | sed 's/\[/\n/g' |
 		grep --color=never -A2 -e "Barra Parmetal/RBM")"
 	printf "%s\n" "${PRICE}"
-	SPREAD="$(bc -l "(($(tail -n 1 <<< "${PRICE}")/$(tail -n 2 <<< "${PRICE}" | head -n 1)" | tr ',' '.'))-1)*100\n" "" ""
+	PRICE2=($(grep -oe "[0-9]*,[0-9]*" <<< "${PRICE}"))
+	SPREAD="$(tr ',' '.' <<< "((${PRICE2[1]}/${PRICE2[0]})-1)*100" | bc -l)"
 	printf "SPD: %'.3f %%\n" "${SPREAD}"
 	exit
 fi
@@ -60,10 +61,8 @@ printf "%s\n%s\n%s\n" "${BPARM[*]}" "${BTRAD[*]}" "${BOUTR[*]}" |
 	column -t -s"=" -N'Ativo,Compra,Venda' -R'Ativo,Compra,Venda'
 
 # Spread
-#printf "%s\n" "${BPARM[2]%\=}" 
-#printf "%s\n" "${BPARM[3]%\=}"
-#SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
-SPREAD="$(tr ',' '.' <<< "(($(printf "%s\n" "${BPARM[@]}" | tail -n 1)/$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1))-1)*100" | tr -d '=' | bc -l)"
+BPARM2=($(grep -oe "[0-9]*,[0-9]*" <<< "${BPARM[@]}"))
+SPREAD="$(tr ',' '.' <<< "((${BPARM2[1]}/${BPARM2[0]})-1)*100" | bc -l)"
 printf " SPD B Parmetal/RBM     %'.3f%%\n" "${SPREAD}"
 # Update timestamps
 printf "Updates: %s %s\n\n" "${UPDATES}" "${UPTIMES}"
@@ -72,4 +71,12 @@ printf "Updates: %s %s\n\n" "${UPDATES}" "${UPTIMES}"
 moedasf
 printf "%s\n%s\n%s\n%s\n" "${USD[*]}" "${GBP[*]}" "${XAU[*]}" "${EUR[*]}" |
 	column -t -s"=" -N'              Índice,Taxa' -R'              Índice'
+
+exit
+# Dead Code
+#printf "%s\n" "${BPARM[2]%\=}" 
+#printf "%s\n" "${BPARM[3]%\=}"
+#SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
+#SPREAD="$(tr ',' '.' <<< "(($(printf "%s\n" "${BPARM[@]}" | tail -n 1)/$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1))-1)*100" | tr -d '=' | bc -l)"
+#SPREAD="$(bc -l "(($(tail -n 1 <<< "${PRICE}")/$(tail -n 2 <<< "${PRICE}" | head -n 1)" | tr ',' '.'))-1)*100"
 
