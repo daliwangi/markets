@@ -1,6 +1,8 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
-# v0.2.1  23/set/2019  by mountaineer_br
+# v0.2.2  27/set/2019  by mountaineer_br
+## Este script somente pega cotações através de outros
+## scripts e imprime os resultados em formato de tabelas.
 
 # Ounce in Grams reference
 OZ="28.349523125"
