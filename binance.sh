@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.5  26/set/2019  by mountaineerbr
+# v0.5.6  26/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -196,7 +196,7 @@ mode4() {  # Stream of prices
 	test -n "${CURLOPT}" &&	curlmode ${*}
 
 	# Websocat Mode
-	printf "Stream of %s %s\n" "${2^^}" "${3^^}"
+	printf "Stream of %s%s\n" "${2^^}" "${3^^}"
 	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | ${COLORC}
 	#stdbuf -i0 -o0 -e0 cut -c-8
