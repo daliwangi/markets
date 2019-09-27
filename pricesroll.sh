@@ -18,7 +18,7 @@ uxterm -T 'Book Depth' -geometry 36x44+800+0 -e '/home/jsn/_Scripts/markets/bina
 
 uxterm -T 'BTC New-Block' -geometry 74x18+506+487 -e '/home/jsn/_Scripts/markets/binfo.sh -e' &
 
-uxterm -T 'XAU-XAG-BRL Price roll' -geometry 32x42+1149+149 &
+uxterm -T 'XAU-XAG-BRL Price roll' -geometry 30x42+1149+149 &
 
 exit
 
