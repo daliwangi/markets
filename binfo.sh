@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.4  2019/09/25  by mountaineerbr
+# v0.4.5  2019/09/27  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -23,6 +23,9 @@ lookup at a time.
 Blockchain.info  still  does  not  support segwit addresses. A workaround is to
 fetch information from Blockchair.com. Blockchair.com supports segwit and other 
 types of addresses.
+
+A note on the websocket stream for receiving notification on new block: it is u-
+sual that the websocket connection will drop. Automatic reconnection will occur.
 
 This script needs the latest Bash, cURL, JQ, Websocat and Coreutils.
 
@@ -228,9 +231,9 @@ websocat --text --no-close --ping-interval 18 "wss://ws.blockchain.info/inv" <<<
 printf "\n\nPress Ctrl+C twice to exit.\n\n" 1>&2
 sleep 2
 N=$(( N + 1 ))
-printf "This is reconnection try number %s at %s.\n" "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
-printf "Log file at: /tmp/binfo.sh_connect_retries.log\n" 1>&2
-printf "It will try reconnecting to websocket in some seconds.\n\n" 1>&2
+printf "This is reconnection number %s at %s.\n" "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
+printf "Log file: /tmp/binfo.sh_connect_retries.log\n" 1>&2
+printf "Let's try reconnecting after some seconds.\n\n" 1>&2
 sleep 8
 done
 # If it automatically exits, exit as err
