@@ -1,97 +1,151 @@
 #!/bin/bash
 #
-# Binance.sh  -- Binance crypto converter and API interface for Bash
-# v0.4  17/set/2019  by mountaineerbr
+# Binance.sh  -- Bash Crypto Converter and API Access
+# v0.5  25/set/2019  by mountaineerbr
 # 
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
 FSTR="%.2f" 
 
-LICENSE_WARRANTY_NOTICE="
-      \033[012;36mBinance.sh - Binance cryptocurrency converter
-                   and API interface for Bash\033[00m
-      \033[012;31mCopyright  2019  mountaineer_br\033[00m
-  
-      This program is free software: you can redistribute it and/or
-      modify it under the terms of the GNU General Public License as
-      published by the Free Software Foundation, either version 3 of
-      the License, or any later version.
-  
-      This program is distributed in the hope that it will be useful,
-      but WITHOUT ANY WARRANTY; without even the implied warranty of
-      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-      GNU General Public License for more details.
-      
-      To grep a copy of the full GNU General Public License, see
-      <https://www.gnu.org/licenses/>.
+HELP="NAME
+	\033[012;36mBinance.sh - Bash Cryptocurrency Converter\033[00m
+	\033[012;36m             Binance API Access\033[00m
 
-      A tip would be such great surprise: 1KV3ksx5vZgdCvQzf4jGZ9Faerz4N6mDpx
-	"
-HELP="Usage:
-   binance.sh [amount] [from_crypto] [to_crypto]
-   binance.sh [options|mode] [from_crypto] [to_crypto]
 
-Options:
-  -f 	Number of decimal plates; for use with -c, -k, -s and -w only;
-      	Also accepts printf-style formatting; defaults: 2 (\"%.2f\");
-      		e.g.: -f6 ; -f\"%'.4f\"
-  -h 	Show this help.
-  -j 	Print script lines that fetch Binance raw JSON data (for debugging).
-  -l 	List all markets (coin pairs and rates).
+SYNOPSIS
+	binance.sh [options] [amount] [from_crypto] [to_crypto]
+	
+	binance.sh [options] [market]
 
- View/Watch Modes
- Modes below accept currency pair (a Binance market) as argument, otherwise
- they will default to \"btc usdt\".
-  -c 	Price in columns; trade prices may overlap as screen
-     	updates if the number of orders between updates is
-      	smaller than 250 orders; prices should be updated from
-       	bottom right to top left; uses curl API.
-  -k 	Colored price in columns, shows 200 orders; uses curl API.
-  -d 	Order Book Depth view; depth is 10; uses websocket.
-  -e	Extended Order Book Depth view; depth is 20; uses websocket.
-  -i 	Detailed Information for the trade stream; uses websocket.
-  -s 	Stream of trade prices; uses websocket.
-  -w 	Colored stream of trade prices; uses websocket.
-  -t 	24-H Ticker for a single currency pair; uses websocket.
-  -u  	Uses the Curl mode of -s, -w and -i options (updates a little slower).
-  -v    Show this programme version.
 
-   OBS:
-   Choose supported Binance markets!
-   You may write the code of a market instead of entering from_currency
-   and to_currency; if there is any problems, try entering each
-   currency separately.
+	This script gets rates of any cryptocurrency pair that Binance supports
+	and can convert any amount of one crypto into another. It fetches data 
+	from Binane public APIs.
 
-   Curl API functions update a little slower, because they depend
-   on reconecting to the server repeatedly to fetch newest info,
-        whereas websocket streams updates with only one connection.
+	Take  notice  that Binance supports  specific markets, so for example, 
+	there is a market for XRPBTC but not for BTCXRP. You can get a List of 
+	all supported markets running the script with the option \"-l\".
 
-   This programme needs Curl, JQ , Websocat, Xargs and Lolcat to
-   work properly.
-   I noticed that using the book depth functions with *any* terminal
-   emulator will cause progressive increase of memory usage, only *if*
-   terminal is set to infinite scrollbac. 
-"
+	There are a few functions/modes for watching price rolling of the latest
+	trades, as well as trade quantity. You can also watch book depth of any
+	supported  Binance market.  Some functions use cURL to fetch data from
+	REST APIs and some use Websocat to fetch data from websockets. If no
+	market/currency pair is given, uses BTCUSDT by defaults.
+
+	It is accepated to write each currency that forms a market separately,
+	or together. Example: \"ZEC USDT\" or \"ZECUSDT\". Case is insensitive.
+   
+	Functions  that  use  cURL to fecth data from REST APIs update a little 
+	slower because they depend on reconnecting repeatedly, whereas websocket
+	streams leave an open connection so there is more frequent data flow.
+
+	Default precision is unspecified for currency conversion, and defaults 
+	to  two  decimal plates in price roll functions, unless otherwise speci-
+	fied. A	different number of decimal plates can be supplied with the opt-
+	ion \"-f\". See example (3).  This  option  also  accepts printf-like 
+	formatting. If you are converting very large or very small amounts, or 
+	depending  on  the  price rate  at the time, and would like to add a 
+	\"thousands\" separator, too. See usage example (4).
+
+   	This programme needs Bash, cURL, JQ , Websocat, Lolcat and Coreutils to
+	work properly.
+
+
+WARRANTY
+	Licensed under the GNU Public License v3 or better.
+ 	This programme is distributed without support or bug corrections.
+
+	Give me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
+
+USAGE EXAMPLES
+
+		(1)     Half a Dash in Binance Coin:
+			
+			$ binance.sh 0.5 dash bnb 
+
+
+		(2)     1000 Z-Cash in Paxos Standard:
+			
+			$ binance.sh 100 zecpax 
+
+
+		(3)     Price of one XRP in USDC, four decimal plates.
+			
+			$ binance.sh -f4 xrpusdc 
+			
+		
+		(4)     Price stream of BTCUSDT, group thousands; use only 
+			one decimal plate.
+			
+			$ binance.sh -s -f\"%'.1f\" btcusdt
+
+
+		(5) 	Order book depth view of ETHUSDT (20 levels on each side)
+
+			$ binance.sh -e ethusdt
+
+
+		(6)     Grep rates for all Bitcoin markets:
+
+			$ binance.sh -l | grep BTC
+
+			OBS: use \"^BTC\" to get markets that start with BTCxxx;
+			     use \"BTC$\" to get markets that  end  with xxxBTC.
+
+OPTIONS
+	-c 	Price in Columns (last 250 orders); screen prices overlap in 
+		each update; prices update from bottom right to top left; uses
+		curl.
+
+	-d 	Depth view of the order book; depth=10; uses websocket.
+	
+	-e 	Extended depth view of the order book; depth=20; uses websocket.
+
+	-f 	Formatting of prices (printf-like); number of decimal plates; 
+		for use with options \"-c\", \"-k\", \"-s\" and \"-w\".
+
+	-h 	Show this Help.
+
+	-i 	Detailed Information of the trade stream; uses websocket.
+	
+	-j  	For debugging; print lines that fetch Binance raw JSON data.
+
+	-k 	Colored price in columns (last 200 orders); uses curl & lolcat.
+
+	-l 	List supported markets (coin pairs and rates).
+
+	-s 	Stream of lastest trade prices; uses websocket.
+	
+	-t 	Rolling 24H Ticker for a currency pair/market; uses websocket.
+
+	-u 	Together  with  options  \"-s\", \"-w\", \"-i\" or \"-u\", use
+		of cURL instead of Websocat.
+		
+	-v 	Show this script version.
+	
+	-w 	Colored stream of latest trade prices; uses websocket & lolcat."
 
 ## Error Check Function
 errf() {
-	if printf "%s\n" "${JSON}" | grep -iq -e "err" -e "code"; then
-		echo "Error detected in JSON. Please check."
+	if grep -iq -e "err" -e "code" <<< "${JSON}"; then
 		echo "${JSON}"
 		UNIQ="/tmp/binance_err.log${RANDOM}${RANDOM}"
 		echo "${JSON}" > ${UNIQ}
-		echo "${UNIQ}"
+		echo "Error detected in JSON. Please check." 1>&2
+		echo "${UNIQ}" 1>&2
 		exit 1
 	fi
 }
 
-mode1() {  #Price in columns
-while true;
-  do
+mode1() {  # Price in columns
+while true; do
 	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=250")
 	errf
-	ARRAY1=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
+	ARRAY1=$(jq -r '.[] | .p' <<< "${JSON}")
 	for i in ${ARRAY1[@]}; do
 		ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
 	done
@@ -99,70 +153,65 @@ while true;
 	printf "\n"
 	ARRAY2=
 done
+exit 0
 }
 
 mode2() {  # Colored price in columns
-while true; 
-do
-	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=200")
-	errf
-	
-	ARRAY1=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
-	for i in ${ARRAY1[@]}; do
-		ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
+	while true; do
+		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=200")
+		errf
+		
+		ARRAY1=$(jq -r '.[] | .p' <<< "${JSON}")
+		for i in ${ARRAY1[@]}; do
+			ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
+		done
+		printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column | lolcat
+		printf "\n"
+		ARRAY2=
 	done
-	printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column | lolcat
-	printf "\n"
-	ARRAY2=
-done
+	exit 0
 }
 
 mode3() {  # Price and trade info
 # Note: Only with this method you can access QuoteQty!!
+	curlmode() {
+	while true; do
+		JSON=$(curl -s "https://api.binance.com/api/v1/trades?symbol=${2^^}${3^^}&limit=1")
+		errf
+		RATE=$(jq -r '.[] | .price' <<< "${JSON}")
+		QQT=$(jq -r '.[] | .quoteQty' <<< "${JSON}")
+		TS=$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)
+		DATE=$(date -d@"${TS}" "+%T%Z")
+		printf "\n${FSTR}\t%s\t%'.f" "${RATE}" "${DATE}" "${QQT}"   
+	done
+	exit 0
+	}
+	# cURL Mode?
+	test -n "${CURLOPT}" &&	curlmode ${*}
+
+	# Websocat Mode
+	printf "Detailed Stream of %s%s\n" "${2^^} ${3^^}"
+	printf -- "Price, Quantity and Time.\n\n"
+	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+		jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
+	exit 0
+}
+
+mode4() {  # Stream of prices (Black & White)
 curlmode() {
-while true;
-  do
-	JSON=$(curl -s "https://api.binance.com/api/v1/trades?symbol=${2^^}${3^^}&limit=1")
-	errf
+	while true; do
+		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
+ 		errf
+		RATE=$(jq -r '.[] | .p' <<< "${JSON}")
+		printf "\n${FSTR}" "${RATE}"   
+	done
+	exit 0
+	}
+	# cURL Mode?
+	test -n "${CURLOPT}" &&	curlmode ${*}
 
-	RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .price')
-	QQT=$(printf "%s\n" "${JSON}" | jq -r '.[] | .quoteQty')
-	TS=$(printf "%s\n" "${JSON}" | jq -r '.[] | .time' | cut -c-10)
-	DATE=$(date -d@"${TS}" "+%T%Z")
-	
-	printf "\n%.2f\t%s\t%'.f" "${RATE}" "${DATE}" "${QQT}"   
-done
-}
-if [[ -n "${CURLOPT}" ]]; then
-	curlmode ${*}
-	exit
-fi
-
-printf "\nDetailed Stream of %s\n" "${2^^} ${3^^}"
-printf -- "Price, Quantity and Time.\n\n"
-websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
-	jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
-
-}
-
-mode4() {  # Stream of prices ( Black & White )
-curlmode() {
-	while true;
-  do
-	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
- 	errf
-
-	RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
-	printf "\n%.2f" "${RATE}"   
-done
-}
-if [[ -n "${CURLOPT}" ]]; then
-	curlmode ${*}
-	exit
-fi
-
-	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
-
+	# Websocat Mode
+	printf "Stream of %s%s\n" "${2^^} ${3^^}"
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq --unbuffered -r .p | xargs -n1 printf "\n${FSTR}"
 	#stdbuf -i0 -o0 -e0 cut -c-8
@@ -170,147 +219,144 @@ fi
 }
 
 mode5() {  # Colored stream of prices
-curlmode() {
-while true;
-  do
-	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
- 	errf
+	curlmode() {
+		while true; do
+			JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
+		 	errf
+			RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
+			printf "\n${FSTR}" "${RATE}" | lolcat -p 200 
+		done
+	}
+	# cURL Mode?
+	test -n "${CURLOPT}" &&	curlmode ${*}
 
-	RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
-	
-	printf "\n%.2f" "${RATE}" | lolcat -p 200 -a -d 6 -s 10 
-done
-}
-if [[ -n "${CURLOPT}" ]]; then
-	curlmode ${*}
-	exit
-fi
-
-	printf "Stream of\n%s\n\n" "${2^^} ${3^^}"
-	
+	# Websocat Mode
+	printf "Stream of %s%s\n\n" "${2^^} ${3^^}"
  	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
 		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
 	exit
 }
 
 mode6() { # Depth of order book (depth=10)
-	printf "Order Book Depth\nPrice and Quantity\n\n" 1>&2
+	printf "Order Book Depth\n"
+	printf "Price and Quantity\n"
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10 |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
-"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
-"",
-"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
-"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
-"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
-"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
-"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
-"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
-"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
-"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
-"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
-"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
-"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
-"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
-"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
-"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
-"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
-"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
-"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
-"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
-"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
-"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)"'
-exit
+		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
+		"",
+		"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
+		"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
+		"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
+		"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
+		"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
+		"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
+		"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
+		"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
+		"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
+		"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
+		"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
+		"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
+		"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
+		"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
+		"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
+		"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
+		"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
+		"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
+		"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
+		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)"'
+		exit
 }
 mode6extra() { # Depth of order book (depth=20)
-	printf "Order Book Depth\nPrice and Quantity\n\n" 1>&2
+	printf "Order Book Depth\n"
+	printf "Price and Quantity\n"
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20 |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
-"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
-"",
-"\t\(.asks[19]|.[0]|tonumber)    \t\(.asks[19]|.[1]|tonumber)",
-"\t\(.asks[18]|.[0]|tonumber)    \t\(.asks[18]|.[1]|tonumber)",
-"\t\(.asks[17]|.[0]|tonumber)    \t\(.asks[17]|.[1]|tonumber)",
-"\t\(.asks[16]|.[0]|tonumber)    \t\(.asks[16]|.[1]|tonumber)",
-"\t\(.asks[15]|.[0]|tonumber)    \t\(.asks[15]|.[1]|tonumber)",
-"\t\(.asks[14]|.[0]|tonumber)    \t\(.asks[14]|.[1]|tonumber)",
-"\t\(.asks[13]|.[0]|tonumber)    \t\(.asks[13]|.[1]|tonumber)",
-"\t\(.asks[12]|.[0]|tonumber)    \t\(.asks[12]|.[1]|tonumber)",
-"\t\(.asks[11]|.[0]|tonumber)    \t\(.asks[11]|.[1]|tonumber)",
-"\t\(.asks[10]|.[0]|tonumber)    \t\(.asks[10]|.[1]|tonumber)",
-"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
-"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
-"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
-"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
-"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
-"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
-"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
-"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
-"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
-"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
-"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
-"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
-"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
-"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
-"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
-"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
-"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
-"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
-"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
-"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)",
-"\t\(.bids[10]|.[0]|tonumber)    \t\(.bids[10]|.[1]|tonumber)",
-"\t\(.bids[11]|.[0]|tonumber)    \t\(.bids[11]|.[1]|tonumber)",
-"\t\(.bids[12]|.[0]|tonumber)    \t\(.bids[12]|.[1]|tonumber)",
-"\t\(.bids[13]|.[0]|tonumber)    \t\(.bids[13]|.[1]|tonumber)",
-"\t\(.bids[14]|.[0]|tonumber)    \t\(.bids[14]|.[1]|tonumber)",
-"\t\(.bids[15]|.[0]|tonumber)    \t\(.bids[15]|.[1]|tonumber)",
-"\t\(.bids[16]|.[0]|tonumber)    \t\(.bids[16]|.[1]|tonumber)",
-"\t\(.bids[17]|.[0]|tonumber)    \t\(.bids[17]|.[1]|tonumber)",
-"\t\(.bids[18]|.[0]|tonumber)    \t\(.bids[18]|.[1]|tonumber)",
-"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
-exit
+		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
+		"",
+		"\t\(.asks[19]|.[0]|tonumber)    \t\(.asks[19]|.[1]|tonumber)",
+		"\t\(.asks[18]|.[0]|tonumber)    \t\(.asks[18]|.[1]|tonumber)",
+		"\t\(.asks[17]|.[0]|tonumber)    \t\(.asks[17]|.[1]|tonumber)",
+		"\t\(.asks[16]|.[0]|tonumber)    \t\(.asks[16]|.[1]|tonumber)",
+		"\t\(.asks[15]|.[0]|tonumber)    \t\(.asks[15]|.[1]|tonumber)",
+		"\t\(.asks[14]|.[0]|tonumber)    \t\(.asks[14]|.[1]|tonumber)",
+		"\t\(.asks[13]|.[0]|tonumber)    \t\(.asks[13]|.[1]|tonumber)",
+		"\t\(.asks[12]|.[0]|tonumber)    \t\(.asks[12]|.[1]|tonumber)",
+		"\t\(.asks[11]|.[0]|tonumber)    \t\(.asks[11]|.[1]|tonumber)",
+		"\t\(.asks[10]|.[0]|tonumber)    \t\(.asks[10]|.[1]|tonumber)",
+		"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
+		"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
+		"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
+		"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
+		"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
+		"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
+		"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
+		"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
+		"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
+		"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
+		"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
+		"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
+		"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
+		"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
+		"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
+		"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
+		"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
+		"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
+		"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
+		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)",
+		"\t\(.bids[10]|.[0]|tonumber)    \t\(.bids[10]|.[1]|tonumber)",
+		"\t\(.bids[11]|.[0]|tonumber)    \t\(.bids[11]|.[1]|tonumber)",
+		"\t\(.bids[12]|.[0]|tonumber)    \t\(.bids[12]|.[1]|tonumber)",
+		"\t\(.bids[13]|.[0]|tonumber)    \t\(.bids[13]|.[1]|tonumber)",
+		"\t\(.bids[14]|.[0]|tonumber)    \t\(.bids[14]|.[1]|tonumber)",
+		"\t\(.bids[15]|.[0]|tonumber)    \t\(.bids[15]|.[1]|tonumber)",
+		"\t\(.bids[16]|.[0]|tonumber)    \t\(.bids[16]|.[1]|tonumber)",
+		"\t\(.bids[17]|.[0]|tonumber)    \t\(.bids[17]|.[1]|tonumber)",
+		"\t\(.bids[18]|.[0]|tonumber)    \t\(.bids[18]|.[1]|tonumber)",
+		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
+	exit
 }
 
 
 mode7() { # 24-H Ticker
-websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
-	jq -r '"\n",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
-	"Roll window:  \(((.C-.O)/1000)/(60*60)) hrs",
-	"",
-	"Price",
-	"Change:    \(.p|tonumber)  (\(.P|tonumber) %)",
-	"W Average: \(.w|tonumber)",
-	"Open:      \(.o|tonumber)",
-	"High:      \(.h|tonumber)",
-	"Low :      \(.l|tonumber)",
-	"",
-	"Total Volume",
-	"Base :     \(.v|tonumber)",
-	"Quote:     \(.q|tonumber)",
-	"",
-	"Trades",
-	"N of  T :  \(.n)",
-	"First ID:  \(.F)",
-	"Last  ID:  \(.L)",
-	"First T-1: \(.x)",
-	"Last  T :  \(.c|tonumber)  Qty: \(.Q)",
-	"Best Bid:  \(.b|tonumber)  Qty: \(.B)",
-	"Best Ask:  \(.a|tonumber)  Qty: \(.A)"'
-exit
+	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
+		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
+			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
+			"",
+			"Price",
+			"Change   :  \(.p|tonumber)  (\(.P|tonumber) %)",
+			"W Avg    :  \(.w|tonumber)",
+			"Open     :  \(.o|tonumber)",
+			"High     :  \(.h|tonumber)",
+			"Low      :  \(.l|tonumber)",
+			"",
+			"Total Volume",
+			"Base     :  \(.v|tonumber)",
+			"Quote    :  \(.q|tonumber)",
+			"",
+			"Trades",
+			"N of  T  :  \(.n)",
+			"First ID :  \(.F)",
+			"Last  ID :  \(.L)",
+			"First T-1:  \(.x)",
+			"Last  T  :  \(.c|tonumber)  Qty: \(.Q)",
+			"Best Bid :  \(.b|tonumber)  Qty: \(.B)",
+			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
+	exit
 }
 
 # Check for no arguments or options in input
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
-	exit
+	exit 1
 fi
 
 # Parse options
 while getopts ":def:hjlckistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
-	printf "\nCheck below script lines that fetch raw JSON data:\n\n"
+	printf "Check below script lines that fetch raw JSON data:\n"
 	grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort
-	exit
+	exit 0
       ;;
      l ) # List markets (coins and respective rates)
 	curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
@@ -328,6 +374,7 @@ while getopts ":def:hjlckistuwv" opt; do
       M6EXTRAOPT=1
       ;;
     f )
+      FCONVERTER=1
       if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
 	   FSTR="%.${OPTARG}f"
 	   else
@@ -353,16 +400,12 @@ while getopts ":def:hjlckistuwv" opt; do
       M5OPT=1
       ;;
     h ) # Help
-      echo ""
-      echo -e "${LICENSE_WARRANTY_NOTICE}"
-      echo ""
       echo -e "${HELP}"
-      echo ""
       exit 0
       ;;
     v ) # Version of Script
       head "${0}" | grep -e '# v'
-      exit
+      exit 0
       ;;
    \? )
      echo "Invalid Option: -$OPTARG" 1>&2
@@ -373,10 +416,12 @@ done
 shift $((OPTIND -1))
 
 
+## Cryptocurrency Converter
+
 # Arrange arguments
 # If first argument does not have numbers OR isn't a  valid expression
 if ! [[ "${1}" =~ [0-9] ]] ||
-	[[ -z "$(printf "%s\n" "${1}" | bc -l 2>/dev/null)" ]]; then
+	[[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
 	set -- 1 "${@:1:2}"
 fi
 
@@ -386,71 +431,46 @@ if [[ -z ${2} ]]; then
 	set -- ${1} "btc"
 fi
 
-MARKETS="$(curl -s https://api.binance.com/api/v1/exchangeInfo | jq -r '.symbols[] | .symbol')"
-if [[ -z ${3} ]] &&
-	! printf "%s\n" "${MARKETS}" | grep -qi "^${2}$"; then
+MARKETS="$(curl -s "https://api.binance.com/api/v1/ticker/allPrices" | jq -r '.[].symbol')"
+if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
 	set -- ${@:1:2} "USDT"
 fi
 
 ## Check if input is a supported market 
-if ! printf "%s\n" "${MARKETS}" | grep -qi "^${2}${3}$"; then
-	printf "Not a supported market at Binance: %s%s\n" "${2}" "${3}" 1>&2
-	printf "Check available markets with the \"-l\" option.\n" 1>&2
+if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
+	printf "ERR: Market not supported: %s%s\n" "${2}" "${3}" 1>&2
+	printf "List markets with option \"-l\".\n" 1>&2
 	exit 1
 fi
 
 # Viewing/Watching Modes opts
 # Price in columns
-if test -n "${M1OPT}"; then
-	mode1 ${*}
-	exit
-fi
+test -n "${M1OPT}" && mode1 ${*}
 # Colored price in columns
-if test -n "${M2OPT}"; then
-	mode2 ${*}
-	exit
-fi
+test -n "${M2OPT}" && mode2 ${*}
 # Trade info
-if test -n "${M3OPT}"; then
-	mode3 ${*}
-	exit
-fi
+test -n "${M3OPT}" && mode3 ${*}
 # B&W Socket Stream
-if test -n "${M4OPT}"; then
-	mode4 ${*}
-	exit
-fi
+test -n "${M4OPT}" && mode4 ${*}
 # Colored Socket Stream
-if test -n "${M5OPT}"; then
-	mode5 ${*}
-	exit
-fi
+test -n "${M5OPT}" && mode5 ${*}
 # Book Order Depth 10
-if test -n "${M6OPT}"; then
-	mode6 ${*}
-	exit
-fi
+test -n "${M6OPT}" && mode6 ${*}
 # Book Order Depth 20
-if test -n "${M6EXTRAOPT}"; then
-	mode6extra ${*}
-	exit
-fi
+test -n "${M6EXTRAOPT}" && mode6extra ${*}
 # 24-H Ticker
-if test -n "${M7OPT}"; then
-	mode7 ${*}
-	exit
-fi
+test -n "${M7OPT}" && mode7 ${*}
 
 ## Currency conversion/market rate
+# Get rate
 BRATE=$(curl -s https://api.binance.com/api/v1/ticker/price?symbol="${2^^}""${3^^}" | jq -r ".price")
-
-printf "%s*%s\n" "${1}" "${BRATE}" | bc -l
-
+# Check for floating point specs (decimal plates) and print result
+if [[ -n "${FCONVERTER}" ]]; then
+	bc -l <<< "${1}*${BRATE}" | xargs printf "${FSTR}\n"
+else
+	bc -l <<< "${1}*${BRATE}"
+fi
+exit 
 
 # Dead code:
-# [[ ${#2} -le 5 ]] checks the number of chars in field 2
-## Make an ARRAY
-#echo ${AR[@]}
-#https://api.binance.com/api/v1/ticker/price?symbol=LTCBTC
-#https://www.reddit.com/r/binance/comments/7e5vsn/how_can_i_get_a_specific_ticker_binance_api/
 
