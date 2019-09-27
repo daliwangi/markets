@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.2  25/set/2019  by mountaineerbr
+# v0.5.4  25/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -177,7 +177,7 @@ mode3() {  # Price and trade info
 	# Websocat Mode
 	printf "Detailed Stream of %s%s\n" "${2^^} ${3^^}"
 	printf -- "Price, Quantity and Time.\n\n"
-	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 	exit 0
 }
@@ -206,7 +206,7 @@ mode4() {  # Stream of prices
 mode6() { # Depth of order book (depth=10)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10 |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -235,7 +235,7 @@ mode6() { # Depth of order book (depth=10)
 mode6extra() { # Depth of order book (depth=20)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20 |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -282,7 +282,7 @@ mode6extra() { # Depth of order book (depth=20)
 	exit
 }
 mode7() { # 24-H Ticker
-	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker" |
 		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
 			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
