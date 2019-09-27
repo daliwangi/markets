@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.4  25/set/2019  by mountaineerbr
+# v0.5.5  26/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -175,7 +175,7 @@ mode3() {  # Price and trade info
 	test -n "${CURLOPT}" &&	curlmode ${*}
 
 	# Websocat Mode
-	printf "Detailed Stream of %s%s\n" "${2^^} ${3^^}"
+	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
 	printf -- "Price, Quantity and Time.\n\n"
 	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
@@ -196,7 +196,7 @@ mode4() {  # Stream of prices
 	test -n "${CURLOPT}" &&	curlmode ${*}
 
 	# Websocat Mode
-	printf "Stream of %s%s\n" "${2^^} ${3^^}"
+	printf "Stream of %s %s\n" "${2^^}" "${3^^}"
 	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | ${COLORC}
 	#stdbuf -i0 -o0 -e0 cut -c-8
@@ -396,7 +396,7 @@ fi
 # Sets btc as "from_currency" for market code formation
 # Will not set when calling the script without any option
 if [[ -z ${2} ]]; then
-	set -- ${1} "btc"
+	set -- "${1}" "btc"
 fi
 
 MARKETS="$(curl -s "https://api.binance.com/api/v1/ticker/allPrices" | jq -r '.[].symbol')"
@@ -406,7 +406,7 @@ fi
 
 ## Check if input is a supported market 
 if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
-	printf "ERR: Market not supported: %s%s\n" "${2}" "${3}" 1>&2
+	printf "ERR: Market not supported: %s%s\n" "${2^^}" "${3^^}" 1>&2
 	printf "List markets with option \"-l\".\n" 1>&2
 	exit 1
 fi
