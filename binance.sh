@@ -1,12 +1,13 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5  25/set/2019  by mountaineerbr
+# v0.5.2  25/set/2019  by mountaineerbr
 # 
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
 FSTR="%.2f" 
+COLORC="cat"
 
 HELP="NAME
 	\033[012;36mBinance.sh - Bash Cryptocurrency Converter\033[00m
@@ -141,37 +142,21 @@ errf() {
 	fi
 }
 
+# Functions
 mode1() {  # Price in columns
-while true; do
-	JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=250")
-	errf
-	ARRAY1=$(jq -r '.[] | .p' <<< "${JSON}")
-	for i in ${ARRAY1[@]}; do
-		ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
-	done
-	printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column
-	printf "\n"
-	ARRAY2=
-done
-exit 0
-}
-
-mode2() {  # Colored price in columns
 	while true; do
-		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=200")
+		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")
 		errf
-		
 		ARRAY1=$(jq -r '.[] | .p' <<< "${JSON}")
 		for i in ${ARRAY1[@]}; do
 			ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
 		done
-		printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column | lolcat
+		printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column | ${COLORC}
 		printf "\n"
 		ARRAY2=
 	done
 	exit 0
 }
-
 mode3() {  # Price and trade info
 # Note: Only with this method you can access QuoteQty!!
 	curlmode() {
@@ -197,43 +182,24 @@ mode3() {  # Price and trade info
 	exit 0
 }
 
-mode4() {  # Stream of prices (Black & White)
-curlmode() {
-	while true; do
-		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
- 		errf
-		RATE=$(jq -r '.[] | .p' <<< "${JSON}")
-		printf "\n${FSTR}" "${RATE}"   
-	done
-	exit 0
-	}
+mode4() {  # Stream of prices
+	curlmode() {
+		while true; do
+			JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
+	 		errf
+			RATE=$(jq -r '.[] | .p' <<< "${JSON}")
+			printf "\n${FSTR}" "${RATE}" | ${COLORC}
+		done
+		exit 0
+		}
 	# cURL Mode?
 	test -n "${CURLOPT}" &&	curlmode ${*}
 
 	# Websocat Mode
 	printf "Stream of %s%s\n" "${2^^} ${3^^}"
-	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
-		jq --unbuffered -r .p | xargs -n1 printf "\n${FSTR}"
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
+		jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | ${COLORC}
 	#stdbuf -i0 -o0 -e0 cut -c-8
-	exit
-}
-
-mode5() {  # Colored stream of prices
-	curlmode() {
-		while true; do
-			JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
-		 	errf
-			RATE=$(printf "%s\n" "${JSON}" | jq -r '.[] | .p')
-			printf "\n${FSTR}" "${RATE}" | lolcat -p 200 
-		done
-	}
-	# cURL Mode?
-	test -n "${CURLOPT}" &&	curlmode ${*}
-
-	# Websocat Mode
-	printf "Stream of %s%s\n\n" "${2^^} ${3^^}"
- 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade |
-		jq -r --unbuffered '.p'  | xargs -n1 printf "\n${FSTR}" | lolcat -p 2000 -F 5
 	exit
 }
 
@@ -315,8 +281,6 @@ mode6extra() { # Depth of order book (depth=20)
 		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
 	exit
 }
-
-
 mode7() { # 24-H Ticker
 	websocat -nt --ping-interval 20 wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker |
 		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
@@ -366,6 +330,12 @@ while getopts ":def:hjlckistuwv" opt; do
       ;;
     c )
       M1OPT=1
+      LIMIT=250
+      ;;
+    k )
+      M1OPT=1
+      COLORC="lolcat"
+      LIMIT=200
       ;;
     d )
       M6OPT=1
@@ -381,23 +351,21 @@ while getopts ":def:hjlckistuwv" opt; do
 	   FSTR="${OPTARG}"
       fi
       ;;
-    k )
-      M2OPT=1
-      ;;
     i )
       M3OPT=1
       ;;
     s )
       M4OPT=1
       ;;
+    w )
+      M4OPT=1
+      COLORC="lolcat -p 2000 -F 5"
+      ;;
     t )
       M7OPT=1
       ;;
     u )
       CURLOPT=1
-      ;;
-    w )
-      M5OPT=1
       ;;
     h ) # Help
       echo -e "${HELP}"
@@ -446,14 +414,10 @@ fi
 # Viewing/Watching Modes opts
 # Price in columns
 test -n "${M1OPT}" && mode1 ${*}
-# Colored price in columns
-test -n "${M2OPT}" && mode2 ${*}
 # Trade info
 test -n "${M3OPT}" && mode3 ${*}
-# B&W Socket Stream
+# Socket Stream
 test -n "${M4OPT}" && mode4 ${*}
-# Colored Socket Stream
-test -n "${M5OPT}" && mode5 ${*}
 # Book Order Depth 10
 test -n "${M6OPT}" && mode6 ${*}
 # Book Order Depth 20
