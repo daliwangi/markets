@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.6  26/set/2019  by mountaineerbr
+# v0.5.7  28/set/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -22,7 +22,7 @@ SYNOPSIS
 
 	This script gets rates of any cryptocurrency pair that Binance supports
 	and can convert any amount of one crypto into another. It fetches data 
-	from Binane public APIs.
+	from Binance public APIs.
 
 	Take  notice  that Binance supports  specific markets, so for example, 
 	there is a market for XRPBTC but not for BTCXRP. You can get a List of 
@@ -34,7 +34,7 @@ SYNOPSIS
 	REST APIs and some use Websocat to fetch data from websockets. If no
 	market/currency pair is given, uses BTCUSDT by defaults.
 
-	It is accepated to write each currency that forms a market separately,
+	It is accepted to write each currency that forms a market separately,
 	or together. Example: \"ZEC USDT\" or \"ZECUSDT\". Case is insensitive.
    
 	Functions  that  use  cURL to fecth data from REST APIs update a little 
