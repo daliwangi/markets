@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.7  28/set/2019  by mountaineerbr
+# v0.5.8  01/oct/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -63,7 +63,6 @@ WARRANTY
 
 
 USAGE EXAMPLES
-
 		(1)     Half a Dash in Binance Coin:
 			
 			$ binance.sh 0.5 dash bnb 
@@ -123,8 +122,8 @@ OPTIONS
 	
 	-t 	Rolling 24H Ticker for a currency pair/market; uses websocket.
 
-	-u 	Together  with  options  \"-s\", \"-w\", \"-i\" or \"-u\", use
-		of cURL instead of Websocat.
+	-u 	Together  with  options  \"-s\", \"-w\", \"-i\" or \"-u\", use cURL
+		instead of Websocat.
 		
 	-v 	Show this script version.
 	
