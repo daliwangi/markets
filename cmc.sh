@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.1  2019/set/26  by mountaineerbr
+# v0.4.2  2019/out/01  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -483,9 +483,9 @@ fi
 #https://github.com/stedolan/jq/issues/785
 #https://michaelheap.com/extract-keys-using-jq/
 
-## Check you are NOT requesting some unsupported TO_CURRENCY
-TOCURLIST=(USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND  XAUXAG XPT XPD) 
-if test -z "${BANKFSET}" && ! grep -qi "^${3}$" <<< "${TOCURLIST[@]}" &&
+## Check you are not requesting some unsupported TO_CURRENCY
+TOCURLIST=( USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD ) 
+if test -z "${BANKFSET}" && ! grep -qi "${3}" <<< "${TOCURLIST[@]}" &&
 	! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${3}$"; then
 		if jq -er '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 			set -- "${1}" "${2}" "$(jq -r '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}")"
