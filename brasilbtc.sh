@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.9  25/09/2019  by mountaineerbr
+# v0.2.10  04/10/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -183,6 +183,12 @@ unset RATE
 test "${1^^}" = "BTC" && printf "%'.2f\tNoxBitcoin\n" "$(curl -s 'https://api.nox.trading/ticker/1' | jq -r '.venda')"
 unset RATE
 #https://www.noxbitcoin.com.br/
+
+## TEMBTC
+RATE="$(curl -s "https://broker.tembtc.com.br/api/v3/btcbrl/ticke://broker.tembtc.com.br/api/v3/${1,,}brl/ticker" | jq -r '.buy')"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tTEMBTC\n" "${RATE}"
+unset RATE
+#https://www.tembtc.com.br/api
 
 ## OmniTrade
 RATE="$(curl -s https://omnitrade.io/api/v2/tickers/${1,,}brl | jq -r '.ticker.last')"
