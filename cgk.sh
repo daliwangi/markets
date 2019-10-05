@@ -210,7 +210,8 @@ OPTIONS
 
 		-l 	List supported currencies.
 
-		-m 	Market Capitulation table.
+		-m 	Market Capitulation table; accepts one currency as arg;
+			defaults=usd.
 
 		-p 	Number of pages retrieved from the server; each page may
 			contain 100 results; use with option \"-t\"; defaults=4.
