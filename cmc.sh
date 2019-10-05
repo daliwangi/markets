@@ -1,10 +1,10 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.5  2019/oct/05  by mountaineerbr
+# v0.4.6  2019/oct/05  by mountaineerbr
 
 ## Some defaults
-LC_NUMERIC="en_US.utf8"
+LC_NUMERIC="en_US.UTF-8"
 
 ## CMC API Personal KEY
 APIKEY="29f3d386-d47d-4b54-9790-278e1faa7cdc"
@@ -401,7 +401,6 @@ mcapf() {
 		exit 0
 	fi
 	LASTUP=$(jq -r '.data.last_updated' <<< "${CMCGLOBAL}")
-	LC_NUMERIC="en_US.UTF-8"
 	# Avoid erros being printed
 	{
 	printf "## CRYPTO MARKET INFORMATION\n"
