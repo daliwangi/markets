@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.8  2019/10/05  by mountaineerbr
+# v0.4.9  2019/10/05  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -394,6 +394,13 @@ RAWADD=$(curl -s "https://blockchain.info/rawaddr/${1}")
 # Print JSON?
 if [[ -n  "${PJSON}" ]]; then
 	printf "%s\n" "${RAWADD}"
+	exit
+fi
+# Check for error, try Blockchair
+if grep -iq -e "illegal" -e "invalid" <<< "${RAWADD}"; then
+	printf "Err: <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
+	printf "Changing to option \"-c\".\n" 1>&2
+	${0} -c "${1}"
 	exit
 fi
 
