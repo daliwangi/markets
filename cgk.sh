@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6.8  2019/oct/05  by mountaineerbr
+# v0.6.9  2019/oct/05  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -368,6 +368,8 @@ mcapf() {
 		exit
 	fi
 	CGKTIME=$(jq -r '.data.updated_at' <<< "${CGKGLOBAL}")
+	# Avoid erros being printed
+	{
 	printf "## CRYPTO MARKET STATS\n"
 	date -d@"$CGKTIME" "+#  %FT%T%Z%n"
 	printf "## Markets : %s\n" "$(jq -r '.data.markets' <<< "${CGKGLOBAL}")"
@@ -378,37 +380,19 @@ mcapf() {
 	printf " # Ongoing : %s\n" "$(jq -r '.data.ongoing_icos' <<< "${CGKGLOBAL}")"
 	printf " # Ended   : %s\n" "$(jq -r '.data.ended_icos' <<< "${CGKGLOBAL}")"
 
-	printf "\n## Dominance\n"
-	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) = \(.[$k])"' <<< "${CGKGLOBAL}" | column -s '=' -t -o "=" | awk -F"=" '{ printf "  # %s  : ", toupper($1); printf("%7.4f %%\n", $2); }'
-	printf "\n"
-	
-	printf "## Market Cap per Coin\n"
-	DOMINANCEARRAY=($(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json" | jq -r '.data.market_cap_percentage | keys_unsorted[]'))
-	for i in "${DOMINANCEARRAY[@]}"; do
-		if test "${#i}" = "3"; then
-			printf "  # %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
-		else # for exemple, for USDT
-			printf "  # %s   : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
-		fi
-	done
-
-	printf "\n## Amount Created (approx.)\n"
-	printf "  # BTC    : %'14.2f bitcoins\n" "$(jq -r "((.data.market_cap_percentage.btc/100)*.data.total_market_cap.btc)" <<< "${CGKGLOBAL}")" 2>/dev/null
-	printf "  # ETH    : %'14.2f ethers\n" "$(jq -r "((.data.market_cap_percentage.eth/100)*.data.total_market_cap.eth)" <<< "${CGKGLOBAL}")" 2>/dev/null
-
 	printf "\n## Total Market Cap\n"
 	printf " # Equivalent in\n"
 	printf "    %s    : %'22.2f\n" "${1^^}" "$(jq -r ".data.total_market_cap.${1,,}" <<< "${CGKGLOBAL}")"
 	if [[ -n "${NOARG}" ]]; then
-	printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eur' <<< "${CGKGLOBAL}")"
-	printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.gbp' <<< "${CGKGLOBAL}")"
-	printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.jpy' <<< "${CGKGLOBAL}")"
-	printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.cny' <<< "${CGKGLOBAL}")"
-	printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_market_cap.brl' <<< "${CGKGLOBAL}")"
-	printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_market_cap.xau' <<< "${CGKGLOBAL}")"
-	printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_market_cap.btc' <<< "${CGKGLOBAL}")"
-	printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eth' <<< "${CGKGLOBAL}")"
-	printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.xrp' <<< "${CGKGLOBAL}")"
+		printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eur' <<< "${CGKGLOBAL}")"
+		printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.gbp' <<< "${CGKGLOBAL}")"
+		printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.jpy' <<< "${CGKGLOBAL}")"
+		printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.cny' <<< "${CGKGLOBAL}")"
+		printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_market_cap.brl' <<< "${CGKGLOBAL}")"
+		printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_market_cap.xau' <<< "${CGKGLOBAL}")"
+		printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_market_cap.btc' <<< "${CGKGLOBAL}")"
+		printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eth' <<< "${CGKGLOBAL}")"
+		printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.xrp' <<< "${CGKGLOBAL}")"
 	fi
 	printf " # Change(%%USD/24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
 
@@ -416,17 +400,41 @@ mcapf() {
 	printf " # Equivalent in\n"
 	printf "    %s    : %'22.2f\n" "${1^^}" "$(jq -r ".data.total_volume.${1,,}" <<< "${CGKGLOBAL}")"
 	if [[ -n "${NOARG}" ]]; then
-	printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_volume.eur' <<< "${CGKGLOBAL}")"
-	printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_volume.gbp' <<< "${CGKGLOBAL}")"
-	printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_volume.jpy' <<< "${CGKGLOBAL}")"
-	printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_volume.cny' <<< "${CGKGLOBAL}")"
-	printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_volume.brl' <<< "${CGKGLOBAL}")"
-	printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_volume.xau' <<< "${CGKGLOBAL}")"
-	printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_volume.btc' <<< "${CGKGLOBAL}")"
-	printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_volume.eth' <<< "${CGKGLOBAL}")"
-	printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
+		printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_volume.eur' <<< "${CGKGLOBAL}")"
+		printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_volume.gbp' <<< "${CGKGLOBAL}")"
+		printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_volume.jpy' <<< "${CGKGLOBAL}")"
+		printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_volume.cny' <<< "${CGKGLOBAL}")"
+		printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_volume.brl' <<< "${CGKGLOBAL}")"
+		printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_volume.xau' <<< "${CGKGLOBAL}")"
+		printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_volume.btc' <<< "${CGKGLOBAL}")"
+		printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_volume.eth' <<< "${CGKGLOBAL}")"
+		printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
 	fi
 
+	printf "\n## Dominance\n"
+	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) = \(.[$k])"' <<< "${CGKGLOBAL}" | column -s '=' -t -o "=" | awk -F"=" '{ printf "  # %s  : ", toupper($1); printf("%7.4f %%\n", $2); }'
+	printf "\n"
+	
+	printf "## Market Cap per Coin\n"
+	DOMINANCEARRAY=($(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json" | jq -r '.data.market_cap_percentage | keys_unsorted[]'))
+	for i in "${DOMINANCEARRAY[@]}"; do
+		if [[ "${#i}" -eq "3" ]]; then
+			printf "  # %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
+		else # for exemple, for USDT
+			printf "  # %s   : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
+		fi
+	done
+
+	printf "\n## Circulating Supply (approx.)\n"
+	printf "  # BTC    : %'22.2f bitcoins\n" "$(jq -r "((.data.market_cap_percentage.btc/100)*.data.total_market_cap.btc)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # ETH    : %'22.2f ethers\n" "$(jq -r "((.data.market_cap_percentage.eth/100)*.data.total_market_cap.eth)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # XRP    : %'22.2f ripple coins\n" "$(jq -r "((.data.market_cap_percentage.xrp/100)*.data.total_market_cap.xrp)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # BCH    : %'22.2f bcash coins\n" "$(jq -r "((.data.market_cap_percentage.bch/100)*.data.total_market_cap.bch)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # LTC    : %'22.2f litecoins\n" "$(jq -r "((.data.market_cap_percentage.ltc/100)*.data.total_market_cap.ltc)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # EOS    : %'22.2f eos coins\n" "$(jq -r "((.data.market_cap_percentage.eos/100)*.data.total_market_cap.eos)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # BNB    : %'22.2f binance coins\n" "$(jq -r "((.data.market_cap_percentage.bnb/100)*.data.total_market_cap.bnb)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	# Avoid erros being printed
+	} 2>/dev/null
 	exit 0
 }
 test -n "${MCAP}" && mcapf ${*}
