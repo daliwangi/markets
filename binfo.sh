@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.6  2019/10/05  by mountaineerbr
+# v0.4.8  2019/10/05  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -375,6 +375,13 @@ if [[ -n "${SUMMARYOPT}" ]]; then
 		printf "%s\n" "${SUMADD}"
 		exit
 	fi
+	# Check for error, then try Blockchair
+	if grep -iq  -e "invalid" <<< "${SUMADD}"; then
+		printf "Err: <blockchain.com> -- %s\n" "${SUMADD}" 1>&2
+		printf "Changing to option \"-u\".\n" 1>&2
+		${0} -u "${1}"
+		exit
+	fi	
 	printf "Summary Address Info\n"
 	printf "%s\n" "${SUMADD}" | jq -r '"Addr  : \(keys[])",
 	"Tx Num: \(.[].n_tx)",
