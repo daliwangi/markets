@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.2  2019/out/01  by mountaineerbr
+# v0.4.3  2019/oct/05  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -495,9 +495,9 @@ if test -z "${BANKFSET}" && ! grep -qi "${3}" <<< "${TOCURLIST[@]}" &&
 		fi
 fi
 
+## Default function
 ## Get Rate JSON
 CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
-
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CMCJSON}"
@@ -507,17 +507,14 @@ fi
 ## Get pair rate
 CMCRATE=$(jq -r ".data[] | .quote.${3^^}.price" <<< "${CMCJSON}" | sed 's/e/*10^/g') 
 
-
 ## Print JSON timestamp ?
 if [[ -n ${TIMEST} ]]; then
 JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
 	date --date "$JSONTIME" "+## %FT%T%Z"
 fi
 
-
 ## Make equation and calculate result
-	RESULT="$(bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${1}*${CMCRATE})")"
-
+RESULT="$(bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${1}*${CMCRATE})")"
 printf "%.${SCL}f\n" "${RESULT}"
 
 exit
