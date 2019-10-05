@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6.7  2019/oct/05  by mountaineerbr
+# v0.6.8  2019/oct/05  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -385,7 +385,11 @@ mcapf() {
 	printf "## Market Cap per Coin\n"
 	DOMINANCEARRAY=($(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json" | jq -r '.data.market_cap_percentage | keys_unsorted[]'))
 	for i in "${DOMINANCEARRAY[@]}"; do
-		printf "  # %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
+		if test "${#i}" = "3"; then
+			printf "  # %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
+		else # for exemple, for USDT
+			printf "  # %s   : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
+		fi
 	done
 
 	printf "\n## Amount Created (approx.)\n"
