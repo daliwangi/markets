@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6.1  2019/set/26  by mountaineerbr
+# v0.6.4  2019/oct/05  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -63,6 +63,21 @@ DESCRIPTION
 
 	Default precision is 16 and can be adjusted with option \"-s\". Trailing
 	noughts are trimmed by default.
+
+	Some currency convertion data is available for use with the Market Cap 
+	Function \"-m\". You can choose which currency to display data, when 
+	available, from the table below:
+
+	aed     bmd     clp     eur     inr     mmk     pkr     thb     vnd
+	ars     bnb     cny     gbp     jpy     mxn     pln     try     xag
+	aud     brl     czk     hkd     krw     myr     rub     twd     xau
+	bch     btc     dkk     huf     kwd     nok     sar     uah     xdr
+	bdt     cad     eos     idr     lkr     nzd     sek     usd     xlm
+	bhd     chf     eth     ils     ltc     php     sgd     vef     xrp
+									zar
+
+	Otherwise, the market capitulation table will display data in various
+	currencies by defaults.
 
 
 WARRANTY
@@ -169,9 +184,14 @@ USAGE EXAMPLES:
 
 
 		(17)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
-			of results;
+			of results:
 					
 			$ cgk.sh -t -p10 eth btc 
+
+
+		(18) 	Market cap function, show data for Chinese CNY:
+
+			$ cgk.sh -m cny
 
 
 OPTIONS
@@ -328,6 +348,11 @@ fi
 
 ## -m Market Cap function		
 mcapf() {
+	# Check if input has a defined to_currency
+	if [[ -z "${1}" ]]; then
+		NOARG=1
+		set -- usd
+	fi
 	CGKGLOBAL=$(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
@@ -340,50 +365,59 @@ mcapf() {
 	printf "## Markets : %s\n" "$(jq -r '.data.markets' <<< "${CGKGLOBAL}")"
 	printf "## Cryptos : %s\n" "$(jq -r '.data.active_cryptocurrencies' <<< "${CGKGLOBAL}")"
 
-	printf "\n## ICOs Stats\n"
+	printf "## ICOs Stats\n"
 	printf " # Upcoming: %s\n" "$(jq -r '.data.upcoming_icos' <<< "${CGKGLOBAL}")"
 	printf " # Ongoing : %s\n" "$(jq -r '.data.ongoing_icos' <<< "${CGKGLOBAL}")"
 	printf " # Ended   : %s\n" "$(jq -r '.data.ended_icos' <<< "${CGKGLOBAL}")"
 
-	printf "\n## Total Market Cap\n"
-	printf " # Equivalent in:\n"
-	printf "    USD    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.usd' <<< "${CGKGLOBAL}")")"
-	printf "    EUR    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.eur' <<< "${CGKGLOBAL}")")"
-	printf "    GBP    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.gbp' <<< "${CGKGLOBAL}")")"
-	printf "    JPY    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.jpy' <<< "${CGKGLOBAL}")")"
-	printf "    CNY    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.cny' <<< "${CGKGLOBAL}")")"
-	printf "    BRL    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.brl' <<< "${CGKGLOBAL}")")"
-	printf "    XAU(oz): %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.xau' <<< "${CGKGLOBAL}")")"
-	printf "    BTC    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.btc' <<< "${CGKGLOBAL}")")"
-	printf "    ETH    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.eth' <<< "${CGKGLOBAL}")")"
-	printf "    XRP    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_market_cap.xrp' <<< "${CGKGLOBAL}")")"
-	printf " # Change(24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
-
-	printf "\n## Market Volume (last 24h)\n"
-	printf " # Equivalent in:\n"
-	printf "    USD    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.usd' <<< "${CGKGLOBAL}")")"
-	printf "    EUR    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.eur' <<< "${CGKGLOBAL}")")"
-	printf "    GBP    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.gbp' <<< "${CGKGLOBAL}")")"
-	printf "    JPY    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.jpy' <<< "${CGKGLOBAL}")")"
-	printf "    CNY    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.cny' <<< "${CGKGLOBAL}")")"
-	printf "    BRL    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.brl' <<< "${CGKGLOBAL}")")"
-	printf "    XAU(oz): %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.xau' <<< "${CGKGLOBAL}")")"
-	printf "    BTC    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.btc' <<< "${CGKGLOBAL}")")"
-	printf "    ETH    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.eth' <<< "${CGKGLOBAL}")")"
-	printf "    XRP    : %s\n" "$(printf "%'.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")")"
-
 	printf "\n## Dominance\n"
-	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) = \(.[$k])"' <<< "${CGKGLOBAL}" | column -s '=' -t -o "=" | awk -F"=" '{ printf "  # %s", toupper($1); printf("%7.4f %%\n", $2); }'
+	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) = \(.[$k])"' <<< "${CGKGLOBAL}" | column -s '=' -t -o "=" | awk -F"=" '{ printf "  # %s  : ", toupper($1); printf("%7.4f %%\n", $2); }'
 	printf "\n"
 	
 	printf "## Market Cap per Coin\n"
 	DOMINANCEARRAY=($(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json" | jq -r '.data.market_cap_percentage | keys_unsorted[]'))
 	for i in "${DOMINANCEARRAY[@]}"; do
-		printf "  # %s %'19.2f USD\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.usd)" <<< "${CGKGLOBAL}")" 2>/dev/null
+		printf "  # %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "((.data.market_cap_percentage.${i}/100)*.data.total_market_cap.${1,,})" <<< "${CGKGLOBAL}")" "${1^^}" 2>/dev/null
 	done
+
+	printf "\n## Amount Created (approx.)\n"
+	printf "  # BTC    : %'14.2f bitcoins\n" "$(jq -r "((.data.market_cap_percentage.btc/100)*.data.total_market_cap.btc)" <<< "${CGKGLOBAL}")" 2>/dev/null
+	printf "  # ETH    : %'14.2f ethers\n" "$(jq -r "((.data.market_cap_percentage.eth/100)*.data.total_market_cap.eth)" <<< "${CGKGLOBAL}")" 2>/dev/null
+
+	printf "\n## Total Market Cap\n"
+	printf " # Equivalent in\n"
+	printf "    %s    : %'22.2f\n" "${1^^}" "$(jq -r ".data.total_market_cap.${1,,}" <<< "${CGKGLOBAL}")"
+	if [[ -n "${NOARG}" ]]; then
+	printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eur' <<< "${CGKGLOBAL}")"
+	printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.gbp' <<< "${CGKGLOBAL}")"
+	printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.jpy' <<< "${CGKGLOBAL}")"
+	printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_market_cap.cny' <<< "${CGKGLOBAL}")"
+	printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_market_cap.brl' <<< "${CGKGLOBAL}")"
+	printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_market_cap.xau' <<< "${CGKGLOBAL}")"
+	printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_market_cap.btc' <<< "${CGKGLOBAL}")"
+	printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_market_cap.eth' <<< "${CGKGLOBAL}")"
+	printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_market_cap.xrp' <<< "${CGKGLOBAL}")"
+	fi
+	printf " # Change(%%USD/24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
+
+	printf "\n## Market Volume (last 24h)\n"
+	printf " # Equivalent in\n"
+	printf "    %s    : %'22.2f\n" "${1^^}" "$(jq -r ".data.total_volume.${1,,}" <<< "${CGKGLOBAL}")"
+	if [[ -n "${NOARG}" ]]; then
+	printf "    EUR    : %'22.2f\n" "$(jq -r '.data.total_volume.eur' <<< "${CGKGLOBAL}")"
+	printf "    GBP    : %'22.2f\n" "$(jq -r '.data.total_volume.gbp' <<< "${CGKGLOBAL}")"
+	printf "    JPY    : %'22.2f\n" "$(jq -r '.data.total_volume.jpy' <<< "${CGKGLOBAL}")"
+	printf "    CNY    : %'22.2f\n" "$(jq -r '.data.total_volume.cny' <<< "${CGKGLOBAL}")"
+	printf "    BRL    : %'22.2f\n" "$(jq -r '.data.total_volume.brl' <<< "${CGKGLOBAL}")"
+	printf "    XAU(oz): %'22.2f\n" "$(jq -r '.data.total_volume.xau' <<< "${CGKGLOBAL}")"
+	printf "    BTC    : %'22.2f\n" "$(jq -r '.data.total_volume.btc' <<< "${CGKGLOBAL}")"
+	printf "    ETH    : %'22.2f\n" "$(jq -r '.data.total_volume.eth' <<< "${CGKGLOBAL}")"
+	printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
+	fi
+
 	exit 0
 }
-test -n "${MCAP}" && mcapf
+test -n "${MCAP}" && mcapf ${*}
 
 ## -e Show Exchange info function
 exf() {
