@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.3  2019/oct/05  by mountaineerbr
+# v0.4.5  2019/oct/05  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -401,20 +401,14 @@ mcapf() {
 		exit 0
 	fi
 	LASTUP=$(jq -r '.data.last_updated' <<< "${CMCGLOBAL}")
-	LC_NUMERIC="en_US.utf8"
+	LC_NUMERIC="en_US.UTF-8"
+	# Avoid erros being printed
+	{
 	printf "## CRYPTO MARKET INFORMATION\n"
 	date --date "${LASTUP}"  "+#  %FT%T%Z"
 	printf "\n# Exchanges     : %s\n" "$(jq -r '.data.active_exchanges' <<< "${CMCGLOBAL}")"
 	printf "# Active cryptos: %s\n" "$(jq -r '.data.active_cryptocurrencies' <<< "${CMCGLOBAL}")"
 	printf "# Market pairs  : %s\n" "$(jq -r '.data.active_market_pairs' <<< "${CMCGLOBAL}")"
-
-	printf "\n## Dominance\n"
-	printf " # BTC: %'.2f %%\n" "$(jq -r '.data.btc_dominance' <<< "${CMCGLOBAL}")"
-	printf " # ETH: %'.2f %%\n" "$(jq -r '.data.eth_dominance' <<< "${CMCGLOBAL}")"
-
-	printf "\n## Market Cap per Coin\n"
-	printf " # BTC: %'.2f USD\n" "$(jq -r '((.data.btc_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
-	printf " # ETH: %'.2f USD\n" "$(jq -r '((.data.eth_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
 
 	printf "\n## All Crypto Market Cap\n"
 	printf "   %'.2f USD\n" "$(jq -r '.data.quote.USD.total_market_cap' <<< "${CMCGLOBAL}")"
@@ -422,13 +416,15 @@ mcapf() {
 	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.total_volume_24h' <<< "${CMCGLOBAL}")"
 	printf " # Last 24h Reported Volume\n"
 	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.total_volume_24h_reported' <<< "${CMCGLOBAL}")"
-
+	
 	printf "\n## Bitcoin Market Cap\n"
 	printf "   %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_market_cap-.data.quote.USD.altcoin_market_cap)' <<< "${CMCGLOBAL}")"
 	printf " # Last 24h Volume\n"
 	printf "    %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_volume_24h-.data.quote.USD.altcoin_volume_24h)' <<< "${CMCGLOBAL}")"
 	printf " # Last 24h Reported Volume\n"
 	printf "    %'.2f USD\n" "$(jq -r '(.data.quote.USD.total_volume_24h_reported-.data.quote.USD.altcoin_volume_24h_reported)' <<< "${CMCGLOBAL}")"
+	printf "## Circulating Supply\n"
+	printf " # BTC: %'.2f bitcoins\n" "$(bc -l <<< "$(curl -s "https://blockchain.info/q/totalbc")/100000000")"
 
 	printf "\n## AltCoin Market Cap\n"
 	printf "   %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_market_cap' <<< "${CMCGLOBAL}")"
@@ -436,8 +432,16 @@ mcapf() {
 	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_volume_24h' <<< "${CMCGLOBAL}")"
 	printf " # Last 24h Reported Volume\n"
 	printf "    %'.2f USD\n" "$(jq -r '.data.quote.USD.altcoin_volume_24h_reported' <<< "${CMCGLOBAL}")"
-# v1.15.0 on Jul 10, 2019
-#/v1/global-metrics/quotes/latest now updates more frequently, every minute. It aslo now includes total_volume_24h_reported, altcoin_volume_24h, altcoin_volume_24h_reported, and altcoin_market_cap.
+	
+	printf "\n## Dominance\n"
+	printf " # BTC: %'.2f %%\n" "$(jq -r '.data.btc_dominance' <<< "${CMCGLOBAL}")"
+	printf " # ETH: %'.2f %%\n" "$(jq -r '.data.eth_dominance' <<< "${CMCGLOBAL}")"
+
+	printf "\n## Market Cap per Coin\n"
+	printf " # BTC: %'.2f USD\n" "$(jq -r '((.data.btc_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
+	printf " # ETH: %'.2f USD\n" "$(jq -r '((.data.eth_dominance/100)*.data.quote.USD.total_market_cap)' <<< "${CMCGLOBAL}")"
+	# Avoid erros being printed
+	} 2>/dev/null
 	exit 0
 }
 if [[ -n "${MCAP}" ]]; then
