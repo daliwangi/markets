@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6.4  2019/oct/05  by mountaineerbr
+# v0.6.6  2019/oct/05  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.utf8"
@@ -354,7 +354,14 @@ mcapf() {
 		NOARG=1
 		set -- usd
 	fi
+	# Get Data 
 	CGKGLOBAL=$(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")
+	# Check if input is a valid to_currency for this function
+	if ! jq -r '.data.total_market_cap|keys[]' <<< "${CGKGLOBAL}" | grep -qi "${1}"; then
+		printf "Using USD. Not supported -- %s.\n" "${1^^}" 1>&2
+		NOARG=1
+		set -- usd
+	fi
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CGKGLOBAL}" 
