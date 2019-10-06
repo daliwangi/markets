@@ -1,16 +1,18 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.6  2019/oct/05  by mountaineerbr
+# v0.4.7  2019/oct/06  by mountaineerbr
 
 ## Some defaults
 LC_NUMERIC="en_US.UTF-8"
 
 ## CMC API Personal KEY
+#APIKEY=""
+#Dev keys:
 APIKEY="29f3d386-d47d-4b54-9790-278e1faa7cdc"
 # Spare key:
 #APIKEY="f70ef502-0d91-496b-bd5b-5c0f20334720"
-# dirufit@mailmetal.com -- hellodear
+# dirufit@mailmetal.com -- hell.ar
 
 ## Manual and help
 ## Usage: $ cmc.sh [amount] [from currency] [to currency]
