@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.11  2019/10/05  by mountaineerbr
+# v0.4.12  2019/10/05  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -66,7 +66,7 @@ Abbreviations
     Domin            Dominance
     DSpent           Double spent
     Est              Estimated
-    ETA 	     Estimated Time of arrival
+    ETA              Estimated Time of arrival
     ETxVol           Estimated transaction volume
     Exa              [10^18]
     F                Fee
@@ -93,7 +93,7 @@ Abbreviations
     TTxFees          Total transaction fees
     TxPSec           Transactions per second
     Tx               Transaction
-    Unc 	     Unconfirmed
+    Unc              Unconfirmed
     Ver              Version
     Vol              Volume
 
@@ -201,7 +201,7 @@ shift $((OPTIND -1))
 # Check function args
 if { [[ -n "${ADDOPT}" ]] || [[ -n "${CHAIROPT}" ]] ||
 	[[ -n "${TXOPT}" ]] || [[ -n "${TXBCHAIROPT}" ]];} && [[ -z "${1}" ]]; then
-	printf "Err: Tx/Addr/Blk ID/Hash is needed.\n" 1>&2
+	printf "Err: Tx/Addr ID/Hash is needed.\n" 1>&2
 	exit 1
 fi
 
