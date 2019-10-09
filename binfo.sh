@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.12  2019/10/05  by mountaineerbr
+# v0.4.13  2019/10/09  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
