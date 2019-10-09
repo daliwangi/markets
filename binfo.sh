@@ -8,11 +8,13 @@ LC_NUMERIC=en_US.UTF-8
 
 HELP="\"This programme is licensed under the GNU General Public License v3 or better\".
 
-
-Synopsis
+NAME
 
     Binfo.sh  -- Bash Interface for Blockchain.info & Blockchair.com APIs
     
+
+SYNOPSIS
+
     binfo.sh  [option]  [block|address|tx|id]
 
 This programme fetches information of Bitcoin blocks, addresses and transactions
@@ -30,17 +32,17 @@ sual that the websocket connection will drop. Automatic reconnection will occur.
 This script needs the latest Bash, cURL, JQ, Websocat and Coreutils.
 
 Give me a nickle!
-    bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+	bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 Blockchain Organisation and Exploration
 
 The blockchain has four basic levels of organisation:
     
-    (3)  Transaction.
-    (2)  Address.
-    (1)  Block.
-    (0)  Blockchain itself.
+	(0)  Blockchain itself.
+	(1)  Block.
+	(2)  Address.
+	(3)  Transaction.
 
 If you do not have a specific address or transaction to lookup, try fetching the
 latest block info (option \"-l\"), and from there you can look up an address by
@@ -50,61 +52,112 @@ information, use option \"-b\" with the block hash. You can also inspect a block
 with option \"-n\" and its height number.
 
 
-Abbreviations
+ABBREVIATIONS
 
-    Addr             Address
-    A,Avg            Average
-    AvgBlkS          Average block size
-    Bal              Balance
-    B,Blk            Block
-    BTime,BlkTime    Block time (time between blocks)
-    BTC              Bitcoin
-    Cap              Capital
-    CDD              Coin days destroyed
-    Desc             Description
-    Diff             Difficulty
-    Domin            Dominance
-    DSpent           Double spent
-    Est              Estimated
-    ETA              Estimated Time of arrival
-    ETxVol           Estimated transaction volume
-    Exa              [10^18]
-    F                Fee
-    FrTxID           From transaction ID number
-    H,Hx             Hash, hashes
-    HxR              Hash rate
-    ID               Identity
-    LocalT           Local time
-    LockT            Lock time
-    MrklRt           Merkle Root
-    NDiff            Next difficulty
-    NextB            Next block
-    Num              Number
-    PrevB            Previous block
-    PrevId           Previous (block|transaction) ID
-    Recv             Received
-    RecvT            Receive time
-    sat              satoshi
-    S                Size
-    Suggest.         Suggested
-    ToTxID           To transaction ID number
-    TPS              Transactions per second
-    T                Total, Time
-    TTxFees          Total transaction fees
-    TxPSec           Transactions per second
-    Tx               Transaction
-    Unc              Unconfirmed
-    Ver              Version
-    Vol              Volume
+	Addr             Address
+	A,Avg            Average
+	AvgBlkS          Average block size
+	Bal              Balance
+	B,Blk            Block
+	BTime,BlkTime    Block time (time between blocks)
+	BTC              Bitcoin
+	Cap              Capital
+	CDD              Coin days destroyed
+	Desc             Description
+	Diff             Difficulty
+	Domin            Dominance
+	DSpent           Double spent
+	Est              Estimated
+	ETA              Estimated Time of arrival
+	ETxVol           Estimated transaction volume
+	Exa              [10^18]
+	F                Fee
+	FrTxID           From transaction ID number
+	H,Hx             Hash, hashes
+	HxR              Hash rate
+	ID               Identity
+	LocalT           Local time
+	LockT            Lock time
+	MrklRt           Merkle Root
+	NDiff            Next difficulty
+	NextB            Next block
+	Num              Number
+	PrevB            Previous block
+	PrevId           Previous (block|transaction) ID
+	Recv             Received
+	RecvT            Receive time
+	sat              satoshi
+	S                Size
+	Suggest.         Suggested
+	ToTxID           To transaction ID number
+	TPS              Transactions per second
+	T                Total, Time
+	TTxFees          Total transaction fees
+	TxPSec           Transactions per second
+	Tx               Transaction
+	Unc              Unconfirmed
+	Ver              Version
+	Vol              Volume
 
 
-Usage
+USAGE
 
-    $ binfo.sh  [-e|-h|-i|-l|-m|-o|-v]
+	$ binfo.sh  [-e|-h|-i|-l|-m|-o|-v]
 
-    $ binfo.sh  [-a|-b|-c|-n|-s|-t|-u|-x]  [BlockHx|AddressHx|TransactionHx|ID]
+	$ binfo.sh  [-a|-b|-c|-n|-s|-t|-u|-x]  [BlockHx|AddressHx|TransactionHx|ID]
 
-  Options
+
+EXAMPLES
+
+	(1) Get latest block hash and Transaction indexes:
+
+		binfo.sh -l
+
+
+	(2) Get full information of the latest block:
+
+		binfo.sh -b
+
+
+	(3) Information for block by hash
+
+		binfo.sh -b 00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
+
+
+	(4) Information for block by height number (genesis block=0):
+
+		binfo.sh -n 0
+
+
+	(5) Summary address information
+
+		binfo.sh -s 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+		binfo.sh -u 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+		
+	
+	(6) Complete address information
+
+		binfo.sh -a 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+		binfo.sh -c 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+		
+	
+	(7) Transaction information
+	
+		binfo.sh -t a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d
+		binfo.sh -x a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d
+
+
+	(8) Market information
+
+		binfo.sh -i
+		binfo.sh -o
+
+
+Examples note: first block with transaction, genesis block,
+	       Binance cold wallet and the pizza transaction.
+
+
+OPTIONS
 
     Blockhain
       -i 	Bitcoin blockchain info (24H rolling ticker).
