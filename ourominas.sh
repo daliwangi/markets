@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.3 27/set/2019  by mountaineer_br
+# v0.2.4 09/oct/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -35,6 +35,8 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	column -t -s"=" -N'Moeda,Venda,Compra' -R'Moeda'
 
 # Calcular o preço de venda com o CGK.sh
+# Ourominas não oferece o preço dos lingotes publicamente, até onde eu vi.
+# Se tiver um script para puxar o preço do ouro em dólares:
 if [[ -e "/home/jsn/_Scripts/markets/cgk.sh" ]]; then
 	CGKXAU="$(~/_Scripts/markets/cgk.sh -b xau usd)"
 	USDP="${USD[@]:1:1}"
@@ -44,6 +46,4 @@ fi
 
 exit
 #Não trampam com Prata!
-#CGKXAG="$(~/_Scripts/markets/cgk.sh -b xag usd)"
-#printf "Venda Prata Estimada:  %s\n" "$(printf "scale=3; %s*%s/28.349523125\n" "${CGKXAG}" "${USDP/,/.}" | bc -l)"
 
