@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.13  2019/10/09  by mountaineerbr
+# v0.4.14  2019/10/10  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -74,7 +74,7 @@ ABBREVIATIONS
 	F                Fee
 	FrTxID           From transaction ID number
 	H,Hx             Hash, hashes
-	HxR              Hash rate
+	HR               Hash rate
 	ID               Identity
 	LocalT           Local time
 	LockT            Lock time
@@ -273,19 +273,19 @@ sstreamf() {
 		websocat --text --no-close --ping-interval 18 "wss://ws.blockchain.info/inv" <<< '{"op":"blocks_sub"}' |
 			jq -r '.x | "--------",
 			"New block found!",
-			"Hash  :",
+			"Hash__:",
 			"  \(.hash)",
 			"MrklRt:",
 			"  \(.mrklRoot)",
-			"Bits  : \(.bits)\tNonce : \(.nonce)",
-			"Blk ID: \(.blockIndex)\t\tPrevId: \(.prevBlockIndex)",
-			"Height: \(.height)\t\tVer   : \(.version)\tReward:\t\(if .reward == 0 then "??" else .reward end)",
-			"Size  : \(.size/1000) KB\tTxs   : \(.nTx)",
+			"Bits__: \(.bits)\tNonce_: \(.nonce)",
+			"Blk_ID: \(.blockIndex)\t\tPrevId: \(.prevBlockIndex)",
+			"Height: \(.height)\t\tVer___: \(.version)\tReward:\t\(if .reward == 0 then "??" else .reward end)",
+			"Size__: \(.size/1000) KB\tTxs___: \(.nTx)",
 			"Output: \(.totalBTCSent/100000000) BTC\tETxVol: \(.estimatedBTCSent/100000000) BTC",
-			"Time  : \(.foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.foundBy.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"\t\t\t\tRecvT : \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"IP    : \(.foundBy.ip)  \tDesc  : \(.foundBy.description)",
-			"Link  : \(.foundBy.link)"'
+			"Time__: \(.foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.foundBy.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"\t\t\t\tRecvT_: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"IP____: \(.foundBy.ip)  \tDesc__: \(.foundBy.description)",
+			"Link__: \(.foundBy.link)"'
 		#{"op":"blocks_sub"}
 		#{"op":"unconfirmed_sub"}
 		#{"op":"ping"}
@@ -319,8 +319,8 @@ latestf() {
 	printf "%s\n" "${TXIDS[@]}" | column
 	# Print the other info
 	jq -r '. | "Block Hash:","\t\(.hash)",
-		"Index : \(.block_index)","Height: \(.height)",
-		"Time  : \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))",
+		"Index_: \(.block_index)","Height: \(.height)",
+		"Time__: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))",
 		"LocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${LBLOCK}"
 }
 if [[ -n "${LATESTOPT}" ]]; then
@@ -342,14 +342,14 @@ rtxf() {
 	printf "Transaction Info\n"
 	jq -r '. | "--------",
 		"TxHash: \(.hash)",
-		"Tx ID : \(.tx_index)\tBlk ID: \(.block_index)\t\tDSpent: \(.double_spend)",
-		"Size  : \(.size) bytes\tLockT : \(.lock_time)\t\tVer   : \(.ver)",
-		"Fee   : \(.fee // "??") sat  \tFee   : \(if .fee == null then "??" else (.fee/.size) end) sat/byte",
-		"Relay : \(.relayed_by//empty)",
-		"Time  : \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Tx ID_: \(.tx_index)\tBlk_ID: \(.block_index)\t\tDSpent: \(.double_spend)",
+		"Size__: \(.size) bytes\tLockT_: \(.lock_time)\t\tVer___: \(.ver)",
+		"Fee___: \(.fee // "??") sat  \tFee___: \(if .fee == null then "??" else (.fee/.size) end) sat/byte",
+		"Relay_: \(.relayed_by//empty)",
+		"Time__: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		" From:",
 		"  \(.inputs[].prev_out | "\(.addr)  \(if .value == null then "??" else (.value/100000000) end)  \(if .spent == true then "SPENT" else "UNSPENT" end)  FrTxID: \(.tx_index)  \(.addr_tag // "")")",
-		" To  :",
+		" To__:",
 		"  \(.out[] | "\(.addr)  \(if .value == null then "??" else (.value/100000000) end)  \(if .spent == true then "SPENT" else "UNSPENT" end)  ToTxID: \(.spending_outpoints // [] | .[] // { "tx_index": "00" } | .tx_index // "")  \(.addr_tag // "")")"' <<< "${RAWTX}"
 }
 if [[ -n "${TXOPT}" ]]; then
@@ -379,18 +379,18 @@ rblockf() {
 	# Print Block info
 	printf "\n--------\n"
 	printf "Block Info\n"
-	jq -r '. | "Hash  : \(.hash)",
+	jq -r '. | "Hash__: \(.hash)",
 		"MrklRt: \(.mrkl_root)",
-		"PrevB : \(.prev_block)",
-		"NextB : \(.next_block[])",
-		"Time  : \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))  LocalT: \(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-		"Bits  : \(.bits)\tNonce : \(.nonce)",
-		"Index : \(.block_index)   \tVer   : \(.ver)",
-		"Height: \(.height)      \tChain : \(if .main_chain == true then "Main" else "Secondary" end)",
-		"Size  : \(.size/1000) KB\tTxs   : \(.n_tx)",
-		"Fees  : \(.fee/100000000) BTC",
-		"Avg F : \(.fee/.size) sat/byte",
-		"Relay : \(.relayed_by // empty)"' <<< "${RAWB}"
+		"PrevB_: \(.prev_block)",
+		"NextB_: \(.next_block[])",
+		"Time__: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))  LocalT: \(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Bits__: \(.bits)\tNonce_: \(.nonce)",
+		"Index_: \(.block_index)   \tVer___: \(.ver)",
+		"Height: \(.height)      \tChain_: \(if .main_chain == true then "Main" else "Secondary" end)",
+		"Size__: \(.size/1000) KB\tTxs___: \(.n_tx)",
+		"Fees__: \(.fee/100000000) BTC",
+		"Avg_F_: \(.fee/.size) sat/byte",
+		"Relay_: \(.relayed_by // empty)"' <<< "${RAWB}"
 	# Calculate total volume
 	II=($(jq -r '.tx[].inputs[].prev_out.value // empty' <<< "${RAWB}"))
 	OO=($(jq -r '.tx[].out[].value // empty' <<< "${RAWB}"))
@@ -398,7 +398,7 @@ rblockf() {
 	VOUT=$(bc -l <<< "(${OO[*]/%/+}0)/100000000")
 	BLKREWARD=$(printf "%s-%s\n" "${VOUT}" "${VIN}" | bc -l)
 	printf "Reward: %'.8f BTC\n" "${BLKREWARD}"
-	printf "Input : %'.8f BTC\n" "${VIN}"
+	printf "Input_: %'.8f BTC\n" "${VIN}"
 	printf "Output: %'.8f BTC\n" "${VOUT}"
 }
 if [[ -n "${RAWOPT}" ]]; then
@@ -442,10 +442,10 @@ raddf() {
 			exit
 		fi	
 		printf "Summary Address Info\n"
-		jq -r '"Addr  : \(keys[])",
-		"Tx Num: \(.[].n_tx)",
-		"T Recv: \(.[].total_received) sat  (\(.[].total_received/100000000) BTC)",
-		"Bal   : \(.[].final_balance) sat  (\(.[].final_balance/100000000) BTC)"' <<< "${SUMADD}"
+		jq -r '"Addr__: \(keys[])",
+		"Tx_Num: \(.[].n_tx)",
+		"T_Recv: \(.[].total_received) sat  (\(.[].total_received/100000000) BTC)",
+		"Bal___: \(.[].final_balance) sat  (\(.[].final_balance/100000000) BTC)"' <<< "${SUMADD}"
 		exit 0
 	fi
 	# Get RAW ADDR
@@ -468,12 +468,12 @@ raddf() {
 	rtxf
 	printf -- "\n--------\n"
 	printf "Address Info\n"
-	jq -r '. | "Addr  : \(.address)",
-		"Hx160 : \(.hash160)",
-		"Tx Num: \(.n_tx)",
-		"T Recv: \(.total_received) sat  (\(.total_received/100000000) BTC)",
-		"T Sent: \(.total_sent) sat  (\(.total_sent/100000000) BTC)",
-		"Bal   : \(.final_balance) sat  (\(.final_balance/100000000) BTC)"' <<< "${RAWADD}"
+	jq -r '. | "Addr__: \(.address)",
+		"Hx160_: \(.hash160)",
+		"Tx_Num: \(.n_tx)",
+		"T_Recv: \(.total_received) sat  (\(.total_received/100000000) BTC)",
+		"T_Sent: \(.total_sent) sat  (\(.total_sent/100000000) BTC)",
+		"Bal___: \(.final_balance) sat  (\(.final_balance/100000000) BTC)"' <<< "${RAWADD}"
 }
 if [[ -n "${ADDOPT}" ]]; then
 	raddf "${1}"
@@ -492,10 +492,10 @@ chairaddf() {
 	# -u Summary Address Information ?
 	if [[ -n "${SUMMARYOPTB}" ]]; then
 		printf "Summary Address Info (Blockchair)\n"
-		jq -r '. | "Tx Num: \(.data[].address.transaction_count)",
-		"T Recv: \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
-		"T Sent: \(.data[].address.spent/100000000) BTC  (\(.data[].address.spent_usd|round) USD)",
-		"Bal   : \(.data[].address.balance/100000000) BTC  (\(.data[].address.balance_usd|round) USD)"' <<< "${CHAIRADD}" || return
+		jq -r '. | "Tx_Num: \(.data[].address.transaction_count)",
+		"T_Recv: \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
+		"T_Sent: \(.data[].address.spent/100000000) BTC  (\(.data[].address.spent_usd|round) USD)",
+		"Bal___: \(.data[].address.balance/100000000) BTC  (\(.data[].address.balance_usd|round) USD)"' <<< "${CHAIRADD}" || return
 		exit
 	fi
 	# Print Tx Hashes (only last 100)
@@ -508,16 +508,16 @@ chairaddf() {
 	# Print Address info
 	jq -r '. | "",
 		"Address: \(.data|keys[])",
-		"Type   : \(.data[].address.type)",
+		"Type___: \(.data[].address.type)",
 		"",
 		"Output Counts",
-		"T Recv : \(.data[].address.output_count)",
+		"T_Recv_: \(.data[].address.output_count)",
 		"Unspent: \(.data[].address.unspent_output_count)",
-		"Tx Num : \(.data[].address.transaction_count)",
+		"Tx_Num_: \(.data[].address.transaction_count)",
 		"",
-		"Bal    : \(.data[].address.balance/100000000) BTC  (\(.data[].address.balance_usd|round) USD)",
-		"T Recv : \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
-		"Spent  : \(.data[].address.spent/100000000) BTC  (\(.data[].address.spent_usd|round) USD)",
+		"Bal____: \(.data[].address.balance/100000000) BTC  (\(.data[].address.balance_usd|round) USD)",
+		"T_Recv_: \(.data[].address.received/100000000) BTC  (\(.data[].address.received_usd|round) USD)",
+		"Spent__: \(.data[].address.spent/100000000) BTC  (\(.data[].address.spent_usd|round) USD)",
 		"",
 		"First Received:\t\tLast Received:",
 		"  \(.data[].address.first_seen_receiving//"")\t\(.data[].address.last_seen_receiving//"")",
@@ -547,11 +547,11 @@ utxf() {
 	printf "\nStats for last 100 blocks\n"
 	printf "AvgTx/B: %.0f\n" "$(curl -s https://blockchain.info/q/avgtxnumber)"
 	sleep 0.4
-	printf "A BTime: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/interval)/60")"
+	printf "A_BTime: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/interval)/60")"
 	sleep 0.4
-	printf "Unc Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
+	printf "Unc_Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
 	sleep 0.4
-	printf "Blk ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
+	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
 }
 if [[ -n "${UTXOPT}" ]]; then
 	utxf
@@ -574,15 +574,15 @@ txinfobcf() {
 	printf "Transaction Info (Blockchair)\n"
 	jq -er '.data[].inputs as $i | .data[].outputs as $o | .data[].transaction | "--------",
 		"TxHash: \(.hash)",
-		"Tx ID : \(.id)\tBlk ID: \(.block_id)\t\(if .is_coinbase == true then "(Coinbase Tx)" else "" end)",
-		"Size  : \(.size) bytes\tLockT : \(.lock_time)\t\tVer   : \(.version)",
-		"Fee   :\t\tF Rate:",
+		"Tx_ID_: \(.id)\tBlk_ID: \(.block_id)\t\(if .is_coinbase == true then "(Coinbase_Tx)" else "" end)",
+		"Size__: \(.size) bytes\tLockT_: \(.lock_time)\t\tVer___: \(.version)",
+		"Fee___:\t\tF_Rate:",
 		"\t\(.fee // "??") sat\t\(.fee_per_kb // "??") sat/KB",
 		"\t\(.fee_usd // "??") USD\t\(.fee_per_kb_usd // "??") USD/KB",
-		"Time  : \(.time)Z\tLocalT: \(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Time__: \(.time)Z\tLocalT: \(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		" From:",
 		($i[]|"  \(.recipient)  \(.value/100000000)  \(if .is_spent == true then "SPENT" else "UNSPENT" end)"),
-		" To  :",
+		" To__:",
 		($o[]|"  \(.recipient)  \(.value/100000000) \(if .is_spent == true then "SPENT" else "UNSPENT" end)  ToTxID: \(.spending_transaction_id)")' <<< "${TXCHAIR}"
 }
 if [[ -n "${TXBCHAIROPT}" ]]; then
@@ -592,7 +592,7 @@ fi
 
 ## -i 24-H Ticker for the Bitcoin Blockchain
 blkinfof() {
-	printf "Bitcoin Blockchain General Info\n\n" 1>&2
+	printf "Bitcoin Blockchain General Info\n" 1>&2
 	CHAINJSON="$(curl -s https://api.blockchain.info/stats)"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
@@ -600,49 +600,50 @@ blkinfof() {
 		exit 0
 	fi
 	# Print the 24-H ticker
-	jq -r '"Time   : \((.timestamp/1000)|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+	jq -r '"Time___: \((.timestamp/1000)|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"",
 		"Blockchain",
-		"TMined : \(.totalbc/100000000) BTC",
-		"Height : \(.n_blocks_total) blocks",
+		"TMined_: \(.totalbc/100000000) BTC",
+		"Height_: \(.n_blocks_total) blocks",
 		"",
 		"Rolling 24H Ticker",
 		"BlkTime: \(.minutes_between_blocks) min",
-		"T Mined: \(.n_btc_mined/100000000) BTC \(.n_blocks_mined) blocks",
-		"Reward : \((.n_btc_mined/100000000)/.n_blocks_mined) BTC/block",
-		"T Size : \(.blocks_size/1000000) MB",
+		"T_Mined: \(.n_btc_mined/100000000) BTC \(.n_blocks_mined) blocks",
+		"Reward_: \((.n_btc_mined/100000000)/.n_blocks_mined) BTC/block",
+		"T_Size_: \(.blocks_size/1000000) MB",
 		"AvgBlkS: \((.blocks_size/1000)/.n_blocks_mined) KB/block",
 		"",
 		"Difficulty and Hash Rate",
-		"Diff   : \(.difficulty)",
-		"HxRate : \(.hash_rate) hashes/s",
-		"Diff/HxR: \(.difficulty/.hash_rate)",
+		"Diff___: \(.difficulty)",
+		"HxRate_: \(.hash_rate) hashes/s",
+		"Diff/HR: \(.difficulty/.hash_rate)",
 		"",
 		"Next Retarget",
 		"@Height: \(.nextretarget)",
-		"Blocks : -\(.nextretarget-.n_blocks_total)",
-		"Days   : -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))",
+		"Blocks_: -\(.nextretarget-.n_blocks_total)",
+		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))",
 		"",
 		"Transactions",
-		"ETxVol : \(.estimated_btc_sent/100000000) BTC",
-		"ETxVol : \(.estimated_transaction_volume_usd|round) USD",
+		"ETxVol_: \(.estimated_btc_sent/100000000) BTC",
+		"ETxVol_: \(.estimated_transaction_volume_usd|round) USD",
 		"",
 		"Mining Costs",
 		"TTxFees: \(.total_fees_btc/100000000) BTC",
 		"Revenue: \(.miners_revenue_btc) BTC (\(.miners_revenue_usd|round) USD)",
-		"FeeVol%     [(TTxFees/Revenue)x100]      :",
+		"FeeVol% [(TTxFees/Revenue)x100]:",
 		"  \(((.total_fees_btc/100000000)/.miners_revenue_btc)*100) %",
-		"RevenueVol% [(Revenue/TotalBtcSent)x100] :",
+		"RevenueVol% [(Revenue/TotalBtcSent)x100]:",
 		"  \((.miners_revenue_btc/(.estimated_btc_sent/100000000))*100) %",
 		"",
 		"Market",
-		"Price  : \(.market_price_usd) USD",
-		"TxVol  : \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
+		"Price__: \(.market_price_usd) USD",
+		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
 	printf "\nStats for last 100 blocks\n"
 	printf "AvgTx/B: %.0f\n" "$(curl -s https://blockchain.info/q/avgtxnumber)"
 	sleep 0.4
-	printf "Unc Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
+	printf "Unc_Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
 	sleep 0.4
-	printf "Blk ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
+	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
 }
 if [[ -n "${BLKCHAINOPT}" ]]; then
 	blkinfof
@@ -660,58 +661,51 @@ blkinfochairf() {
 		exit 0
 	fi
 	# Print the 24-H ticker
-	jq -r '.data | "Nodes : \(.nodes)\tBlks  : \(.blocks)",
-		"Diff  : \(.difficulty)",
-		"T Txs : \(.transactions)",
+	jq -r '.data | "Nodes_: \(.nodes)\tBlocks: \(.blocks)",
+		"Diff__: \(.difficulty)",
+		"T_Txs_: \(.transactions)",
 		"OutTxs: \(.outputs)",
-		"In Circulation:",
-		"  \(.circulation/100000000) BTC  (\(.circulation) sat)",
+		"Supply: \(.circulation/100000000) BTC  (\(.circulation) sat)",
 		"",
 		"Rolling stats of last 24-H",
-		"BlockChainSize   :",
-		"  \(.blockchain_size/1000000000) GB  (\(.blockchain_size) bytes)",
-		"Blocks: \(.blocks_24h)  Txs: \(.transactions_24h)",
-		"Hash Rate        :",
-		"  \(.hashrate_24h) H/s  (\(.hashrate_24h|tonumber/1000000000000000000) ExaH/s)",
-		"Volume           :",
-		"  \(.volume_24h/100000000) BTC  (\(.volume_24h) sat)",
-		"Inflation        :",
-		"  \(.inflation_24h/100000000) BTC  (\(.inflation_usd_24h) USD)",
+		"Block Chain Size: \(.blockchain_size/1000000000) GB  (\(.blockchain_size) bytes)",
+		"Blocks___: \(.blocks_24h)  Txs: \(.transactions_24h)",
+		"Hash_Rate: \(.hashrate_24h) H/s  (\(.hashrate_24h|tonumber/1000000000000000000) ExaH/s)",
+		"Volume___: \(.volume_24h/100000000) BTC  (\(.volume_24h) sat)",
+		"Inflation: \(.inflation_24h/100000000) BTC  (\(.inflation_usd_24h) USD)",
 		"CoinDaysDestroyed: \(.cdd_24h) BTC/24H",
 		"",
 		"Largest Transaction",
-		"Transaction Hash :",
+		"Transaction Hash:",
 		"  \(.largest_transaction_24h.hash)",
-		"Value : \(.largest_transaction_24h.value_usd) USD",
+		"Value_: \(.largest_transaction_24h.value_usd) USD",
 		"",
-		"Average  Tx  Fee :",
-		"  \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
-		"Median   Tx  Fee :",
-		"  \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
-		"Suggest. Tx  Fee :",
-		"  \(.suggested_transaction_fee_per_byte_sat) sat/byte",
+		"Average Tx Fee  : \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
+		"Median Tx Fee   : \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
+		"Suggested Tx Fee: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
 		"",
 		"Mempool",
-		"Tx Num: \(.mempool_transactions)",
-		"Size  : \(.mempool_size)",
+		"Tx_Num: \(.mempool_transactions)",
+		"Size__: \(.mempool_size)",
 		"TxPSec: \(.mempool_tps) txs/sec",
-		"T Fee : \(.mempool_total_fee_usd) USD",
+		"T_Fee_: \(.mempool_total_fee_usd) USD",
 		"",
 		"Latest",
-		"Blk Hx:",
+		"Blk_Hx:",
 		"  \(.best_block_hash)",
-		"Block : \(.best_block_height)",
-		"Time  : \(.best_block_time)",
+		"Block_: \(.best_block_height)",
+		"Time__: \(.best_block_time)",
 		"",
 		"Market",
-		"Price : \(.market_price_usd) USD   (\(.market_price_btc) BTC)",
-		"Change:\(.market_price_usd_change_24h_percentage) %",
-		"Cap   : \(.market_cap_usd) USD",
-		"Domin : \(.market_dominance_percentage) %",
+		"Price_: \(.market_price_usd) USD  (\(.market_price_btc) BTC)",
+		"Change: \(.market_price_usd_change_24h_percentage) %",
+		"Cap___: \(.market_cap_usd) USD",
+		"Domin_: \(.market_dominance_percentage) %",
 		"",
 		"Next Retarget",
-		"Date  : \(.next_retarget_time_estimate)UTC",
-		"Diff  : \(.next_difficulty_estimate)",
+		"Date__: \(.next_retarget_time_estimate)UTC",
+		"Diff__: \(.next_difficulty_estimate)",
+		"",
 		"Other Events/Countdowns",
 		(.countdowns[]|"Event: \(.event)","TimeLeft: \(.time_left/86400) days")' <<< "${CHAINJSON}"
 }
