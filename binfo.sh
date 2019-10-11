@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.14  2019/10/10  by mountaineerbr
+# v0.4.15  2019/10/10  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -680,9 +680,9 @@ blkinfochairf() {
 		"  \(.largest_transaction_24h.hash)",
 		"Value_: \(.largest_transaction_24h.value_usd) USD",
 		"",
-		"Average Tx Fee  : \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
-		"Median Tx Fee   : \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
-		"Suggested Tx Fee: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
+		"Average_Tx_Fee__: \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
+		"Median_Tx_Fee___: \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
+		"Suggested_Tx_Fee: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
 		"",
 		"Mempool",
 		"Tx_Num: \(.mempool_transactions)",
