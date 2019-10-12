@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.15  2019/10/10  by mountaineerbr
+# v0.4.16  2019/10/12  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -549,6 +549,8 @@ utxf() {
 	sleep 0.4
 	printf "A_BTime: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/interval)/60")"
 	sleep 0.4
+
+	printf "\nMempool stats\n"
 	printf "Unc_Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
 	sleep 0.4
 	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
