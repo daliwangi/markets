@@ -65,7 +65,9 @@ MiguelMota "Cointop" at <https://github.com/miguelmota/cointop> for crypto curre
 
 Mop: track stocks the hacker way https://github.com/mop-tracker/mop</i>
 
-<b>IMPORTANT: None of these scripts are supposed to be used under truly professional constraints. Do your own research!</b>
+<b>IMPORTANT: None of these scripts are supposed to be used under truly professional constraints. Do your own research!
+
+IMPORTANTE: Nenhum desses scripts deve ser usado em meio profissional sem análise prévia. Faça sua própria pesquisa!</b>
 
 -------------------------------------------------------------------------------------------------
 
