@@ -61,8 +61,11 @@ Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexan
 
 MiguelMota "Cointop" at <https://github.com/miguelmota/cointop> for crypto currency tickers;
 
-8go "CoinBash.sh" at <https://github.com/8go/coinbash> for CoinMarketCap simple tickers.</i>
+8go "CoinBash.sh" at <https://github.com/8go/coinbash> for CoinMarketCap simple tickers.
 
+Mop: track stocks the hacker way https://github.com/mop-tracker/mop</i>
+
+<b>IMPORTANT: None of these scripts are supposed to be used under truly professional constraints. Do your own research!</b>
 
 -------------------------------------------------------------------------------------------------
 
