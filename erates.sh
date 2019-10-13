@@ -1,14 +1,22 @@
 #!/bin/bash
 #
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
-# v0.1.6  2019/ago/21  by mountaineerbr
+# v0.1.7  2019/oct/13  by mountaineerbr
 
 SCRIPTBASECUR="USD"
 
 ## Manual and help
 ## Usage: $ erates.sh [amount] [from currency] [to currency]
-HELP_LINES="NAME
- 	\033[01;36mErates.sh -- Currency converter and Bash wrapper for exchangeratesapi.io API\033[00m
+HELP_LINES="WARRANTY & LICENSE
+ 	This programme needs latest versions of Bash, Curl and JQ to work
+	properly.
+
+	It is licensed under GPLv3 and distributed without support or bug
+	corrections.
+
+
+NAME
+ 	\033[01;36mErates.sh -- Bash currency converter for exchangeratesapi.io API\033[00m
 
 
 SYNOPSIS
@@ -16,29 +24,30 @@ SYNOPSIS
 
 	erates.sh \e[0;35;40m[-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
 
+
 DESCRIPTION
 	This programme fetches updated currency rates and can convert any amount
 	of one supported currency into another. It is a wrapper	for the
 	exchangerates.io API.
 	
-	Exchangerates.io API is a free service for current and historical foreign
-	exchange rates published by the European Central Bank. Check their project:
-	<https://github.com/exchangeratesapi/exchangeratesapi>
+	Exchangerates.io API is a free service for current and historical for-
+	eign exchange rates published by the European Central Bank. Check their
+	project: <https://github.com/exchangeratesapi/exchangeratesapi>
 
-	It supports 33 central bank currencies and does not include precious metals.
+	33 central bank currencies are supported but precious metals.
  	
-	The reference rates are usually updated around 16:00 CET on every working
-	day, except on TARGET closing days. They are based on a regular daily
-	concertation procedure between central banks across Europe,
-	which normally takes place at 14:15 CET.
+	The reference rates are usually updated around 16:00 CET on every work-
+	ing day, except on TARGET closing days. They are based on a regular dai-
+	ly  concertation  procedure between central banks across Europe, which 
+	normally takes place at 14:15 CET.
 
 	Even though we get the raw data with rates against the EUR, I prefer
-	to check rates against USD by default (when TO_CURRENCY is not specified).
-	You may change that to EUR or any other currency setting the \"SCRIPTBASECUR\"
-	variable in the script source code.
+	to check rates against USD by default (when TO_CURRENCY is not speci-
+	fied). You may change that to EUR or any other currency setting the 
+	\"SCRIPTBASECUR\" variable in the script source code.
 
-	Bash Calculator uses dot for floating numbers.
-	Trailing zeroes are trimmed by default.
+	Bash  Calculator  uses  dot for floating numbers. Trailing zeroes are
+	trimmed by default.
 
 
 	Usage examples:
@@ -66,29 +75,18 @@ OPTIONS
 
 		-j 	Print JSON file.
 
-		-l 	List supported currencies
-			and their rates agains EUR.
+		-l 	List supported currencies and their rates agains EUR.
 
 		-s 	Set scale (defaults=16).
 		
-		-v 	Show this programme version.
-
-
-WARRANTY & LICENSE
- 	This programme needs latest versions of Bash, Curl and JQ to work
-	properly.
-
-	It is licensed under GPLv3 and distributed without support or bug
-	corrections.
-
-	"
+		-v 	Show this programme version."
 
 ## Check for some needed packages
 if ! command -v curl &> /dev/null; then
 	printf "%s\n" "Package not found: curl." 1>&2
 	exit 1
 elif ! command -v jq &> /dev/null; then
-	printf "%s\n" "Package not found: jq." 1>&2
+	printf "%s\n" "Package not found: JQ." 1>&2
 	printf "%s\n" "Ref: https://stedolan.github.io/jq/download/" 1>&2
 	exit 1
 fi
@@ -99,7 +97,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	exit
 fi
 # Check if you are requesting any precious metals.
-if printf "%s\n" "${*}" | grep -qi -e "XAU" -e "XAG" -e "XAP" -e "XPD"; then
+if grep -qi -e "XAU" -e "XAG" -e "XAP" -e "XPD" -e "gold" -e "silver" <<< "${*}"; then
 	printf "exchangerates.io does not support precious metals.\n" 1>&2
 	exit 1
 fi
@@ -129,7 +127,7 @@ while getopts ":lhjs:tv" opt; do
 		exit
 		;;
 	\? )
-		printf "%s\n" "Invalid Option: -$OPTARG" 1>&2
+		printf "Invalid Option: -%s.\n" "$OPTARG" 1>&2
 		exit 1
 		;;
   esac
@@ -169,11 +167,11 @@ if [[ -n ${LISTOPT} ]]; then
 	exit
 fi
 ## Check if request is a supported currency:
-if ! [[ "${2^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "^${2}$"; then
+if ! [[ "${2^^}" = "EUR" ]] && ! jq -r '.rates | keys[]' <<< "${JSON}" | grep -qi "^${2}$"; then
 	printf "Not a supported currency at exchangeratesapi.io: %s\n" "${2}" 1>&2
 	exit 1
 fi
-if ! [[ "${3^^}" = "EUR" ]] && ! printf "%s\n" "${JSON}" | jq -r '.rates | keys[]' | grep -qi "^${3}$"; then
+if ! [[ "${3^^}" = "EUR" ]] && ! jq -r '.rates | keys[]' <<< "${JSON}" | grep -qi "^${3}$"; then
 	printf "Not a supported currency at exchangeratesapi.io: %s\n" "${3}" 1>&2
 	exit 1
 fi
@@ -182,14 +180,14 @@ fi
 if [[ ${2^^} = "EUR" ]]; then
 	FROMCURRENCY=1
 else
-	FROMCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${2^^}")
+	FROMCURRENCY=$(jq ".rates.${2^^}" <<< "${JSON}")
 fi
 if [[ ${3^^} = "EUR" ]]; then
 	TOCURRENCY=1
 else
-	TOCURRENCY=$(printf "%s\n" "${JSON}" | jq ".rates.${3^^}")
+	TOCURRENCY=$(jq ".rates.${3^^}" <<< "${JSON}")
 fi
 
 ## Make equation and print result
-printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=%s; trunc((%s*%s)/%s)\n" "${SCL}" "${1}" "${TOCURRENCY}" "${FROMCURRENCY}" | bc -l
+bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/${FROMCURRENCY})"
 
