@@ -53,6 +53,8 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal
 
+<b>whalealert.sh --</b> Get latest whale transactions from whale-alert.io API.
+
 <b>Other Scripts/Outros Scripts --</b> Experimental
 
 <i>Also check/Também veja:
