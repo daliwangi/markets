@@ -1,6 +1,6 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1  14/oct/2019  by mountaineerbr
+# v0.1.1  14/oct/2019  by mountaineerbr
 
 # Your own key
 #APIKEY=""
@@ -27,6 +27,8 @@ SYNOPSIS
 
 	This script gets data from whale-alert.io with the latest whale transa-
 	ctions.
+
+	It needs recent version of Bash, cURL and JQ to work properly.
 
 
 FREE ACCOUNT APIKEY AND LIMITS
