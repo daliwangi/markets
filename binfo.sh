@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.16  2019/10/12  by mountaineerbr
+# v0.4.17  2019/10/14  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -504,7 +504,7 @@ chairaddf() {
 	# Print unspent tx
 	printf "\nUnspent Txs:\n"
 	jq -er '.data[].utxo[] | "\t\(.transaction_hash)",
-		"\t\t\t\tBlk id:\(.block_id)\tValue:\t\(.value/100000000) BTC"' <<< "${CHAIRADD}" || printf "No unspent tx list.\n"
+		"\t  Blk id: \(.block_id)  Value: \(.value/100000000) BTC"' <<< "${CHAIRADD}" || printf "No unspent tx list.\n"
 	# Print Address info
 	jq -r '. | "",
 		"Address: \(.data|keys[])",
