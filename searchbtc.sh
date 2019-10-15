@@ -1,11 +1,16 @@
 #!/bin/bash
-# v0.2.5  15/oct/2019
+# v0.2.6  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
 
 # Help -- run with -h
-HELP="SYNOPSIS
+HELP="WARRANTY
+	Licensed under the GNU Public License v3 or better.
+ 	This programme is distributed without support or bug corrections.
+
+
+SYNOPSIS
 
 	searchbtc.sh [-abcdghv] [-sNUM] [-o\"FILE_PATH\"]
 
