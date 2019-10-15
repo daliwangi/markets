@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.6  15/oct/2019
+# v0.2.7  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -35,12 +35,14 @@ SYNOPSIS
 
 
 RATE LIMITS
-Blockchain.info, from Twitter 2013:
+	Blockchain.info, from Twitter 2013:
+	
 	\"Developers: API request limits increased to 28,000 requests per 8 hour
 	period and 600 requests per 5 minute period.\"
 
 
-Blockchair.com API docs:
+	Blockchair.com API docs:
+	
 	\"Since the introduction of our API more than two years ago it has been
 	free to use in both non-commercial and commercial cases with a limit of 
 	30 requests per minute.\"
@@ -50,7 +52,8 @@ Blockchair.com API docs:
 	source code.
 
 
-BTC.com API docs:
+	BTC.com API docs:
+	
 	\"Developer accounts are limited to 432,000 API requests per 24 hours, 
 	at a rate of 300 request per minute. When you reach the rate limit you 
 	will get an error response with the 429 status code. We will send you a
@@ -59,8 +62,9 @@ BTC.com API docs:
 	off when 429 responses are being returned you can get banned.\"
 
 
-Blockcypher.com API docs:
-	\"Classic requests, up to 3 requests/sec and 200 requests/hr\"
+	Blockcypher.com API docs:
+	
+	\"Classic requests, up to 3 requests/sec and 200 requests/hr.\"
 
 
 USAGE EXAMPLES
