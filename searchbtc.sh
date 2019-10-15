@@ -1,11 +1,15 @@
 #!/bin/bash
-# v0.2.4  15/oct/2019
+# v0.2.5  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
 
 # Help -- run with -h
 HELP="SYNOPSIS
+
+	searchbtc.sh [-abcdghv] [-sNUM] [-o\"FILE_PATH\"]
+
+
 	This script uses Vanitygen to generate an address and its private key.
 	It then checks for at least one received transaction at the public ad-
 	dress. If a transaction is detected, even if the balance is currently 
@@ -54,24 +58,32 @@ Blockcypher.com API docs:
 	\"Classic requests, up to 3 requests/sec and 200 requests/hr\"
 
 
+USAGE EXAMPLES
+	(1) Use Blockchain.info and BTC.com APIs and sleep 10 seconds
+	    between queries:
+		
+		$ searchbtc.sh -ba -s10
+
+
 OPTIONS
-	-a 	Use BTC.com API.
+	-a 		Use BTC.com API.
 	
-	-b 	Use Blockchain.info APIs (defaults if no server opt is given).
+	-b 		Use Blockchain.info APIs (defaults if no 
+			server opt is given).
 
-	-c 	Use Blockchair.com API.
+	-c 		Use Blockchair.com API.
 	
-	-d 	Use Blocypher.com API.
+	-d 		Use Blocypher.com API.
 
-	-g 	Debug, prints server response on error.
+	-g 		Debug, prints server response on error.
 
-	-h 	Show this help.
+	-h 		Show this help.
 
-	-o 	File path to record positive match results.
+	-o [FILE_PATH] 	File path to record positive match results.
 
-	-s 	Sleep time (seconds) between new queries; defaults=6.
+	-s [NUM] 	Sleep time (seconds) between new queries; defaults=8.
 
-	-v 	Print script version."
+	-v 		Print script version."
 
 
 # Must have vanitygen
@@ -94,7 +106,7 @@ if ! command -v jq >/dev/null; then
 fi
 # DEFAULTS
 # Pay attention to rate limits
-SLEEPTIME="6"
+SLEEPTIME="8"
 RECFILE="${HOME}/ADDRESS"
 
 # Parse options
