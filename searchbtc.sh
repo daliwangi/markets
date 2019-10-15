@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.1.3  14/oct/2019
+# v0.1.6  14/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -11,8 +11,9 @@ If a transaction is detected, even if the balance is currently nought, a copy
 of the generated private key and its public address will be printed in the 
 screen and logged to ~/ADDRESS.
 
-It uses two APIs: blockchain.info and blockchair.com. if you want to try
-and use only blockchain.info, use option \"-b\".
+It uses Blockchain.info API by default (because it seems to tolerate higher que-
+ry rates). You can try to use only Blockchair.com with option \"-c\" but beware
+of lower rate limits. If you want to  use both, try option \"-2\".
 
 Required packages are: Bash, Vanitygen, OpenSSL, Pcre and JQ.
 
@@ -25,24 +26,28 @@ Blockchain.info rate limits, from Twitter 2013:
 
 Blockchair.com API docs:
 
-	\"Since the introduction of our API more than two years ago it has been free to use in both non-commercial and commercial cases with a limit of 30 requests per minute.\"
+	\"Since the introduction of our API more than two years ago it has been
+	free to use in both non-commercial and commercial cases with a limit of 
+	30 requests per minute.\"
 
-	It seems that you can create a blockchair.com API key for more requests
-	/min. Add it to the CHAIRKEY variable in the script source code.
+	Unfortunately, Blockchair.com rate limits seem to be lower than an-
+	nounced. But you can try and create a blockchair.com API key for more 
+	requests/min. Add your API key to the CHAIRKEY variable in the script 
+	source code.
 
 
 Options:
-	-b 	Use only the blockchain.info API.
+	-2 	Use both Blockchain.info and Blockchair.com APIs.
 
-	-c 	Use only the blockchair.com API.
+	-c 	Use only the Blockchair.com API.
 
 	-d 	Debug, prints server response on error.
 
 	-h 	Show this help.
 
-	-s 	Sleep time (seconds) between new queries; defaults=10.
+	-s 	Sleep time (seconds) between new queries; defaults=6.
 
-	-v 	Print this script version."
+	-v 	Print script version."
 
 
 # Must have vanitygen
@@ -68,15 +73,19 @@ fi
 #  Developers: API request limits increased to 28,000 requests per 8 hour period 
 #  and 600 requests per 5 minute period.
 #  1:27 PM · Oct 11, 2013 -- Twitter @blockchain
-SLEEPTIME="10"
+SLEEPTIME="6"
+# Use only Blockchain.com by defaults
+BINFOOPT=1
 
 # Parse options
-while getopts ":cbdhs:v" opt; do
+while getopts ":c2dhs:v" opt; do
 	case ${opt} in
-		b ) # Use only Blockchain.info
-			BINFOOPT=1
+		2 ) # Use Both Blockchain.info & Blockchair.com
+			unset BINFOOPT
+			unset CHAIROPT
 			;;
 		c ) # Use only Blockchair.com
+			unset BINFOOPT
 			CHAIROPT=1
 			;;
 		h ) # Help
