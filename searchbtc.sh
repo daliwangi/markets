@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.9  15/oct/2019
+# v0.2.10  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -90,10 +90,14 @@ OPTIONS
 
 	-o [FILE_PATH] 	File path to record positive match results.
 
-	-s [NUM] 	Sleep time (seconds) between new queries; defaults=8.
+	-s [NUM] 	Sleep time (seconds) between new queries; defaults=10.
 
 	-v 		Print script version."
 
+# DEFAULTS
+# Pay attention to rate limits
+SLEEPTIME="10"
+RECFILE="${HOME}/ADDRESS"
 
 # Must have vanitygen
 if ! command -v vanitygen >/dev/null; then
@@ -113,10 +117,6 @@ if ! command -v jq >/dev/null; then
 	printf "JQ is required.\n" 1>&2
 	exit 1
 fi
-# DEFAULTS
-# Pay attention to rate limits
-SLEEPTIME="8"
-RECFILE="${HOME}/ADDRESS"
 
 # Parse options
 while getopts ":cbadghs:vo:" opt; do
