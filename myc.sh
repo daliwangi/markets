@@ -1,6 +1,6 @@
 #!/bin/bash
 # openx.sh - bash (crypto)currency converter
-# v0.2.8  2019/oct/14  by mountaineerbr
+# v0.2.10  2019/oct/15  by mountaineerbr
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -11,7 +11,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	myc.sh [-h|-j|-l|-v]
 
-	myc.sh [-s] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	myc.sh [-s NUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
 
 
 DESCRIPTION
@@ -49,9 +49,9 @@ USAGE EXAMPLES
 
 OPTIONS
 	-h 	Show this help.
-	-j 	Fetch JSON file and send to STOUT.
+	-j 	Print JSON (for debugging).
 	-l 	List supported currencies.
-	-s 	Set scale ( decimal plates ).
+	-s 	Scale (decimal plates).
 	-v 	Show this programme version."
 
 # Check if there is any argument
