@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.7  15/oct/2019
+# v0.2.8  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -241,7 +241,7 @@ while :; do
 	# If JQ detects an error, skip address
 	if ! getbal >/dev/null; then
 		if [[ -n "${DEBUG}" ]]; then
-			printf "Skipped Addr: %s\n" "${address}" 1>&2
+			printf "\nSkipped Addr: %s\n" "${address}" 1>&2
 			printf "At processing PASS: %s.\n" "${PASS}" 1>&2
 			printf "%s\n" "${QUERY}" 1>&2
 			printf ".............." 1>&2
