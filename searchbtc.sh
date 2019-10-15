@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.10  15/oct/2019
+# v0.2.11  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -68,10 +68,10 @@ RATE LIMITS
 
 
 USAGE EXAMPLES
-	(1) Use Blockchain.info and BTC.com APIs and sleep 10 seconds
+	(1) Use Blockchain.info and BTC.com APIs and sleep 20 seconds
 	    between queries:
 		
-		$ searchbtc.sh -ba -s10
+		$ searchbtc.sh -ab -s20
 
 
 OPTIONS
