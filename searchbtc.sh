@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.1.1  14/oct/2019
+# v0.1.2  14/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -40,7 +40,7 @@ Options:
 
 	-h 	Show this help.
 
-	-s 	Sleep time (seconds) between new queries; defaults=6.
+	-s 	Sleep time (seconds) between new queries; defaults=10.
 
 	-v 	Print this script version."
 
@@ -68,7 +68,7 @@ fi
 #  Developers: API request limits increased to 28,000 requests per 8 hour period 
 #  and 600 requests per 5 minute period.
 #  1:27 PM · Oct 11, 2013 -- Twitter @blockchain
-SLEEPTIME="6"
+SLEEPTIME="10"
 
 # Parse options
 while getopts ":cbdhs:v" opt; do
@@ -159,6 +159,7 @@ while :; do
 			getbal
 			printf "%s\n.............." "${QUERY}" 1>&2
 		fi
+		sleep 10
 		continue
 	fi
 	# Get received amount for further processing
