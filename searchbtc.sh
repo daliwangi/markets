@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2  14/oct/2019
+# v0.2.2  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -11,7 +11,7 @@ HELP="SYNOPSIS
 	dress. If a transaction is detected, even if the balance is currently 
 	zero (current balance is not checked), a copy of the generated private 
 	key and its public address will be printed in the screen and logged 
-	to ~/ADDRESS.
+	to ~/ADDRESS, but you can change that with option \"-o\".
 
 	The fastest way of brute forcing a bitcoin address collision is to have 
 	your own full-node set up. However, that may not be feasible size-wise.
@@ -21,8 +21,8 @@ HELP="SYNOPSIS
 	Defaults to Blockchain.info API, but you can choose which servers to 
 	query. Beware of rate limits for each server!
 
-	Required packages are: Bash, cURL or Wget and Vanitygen (OpenSSL and 
-	Pcre are required dependencies of Vanitygen).
+	Required packages are: Bash, cURL or Wget, Tee and Vanitygen (OpenSSL 
+	and Pcre are required dependencies of Vanitygen).
 
 
 RATE LIMITS
@@ -67,6 +67,8 @@ OPTIONS
 
 	-h 	Show this help.
 
+	-o 	Path to record file for positive match results.
+
 	-s 	Sleep time (seconds) between new queries; defaults=6.
 
 	-v 	Print script version."
@@ -93,9 +95,10 @@ fi
 # DEFAULTS
 # Pay attention to rate limits
 SLEEPTIME="6"
+RECFILE="${HOME}/ADDRESS"
 
 # Parse options
-while getopts ":cbadghs:v" opt; do
+while getopts ":cbadghs:vo:" opt; do
 	case ${opt} in
 		a ) # Use BTC.com
 			BTCOPT=1
@@ -117,6 +120,9 @@ while getopts ":cbadghs:v" opt; do
 			head "${0}" | grep -e '# v'
 			echo -e "${HELP}"
 			exit 0
+			;;
+		o ) # Record file path
+			RECFILE="${OPTARG}"
 			;;
 		v ) # Version of Script
 			head "${0}" | grep -e '# v'
@@ -215,8 +221,9 @@ while :; do
 	if ! getbal >/dev/null; then
 		if [[ -n "${DEBUG}" ]]; then
 			printf "Skipped Addr: %s\n" "${address}" 1>&2
-			getbal
-			printf "%s\n.............." "${QUERY}" 1>&2
+			printf "At processing PASS: %s.\n" "${PASS}" 1>&2
+			printf "%s\n" "${QUERY}" 1>&2
+			printf ".............." 1>&2
 		fi
 		sleep 10
 		continue
@@ -229,7 +236,7 @@ while :; do
 		  printf "Received? %s\n" "${REC}"
 		  date
 		  printf "Addrs checked: %s.\n.............." "${N}"
-		} | tee -a ~/ADDRESS
+		} | tee -a "${RECFILE}"
 	fi
 	sleep "${SLEEPTIME}"
 	N=$((N+1))
