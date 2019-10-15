@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.1  14/oct/2019
+# v0.1.1  14/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -40,7 +40,7 @@ Options:
 
 	-h 	Show this help.
 
-	-s 	Sleep time (seconds) between new queries; defaults=4.
+	-s 	Sleep time (seconds) between new queries; defaults=6.
 
 	-v 	Print this script version."
 
@@ -59,7 +59,7 @@ else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
 fi
-if command -v jq >/dev/null; then
+if ! command -v jq >/dev/null; then
 	printf "JQ is required.\n" 1>&2
 	exit 1
 fi
@@ -68,7 +68,7 @@ fi
 #  Developers: API request limits increased to 28,000 requests per 8 hour period 
 #  and 600 requests per 5 minute period.
 #  1:27 PM · Oct 11, 2013 -- Twitter @blockchain
-SLEEPTIME="4"
+SLEEPTIME="6"
 
 # Parse options
 while getopts ":cbdhs:v" opt; do
@@ -122,7 +122,7 @@ queryf() {
 
 getbal() {
 	# Test for rate limit erro
-	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" <<< "${QUERY}"; then
+	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" <<< "${QUERY}"; then
 		print "\nRate limited. Requests may fail. Try to increase sleep time, option \"-s\".\n" 1>&2
 		test -n "${DEBUG}" && printf "%s\n" "${QUERY}" 1>&2
 	elif grep -iq -e "Invalid API token" <<< "${QUERY}"; then
