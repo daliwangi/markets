@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.2  15/oct/2019
+# v0.2.4  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -57,7 +57,7 @@ Blockcypher.com API docs:
 OPTIONS
 	-a 	Use BTC.com API.
 	
-	-b 	Use Blockchain.info APIs.
+	-b 	Use Blockchain.info APIs (defaults if no server opt is given).
 
 	-c 	Use Blockchair.com API.
 	
@@ -67,7 +67,7 @@ OPTIONS
 
 	-h 	Show this help.
 
-	-o 	Path to record file for positive match results.
+	-o 	File path to record positive match results.
 
 	-s 	Sleep time (seconds) between new queries; defaults=6.
 
