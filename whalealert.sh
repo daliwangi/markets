@@ -1,6 +1,6 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1.1  14/oct/2019  by mountaineerbr
+# v0.1.2  15/oct/2019  by mountaineerbr
 
 # Your own key
 #APIKEY=""
@@ -62,8 +62,8 @@ OPTIONS
 
 	-r 	Results maximum; max=100.
 
-	-t 	Time of history start; accepts \"s\" (seconds) and \"m\" (minutes);
-		max~=59m.
+	-t 	Time of history start; accepts \"s\" (seconds) and 
+		\"m\" (minutes); max~=59m.
 
 	-v 	Print script version."
 
