@@ -1,47 +1,69 @@
 #!/bin/bash
-# v0.1.6  14/oct/2019
+# v0.2  14/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
 
 # Help -- run with -h
-HELP="This script uses Vanitygen to generate an address and its private key.
-It then checks for at least one received transaction at the public address. 
-If a transaction is detected, even if the balance is currently nought, a copy 
-of the generated private key and its public address will be printed in the 
-screen and logged to ~/ADDRESS.
+HELP="SYNOPSIS
+	This script uses Vanitygen to generate an address and its private key.
+	It then checks for at least one received transaction at the public ad-
+	dress. If a transaction is detected, even if the balance is currently 
+	zero (current balance is not checked), a copy of the generated private 
+	key and its public address will be printed in the screen and logged 
+	to ~/ADDRESS.
 
-It uses Blockchain.info API by default (because it seems to tolerate higher que-
-ry rates). You can try to use only Blockchair.com with option \"-c\" but beware
-of lower rate limits. If you want to  use both, try option \"-2\".
+	The fastest way of brute forcing a bitcoin address collision is to have 
+	your own full-node set up. However, that may not be feasible size-wise.
+	Also, it may be easier to use internet APIs than to learn how to build 
+	a full-node.
 
-Required packages are: Bash, Vanitygen, OpenSSL, Pcre and JQ.
+	Defaults to Blockchain.info API, but you can choose which servers to 
+	query. Beware of rate limits for each server!
+
+	Required packages are: Bash, cURL or Wget and Vanitygen (OpenSSL and 
+	Pcre are required dependencies of Vanitygen).
 
 
+RATE LIMITS
 Blockchain.info rate limits, from Twitter 2013:
-
 	\"Developers: API request limits increased to 28,000 requests per 8 hour
 	period and 600 requests per 5 minute period.\"
 
 
 Blockchair.com API docs:
-
 	\"Since the introduction of our API more than two years ago it has been
 	free to use in both non-commercial and commercial cases with a limit of 
 	30 requests per minute.\"
 
-	Unfortunately, Blockchair.com rate limits seem to be lower than an-
-	nounced. But you can try and create a blockchair.com API key for more 
+	You may want to try and create a blockchair.com API key for more 
 	requests/min. Add your API key to the CHAIRKEY variable in the script 
 	source code.
 
 
-Options:
-	-2 	Use both Blockchain.info and Blockchair.com APIs.
+BTC.com API docs:
+	\"Developer accounts are limited to 432,000 API requests per 24 hours, 
+	at a rate of 300 request per minute. When you reach the rate limit you 
+	will get an error response with the 429 status code. We will send you a
+	notification when you're getting close to the rate limit, so you can up-
+	grade in time or contact us to request an extension. If you don't back-
+	off when 429 responses are being returned you can get banned.\"
 
-	-c 	Use only the Blockchair.com API.
 
-	-d 	Debug, prints server response on error.
+Blockcypher.com API docs:
+	\"Classic requests, up to 3 requests/sec and 200 requests/hr\"
+
+
+OPTIONS
+	-a 	Use BTC.com API.
+	
+	-b 	Use Blockchain.info APIs.
+
+	-c 	Use Blockchair.com API.
+	
+	-d 	Use Blocypher.com API.
+
+	-g 	Debug, prints server response on error.
 
 	-h 	Show this help.
 
@@ -69,24 +91,27 @@ if ! command -v jq >/dev/null; then
 	exit 1
 fi
 # DEFAULTS
-# Pay attention to rate limit: 
-#  Developers: API request limits increased to 28,000 requests per 8 hour period 
-#  and 600 requests per 5 minute period.
-#  1:27 PM · Oct 11, 2013 -- Twitter @blockchain
+# Pay attention to rate limits
 SLEEPTIME="6"
-# Use only Blockchain.com by defaults
-BINFOOPT=1
 
 # Parse options
-while getopts ":c2dhs:v" opt; do
+while getopts ":cbadghs:v" opt; do
 	case ${opt} in
-		2 ) # Use Both Blockchain.info & Blockchair.com
-			unset BINFOOPT
-			unset CHAIROPT
+		a ) # Use BTC.com
+			BTCOPT=1
+			SERVERSET=1
 			;;
-		c ) # Use only Blockchair.com
-			unset BINFOOPT
+		b ) # Use Blockchain.info
+			BINFOOPT=1
+			SERVERSET=1
+			;;
+		c ) # Use Blockchair.com
 			CHAIROPT=1
+			SERVERSET=1
+			;;
+		d ) # Use Blockcypher.com
+			CYPHEROPT=1
+			SERVERSET=1
 			;;
 		h ) # Help
 			head "${0}" | grep -e '# v'
@@ -100,7 +125,7 @@ while getopts ":c2dhs:v" opt; do
 		s ) # Sleep time
 			SLEEPTIME="${OPTARG}"
 			;;
-		d ) # Debug
+		g ) # Debug
 			DEBUG=1
 			;;
 		\? )
@@ -110,22 +135,35 @@ while getopts ":c2dhs:v" opt; do
 	 esac
 done
 shift $((OPTIND -1))
-
-# Option handling
-if [[ -n "${BINFOOPT}" ]] && [[ -n "${CHAIROPT}" ]]; then
-	unset BINFOOPT
-	unset CHAIROPT
+# Use only Blockchain.com by defaults
+if [[ -z "${SERVERSET}" ]]; then
+	BINFOOPT=1
 fi
 
 #Functions
+PASS=0
 queryf() {
-	# Choose resquesting between blockchain.info or blockchair.com (or blockcypher.com -- need to set up)
-	if [[ -z "${CHAIROPT}" ]] && { [[ -n "${BINFOOPT}" ]] || [[ $((${N: -1}%2)) -eq 0 ]];}; then
+	# Choose resquest server
+	if [[ -n "${BINFOOPT}" ]] && [[ "${PASS}" -eq "0" ]] ; then
+		# Binfo.com
 		QUERY="$(${MYAPP} "https://blockchain.info/balance?active=$address")"
-	else
+		PASS=1
+	elif [[ -n "${CHAIROPT}" ]] && [[ "${PASS}" -le "1" ]]; then
+		# Blockchair.com
 		QUERY="$(${MYAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${address}${CHAIRKEY}")"
+		PASS=2
+	elif [[ -n "${BTCOPT}" ]] && [[ "${PASS}" -le "2" ]]; then
+		# BTC.com
+		# OBS : BTC.com returns null if no tx in address
+		QUERY="$(${MYAPP} "https://chain.api.btc.com/v3/address/${address}")"
+		PASS=3
+	elif [[ -n "${CYPHEROPT}" ]] && [[ "${PASS}" -le "3" ]]; then
 		#Blockcypher.com
-		#QUERY="$(${MYAPP} "https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance")"
+		QUERY="$(${MYAPP} "https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance")"
+		PASS=4
+	else
+		PASS=0
+		queryf
 	fi
 }
 
@@ -138,21 +176,33 @@ getbal() {
 		printf "\nInvalid API token.\n" 1>&2
 		exit 1
 	fi
-	# Choose processing between blockchain.info or blockcypher.com
-	if [[ -z "${CHAIROPT}" ]] && { [[ -n "${BINFOOPT}" ]] || [[ $((${N: -1}%2)) -eq 0 ]];}; then
+	# Choose processing between 
+	if [[ "${PASS}" -eq "1" ]]; then
+		# Binfo.com
 		jq -er '.["'"${address}"'"].total_received' <<< "${QUERY}" 2>/dev/null || return 1
-	else
-		jq -er '.data[].address.received' <<< "${QUERY}" || return 1
+		return 0
+	elif [[ "${PASS}" -eq "2" ]]; then
+		# Blockchair.com
+		jq -er '.data[].address.received' <<< "${QUERY}" 2>/dev/null || return 1
+		return 0
+	elif [[ "${PASS}" -eq "3" ]]; then
+		# BTC.com
+		# OBS : BTC.com returns null if no tx in address
+		# Option -e deactivated
+		jq -r '.data.received' <<< "${QUERY}" 2>/dev/null || return 1
+		return 0
+	elif [[ "${PASS}" -eq "4" ]]; then
 		#Blockcypher.com
-		#jq -er '.total_received' <<< "${QUERY}" 2>/dev/null || return 1
+		jq -er '.total_received' <<< "${QUERY}" 2>/dev/null || return 1
+		return 0
 	fi
 	}
 
-# Start count
-N=1
 # Heading
 date 
 # Loop
+# Start count
+N=1
 # Spaces = 14
 printf ".............." 1>&2
 while :; do
@@ -173,7 +223,7 @@ while :; do
 	fi
 	# Get received amount for further processing
 	REC="$(getbal)"
-	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]]; then
+	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ "${REC}" != "null" ]] ; then
 		{ printf 'Check this address! \n'
 		  printf "%s\n" "${VANITY}"
 		  printf "Received? %s\n" "${REC}"
@@ -188,6 +238,4 @@ done
 exit
 
 #Dead code
-#Blockcypher.com API docs:
-#	\"Classic requests, up to 3 requests/sec and 200 requests/hr\"
 
