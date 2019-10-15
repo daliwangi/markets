@@ -26,7 +26,7 @@ HELP="SYNOPSIS
 
 
 RATE LIMITS
-Blockchain.info rate limits, from Twitter 2013:
+Blockchain.info, from Twitter 2013:
 	\"Developers: API request limits increased to 28,000 requests per 8 hour
 	period and 600 requests per 5 minute period.\"
 
