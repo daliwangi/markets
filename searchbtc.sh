@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.12  15/oct/2019
+# v0.2.13  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -20,7 +20,7 @@ SYNOPSIS
 	dress. If a transaction is detected, even if the balance is currently 
 	zero (current balance is not checked), a copy of the generated private 
 	key and its public address will be printed in the screen and logged 
-	to ~/ADDRESS, but you can change that with option \"-o\".
+	to ~/ADDRESS. You can change record file path with option \"-o\".
 
 	The fastest way of brute forcing a bitcoin address collision is to have 
 	your own full-node set up. However, that may not be feasible size-wise.
