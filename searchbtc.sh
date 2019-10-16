@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.11  15/oct/2019
+# v0.2.12  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -169,11 +169,11 @@ fi
 
 #Which function
 whichf() {
-	test "${PASS}" = "1" && printf "Blockchain.info\n" 1>&2
-	test "${PASS}" = "2" && printf "Blockchair.com\n" 1>&2
-	test "${PASS}" = "3" && printf "BTC.com\n" 1>&2
-	test "${PASS}" = "4" && printf "Blockcypher.com\n" 1>&2
-	#test "${PASS}" = "" && printf "Block " 1>&2
+	test "${PASS}" = "1" && printf "Blockchain.info\n" 
+	test "${PASS}" = "2" && printf "Blockchair.com\n"
+	test "${PASS}" = "3" && printf "BTC.com\n"
+	test "${PASS}" = "4" && printf "Blockcypher.com\n"
+	#test "${PASS}" = "" && printf " "
 }
 
 #Functions
@@ -212,8 +212,9 @@ getbal() {
 		printf "Try to increase sleep time, option \"-s\".\n" 1>&2
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
-			printf "\nSkipped Addr: %s\n" "${address}" 1>&2
-			printf "At processing PASS: %s.\n" "${PASS}" 1>&2
+			printf "Skipped Addr: %s\n" "${address}" 1>&2
+			printf "Processing: PASS %s.\n" "${PASS}" 1>&2
+			date 1>&2
 			printf "%s\n" "${QUERY}" 1>&2
 			printf ".............." 1>&2
 		fi
