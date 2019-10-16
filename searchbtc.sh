@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.16  16/oct/2019
+# v0.2.17  16/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -257,7 +257,7 @@ date
 N=1
 while :; do
 	printf "\rAddrs: %07d" "${N}" 1>&2
-	VANITY="$(vanitygen 1)"
+	VANITY="$(vanitygen -q 1)"
 	address="$(grep -e "Address:" <<< "${VANITY}" | cut -d' ' -f2)"
 	queryf
 	# If JQ detects an error, skip address
