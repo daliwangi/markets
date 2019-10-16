@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.13  15/oct/2019
+# v0.2.14  15/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -68,10 +68,15 @@ RATE LIMITS
 
 
 USAGE EXAMPLES
-	(1) Use Blockchain.info and BTC.com APIs and sleep 20 seconds
+	(1) Use BTC.com and Blockchain.info APIs and sleep 20 seconds
 	    between queries:
 		
 		$ searchbtc.sh -ab -s20
+
+
+	(2) Use all servers, default sleep time:
+
+		$ searchbtc.sh -abcd
 
 
 OPTIONS
@@ -255,7 +260,7 @@ printf ".............." 1>&2
 while :; do
 	printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b" 1>&2
 	printf "Addrs: %07d" "${N}" 1>&2
-	VANITY="$(vanitygen -q 1 2>&1)"
+	VANITY="$(vanitygen -q 1)"
 	address="$(grep -e "Address:" <<< "${VANITY}" | cut -d' ' -f2)"
 	queryf
 	# If JQ detects an error, skip address
