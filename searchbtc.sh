@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.14  15/oct/2019
+# v0.2.15  16/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -255,11 +255,8 @@ date
 # Loop
 # Start count
 N=1
-# Spaces = 14
-printf ".............." 1>&2
 while :; do
-	printf "\b\b\b\b\b\b\b\b\b\b\b\b\b\b" 1>&2
-	printf "Addrs: %07d" "${N}" 1>&2
+	printf "\rAddrs: %07d" "${N}" 1>&2
 	VANITY="$(vanitygen -q 1)"
 	address="$(grep -e "Address:" <<< "${VANITY}" | cut -d' ' -f2)"
 	queryf
@@ -271,11 +268,11 @@ while :; do
 	# Get received amount for further processing
 	REC="$(getbal)"
 	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ "${REC}" != "null" ]] ; then
-		{ printf 'Check this address! \n'
+		{ date
+		  printf 'Check this address! \n'
 		  printf "%s\n" "${VANITY}"
 		  printf "Received? %s\n" "${REC}"
-		  date
-		  printf "Addrs checked: %s.\n.............." "${N}"
+		  printf "Addrs checked: %s.\n" "${N}"
 		} | tee -a "${RECFILE}"
 	fi
 	sleep "${SLEEPTIME}"
