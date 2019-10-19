@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.18  19/oct/2019
+# v0.2.19  19/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -32,6 +32,23 @@ SYNOPSIS
 
 	Required packages are: Bash, cURL or Wget, Tee and Vanitygen (OpenSSL 
 	and Pcre are required dependencies of Vanitygen).
+
+
+COLLISION PROBABILITIES
+
+	How to find a collision
+
+		try 2^130 randomly chosen inputs
+		99.8% chance that two of them will collide
+	
+
+	Number Of Unique Addresses Used
+	
+		456,579 (2019/10/17)
+
+References:
+	<https://www.youtube.com/watch?v=fOMVZXLjKYo>
+	<https://www.blockchain.com/en/charts/n-unique-addresses>
 
 
 RATE LIMITS
