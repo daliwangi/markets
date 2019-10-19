@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.17  16/oct/2019
+# v0.2.18  19/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -209,19 +209,20 @@ queryf() {
 }
 
 #Get RECEIVED TOTAL (not really balance)
+SA=0
 getbal() {
-	# Test for rate limit erro
+	# Test for rate limit error
 	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" <<< "${QUERY}"; then
-		printf "\nRate limited. Requests may fail and IP blocked.\n" 1>&2
-		printf "From %s.\n" "$(whichf)" 1>&2
-		printf "Try to increase sleep time, option \"-s\".\n" 1>&2
+		SA="$((SA+1))"
+		printf "\nRate limit warning/error: %s.\n" "$(whichf)" 1>&2
+		printf "Skipped: %s\n" "${SA}" 1&2
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
-			printf "Skipped Addr: %s\n" "${address}" 1>&2
+			printf "Addr: %s\n" "${address}" 1>&2
 			printf "Processing: PASS %s.\n" "${PASS}" 1>&2
 			date 1>&2
 			printf "%s\n" "${QUERY}" 1>&2
-			printf ".............." 1>&2
+			printf "\n.............." 1>&2
 		fi
 		#continue...
 	elif grep -iq -e "Invalid API token" <<< "${QUERY}"; then
