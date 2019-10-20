@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.0  2019/oct/20  by mountaineerbr
+# v0.7.1  2019/oct/20  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -64,12 +64,13 @@ DESCRIPTION
 	Default precision is 16 and can be adjusted with option \"-s\". Trailing
 	noughts are trimmed by default.
 		
-	The Exchange information function \"-e\" uses some abbreviaitions,
+	The Exchange information function \"-e\" uses some abbreviations,
 	such as:
 
-			TRANK 	Trust Rank
-			TSCORE 	Trust Score
-			INC? 	Incentives for Trading?
+			TRANK 		Trust Rank
+			TSCORE 		Trust Score
+			INC? 		Has Incentives for Trading?
+			NORM_VOL 	Normalized Volume
 
 	
 	For more information, such as normal and normalized volume, check:
@@ -464,10 +465,9 @@ exf() { # -el Show Exchange list
 		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
 		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" |
 			jq -r '.[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' |
-			column -et -s'=' -N"TRANK,TSCORE,NAME,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID,URL" -W"NAME,COUNTRY" ${HCOL}
+			column -et -s'=' -N"TRANK,TSCORE,NAME_________,YEAR,COUNTRY,BTC_VOLUME(24H),[NORM_VOL],INC?,ID,URL" -W"NAME_________,COUNTRY" ${HCOL}
 		i=$((i-1))
 	done
-		
 	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
 	exit
 }
