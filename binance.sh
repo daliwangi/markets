@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.8  01/oct/2019  by mountaineerbr
+# v0.5.9  01/oct/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -49,8 +49,8 @@ SYNOPSIS
 	depending  on  the  price rate  at the time, and would like to add a 
 	\"thousands\" separator, too. See usage example (4).
 
-   	This programme needs Bash, cURL, JQ , Websocat, Lolcat and Coreutils to
-	work properly.
+   	This programme needs Bash, cURL, JQ , Websocat, Lolcat, Xargs and Core-
+	utils to work properly.
 
 
 WARRANTY
