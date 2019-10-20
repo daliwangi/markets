@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.19  19/oct/2019
+# v0.2.20  19/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -229,10 +229,10 @@ queryf() {
 SA=0
 getbal() {
 	# Test for rate limit error
-	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" <<< "${QUERY}"; then
+	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" <<< "${QUERY}"; then
 		SA="$((SA+1))"
 		printf "\nRate limit warning/error: %s.\n" "$(whichf)" 1>&2
-		printf "Skipped: %s\n" "${SA}" 1&2
+		printf "Skipped: %s\n" "${SA}" 1>&2
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
 			printf "Addr: %s\n" "${address}" 1>&2
