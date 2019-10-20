@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.6.10  2019/oct/05  by mountaineerbr
+# v0.7.0  2019/oct/20  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -15,11 +15,11 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh [option] [amount] [from_currency] [vs_currency]
 
-	cgk.sh [-b|-j|-s] [optional:amount] [from_id|from_symbol] [vs_id|vs_symbol]
+	cgk.sh [-bs] [optional:amount] [from_id|from_symbol] [vs_id|vs_symbol]
 	
-	cgk.sh [-p|-t] [id|symbol] [optional:vs_id|vs_symbol]
+	cgk.sh [-pt] [id|symbol] [optional:vs_id|vs_symbol]
 
-	cgk.sh [-e|-h|-j|-l|-m|-v]
+	cgk.sh [-ehjlmv]
 
 
 DESCRIPTION
@@ -63,6 +63,19 @@ DESCRIPTION
 
 	Default precision is 16 and can be adjusted with option \"-s\". Trailing
 	noughts are trimmed by default.
+		
+	The Exchange information function \"-e\" uses some abbreviaitions,
+	such as:
+
+			TRANK 	Trust Rank
+			TSCORE 	Trust Score
+			INC? 	Incentives for Trading?
+
+	
+	For more information, such as normal and normalized volume, check:
+
+		<https://blog.coingecko.com/trust-score/>
+
 
 	Some currency convertion data is available for use with the Market Cap 
 	Function \"-m\". You can choose which currency to display data, when 
@@ -83,6 +96,10 @@ DESCRIPTION
 WARRANTY
 	Licensed under the GNU Public License v3 or better.
  	This programme is distributed without support or bug corrections.
+
+   	This programme needs Bash, cURL, JQ , Xargs and Coreutils to work pro-
+	perly.
+
 
 	Give me a nickle! =)
 
@@ -196,17 +213,16 @@ USAGE EXAMPLES:
 
 OPTIONS
 		-b 	Activate Bank Currency function; it extends support for
-			converting any central bank or crypto currency to any other.
+			converting any central bank or crypto currency to any
+			other.
 
-		-e 	Exchange list; allow at least 100 columns for the table.
-			If over 150 are available, URLs will be printed as well.
-			For information on trading incentives (column \"INC?\")
-			and normalized volume, check:
-			<https://blog.coingecko.com/trust-score/>.
+		-e 	Exchange information; number of pages to fecth with opt-
+			ioni \"-p\"; if used with \"-l\", only exchange	names 
+			and IDs will be printed.
 
 		-h 	Show this help.
 
-		-j 	Fetch JSON file and send to STOUT.
+		-j 	Fetch JSON and print to STERR.
 
 		-l 	List supported currencies.
 
@@ -281,10 +297,9 @@ if [[ -n "${TOPT}" ]] && [[ -z "${1}" ]]; then
 fi
 
 # Temporary file management functions
-rm1f() { rm -f "${CGKTEMPLIST}" "${CGKTEMPLIST2}"; }
+rm1f() { rm -f "${CGKTEMPLIST2}"; }
 rm2f() { rm -f "${CGKTEMPLIST3}"; }
-rm3f() { rm -f "${CGKTEMP}"; }
-tmperrf() { printf "Cannot create TMP file.\n" 1>&2; exit 1;}
+tmperrf() { printf "Cannot create temp file at /tmp.\n" 1>&2; exit 1;}
 
 ## Some recurring functions
 # List of from_currencies
@@ -293,15 +308,13 @@ clistf() {
 	# Ceck if there is a list or create one
 	if [[ -z "${CGKTEMPLIST2}" ]]; then
 		# Make Temp files
-		CGKTEMPLIST=$(mktemp /tmp/cgk.list.XXXXX) || tmperrf
 		CGKTEMPLIST2=$(mktemp /tmp/cgk.list2.XXXXX) || tmperrf
-		export CGKTEMPLIST
 		export CGKTEMPLIST2
 		## Trap temp cleaning functions
 		trap "rm1f; exit 130" EXIT SIGINT
 		# Retrieve list from CGK
-		curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" >> "${CGKTEMPLIST}"
-		jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries' <"${CGKTEMPLIST}" >> "${CGKTEMPLIST2}"
+		curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json" |
+		jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries' >> "${CGKTEMPLIST2}"
 	fi
 }
 # List of vs_currencies
@@ -321,31 +334,9 @@ tolistf() {
 # export currency id as GREPID
 changevscf() {
 	if jq -r keys[] <"${CGKTEMPLIST2}" | grep -qi "^${*}$"; then
-	GREPID="$(jq -r ".${*,,}" <"${CGKTEMPLIST2}")"
+		GREPID="$(jq -r ".${*,,}" <"${CGKTEMPLIST2}")"
 	fi
 }
-
-## -l Print currency lists
-listsf() {
-	FCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json")"	
-	VSCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/supported_vs_currencies" -H  "accept: application/json")"	
-	# Print JSON?
-	if [[ -n ${PJSON} ]]; then
-		printf "%s\n\n" "${FCLISTS}" 
-		printf "%s\n" "${VSCLISTS}" 
-		exit
-	fi
-	printf "\nList of supported FROM_CURRENCY IDs (also precious metals codes)\n\n"
-	printf "%s\n" "${FCLISTS}" | jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' | column -s'=' -et -W'FROM_CURRENCY_NAME,ID' -o'|' -N'FROM_CURRENCY_NAME,ID,SYMBOL/CODE'
-	printf "\n\n"
-	printf "List of supported VS_CURRENCY Codes\n\n"
-	printf "%s\n" "${VSCLISTS}" | jq -r '.[]' | tr "[:lower:]" "[:upper:]" | sort | column -c 80
-	printf "\n"
-}
-if [[ -n "${LISTS}" ]]; then
-	listsf
-	exit
-fi
 
 ## -m Market Cap function		
 mcapf() {
@@ -364,12 +355,11 @@ mcapf() {
 	fi
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${CGKGLOBAL}" 
+		printf "%s\n" "${CGKGLOBAL}" 1>&2
 		exit
 	fi
 	CGKTIME=$(jq -r '.data.updated_at' <<< "${CGKGLOBAL}")
-	# Avoid erros being printed
-	{
+	{ # Avoid erros being printed
 	printf "## CRYPTO MARKET STATS\n"
 	date -d@"$CGKTIME" "+#  %FT%T%Z%n"
 	printf "## Markets : %s\n" "$(jq -r '.data.markets' <<< "${CGKGLOBAL}")"
@@ -440,27 +430,68 @@ mcapf() {
 test -n "${MCAP}" && mcapf ${*}
 
 ## -e Show Exchange info function
-exf() {
-	EXRAW="$(curl -sX GET "https://api.coingecko.com/api/v3/exchanges" -H  "accept: application/json")"
-	# Print JSON?
-	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${EXRAW}" 
+exf() { # -el Show Exchange list
+	if [[ -n "${LISTS}" ]]; then
+		ELIST="$(curl -sX GET "https://api.coingecko.com/api/v3/exchanges/list" -H  "accept: application/json")"
+		# Print JSON?
+		if [[ -n ${PJSON} ]]; then
+			printf "%s\n" "${ELIST}" 1>&2
+			exit
+		fi
+		jq -r '.[]|"\(.name)=\(.id)"' <<< "${ELIST}" | column -et -s'=' -N"NAME,ID"
+		printf "Exchanges: %s.\n" "$(jq -r '.[].id' <<< "${ELIST}" | wc -l)"
 		exit
 	fi
-	protablef() {
-		jq -r '.[] | "\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"'
-	}
-	printf "\nTable of Exchanges\n\n"
-	printf "\nExchanges in this list: %s\n\n" "$(printf "%s\n" "${EXRAW}"| jq -r '.[].id' | wc -l)"
-	# Check terminal column number
-	test "$(tput cols)" -lt "150" && HCOL=",URL"
 
-	# Make table
+	# Test screen width
+	if test "$(tput cols)" -lt "110"; then
+		HCOL="-HINC?,ID,URL"
+		printf "Note: Extra info needs more than 110 columns.\n" 1>&2
+	fi
+	#Get pages with exchange info
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=1" -H  "accept: application/json" 1>&2
+		exit
+	fi
+	printf "Table of Exchanges\n"
+	curl -s --head "https://api.coingecko.com/api/v3/exchanges" | grep -ie "total:" -e "per-page:" | sort -r
+	printf "\n"
+	# Check how many pages to fetch and fetch 4 instea dof one if nothing specified
+	test -z "${TPAGES}" && TPAGES=4
+	i="${TPAGES}"
+	while [[ "${i}" -gt 1 ]]; do
+		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
+		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" |
+			jq -r '.[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' |
+			column -et -s'=' -N"TRANK,TSCORE,NAME,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID,URL" -W"NAME,COUNTRY" ${HCOL}
+		i=$((i-1))
+	done
+		
 	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
-	printf "%s\n" "${EXRAW}" | protablef | sort | column -ts'=' -eN"NAME,YEAR,COUNTRY,BTC_VOLUME(24H),[NORMALIZED_BTC_VOL],INC?,ID,URL,NONE" -W'NAME,COUNTRY' -H"NONE${HCOL}" 
 	exit
 }
 test -n "${EXOPT}" && exf "${*}"
+
+## -l Print currency lists
+listsf() {
+	FCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/list" -H  "accept: application/json")"	
+	VSCLISTS="$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/supported_vs_currencies" -H  "accept: application/json")"	
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n\n" "${FCLISTS}" 1>&2
+		printf "%s\n" "${VSCLISTS}" 1>&2
+		exit
+	fi
+	printf "List of supported FROM_CURRENCY and precious metal IDs and codes\n"
+	jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' <<< "${FCLISTS}" | column -s'=' -et -W'FROM_CURRENCY_NAME,ID' -o'|' -N'FROM_CURRENCY_NAME,ID,SYMBOL/CODE'
+	printf "\nList of supported VS_CURRENCY Codes\n"
+	jq -r '.[]' <<< "${VSCLISTS}" | tr "[:lower:]" "[:upper:]" | sort | column -c 80
+}
+if [[ -n "${LISTS}" ]]; then
+	listsf
+	exit
+fi
 
 ## Check for internet connection function ( CURRENTLY UNUSED )
 #icheck() {
@@ -493,50 +524,46 @@ fi
 
 ## Bank currency rate function
 bankf() {
-	# Print JSON?
-	if [[ -n ${PJSON} ]]; then
-		printf "No specific JSON for Bank Currency Function.\n" >&2 
-		exit 1
-	fi
-
 	# Call CGK.com less
 	# Get currency lists (they will be exported by the function)
 	clistf
 	tolistf
 	
 	# Grep possible currency ids
-	if jq -r .[] <"${CGKTEMPLIST2}" | grep -qi "^${2}$" ||
-	   jq -r keys[] <"${CGKTEMPLIST2}" | grep -qi "^${2}$"; then
+	if jq -r '.[],keys[]' <"${CGKTEMPLIST2}" | grep -qi "^${2}$"; then
 		changevscf "${2}" 2>/dev/null
 		MAYBE1="${GREPID}"
 	fi
-	if jq -r .[] <"${CGKTEMPLIST2}" | grep -qi "^${3}$" ||
-	   jq -r keys[] <"${CGKTEMPLIST2}" | grep -qi "^${3}$"; then
+	if jq -r '.[],keys[]' <"${CGKTEMPLIST2}" | grep -qi "^${3}$"; then
 		changevscf "${3}" 2>/dev/null
 		MAYBE2="${GREPID}"
 	fi
 
 	# Get CoinGecko JSON
-	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1},${MAYBE2}&vs_currencies=btc,${2,,},${3,,},${MAYBE1},${MAYBE2}" -H  "accept: application/json")
+	CGKRATERAW="$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,${2,,},${3,,},${MAYBE1},${MAYBE2}&vs_currencies=btc,${2,,},${3,,},${MAYBE1},${MAYBE2}" -H  "accept: application/json")"
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n" "${CGKRATERAW}" 1>&2
+		exit
+	fi
 	export CGKRATERAW
 	# Get rates to from_currency anyways
 	if [[ "${2,,}" = "btc" ]]; then
 		BTCBANK=1
-	elif ! BTCBANK="$(${0} "${2,,}" btc 2>/dev/null)"; then
-		BTCBANK="(1/$(${0} bitcoin "${2,,}" 2>/dev/null))" ||
+	elif ! BTCBANK="$("${0}" "${2,,}" btc 2>/dev/null)"; then
+		BTCBANK="(1/$("${0}" bitcoin "${2,,}" 2>/dev/null))" ||
 			{ echo "Function error; check currencies."; exit 1;}
 	fi
 	# Get rates to to_currency anyways
 	if [[ "${3,,}" = "btc" ]]; then
 		BTCTOCUR=1
-	elif ! BTCTOCUR="$(${0} "${3,,}" btc 2>/dev/null)"; then
-		BTCTOCUR="(1/$(${0} bitcoin "${3,,}" 2>/dev/null))" ||
+	elif ! BTCTOCUR="$("${0}" "${3,,}" btc 2>/dev/null)"; then
+		BTCTOCUR="(1/$("${0}" bitcoin "${3,,}" 2>/dev/null))" ||
 			{ echo "Function error; check currencies."; exit 1;}
 	fi
 	# Timestamp? No timestamp for this API
 	# Calculate result
-	RESULT="$(bc -l <<< "(${1}*${BTCBANK})/${BTCTOCUR}")"
-	printf "%.${SCL}f\n" "${RESULT}"
+	bc -l <<< "(${1}*${BTCBANK})/${BTCTOCUR}" | xargs printf "%.${SCL}f\n"
 	exit
 }
 if [[ -n "${BANK}" ]]; then
@@ -546,11 +573,12 @@ fi
 
 ## Check you are not requesting some unsupported FROM_CURRENCY
 # Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
-test "${2,,}" = "xag" &&
-	printf "Did you mean xrpalike-gene?\n" &&
+if [[ "${2,,}" = "xag" ]]; then
+	printf "Did you mean xrpalike-gene?\n" 1>&2
 	exit 1
+fi
 clistf
-if ! jq -r .[][] <"${CGKTEMPLIST}" | grep -qi "^${2}$"; then
+if ! jq -r '.[],keys[]' <"${CGKTEMPLIST2}" | grep -qi "^${2}$"; then
 	printf "ERR: FROM_CURRENCY -- %s\n" "${2^^}" 1>&2
 	printf "Check symbol/ID and market pair.\n" 1>&2
 	exit 1
@@ -573,70 +601,53 @@ fi
 
 ## -t Ticker Function
 tickerf() {
-	# Start print Heading
-	printf "\nTickers\n" 1>&2 
-	printf "Results for %s\n" "${ORIGARG1^^}" 1>&2
-	curl -s --head "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" |
-		grep -ie "total:" -e "per-page:" | sort -r 1>&2
-	printf "\n" 1>&2 
-	# Create Temp file if not available already
-	if [[ -z ${CGKTEMP} ]]; then
-		CGKTEMP=$(mktemp /tmp/cgk.ticker.XXXXX) || tmperrf
-		export CGKTEMP
-		## Trap temp cleaning functions
-		trap "rm1f; rm2f; rm3f; exit 130" EXIT SIGINT
+	# Test screen width
+	if test "$(tput cols)" -lt "120"; then
+		HCOL="-HLAST_TRADE_TIME"
+		printf "Note: Extra info needs more than 120 columns.\n" 1>&2
 	fi
-	## Grep 4 pages of results instead of only 1
-	i=1
-	test -z "${TPAGES}" && TPAGES=4
-	while [ $i -le "${TPAGES}" ]; do
-		printf "Fetching page %s of %s...\n" "${i}" "${TPAGES}" 1>&2
-		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" >> "${CGKTEMP}"
-		echo "" >> "${CGKTEMP}"
-		i=$((i+1))
-	done
-	printf "\n"
+	# Start print Heading
+	printf "Tickers\n" 
+	printf "Results for %s\n" "${ORIGARG1^^}"
+	curl -s --head "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" | grep -ie "total:" -e "per-page:" | sort -r
+	if [[ -n "${ORIGARG2}" ]]; then
+		printf "Note: %s/%s will be spread over result pages.\n" "${ORIGARG1^^}" "${ORIGARG2^^}"
+	fi
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
-		cat "${CGKTEMP}" 
+		curl -s --head "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" 1>&2
+		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" 1>&2
 		exit
 	fi
 	## If there is ARG 2, then make sure you get only those pairs specified
-	unset GREPARG
-	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}=" 
-	TABLE="$(jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' <"${CGKTEMP}" |
-		grep -i "${GREPARG}" | sort |
-		column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME")"
-	# Check for any matches retrieved
-	if [[ -z "${TABLE}" ]]; then
-		printf "No match for %s %s.\n" "${ORIGARG1^^}" "${ORIGARG2^^}" 1>&2
-		exit 1
-	else
-		printf "\nRetrieved matches for %s %s: %s\n\n" "${ORIGARG1^^}" "${ORIGARG2^^}" "$(ttablef | wc -l)"
-		exit 0
-	fi
+	GREPARG="."
+	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
+	## Grep 4 pages of results instead of only 1
+	test -z "${TPAGES}" && TPAGES=4
+	printf "\n"
+	i="${TPAGES}"
+	while [[ "${i}" -ge "1" ]]; do
+		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
+		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" |
+			jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' | grep -i "${GREPARG}" | 
+			column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" ${HCOL}
+		i=$((i-1))
+	done
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
 	exit
 fi
 
-# Get CoinGecko JSON
+# Get CoinGecko JSON & Calc results
 if [[ -z "${CGKRATERAW}" ]]; then
-	CGKRATERAW=$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json")
+	# Make equation and print result
+	bc -l <<< "scale=${SCL};(${1}*$(curl -s -X GET "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" -H  "accept: application/json" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g'))/1"
+else	
+	# From Bank function
+	# Make equation and print result
+	bc -l <<< "scale=${SCL};(${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g'))/1"
 fi
-
-CGKRATE=$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g')
-# Print JSON?
-if [[ -n ${PJSON} ]]; then
-	printf "%s\n" "${CGKRATERAW}" 
-	exit
-fi
-
-# Make equation and print result
-RESULT="$(bc -l <<< "${1}*${CGKRATE}")"
-printf "%.${SCL}f\n" "${RESULT}"
-
 exit
 
 ## CGK APIs
