@@ -38,6 +38,7 @@ Curl, JQ, Websocat and Lolcat.
 <b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges;
 
 <b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
+This is my favorite everyday-use script for all-currency rates!
 
 <b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and (BTC) crypto converter;
 
