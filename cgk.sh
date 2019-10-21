@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.1  2019/oct/20  by mountaineerbr
+# v0.7.2  2019/oct/20  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -461,7 +461,7 @@ exf() { # -el Show Exchange list
 	# Check how many pages to fetch and fetch 4 instea dof one if nothing specified
 	test -z "${TPAGES}" && TPAGES=4
 	i="${TPAGES}"
-	while [[ "${i}" -gt 1 ]]; do
+	while [[ "${i}" -ge 1 ]]; do
 		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
 		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" |
 			jq -r '.[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' |
