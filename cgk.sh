@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.5  2019/oct/20  by mountaineerbr
+# v0.7.6  2019/oct/20  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -13,7 +13,7 @@ HELP_LINES="NAME
 		\e[1;33;40m  Coingecko.com API Access\033[00m
 
 SYNOPSIS
-	cgk.sh [option] [optional:amount] [from_currency] [vs_currency]
+	cgk.sh [optional:amount] [from_currency] [vs_currency]
 
 	cgk.sh [-bs] [optional:amount] [from_currency] [vs_currency]
 	
