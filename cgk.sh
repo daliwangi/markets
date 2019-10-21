@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.2  2019/oct/20  by mountaineerbr
+# v0.7.4  2019/oct/20  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -13,13 +13,16 @@ HELP_LINES="NAME
 		\e[1;33;40m  Coingecko.com API Access\033[00m
 
 SYNOPSIS
-	cgk.sh [option] [amount] [from_currency] [vs_currency]
+	cgk.sh [option] [optional:amount] [from_currency] [vs_currency]
 
-	cgk.sh [-bs] [optional:amount] [from_id|from_symbol] [vs_id|vs_symbol]
+	cgk.sh [-bs] [optional:amount] [from_currency] [vs_currency]
 	
-	cgk.sh [-pt] [id|symbol] [optional:vs_id|vs_symbol]
+	cgk.sh [-pt] [currency] [optional:vs_id|vs_symbol]
 
-	cgk.sh [-ehjlmv]
+	cgk.sh [-ehjlmpv]
+
+
+	Note: Currencies can be symbols or their CoinGecko IDs.
 
 
 DESCRIPTION
@@ -63,7 +66,9 @@ DESCRIPTION
 
 	Default precision is 16 and can be adjusted with option \"-s\". Trailing
 	noughts are trimmed by default.
-		
+	
+
+FUNCTION \"-e\" EXCHANGE INFORMATION
 	The Exchange information function \"-e\" uses some abbreviations,
 	such as:
 
@@ -78,6 +83,7 @@ DESCRIPTION
 		<https://blog.coingecko.com/trust-score/>
 
 
+FUNCTION \"-t\" 24H ROLLING TICKER
 	Some currency convertion data is available for use with the Market Cap 
 	Function \"-m\". You can choose which currency to display data, when 
 	available, from the table below:
@@ -218,7 +224,7 @@ OPTIONS
 			other.
 
 		-e 	Exchange information; number of pages to fecth with opt-
-			ioni \"-p\"; if used with \"-l\", only exchange	names 
+			ion \"-p\"; if used with \"-l\", only exchange	names 
 			and IDs will be printed.
 
 		-h 	Show this help.
@@ -231,14 +237,15 @@ OPTIONS
 			defaults=usd.
 
 		-p 	Number of pages retrieved from the server; each page may
-			contain 100 results; use with option \"-t\"; defaults=4.
+			contain 100 results; use with option \"-e\" and \"-t\";
+			defaults=4.
 	 	
 		-s 	Scale setting (decimal plates).
 		
-		-t 	Tickers from all suported exchanges of a single crypto-
-			currency and all its pairs or only of a specific crypto-
-			currency pair; change number of pages fetched with opt-
-			ion \"-p\".
+		-t 	Tickers of a single cryptocurrency from all suported ex-
+			changes and all its pairs; a second crypto can also be
+			set to form a currency pair (market); change number of 
+			pages to fetch with option \"-p\".
 		
 		-v 	Show this programme version."
 
