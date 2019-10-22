@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.1.6  22/oct/2019  by mountaineer_br
+# v0.1.7  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -180,6 +180,7 @@ if [[ -n "${POPT}" ]]; then
 		pricef
 		exit
 	else
+		trap 'printf "\n";exit 1' INT
 		while true; do
 			pricef
 			sleep "${SLEEP}"
@@ -207,6 +208,7 @@ if [[ -z "${ROLLOPT}" ]]; then
 	statsf
 	exit
 else
+	trap 'printf "\n";exit 1' INT
 	while true; do
 		statsf
 		sleep "${SLEEP}"
