@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.20  19/oct/2019
+# v0.2.21  22/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -46,6 +46,12 @@ COLLISION PROBABILITIES
 	
 		456,579 (2019/10/17)
 
+
+	If you find a wallet with balance, send the owner the smallest signal 
+	that wallet security was breached. Also, unless it is one of Satoshi 
+	addresses, you ought not to keep the bitcoins.
+
+
 References:
 	<https://www.youtube.com/watch?v=fOMVZXLjKYo>
 	<https://www.blockchain.com/en/charts/n-unique-addresses>
@@ -84,14 +90,23 @@ RATE LIMITS
 	\"Classic requests, up to 3 requests/sec and 200 requests/hr.\"
 
 
+	Error 429 may not be a problem. Perhaps error 430 is.
+
+
 USAGE EXAMPLES
-	(1) Use BTC.com and Blockchain.info APIs and sleep 20 seconds
+	(1) Use defaults, sleep time between queries is nought and check
+	    response from server.
+
+		$ searchbtc.sh -s0 -g
+
+
+	(2) Use BTC.com and Blockchain.info APIs and sleep 20 seconds
 	    between queries:
 		
 		$ searchbtc.sh -ab -s20
 
 
-	(2) Use all servers, default sleep time:
+	(3) Use all servers, default sleep time:
 
 		$ searchbtc.sh -abcd
 
