@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.6  22/oct/2019  by mountaineer_br
+# v0.2.7  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -181,6 +181,9 @@ if [[ -n "${1}" ]]; then
 			;;
 	esac
 fi
+
+# Trap Interrupt sign
+trap 'printf "\n"; exit 0;' INT
 
 ## *Only* Price of Instrument
 pricef () {
