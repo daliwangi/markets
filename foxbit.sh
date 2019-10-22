@@ -22,7 +22,7 @@ SINOPSE
 	A opção padrão gera um ticker com estatísticas do último período de tem-
 	po (6 horas), ou seja o ticker sempre tem as estatísticas das últimas 
 	negociações que ocorreram nessa última janela de tempo, e o preço mais 
-	atualizado.
+	atualizado. OBS: o preço mais recente é o do Fechamento.
 
 	Se nenhum parâmetro for especificado, BTC é usado. Para ver o ticket de
 	outras moedas, especificar o nome da moeda no primeiro argumento.
@@ -184,7 +184,7 @@ fi
 
 ## *Only* Price of Instrument
 pricef () {
-	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[7]'
+	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
 }
 if [[ -n "${POPT}" ]]; then
 	pricef
@@ -204,9 +204,9 @@ statsf () {
 			"Abert._: \(.[3])",
 			"Fecham.: \(.[4])  Variação: \((.[3]-.[4])|round)",
 			"Volume_: \(.[5])",
-			"Spread_: \((.[7]-.[6])|round)",
 			"Oferta_: \(.[6])",
-			"Demanda: \(.[7])"'
+			"Demanda: \(.[7])",
+			"Spread_: \((.[7]-.[6])|round)"'
 }
 #Defaul opt
 statsf
