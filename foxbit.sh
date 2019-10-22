@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.24  22/oct/2019  by mountaineer_br
+# v0.2.25  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -11,7 +11,7 @@ HELP="GARANTIA
 
 
 SINOPSE
-	foxbit.sh [-hv] [-iNUM] [CÓDIGO_CRIPTOMOEDA]	
+	foxbit.sh [-hqv] [-iNUM] [CÓDIGO_CRIPTOMOEDA]	
 
 
  	O Foxbit.sh pega as cotações de criptomoedas diretamente da API da 
@@ -83,7 +83,7 @@ OPÇÕES
 	
 	-p 	Preço somente.
 
-	-o 	Puxar dados e sair.
+	-q 	Puxar dados e sair.
 
 	-v 	Mostra a versão deste script."
 
@@ -105,7 +105,7 @@ INTV=86400
 KEEPCONN="-n"
 
 # Parse options
-while getopts ":hvi:op" opt; do
+while getopts ":hvi:pq" opt; do
 	case ${opt} in
 		i ) # Interval
 			INTV="${OPTARG}"
@@ -139,7 +139,7 @@ while getopts ":hvi:op" opt; do
 			echo -e "${HELP}"
 			exit 0
 			;;
-		o ) # Puxar dados uma vez e sair
+		q ) # Puxar dados uma vez e sair
 			unset KEEPCONN
 			;;
 		p ) # Preço somente
