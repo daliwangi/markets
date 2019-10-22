@@ -46,6 +46,8 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter;
 
+<b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações;
+
 <b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter;
