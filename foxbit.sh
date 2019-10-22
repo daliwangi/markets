@@ -96,6 +96,7 @@ fi
 # Defaults
 ID=1;IDNAME=BTC
 INT=86400
+#INT=21600
 
 # Parse options
 while getopts ":hvi:p" opt; do
@@ -126,8 +127,6 @@ while getopts ":hvi:p" opt; do
 				printf "Intervalo não suportado!\n" 1>&2
 				INT=86400
 			fi
-			echo $INT
-			exit
 			;;
 		h ) # Help
 			head "${0}" | grep -e '# v'
