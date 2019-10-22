@@ -38,9 +38,9 @@ SINOPSE
 	ras (24h). Os intervalos suportados são somente os seguintes:
 
 		Intervalos 	Equivalente em segundos
-		 1m		60 	
-		30m		1800 	
-	 	 1h  		3600 	
+		 1m		   60 	
+		30m		 1800 	
+	 	 1h  		 3600 	
 	 	 6h  		21600 	
 		12h  		43200 	
 		24h  		86400 	
