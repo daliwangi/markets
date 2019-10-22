@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.23  22/oct/2019  by mountaineer_br
+# v0.2.24  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -102,7 +102,7 @@ fi
 ID=1;IDNAME=BTC
 INTV=86400
 #INTV=21600
-ONLYONCE="-n"
+KEEPCONN="-n"
 
 # Parse options
 while getopts ":hvi:op" opt; do
@@ -139,8 +139,8 @@ while getopts ":hvi:op" opt; do
 			echo -e "${HELP}"
 			exit 0
 			;;
-		o ) # Puxar uma vez e sair
-			unset ONLYONCE
+		o ) # Puxar dados uma vez e sair
+			unset KEEPCONN
 			;;
 		p ) # Preço somente
 			POPT=1
@@ -192,7 +192,7 @@ trap 'printf "\n"; exit 0;' INT
 
 ## *Only* Price of Instrument
 pricef () {
-	websocat ${ONLYONCE} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
+	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
 }
 if [[ -n "${POPT}" ]]; then
 	pricef
@@ -202,7 +202,7 @@ fi
 ## Price of Instrument
 statsf () {
 	printf "Ticker Rolante\n"
-	websocat ${ONLYONCE} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
+	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
 			"Hora_Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"Hora_Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
