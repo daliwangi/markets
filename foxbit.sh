@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2  22/oct/2019  by mountaineer_br
+# v0.2.1  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -56,12 +56,12 @@ LIMITES
 
 EXEMPLO DE USO
 
-		Estatísticas do Ethereum:
+		Ticker rolante do Ethereum:
 
 		$ foxbit.sh ETH
 
 
-		Estatísticas da Litecoin das últimas 6 horas:
+		Ticker rolante da Litecoin das últimas 6 horas:
 
 		$ foxbit.sh -i 6h LTC
 
