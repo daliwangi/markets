@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.20  22/oct/2019  by mountaineer_br
+# v0.2.23  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -17,7 +17,7 @@ SINOPSE
  	O Foxbit.sh pega as cotações de criptomoedas diretamente da API da 
 	FoxBit. Como o acesso é através de um Websocket, a conexão fica aberta 
 	e quando houver alguma atualização por parte do servidor, ele nos man-
-	dará no canal já aberto.
+	dará pelo canal de comunicação já aberto.
 
 	A opção padrão gera um ticker com estatísticas do último período de tem-
 	po (6 horas), ou seja o ticker sempre tem as estatísticas das últimas 
@@ -26,6 +26,9 @@ SINOPSE
 
 	Se nenhum parâmetro for especificado, BTC é usado. Para ver o ticket de
 	outras moedas, especificar o nome da moeda no primeiro argumento.
+
+	Percebi nos testes que algumas vezes o API da FoxBit nem responde. Nesse
+	caso, basta reiniciar o script.
 
 	Os tickeres que a FoxBit oferece são:
 	
@@ -80,6 +83,8 @@ OPÇÕES
 	
 	-p 	Preço somente.
 
+	-o 	Puxar dados e sair.
+
 	-v 	Mostra a versão deste script."
 
 
@@ -95,43 +100,47 @@ fi
 
 # Defaults
 ID=1;IDNAME=BTC
-INT=86400
-#INT=21600
+INTV=86400
+#INTV=21600
+ONLYONCE="-n"
 
 # Parse options
-while getopts ":hvi:p" opt; do
+while getopts ":hvi:op" opt; do
 	case ${opt} in
 		i ) # Interval
-			INT="${OPTARG}"
+			INTV="${OPTARG}"
 			case ${OPTARG} in
 				1m|1min)
-					INT=60
+					INTV=60
 					;;
 				30m|30min)
-					INT=1800
+					INTV=1800
 					;;
 				1h|1hora)
-					INT=3600
+					INTV=3600
 					;;
 				6h|6horas)
-					INT=21600
+					INTV=21600
 					;;
 				12h|12horas)
-					INT=43200
+					INTV=43200
 					;;
 				24h|24horas)
-					INT=86400
+					INTV=86400
 					;;
 			esac
-			if ! grep -q -e "^60$" -e "^1800$" -e "^3600$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${INT}"; then
+			if ! grep -q -e "^60$" -e "^1800$" -e "^3600$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${INTV}"; then
 				printf "Intervalo não suportado!\n" 1>&2
-				INT=86400
+				INTV=86400
 			fi
 			;;
 		h ) # Help
 			head "${0}" | grep -e '# v'
 			echo -e "${HELP}"
 			exit 0
+			;;
+		o ) # Puxar uma vez e sair
+			unset ONLYONCE
 			;;
 		p ) # Preço somente
 			POPT=1
@@ -151,39 +160,39 @@ shift $((OPTIND -1))
 # Get Product ID
 if [[ -n "${1}" ]]; then
 	case "${1^^}" in
-		BTC)
+		BTC|BITCOIN)
 			ID=1
 			IDNAME=BTC
 			;;
-		LTC)
+		LTC|LITECOIN)
 			ID=2
 			IDNAME=LTC
 			;;
-		ETH)
+		ETH|ETHER|ETHEREUM)
 			ID=4
 			IDNAME=ETH
 			;;
-		TUSD)
+		TUSD|TRUEUSD)
 			ID=6
 			IDNAME=TUSD
 			;;
-		XRP)
+		XRP|RIPPLE)
 			ID=10
 			IDNAME=XRP
 			;;
 		*)
-			printf "Cripto indisponível: %s.\n" "${1^^}" 1>&2
+			printf "Shitcoin indisponível: %s.\n" "${1^^}" 1>&2
 			exit 1
 			;;
 	esac
 fi
 
-# Trap Interrupt sign
+# Trap Interrupt sign INT
 trap 'printf "\n"; exit 0;' INT
 
 ## *Only* Price of Instrument
 pricef () {
-	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
+	websocat ${ONLYONCE} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
 }
 if [[ -n "${POPT}" ]]; then
 	pricef
@@ -193,7 +202,7 @@ fi
 ## Price of Instrument
 statsf () {
 	printf "Ticker Rolante\n"
-	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
+	websocat ${ONLYONCE} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
 			"Hora_Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"Hora_Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
