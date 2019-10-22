@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.1.1  22/oct/2019  by mountaineer_br
+# v0.1.2  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -115,10 +115,10 @@ if [[ -n "${1}" ]]; then
 			;;
 		XRP)
 			ID=6
-			IDNAME=RXP
+			IDNAME=XRP
 			;;
 		*)
-			printf "Indisponível.\n" 1>&2
+			printf "Cripto indisponível: %s.\n" "${1^^}" 1>&2
 			exit 1
 			;;
 	esac
