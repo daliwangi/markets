@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.1.2  22/oct/2019  by mountaineer_br
+# v0.1.6  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -32,20 +32,53 @@ SINOPSE
 	O intervalo de tempo dos tickeres pode ser mudado. Os intervalos supor-
 	tados são (em segundos), somente:
 
-		60 	(1 min)
-		21600 	(6  h )
+		60 	( 1 min)
+		1800 	(30 min)
+		3600 	( 1 h )
+		21600 	( 6 h )
 		43200 	(12 h )
 		86400 	(24 h )
+
+TAXA DE LIMITE
+	Segundo os documentos de API:
+
+		\"rate limit: 500 requisições à cada 5 min\"
+
+		<https://foxbit.com.br/api/>
 
 
 EXEMPLO DE USO
 
+		Preço do Ethereum, janela de estatísticas das últimas 24 horas:
+
 		$ foxbit.sh -i 86400 ETH
+
+
+		Preço do Bitcoin, reatualiza automaticamente (loop):
+		
+		$ foxbit.sh -r
+		
+		$ foxbit.sh -r BTC
+
+
+		Somente o preço do Bitcoin, reatualiza a cada 1 segundo:
+
+		$ foxbit.sh -rps1
+		
+		$ foxbit.sh -r -p -s1 BTC
 
 
 OPÇÕES
 	-i 	Intervalo de tempo do ticker rolante; padrão=21600.
+
 	-h 	Mostra esta Ajuda.
+	
+	-p 	Preço somente.
+
+	-r 	Reatualiza o ticker automaticamente.
+	
+	-s 	Tempo entre reatualizações em segundos; recomendado>1; padrão=5.
+	
 	-v 	Mostra a versão deste script."
 
 
@@ -62,12 +95,13 @@ fi
 # Defaults
 ID=1;IDNAME=BTC
 INT=21600
+SLEEP=5
 
 # Parse options
-while getopts ":hvi:" opt; do
+while getopts ":hvi:s:pr" opt; do
 	case ${opt} in
 		i ) # Interval
-			if grep -q -e "^60$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${OPTARG}"; then
+			if grep -q -e "^60$" -e "^1800$" -e "^3600$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${OPTARG}"; then
 				INT="${OPTARG}"
 			else
 				printf "Intervalo não suportado!\n" 1>&2
@@ -77,6 +111,19 @@ while getopts ":hvi:" opt; do
 			head "${0}" | grep -e '# v'
 			echo -e "${HELP}"
 			exit 0
+			;;
+		p ) # Preço somente
+			POPT=1
+			;;
+		r ) # Reatualização automática
+			ROLLOPT=1
+			;;
+		s ) # Tempo entre reatualizações
+			if grep -Eq "^[0-9]+$" <<< "${OPTARG}"; then
+				SLEEP="${OPTARG}"
+			else
+				printf "Formato inválido da opção \"-s\".\n" 1>&2
+			fi
 			;;
 		v ) # Version of Script
 			head "${0}" | grep -e '# v'
@@ -124,22 +171,47 @@ if [[ -n "${1}" ]]; then
 	esac
 fi
 
-## Price of Instrument
-printf "Estatísticas Rolantes\n"
-websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq -r '.o' |
-	jq -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
-		"Stats Start Time: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-		"Stats End Time  : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-		"Stats Interval  : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-		"HighPX : \(.[1])",
-		"LowPX  : \(.[2])",
-		"OpenPX : \(.[3])",
-		"ClosePX: \(.[4])",
-		"Volume : \(.[5])",
-		"Bid: \(.[6])",
-		"Ask: \(.[7])"'
+## *Only* Price of InstruVment
+pricef () {
+	websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq -r '.o' | jq -r '.[]|.[7]'
+}
+if [[ -n "${POPT}" ]]; then
+	if [[ -z "${ROLLOPT}" ]]; then
+		pricef
+		exit
+	else
+		while true; do
+			pricef
+			sleep "${SLEEP}"
+		done
+	fi
+fi
 
-exit 
+## Price of InstruVment
+statsf () {
+	printf "Estatísticas Rolantes\n"
+	websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq -r '.o' |
+		jq -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
+			"Stats Start Time: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Stats End Time  : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Stats Interval  : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"HighPX : \(.[1])",
+			"LowPX  : \(.[2])",
+			"OpenPX : \(.[3])",
+			"ClosePX: \(.[4])",
+			"Volume : \(.[5])",
+			"Bid: \(.[6])",
+			"Ask: \(.[7])"'
+}
+if [[ -z "${ROLLOPT}" ]]; then
+	statsf
+	exit
+else
+	while true; do
+		statsf
+		sleep "${SLEEP}"
+	done
+fi
 
 :<<COMMENT
 [
