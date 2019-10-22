@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.1  22/oct/2019  by mountaineer_br
+# v0.2.4  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -54,7 +54,7 @@ LIMITES
 		<https://foxbit.com.br/api/>
 
 
-EXEMPLO DE USO
+EXEMPLOS DE USO
 
 		Ticker rolante do Ethereum:
 
@@ -203,7 +203,7 @@ statsf () {
 			"Alta   : \(.[1])",
 			"Baixa  : \(.[2])  Variação: \(.[1]-.[2])",
 			"Abert. : \(.[3])",
-			"Fecham.: \(.[4])  Variação: \(.[1]-.[2])",
+			"Fecham.: \(.[4])  Variação: \(.[3]-.[4])",
 			"Volume : \(.[5])",
 			"Spread : \(.[7]-.[6])",
 			"Oferta : \(.[6])",
