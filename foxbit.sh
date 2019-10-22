@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.11  22/oct/2019  by mountaineer_br
+# v0.2.12  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -207,8 +207,8 @@ statsf () {
 			"Abert._: \(.[3])",
 			"*Fecham: \(.[4])  Variação: \((.[3]-.[4])|round)",
 			"Volume_: \(.[5])",
-			"Oferta_: \(.[6])",
 			"Demanda: \(.[7])",
+			"Oferta_: \(.[6])",
 			"Spread_: \((.[7]-.[6])|round)"'
 }
 #Defaul opt
