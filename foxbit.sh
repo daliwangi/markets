@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.5  22/oct/2019  by mountaineer_br
+# v0.2.6  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -197,16 +197,16 @@ statsf () {
 	printf "Estatísticas Rolantes\n"
 	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
-			"Hora Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Hora Final  : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Intervalo   : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-			"Alta   : \(.[1])",
-			"Baixa  : \(.[2])  Variação: \((.[1]-.[2])|round)",
-			"Abert. : \(.[3])",
+			"Hora_Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Hora_Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Intervalo___: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Alta___: \(.[1])",
+			"Baixa__: \(.[2])  Variação: \((.[1]-.[2])|round)",
+			"Abert._: \(.[3])",
 			"Fecham.: \(.[4])  Variação: \((.[3]-.[4])|round)",
-			"Volume : \(.[5])",
-			"Spread : \((.[7]-.[6])|round)",
-			"Oferta : \(.[6])",
+			"Volume_: \(.[5])",
+			"Spread_: \((.[7]-.[6])|round)",
+			"Oferta_: \(.[6])",
 			"Demanda: \(.[7])"'
 }
 #Defaul opt
