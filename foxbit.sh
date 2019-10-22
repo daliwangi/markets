@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.14  22/oct/2019  by mountaineer_br
+# v0.2.20  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -29,9 +29,9 @@ SINOPSE
 
 	Os tickeres que a FoxBit oferece são:
 	
-		BTC 	BRL
-		LTC 	ETH
-		TUSD 	XRP
+		BTC 	LTC
+		ETH	TUSD
+		XRP
 	
 
 	O intervalo de tempo dos tickeres pode ser mudado. O padrão é de 24 ho-
@@ -155,12 +155,8 @@ if [[ -n "${1}" ]]; then
 			ID=1
 			IDNAME=BTC
 			;;
-		BRL)
-			ID=2
-			IDNAME=BRL
-			;;
 		LTC)
-			ID=3
+			ID=2
 			IDNAME=LTC
 			;;
 		ETH)
@@ -168,11 +164,11 @@ if [[ -n "${1}" ]]; then
 			IDNAME=ETH
 			;;
 		TUSD)
-			ID=5
+			ID=6
 			IDNAME=TUSD
 			;;
 		XRP)
-			ID=6
+			ID=10
 			IDNAME=XRP
 			;;
 		*)
