@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.1.7  22/oct/2019  by mountaineer_br
+# v0.2  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -11,13 +11,18 @@ HELP="GARANTIA
 
 
 SINOPSE
-	foxbit.sh [-hv] [-iNUM] [CÓDIGO_CRYPTOMOEDA]	
+	foxbit.sh [-hv] [-iNUM] [CÓDIGO_CRIPTOMOEDA]	
 
 
- 	O Foxbit.sh pegar taxas de criptomoedas diretamente da API da FoxBit.
-	É gerado um ticker com estatísticas do último período de tempo especifi-
-	cado (padrão=21600 segundos -- 6 horas), ou seja o ticker sempre tem as
-	estatísticas das últimas compras/vendas da janela de tempo.
+ 	O Foxbit.sh pega as cotações de criptomoedas diretamente da API da 
+	FoxBit. Como o acesso é através de um Websocket, a conexão fica aberta 
+	e quando houver alguma atualização por parte do servidor, ele nos man-
+	dará no canal já aberto.
+
+	A opção padrão gera um ticker com estatísticas do último período de tem-
+	po (6 horas), ou seja o ticker sempre tem as estatísticas das últimas 
+	negociações que ocorreram nessa última janela de tempo, e o preço mais 
+	atualizado.
 
 	Se nenhum parâmetro for especificado, BTC é usado. Para ver o ticket de
 	outras moedas, especificar o nome da moeda no primeiro argumento.
@@ -29,17 +34,19 @@ SINOPSE
 		TUSD 	XRP
 	
 
-	O intervalo de tempo dos tickeres pode ser mudado. Os intervalos supor-
-	tados são (em segundos), somente:
+	O intervalo de tempo dos tickeres pode ser mudado. O padrão é de 24 ho-
+	ras (24h). Os intervalos suportados são somente os seguintes:
 
-		60 	( 1 min)
-		1800 	(30 min)
-		3600 	( 1 h )
-		21600 	( 6 h )
-		43200 	(12 h )
-		86400 	(24 h )
+		Intervalos 	Equivalente em segundos
+		 1m		60 	
+		30m		1800 	
+	 	 1h  		3600 	
+	 	 6h  		21600 	
+		12h  		43200 	
+		24h  		86400 	
 
-TAXA DE LIMITE
+
+LIMITES
 	Segundo os documentos de API:
 
 		\"rate limit: 500 requisições à cada 5 min\"
@@ -49,36 +56,30 @@ TAXA DE LIMITE
 
 EXEMPLO DE USO
 
-		Preço do Ethereum, janela de estatísticas das últimas 24 horas:
+		Estatísticas do Ethereum:
 
-		$ foxbit.sh -i 86400 ETH
+		$ foxbit.sh ETH
 
 
-		Preço do Bitcoin, reatualiza automaticamente (loop):
+		Estatísticas da Litecoin das últimas 6 horas:
+
+		$ foxbit.sh -i 6h LTC
+
 		
-		$ foxbit.sh -r
+		Somente as atualizações de preço do Bitcoin:
+
+		$ foxbit.sh -p
 		
-		$ foxbit.sh -r BTC
-
-
-		Somente o preço do Bitcoin, reatualiza a cada 1 segundo:
-
-		$ foxbit.sh -rps1
-		
-		$ foxbit.sh -r -p -s1 BTC
+		$ foxbit.sh -p BTC
 
 
 OPÇÕES
-	-i 	Intervalo de tempo do ticker rolante; padrão=21600.
+	-i 	Intervalo de tempo do ticker rolante; padrão=24h.
 
 	-h 	Mostra esta Ajuda.
 	
 	-p 	Preço somente.
 
-	-r 	Reatualiza o ticker automaticamente.
-	
-	-s 	Tempo entre reatualizações em segundos; recomendado>1; padrão=5.
-	
 	-v 	Mostra a versão deste script."
 
 
@@ -94,18 +95,39 @@ fi
 
 # Defaults
 ID=1;IDNAME=BTC
-INT=21600
-SLEEP=5
+INT=86400
 
 # Parse options
-while getopts ":hvi:s:pr" opt; do
+while getopts ":hvi:p" opt; do
 	case ${opt} in
 		i ) # Interval
-			if grep -q -e "^60$" -e "^1800$" -e "^3600$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${OPTARG}"; then
-				INT="${OPTARG}"
-			else
+			INT="${OPTARG}"
+			case ${OPTARG} in
+				1m|1min)
+					INT=60
+					;;
+				30m|30min)
+					INT=1800
+					;;
+				1h|1hora)
+					INT=3600
+					;;
+				6h|6horas)
+					INT=21600
+					;;
+				12h|12horas)
+					INT=43200
+					;;
+				24h|24horas)
+					INT=86400
+					;;
+			esac
+			if ! grep -q -e "^60$" -e "^1800$" -e "^3600$" -e "^21600$" -e "^43200$" -e "^86400$" <<<"${INT}"; then
 				printf "Intervalo não suportado!\n" 1>&2
+				INT=86400
 			fi
+			echo $INT
+			exit
 			;;
 		h ) # Help
 			head "${0}" | grep -e '# v'
@@ -114,16 +136,6 @@ while getopts ":hvi:s:pr" opt; do
 			;;
 		p ) # Preço somente
 			POPT=1
-			;;
-		r ) # Reatualização automática
-			ROLLOPT=1
-			;;
-		s ) # Tempo entre reatualizações
-			if grep -Eq "^[0-9]+$" <<< "${OPTARG}"; then
-				SLEEP="${OPTARG}"
-			else
-				printf "Formato inválido da opção \"-s\".\n" 1>&2
-			fi
 			;;
 		v ) # Version of Script
 			head "${0}" | grep -e '# v'
@@ -171,49 +183,35 @@ if [[ -n "${1}" ]]; then
 	esac
 fi
 
-## *Only* Price of InstruVment
+## *Only* Price of Instrument
 pricef () {
-	websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq -r '.o' | jq -r '.[]|.[7]'
+	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[7]'
 }
 if [[ -n "${POPT}" ]]; then
-	if [[ -z "${ROLLOPT}" ]]; then
-		pricef
-		exit
-	else
-		trap 'printf "\n";exit 1' INT
-		while true; do
-			pricef
-			sleep "${SLEEP}"
-		done
-	fi
+	pricef
+	exit
 fi
 
-## Price of InstruVment
+## Price of Instrument
 statsf () {
 	printf "Estatísticas Rolantes\n"
-	websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq -r '.o' |
-		jq -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
-			"Stats Start Time: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Stats End Time  : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Stats Interval  : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-			"HighPX : \(.[1])",
-			"LowPX  : \(.[2])",
-			"OpenPX : \(.[3])",
-			"ClosePX: \(.[4])",
+	websocat -nt --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INT}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
+		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] | "InstrumentID: \(.[8]) (\($IDNA))",
+			"Hora Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Hora Final  : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Intervalo   : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Alta   : \(.[1])",
+			"Baixa  : \(.[2])  Variação: \(.[1]-.[2])",
+			"Abert. : \(.[3])",
+			"Fecham.: \(.[4])  Variação: \(.[1]-.[2])",
 			"Volume : \(.[5])",
-			"Bid: \(.[6])",
-			"Ask: \(.[7])"'
+			"Spread : \(.[7]-.[6])",
+			"Oferta : \(.[6])",
+			"Demanda: \(.[7])"'
 }
-if [[ -z "${ROLLOPT}" ]]; then
-	statsf
-	exit
-else
-	trap 'printf "\n";exit 1' INT
-	while true; do
-		statsf
-		sleep "${SLEEP}"
-	done
-fi
+#Defaul opt
+statsf
+exit
 
 :<<COMMENT
 [
