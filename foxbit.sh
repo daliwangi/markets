@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.1  22/oct/2019  by mountaineer_br
+# v0.1.1  22/oct/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -91,36 +91,38 @@ done
 shift $((OPTIND -1))
 
 # Get Product ID
-case "${1^^}" in
-	BTC)
-		ID=1
-		IDNAME=BTC
-		;;
-	BRL)
-		ID=2
-		IDNAME=BRL
-		;;
-	LTC)
-		ID=3
-		IDNAME=LTC
-		;;
-	ETH)
-		ID=4
-		IDNAME=ETH
-		;;
-	TUSD)
-		ID=5
-		IDNAME=TUSD
-		;;
-	XRP)
-		ID=6
-		IDNAME=RXP
-		;;
-	*)
-		printf "Indisponível.\n" 1>&2
-		exit 1
-		;;
-esac
+if [[ -n "${1}" ]]; then
+	case "${1^^}" in
+		BTC)
+			ID=1
+			IDNAME=BTC
+			;;
+		BRL)
+			ID=2
+			IDNAME=BRL
+			;;
+		LTC)
+			ID=3
+			IDNAME=LTC
+			;;
+		ETH)
+			ID=4
+			IDNAME=ETH
+			;;
+		TUSD)
+			ID=5
+			IDNAME=TUSD
+			;;
+		XRP)
+			ID=6
+			IDNAME=RXP
+			;;
+		*)
+			printf "Indisponível.\n" 1>&2
+			exit 1
+			;;
+	esac
+fi
 
 ## Price of Instrument
 printf "Estatísticas Rolantes\n"
