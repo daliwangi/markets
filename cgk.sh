@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.8  2019/oct/22  by mountaineerbr
+# v0.7.9  2019/oct/22  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -430,7 +430,7 @@ mcapf() {
 		printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
 	fi
 	
-	printf "\n## Market Volume per coin (last 24h, approx.)\n"
+	printf "\n## Market Volume (approx.) per coin (last 24h)\n"
 	#DOMINANCEARRAY=ALREADY HAVE
 	for i in "${DOMINANCEARRAY[@]}"; do
 		if [[ "${#i}" -eq "3" ]]; then
