@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.56  2019/oct/23  by mountaineerbr
+# v0.7.58  2019/oct/23  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -355,7 +355,7 @@ mcapf() {
 	fi
 	# Get Data 
 	CGKGLOBAL="$(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")"
-	DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
+	#DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
 	# Check if input is a valid to_currency for this function
 	if ! jq -r '.data.total_market_cap|keys[]' <<< "${CGKGLOBAL}" | grep -qi "^${1}$"; then
 		printf "Using USD. Not supported -- %s.\n" "${1^^}" 1>&2
