@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.52  2019/oct/23  by mountaineerbr
+# v0.7.54  2019/oct/23  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -422,7 +422,7 @@ mcapf() {
 	
 	printf "\n## Market Volume per Coin (last 24h)\n"
 	printf "  # SYMBOL      VOLUME(24h)          CHANGE\n"
-	jq -r '.[]|"\(.symbol) \(.total_volume) \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s   %'"'"'22.2f    %.4f%%\n", toupper($1) , $2 , $3 }'
+	jq -r '.[]|"\(.symbol) \(.total_volume) '${1^^}' \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s   %'"'"'22.2f %s    %.4f%%\n", toupper($1) , $2 , $3 , $4 }'
 
 	printf "\n## Supply and All Time High\n"
 	printf "  # SYMBOL       CIRCULATING          TOTAL SUPPLY\n"
