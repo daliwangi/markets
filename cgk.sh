@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.40  2019/oct/22  by mountaineerbr
+# v0.7.41  2019/oct/22  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -426,7 +426,7 @@ mcapf() {
 	printf "  # SYMBOL       CIRCULATING          TOTAL SUPPLY\n"
 	jq -r '.[]|"\(.symbol) \(.circulating_supply) \(.total_supply)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s      %'"'"'22.2f   %'"'"'22.2f\n", toupper($1) , $2 , $3 }'
 
-	printf "\n## Price Stats\n"
+	printf "\n## Price Stats (USD)\n"
 	jq -r '.[]|"\(.symbol) \(.high_24h) \(.low_24h) \(.price_change_percentage_24h) \(.ath) \(.ath_change_percentage)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s=%s=%s=%.4f%%=%s=%.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 , $6 }' | column -t -s'=' -N'  # SYMBOL,HIGH(24h),LOW(24h),CHANGE,ATH,CHANGE'
 	# Avoid erros being printed
 	} 2>/dev/null
