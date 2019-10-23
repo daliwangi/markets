@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.41  2019/oct/22  by mountaineerbr
+# v0.7.42  2019/oct/22  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -418,7 +418,7 @@ mcapf() {
 		printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
 	fi
 	
-	printf "\n## Market Volume per coin (last 24h)\n"
+	printf "\n## Market Volume per Coin (last 24h)\n"
 	printf "  # SYMBOL       TOTAL VOLUME\n"
 	jq -r '.[]|"\(.symbol) \(.total_volume)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s      %'"'"'22.2f\n", toupper($1) , $2 }'
 
