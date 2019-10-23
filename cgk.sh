@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.44  2019/oct/22  by mountaineerbr
+# v0.7.46  2019/oct/22  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -356,13 +356,13 @@ mcapf() {
 	# Get Data 
 	CGKGLOBAL="$(curl -sX GET "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")"
 	DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
-	MARKETGLOBAL="$(curl -sX GET "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false" -H  "accept: application/json")"
 	# Check if input is a valid to_currency for this function
 	if ! jq -r '.data.total_market_cap|keys[]' <<< "${CGKGLOBAL}" | grep -qi "^${1}$"; then
 		printf "Using USD. Not supported -- %s.\n" "${1^^}" 1>&2
 		NOARG=1
 		set -- usd
 	fi
+	MARKETGLOBAL="$(curl -sX GET "https://api.coingecko.com/api/v3/coins/markets?vs_currency=${1,,}&order=market_cap_desc&per_page=10&page=1&sparkline=false" -H  "accept: application/json")"
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CGKGLOBAL}"
@@ -426,7 +426,7 @@ mcapf() {
 	printf "  # SYMBOL       CIRCULATING          TOTAL SUPPLY\n"
 	jq -r '.[]|"\(.symbol) \(.circulating_supply) \(.total_supply)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s      %'"'"'22.2f   %'"'"'22.2f\n", toupper($1) , $2 , $3 }'
 
-	printf "\n## Price Stats (USD)\n"
+	printf "\n## Price Stats (%s)\n" "${1^^}"
 	jq -r '.[]|"\(.symbol) \(.high_24h) \(.low_24h) \(.price_change_percentage_24h) \(.ath) \(.ath_change_percentage)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s=%s=%s=%.4f%%=%s=%.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 , $6 }' | column -t -s'=' -N'  # SYMBOL,HIGH(24h),LOW(24h),CHANGE,ATH,CHANGE'
 	# Avoid erros being printed
 	} 2>/dev/null
@@ -628,15 +628,17 @@ tickerf() {
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
 	## Grep 4 pages of results instead of only 1
 	test -z "${TPAGES}" && TPAGES=4
-	printf "\n"
+	printf "\n........"
 	i="${TPAGES}"
 	while [[ "${i}" -ge "1" ]]; do
-		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
-		curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" |
-			jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"' | grep -i "${GREPARG}" | 
-			column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" ${HCOL}
+		printf "\rFetching page %s of %s..." "${i}" "${TPAGES}"
+		TICKERS+="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" |
+			jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"')"
 		i=$((i-1))
 	done
+	printf "\n"
+	# Format all table and print
+	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" ${HCOL}
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
