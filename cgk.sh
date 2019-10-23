@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.60  2019/oct/23  by mountaineerbr
+# v0.7.61  2019/oct/23  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -397,7 +397,7 @@ mcapf() {
 	printf " # Change(%%USD/24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
 
 	printf "\n## Market Cap per Coin\n"
-	printf "  # SYMBOL      CAP                    CHANGE(24h)\n" "${1^^}"
+	printf "  # SYMBOL      CAP                   CHANGE(24h)\n" "${1^^}"
 	jq -r '.[]|"\(.symbol) \(.market_cap) '${1^^}' \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s  %'"'"'22.2f %s    %.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 }'
 	#Valid, but it they become indirect calculated numbers:
 	#for i in ${DOMINANCEARRAY[@]}; do
