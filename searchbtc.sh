@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.21  22/oct/2019
+# v0.2.22  23/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -125,9 +125,12 @@ OPTIONS
 
 	-h 		Show this help.
 
-	-o [FILE_PATH] 	File path to record positive match results.
+	-o [FILE_PATH] 	File path to record positive match results;
+			defaults=\"~/ADDRESS\"
 
-	-s [NUM] 	Sleep time (seconds) between new queries; defaults=10.
+	-s [NUM] 	Sleep time (seconds) between new queries; can be
+			set to nought at risk of being rate limited more
+			quickly; defaults=10.
 
 	-v 		Print script version."
 
@@ -295,7 +298,7 @@ while :; do
 	queryf
 	# If JQ detects an error, skip address
 	if ! getbal >/dev/null; then
-		sleep 10
+		sleep 15
 		continue
 	fi
 	# Get received amount for further processing
