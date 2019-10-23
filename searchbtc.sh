@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.30  23/oct/2019
+# v0.2.31  23/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -36,13 +36,13 @@ SYNOPSIS
 
 COLLISION PROBABILITIES
 
-	How to find a collision
+	How to find a collision (ref 1)
 
 		try 2^130 randomly chosen inputs
 		99.8% chance that two of them will collide
 	
 
-	Number Of Unique Addresses Used
+	Number Of Unique Addresses Used (ref 2)
 	
 		456,579 (2019/10/17)
 
@@ -52,10 +52,14 @@ COLLISION PROBABILITIES
 	addresses, you ought not to keep the bitcoins.
 
 
-References:
-	<https://www.youtube.com/watch?v=fOMVZXLjKYo>
-	<https://www.blockchain.com/en/charts/n-unique-addresses>
+	A nice page about cryptographic hash functions is (3).
+	Check those jokes!
 
+
+References:
+	(1) <https://www.youtube.com/watch?v=fOMVZXLjKYo>
+	(2) <https://www.blockchain.com/en/charts/n-unique-addresses>
+	(3) <http://valerieaurora.org/hash.html>
 
 RATE LIMITS
 	Blockchain.info, from Twitter 2013:
