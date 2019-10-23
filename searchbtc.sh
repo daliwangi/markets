@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.22  23/oct/2019
+# v0.2.30  23/oct/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -64,11 +64,13 @@ RATE LIMITS
 	period and 600 requests per 5 minute period.\"
 
 
-	Blockchair.com API docs:
+	Blockchair.com API docs and message from server:
 	
 	\"Since the introduction of our API more than two years ago it has been
 	free to use in both non-commercial and commercial cases with a limit of 
 	30 requests per minute.\"
+
+	\"Code 402: Current limits are 30 requests per minute and 1800 per hour.\"
 
 	You may want to try and create a blockchair.com API key for more 
 	requests/min. Add your API key to the CHAIRKEY variable in the script 
@@ -128,9 +130,8 @@ OPTIONS
 	-o [FILE_PATH] 	File path to record positive match results;
 			defaults=\"~/ADDRESS\"
 
-	-s [NUM] 	Sleep time (seconds) between new queries; can be
-			set to nought at risk of being rate limited more
-			quickly; defaults=10.
+	-s [NUM] 	Sleep time (seconds) between new queries; 
+			reccomended>=2; defaults=10.
 
 	-v 		Print script version."
 
@@ -138,6 +139,7 @@ OPTIONS
 # Pay attention to rate limits
 SLEEPTIME="10"
 RECFILE="${HOME}/ADDRESS"
+TIMEOUT="6"
 
 # Must have vanitygen
 if ! command -v vanitygen >/dev/null; then
@@ -146,9 +148,9 @@ if ! command -v vanitygen >/dev/null; then
 fi
 # Must have cURL or Wget
 if command -v curl >/dev/null; then
-	MYAPP="curl -s"
+	MYAPP="curl -s --retry 1 -m${TIMEOUT}"
 elif command -v wget >dev/null; then
-	MYAPP="wget -qO-"
+	MYAPP="wget  -t1 -T${TIMEOUT} -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
@@ -247,7 +249,7 @@ queryf() {
 SA=0
 getbal() {
 	# Test for rate limit error
-	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" <<< "${QUERY}"; then
+	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}"; then
 		SA="$((SA+1))"
 		printf "\nRate limit warning/error: %s.\n" "$(whichf)" 1>&2
 		printf "Skipped: %s\n" "${SA}" 1>&2
@@ -260,7 +262,7 @@ getbal() {
 			printf "\n.............." 1>&2
 		fi
 		#continue...
-	elif grep -iq -e "Invalid API token" <<< "${QUERY}"; then
+	elif grep -iq -e "Invalid API token" -e "invalid api" -e "wrong api" -e "wrong key" -e "api key" <<< "${QUERY}"; then
 		printf "\nInvalid API token.\n" 1>&2
 		exit 1
 	fi
