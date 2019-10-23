@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.58  2019/oct/23  by mountaineerbr
+# v0.7.60  2019/oct/23  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -397,7 +397,7 @@ mcapf() {
 	printf " # Change(%%USD/24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
 
 	printf "\n## Market Cap per Coin\n"
-	printf "  # SYMBOL      VOLUME(24h)            CHANGE\n"
+	printf "  # SYMBOL      CAP                    CHANGE(24h)\n" "${1^^}"
 	jq -r '.[]|"\(.symbol) \(.market_cap) '${1^^}' \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s  %'"'"'22.2f %s    %.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 }'
 	#Valid, but it they become indirect calculated numbers:
 	#for i in ${DOMINANCEARRAY[@]}; do
@@ -407,7 +407,7 @@ mcapf() {
 	printf "\n## Dominance\n"
 	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) \(.[$k])"' <<< "${CGKGLOBAL}" | awk '{ printf "  # %s    : %8.4f%%\n", toupper($1), $2 }'
 
-	printf "\n## Market Volume (last 24h)\n"
+	printf "\n## Market Volume (Last 24H)\n"
 	printf " # Equivalent in\n"
 	printf "    %s    : %'22.2f\n" "${1^^}" "$(jq -r ".data.total_volume.${1,,}" <<< "${CGKGLOBAL}")"
 	if [[ -n "${NOARG}" ]]; then
@@ -422,16 +422,16 @@ mcapf() {
 		printf "    XRP    : %'22.2f\n" "$(jq -r '.data.total_volume.xrp' <<< "${CGKGLOBAL}")"
 	fi
 	
-	printf "\n## Market Volume per Coin (last 24h)\n"
-	printf "  # SYMBOL      VOLUME(24h)             CHANGE\n"
+	printf "\n## Market Volume per Coin (Last 24H)\n"
+	printf "  # SYMBOL      VOLUME                  CHANGE\n"
 	jq -r '.[]|"\(.symbol) \(.total_volume) '${1^^}' \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s   %'"'"'22.2f %s    %.4f%%\n", toupper($1) , $2 , $3 , $4 }'
 
 	printf "\n## Supply and All Time High\n"
-	printf "  # SYMBOL       CIRCULATING              TOTAL SUPPLY\n"
+	printf "  # SYMBOL       CIRCULATING            TOTAL SUPPLY\n"
 	jq -r '.[]|"\(.symbol) \(.circulating_supply) \(.total_supply)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s      %'"'"'22.2f   %'"'"'22.2f\n", toupper($1) , $2 , $3 }'
 
 	printf "\n## Price Stats (%s)\n" "${1^^}"
-	jq -r '.[]|"\(.symbol) \(.high_24h) \(.low_24h) \(.price_change_24h) \(.price_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s=%s=%s=%s=%.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 }' | column -t -s"=" -N"  # SYMBOL,HIGH(24h),LOW(24h),CHANGE(${1^^}),CHANGE"
+	jq -r '.[]|"\(.symbol) \(.high_24h) \(.low_24h) \(.price_change_24h) \(.price_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s=%s=%s=%s=%.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 }' | column -t -s"=" -N"  # SYMBOL,HIGH(24h),LOW(24h),CHANGE,CHANGE"
 
 	printf "\n## All Time Highs (%s)\n" "${1^^}"
 	jq -r '.[]|"\(.symbol) \(.ath) \(.ath_change_percentage) \(.ath_date)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s=%s=%.4f%%= %s\n", toupper($1) , $2 , $3 , $4 }' | column -t -s'=' -N'  # SYMBOL,PRICE,CHANGE,DATE'
