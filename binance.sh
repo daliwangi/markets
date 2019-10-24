@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.9  01/oct/2019  by mountaineerbr
+# v0.5.10  24/oct/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -106,15 +106,13 @@ OPTIONS
 	-e 	Extended depth view of the order book; depth=20; uses websocket.
 
 	-f 	Formatting of prices (printf-like); number of decimal plates; 
-		for use with options \"-c\", \"-k\", \"-s\" and \"-w\".
+		for use with options \"-c\", \"-s\" and \"-w\".
 
 	-h 	Show this Help.
 
 	-i 	Detailed Information of the trade stream; uses websocket.
 	
 	-j  	For debugging; print lines that fetch Binance raw JSON data.
-
-	-k 	Colored price in columns (last 200 orders); uses curl & lolcat.
 
 	-l 	List supported markets (coin pairs and rates).
 
@@ -144,15 +142,11 @@ errf() {
 # Functions
 mode1() {  # Price in columns
 	while true; do
-		JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")
+		JSON="$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")"
 		errf
-		ARRAY1=$(jq -r '.[] | .p' <<< "${JSON}")
-		for i in ${ARRAY1[@]}; do
-			ARRAY2=$(printf "%s\n%s\n" "${ARRAY2}" "$i")
-		done
-		printf "%s\n" "${ARRAY2[@]}" | xargs -n1 printf "\n${FSTR}" | column | ${COLORC}
+		PRICES="$(jq -r '.[] | .p' <<< "${JSON}")"
+		awk '{ printf "\n'${FSTR}'", $1 }' <<< "${PRICES}" | column | ${COLORC}
 		printf "\n"
-		ARRAY2=
 	done
 	exit 0
 }
@@ -162,11 +156,11 @@ mode3() {  # Price and trade info
 	while true; do
 		JSON=$(curl -s "https://api.binance.com/api/v1/trades?symbol=${2^^}${3^^}&limit=1")
 		errf
-		RATE=$(jq -r '.[] | .price' <<< "${JSON}")
-		QQT=$(jq -r '.[] | .quoteQty' <<< "${JSON}")
-		TS=$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)
-		DATE=$(date -d@"${TS}" "+%T%Z")
-		printf "\n${FSTR}\t%s\t%'.f" "${RATE}" "${DATE}" "${QQT}"   
+		RATE="$(jq -r '.[] | .price' <<< "${JSON}")"
+		QQT="$(jq -r '.[] | .quoteQty' <<< "${JSON}")"
+		TS="$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)"
+		DATE="$(date -d@"${TS}" "+%T%Z")"
+		printf "\n${FSTR}  %s  %'.f" "${RATE}" "${DATE}" "${QQT}"   
 	done
 	exit 0
 	}
@@ -182,12 +176,12 @@ mode3() {  # Price and trade info
 }
 
 mode4() {  # Stream of prices
-	curlmode() {
+	curlmode() { 
 		while true; do
-			JSON=$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")
+			JSON="$(curl -s "https://api.binance.com/api/v1/aggTrades?symbol=${2^^}${3^^}&limit=1")"
 	 		errf
-			RATE=$(jq -r '.[] | .p' <<< "${JSON}")
-			printf "\n${FSTR}" "${RATE}" | ${COLORC}
+			RATE="$(jq -r '.[] | .p' <<< "${JSON}")"
+			awk '{ printf "\n'${FSTR}'", $1 }' <<< "${RATE}" | ${COLORC}
 		done
 		exit 0
 		}
@@ -314,7 +308,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":def:hjlckistuwv" opt; do
+while getopts ":def:hjlcistuwv" opt; do
   case ${opt} in
     j ) # Grab JSON
 	printf "Check below script lines that fetch raw JSON data:\n"
@@ -330,11 +324,6 @@ while getopts ":def:hjlckistuwv" opt; do
     c )
       M1OPT=1
       LIMIT=250
-      ;;
-    k )
-      M1OPT=1
-      COLORC="lolcat"
-      LIMIT=200
       ;;
     d )
       M6OPT=1
