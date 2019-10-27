@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.61  2019/oct/23  by mountaineerbr
+# v0.7.62  2019/oct/27  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -404,8 +404,9 @@ mcapf() {
 	#	printf " #  %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "(.data.total_market_cap.${1,,}*(.data.market_cap_percentage.${i,,}/100))" <<< "${CGKGLOBAL}")" "${1^^}"
 	#done
 
-	printf "\n## Dominance\n"
+	printf "\n## Dominance (Top 10)\n"
 	jq -r '.data.market_cap_percentage | keys_unsorted[] as $k | "\($k) \(.[$k])"' <<< "${CGKGLOBAL}" | awk '{ printf "  # %s    : %8.4f%%\n", toupper($1), $2 }'
+	jq -r '(100-(.data.market_cap_percentage|add))' <<< "${CGKGLOBAL}" | awk '{ printf "  # Others : %8.4f%%\n", $1 }'
 
 	printf "\n## Market Volume (Last 24H)\n"
 	printf " # Equivalent in\n"
