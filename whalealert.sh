@@ -1,14 +1,11 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1.2  15/oct/2019  by mountaineerbr
+# v0.1.4  29/oct/2019  by mountaineerbr
+
 
 # Your own key
-#APIKEY=""
-# Dev keys -- please create your Own Key free at https://whale-alert.io/signup
-APIKEY="VdBMnDcHB0RRUZhSyLVyThQnnUWZRRI5"
-#yehiga@mail62.net  -- d...darling
-#APIKEY="0iritsuoJcKFzTQ5hf26fg0ch7vpbBQ7"
-#xodatikel@whkart.com -- hamb....r00
+#WALERTAPIKEY=""
+
 
 # Defaults
 # Minimum Tx value -- For the Free plan the minimum transaction value is USD 500000
@@ -33,8 +30,7 @@ SYNOPSIS
 
 FREE ACCOUNT APIKEY AND LIMITS
 	Please create a free account and api key for your personal use and add
-	the api key to the variable \"APIKEY\" in the script source code. The 
-	test key may stop working at any moment! 
+	the api key to the variable \"WALERTAPIKEY\" in the script source code.
 
 	Free accounts have some limitations:
 		Minimum transaction value: 500000 USD.
@@ -100,17 +96,11 @@ while getopts ":hvp:r:t:d" opt; do
 done
 shift $((OPTIND -1))
 
-# ENDPOINTS
-#https://api.whale-alert.i
-#Status
-#GET /v1/status
-#Tx info by Hx
-#GET /v1/transaction/{blockchain}/{hash}
-# Latest big Tx
-#GET /v1/transactions
-
-#Error codes/mgs
-#ERRORMGS='-e "Bad Request -- Your request was not valid." -e "Unauthorized -- No valid API key was provided" -e "Forbidden -- Access to this resource is restricted for the given caller." -e "Not Found -- The requested resource does not exist." -e "Method Not Allowed -- An invalid method was used to access a resource." -e "Not Acceptable -- An unsupported format was requested." -e "Too Many Requests -- You have exceeded the allowed number of calls per minute. Lower call frequency or upgrade your plan for a higher rate limit." -e "Internal Server Error -- There was a problem with the API host server. Try again later." -e "Service Unavailable -- API is temporarily offline for maintenance. Try again later."'
+#Check for API KEY
+if [[ -z "${WALERTAPIKEY}" ]]; then
+	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	exit 1
+fi
 
 # Test options
 # Results max 100
@@ -158,19 +148,6 @@ stime() {
 		STIME="(${STIME}*60)"
 		STIMESET=1
 	fi
-#	if grep -iq "h" <<< "${STIME}"; then
-#		stimecheck
-#		STIME="${STIME//h}"
-#		STIME="${STIME//H}"
-#		STIME="(${STIME}*60*60)"
-#		STIMESET=1
-#	fi
-#	if grep -iq "d" <<< "${STIME}"; then
-#		stimecheck
-#		STIME="${STIME//d}"
-#		STIME="${STIME//D}"
-#		STIME="(${STIME}*24*60*60)"
-#	fi
 	# Calculate seconds
 	STIME="$(bc <<< "scale=0;${STIME}/1")"
 	STIMESECS="${STIME}"
@@ -188,7 +165,7 @@ stime() {
 stime
 
 # Get data
-PAGE="$(curl -s "https://api.whale-alert.io/v1/transactions?api_key=${APIKEY}&min_value=${MVALUE}&start=${STIME}&limit=${RESULTS}")"
+PAGE="$(curl -s "https://api.whale-alert.io/v1/transactions?api_key=${WALERTAPIKEY}&min_value=${MVALUE}&start=${STIME}&limit=${RESULTS}")"
 #&cursor=2bc7e46-2bc7e46-5c66c0a7
 #&limit=100 # default:100 max:100
 
@@ -232,3 +209,29 @@ jq -er '"\(.transactions[]|
 
 exit 0
 
+# Dead Code
+# ENDPOINTS
+#https://api.whale-alert.i
+#Status
+#GET /v1/status
+#Tx info by Hx
+#GET /v1/transaction/{blockchain}/{hash}
+# Latest big Tx
+#GET /v1/transactions
+#
+#Error codes/mgs
+#ERRORMGS='-e "Bad Request -- Your request was not valid." -e "Unauthorized -- No valid API key was provided" -e "Forbidden -- Access to this resource is restricted for the given caller." -e "Not Found -- The requested resource does not exist." -e "Method Not Allowed -- An invalid method was used to access a resource." -e "Not Acceptable -- An unsupported format was requested." -e "Too Many Requests -- You have exceeded the allowed number of calls per minute. Lower call frequency or upgrade your plan for a higher rate limit." -e "Internal Server Error -- There was a problem with the API host server. Try again later." -e "Service Unavailable -- API is temporarily offline for maintenance. Try again later."'
+#
+#	if grep -iq "h" <<< "${STIME}"; then
+#		stimecheck
+#		STIME="${STIME//h}"
+#		STIME="${STIME//H}"
+#		STIME="(${STIME}*60*60)"
+#		STIMESET=1
+#	fi
+#	if grep -iq "d" <<< "${STIME}"; then
+#		stimecheck
+#		STIME="${STIME//d}"
+#		STIME="${STIME//D}"
+#		STIME="(${STIME}*24*60*60)"
+#	fi

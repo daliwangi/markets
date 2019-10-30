@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.10  24/oct/2019  by mountaineerbr
+# v0.5.11  24/oct/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -309,65 +309,65 @@ fi
 
 # Parse options
 while getopts ":def:hjlcistuwv" opt; do
-  case ${opt} in
-    j ) # Grab JSON
-	printf "Check below script lines that fetch raw JSON data:\n"
-	grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort
-	exit 0
-      ;;
-     l ) # List markets (coins and respective rates)
-	curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
-	     jq -r '.[] | "\(.symbol)=\(.price)"' |
-	     sort | column -s '=' -e -t -N 'MARKET_PAIR,RATE'
-	exit
-      ;;
-    c )
-      M1OPT=1
-      LIMIT=250
-      ;;
-    d )
-      M6OPT=1
-      ;;
-    e )
-      M6EXTRAOPT=1
-      ;;
-    f )
-      FCONVERTER=1
-      if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
-	   FSTR="%.${OPTARG}f"
-	   else
-	   FSTR="${OPTARG}"
-      fi
-      ;;
-    i )
-      M3OPT=1
-      ;;
-    s )
-      M4OPT=1
-      ;;
-    w )
-      M4OPT=1
-      COLORC="lolcat -p 2000 -F 5"
-      ;;
-    t )
-      M7OPT=1
-      ;;
-    u )
-      CURLOPT=1
-      ;;
-    h ) # Help
-      echo -e "${HELP}"
-      exit 0
-      ;;
-    v ) # Version of Script
-      head "${0}" | grep -e '# v'
-      exit 0
-      ;;
-   \? )
-     echo "Invalid Option: -$OPTARG" 1>&2
-     exit 1
-     ;;
-  esac
+	case ${opt} in
+		j ) # Grab JSON
+			printf "Check below script lines that fetch raw JSON data:\n"
+			grep -e "curl -s" -e "websocat" <"${0}" | sed -e 's/^[ \t]*//' | sort
+			exit 0
+	      		;;
+		l ) # List markets (coins and respective rates)
+			curl -s "https://api.binance.com/api/v1/ticker/allPrices" |
+		     	jq -r '.[] | "\(.symbol)=\(.price)"' |
+		     	sort | column -s '=' -e -t -N 'MARKET_PAIR,RATE'
+			exit
+	      		;;
+		c )
+	      		M1OPT=1
+	      		LIMIT=250
+	      		;;
+		d )
+	      		M6OPT=1
+	      		;;
+		e )
+	      		M6EXTRAOPT=1
+	      		;;
+		f )
+	 	     	FCONVERTER=1
+	      		if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
+		   		FSTR="%.${OPTARG}f"
+		   		else
+		   		FSTR="${OPTARG}"
+	      		fi
+	      		;;
+		i )
+	      		M3OPT=1
+	      		;;
+		s )
+	      		M4OPT=1
+	      		;;
+		w )
+	      		M4OPT=1
+	      		COLORC="lolcat -p 2000 -F 5"
+	      		;;
+		t )
+	      		M7OPT=1
+	      		;;
+		u )
+	      		CURLOPT=1
+	      		;;
+		h ) # Help
+	      		echo -e "${HELP}"
+	      		exit 0
+	      		;;
+		v ) # Version of Script
+	      		head "${0}" | grep -e '# v'
+	      		exit 0
+	      		;;
+		\? )
+	     		echo "Invalid Option: -$OPTARG" 1>&2
+	     		exit 1
+	     		;;
+  	esac
 done
 shift $((OPTIND -1))
 

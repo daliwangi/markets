@@ -1,6 +1,6 @@
-#!/usr/bin/bash
+#!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.21  21/out/2019  by mountaineerbr
+# v0.2.24  29/out/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -164,9 +164,9 @@ unset RATE
 #https://www.flowbtc.com.br/api.html
 
 ## Foxbit
-#RATE="$(curl -s 'https://watcher.foxbit.com.br/api/Ticker/' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Referer: https://foxbit.com.br/grafico-bitcoin/' -H 'Origin: https://foxbit.com.br' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'TE: Trailers' | jq -r '.[]|"\(.createdDate) \(.currency) \(.sellPrice)"' | sort -rn | grep -im1 "BRLX${1^^}" | cut -d' ' -f3)"
-#test "${RATE//./}" -gt "0" && printf "%'.2f\tFoxBit\n" "${RATE}"
-#unset RATE
+RATE="$(curl -s 'https://watcher.foxbit.com.br/api/Ticker/' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101 Firefox/68.0' -H 'Accept: */*' -H 'Accept-Language: en-GB,pt-BR;q=0.8,en-US;q=0.5,en;q=0.3' --compressed -H 'Referer: https://foxbit.com.br/grafico-bitcoin/' -H 'Origin: https://foxbit.com.br' -H 'DNT: 1' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'TE: Trailers' | jq -r '.[]|"\(.createdDate) \(.currency) \(.sellPrice)"' | sort -rn | grep -im1 "BRLX${1^^}" | cut -d' ' -f3)"
+test "${RATE//./}" -gt "0" && printf "%'.2f\tFoxBit\n" "${RATE}"
+unset RATE
 # With Websocat -- Still cannot get it to work
 # echo '{ "m":0, "i":0, "n":"1", "o":"" }' | websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway"
 #https://foxbit.com.br/grafico-bitcoin/

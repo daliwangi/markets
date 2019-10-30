@@ -18,9 +18,9 @@ for i in {0..5}; do
 	fi
 done
 
-CMCUSDT=$(~/_Scripts/markets/cmc.sh -s8 usdt usd)
+CMCUSDT=$(~/_scripts/markets/cmc.sh -s8 usdt usd)
 printf "CMC:\t%.6f\n" "${CMCUSDT}"
-CGKUSDT=$(~/_Scripts/markets/cgk.sh -s8 usdt usd 2>/dev/null)
+CGKUSDT=$(~/_scripts/markets/cgk.sh -s8 usdt usd 2>/dev/null)
 printf "CGK:\t%.6f\n" "${CGKUSDT}"
 printf "\nAvg:\t%.6f\n\n" "$(printf "scale=8;(%s+%s+%s)/5\n" "${CLIBAVG}" "${CMCUSDT}" "${CGKUSDT}" | bc -l)"
 

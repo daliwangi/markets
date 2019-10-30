@@ -14,32 +14,32 @@ oz() {
 # https://en.wikipedia.org/wiki/Ounce
 
 ## Funções de metais ( em BRL )
-cmcouro() { ~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xau brl; }
-cmcprata() { ~/_Scripts/markets/cmc.sh -bs6 "1/${OZ}" xag brl; }
-cgkouro() { ~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xau brl; }
-cgkprata() { ~/_Scripts/markets/cgk.sh -bs6 "1/${OZ}" xag brl; }
-openxouro() { echo "scale=6; $(~/_Scripts/markets/openx.sh xau brl)/${OZ}" | bc -l; }
-openxprata() { echo "scale=6; $(~/_Scripts/markets/openx.sh xag brl)/${OZ}" | bc -l; }
-clayouro() { echo "scale=6; $(~/_Scripts/markets/clay.sh xau brl)/${OZ}" | bc -l; }
-clayprata() { echo "scale=6; $(~/_Scripts/markets/clay.sh xag brl)/${OZ}" | bc -l; }
+cmcouro() { ~/_scripts/markets/cmc.sh -bs6 "1/${OZ}" xau brl; }
+cmcprata() { ~/_scripts/markets/cmc.sh -bs6 "1/${OZ}" xag brl; }
+cgkouro() { ~/_scripts/markets/cgk.sh -bs6 "1/${OZ}" xau brl; }
+cgkprata() { ~/_scripts/markets/cgk.sh -bs6 "1/${OZ}" xag brl; }
+openxouro() { echo "scale=6; $(~/_scripts/markets/openx.sh xau brl)/${OZ}" | bc -l; }
+openxprata() { echo "scale=6; $(~/_scripts/markets/openx.sh xag brl)/${OZ}" | bc -l; }
+clayouro() { echo "scale=6; $(~/_scripts/markets/clay.sh xau brl)/${OZ}" | bc -l; }
+clayprata() { echo "scale=6; $(~/_scripts/markets/clay.sh xag brl)/${OZ}" | bc -l; }
 
 ## USD/BRL Rate & Metais
 (
 echo ""
 date "+%Y-%m-%dT%H:%M:%S(%Z)"
 echo ""
-OPENXBRL=$(~/_Scripts/markets/openx.sh usd brl)
-CLAYBRL=$(~/_Scripts/markets/clay.sh usd brl)
+OPENXBRL=$(~/_scripts/markets/openx.sh usd brl)
+CLAYBRL=$(~/_scripts/markets/clay.sh usd brl)
 echo "       Real BRL"
 echo ""
-echo "ERates:  $(~/_Scripts/markets/erates.sh -s6 usd brl)"
+echo "ERates:  $(~/_scripts/markets/erates.sh -s6 usd brl)"
 echo "CLay:    ${CLAYBRL}"
 echo "OpenX:   ${OPENXBRL}"
-CMCBRL=$(~/_Scripts/markets/cmc.sh -s4 -b usd brl)
-CGKBRL=$(~/_Scripts/markets/cgk.sh -s4 -b usd brl)
+CMCBRL=$(~/_scripts/markets/cmc.sh -s4 -b usd brl)
+CGKBRL=$(~/_scripts/markets/cgk.sh -s4 -b usd brl)
 echo "CMC:     ${CMCBRL}"
 echo "CGK:     ${CGKBRL}"
-MYCBRL=$(~/_Scripts/markets/myc.sh -s4 usd brl)
+MYCBRL=$(~/_scripts/markets/myc.sh -s4 usd brl)
 echo "MyC:     ${MYCBRL}"
 echo ""
 echo "Média:   $(echo "scale=4; (${OPENXBRL}+${CMCBRL}+${CGKBRL}+${MYCBRL})/4" | bc -l)"

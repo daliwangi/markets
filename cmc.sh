@@ -1,18 +1,15 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.7  2019/oct/06  by mountaineerbr
+# v0.4.8  2019/oct/29  by mountaineerbr
+
+
+## CMC API Personal KEY
+#CMCAPIKEY=""
+
 
 ## Some defaults
 LC_NUMERIC="en_US.UTF-8"
-
-## CMC API Personal KEY
-#APIKEY=""
-#Dev keys:
-APIKEY="29f3d386-d47d-4b54-9790-278e1faa7cdc"
-# Spare key:
-#APIKEY="f70ef502-0d91-496b-bd5b-5c0f20334720"
-# dirufit@mailmetal.com -- hell.ar
 
 ## Manual and help
 ## Usage: $ cmc.sh [amount] [from currency] [to currency]
@@ -169,9 +166,8 @@ OPTIONS
 
 IMPORTANT NOTICE
 	Please take a little time to register at <https://coinmarketcap.com/api/>
-	for a free API key and change the APIKEY variable in the script source
-	code for yours. The default API key may stop working at any moment and
-	without any warning!"
+	for a free API key and change the CMCAPIKEY variable in the script 
+	source code for yours."
 
 OTHERCUR="
 2781 = USD = United States Dollar ($)
@@ -329,10 +325,16 @@ while getopts ":blmhjs:tp" opt; do
 done
 shift $((OPTIND -1))
 
+#Check for API KEY
+if [[ -z "${CMCAPIKEY}" ]]; then
+	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	exit 1
+fi
+
 ## Print currency lists
 listsf() {
 	printf "\n=============CRYPTOCURRENCIES============\n"
-	curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map |
+	curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map |
 	jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' |
 	column -s '=' -et -o '|' -N 'ID,SYMBOL,NAME'
 	printf "\n\n===========BANK CURRENCIES===========\n"
@@ -396,7 +398,7 @@ fi
 
 ## Market Capital Function
 mcapf() {
-	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${APIKEY}" -H "Accept: application/json" -d "convert=USD" -G https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest)
+	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H "Accept: application/json" -d "convert=USD" -G https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest)
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CMCGLOBAL}"
@@ -473,7 +475,7 @@ fi
 ## Check you are NOT requesting some unsupported FROM_CURRENCY
 # Make a list of currencies names and ids and their symvols
 test -z "${BANKFSET}" &&
-	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
+	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 if test -z "${BANKFSET}" && ! jq -er ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
 	if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 		set -- "${1}" "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")" "${3}"
@@ -502,7 +504,7 @@ fi
 
 ## Default function
 ## Get Rate JSON
-CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${APIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
+CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CMCJSON}"

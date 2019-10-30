@@ -1,32 +1,25 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.5.1 - 2019/set/26  by mountaineerbr
+# v0.5.2 - 2019/oct/29  by mountaineerbr
 
-## Some defaults
+
 ## Please make a free account and update this script
 ## with *your* Open Exchange Rates API ID ( app_id ).
-#APPID=""
-#Dev keys
-#APPID="5b28f174f36949c68b9feb395f92bac8"
-#Dev key:
-#APPID="a66bbee5ac8d4ea2838074cfffde390d"
-# Below are general IDs which may stop working at any time
-#APPID="ab605d846f3f40fabd4db64bf2258519"
-#witacecu@crypto-net.club -- https://temp-mail.org/pt/ 
-#https://openexchangerates.org -- senha: hellodea
-#APPID="9b87260e426e498ea5f2ecbb2fd04b4b"
-#luxa@coin-link.com
-#sahijowo@alltopmail.com - hellode
-APPID="5b28f174f36949c68b9feb395f92bac8"
+#OPENXAPPID=""
 
+
+## Some defaults
 ## You should not change this:
 LC_NUMERIC="en_US.UTF-8"
 
 ## Copyleft / About
-WARRANTY_NOTICE="\033[012;36mOpenX.sh - Bash (Crypto)Currency Converter\033[00m
-      \033[012;31mCopyright (C) 2019  mountaineerbr\033[00m
-  
+WARRANTY_NOTICE="NAME
+\033[012;36mOpenX.sh - Bash (Crypto)Currency Converter\033[00m
+      \033[012;31mCopyleft (C) 2019  mountaineerbr\033[00m
+
+
+SYNOPSIS
       This program is free software: you can redistribute it and/or modify
       it under the terms of the GNU General Public License as published by
       the Free Software Foundation, either version 3 of the License, or
@@ -37,11 +30,15 @@ WARRANTY_NOTICE="\033[012;36mOpenX.sh - Bash (Crypto)Currency Converter\033[00m
       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
       GNU General Public License for more details.
       
-      You should have received a copy of the GNU General Public License
-      along with this program.  If not, see <https://www.gnu.org/licenses/>.  
-      
-      ACCURACY
+      <https://www.gnu.org/licenses/>.  
+     
 
+API KEY
+	Please create a free API key and add it to the script source-code.
+	Look for variable \"OPENXAPPID\".
+
+
+ACCURACY
       As with all exchange rate data, accuracy can never be guaranteed when
       you're not paying through the teeth for the service - and when money
       changes currencies, everyone takes a cut. 
@@ -215,6 +212,12 @@ while getopts ":lhjs:tvw" opt; do
 done
 shift $((OPTIND -1))
 
+#Check for API KEY
+if [[ -z "${OPENXAPPID}" ]]; then
+	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	exit 1
+fi
+
 ## Check for some needed packages
 if ! command -v curl &> /dev/null; then
 	printf "%s\n" "Package not found: curl." 1>&2
@@ -248,7 +251,7 @@ if [[ -z ${3} ]]; then
 fi
 
 ## Grep JSON from server
-JSON=$(curl -s "https://openexchangerates.org/api/latest.json?app_id=${APPID}&show_alternative=true")
+JSON=$(curl -s "https://openexchangerates.org/api/latest.json?app_id=${OPENXAPPID}&show_alternative=true")
 ## Print JSON?
 if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${JSON}"

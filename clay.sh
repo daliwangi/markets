@@ -1,20 +1,13 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3.2  2019/set/26  by mountaineerbr
+# v0.3.2  2019/oct/29  by mountaineerbr
+
 
 ## Some defaults
 # Get your own personal API KEY, please!
-#APIKEY=""
-# Dev keys
-#APIKEY="6f72de44bee2e5411640f522437e9a64"
-# Spare Key:
-#APIKEY="35324a150b81290d9fb15e434ed3d264"
-# somabal@emailate.com -- hellodear
-#João silva piruto@hd-mail.com "**g*h*"https://temp-mail.org
-#APIKEY="eda835237fd59b44e8d03c2df80a6a00"
-#ForFriends Friendz --sahijowo@alltopmail.com-- hellodr
-APIKEY="e2b3e4e50fae3bcfa7c9cd43abb84541"
+#CLAYAPIKEY=""
+
 
 ## You should not change this:
 LC_NUMERIC="en_US.UTF-8"
@@ -41,7 +34,7 @@ DESCRIPTION
 	Free plans should get currency updates daily only. It supports very few 
 	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
 	up for a free private API key and change it in the script source code 
-	(look for variable APIKEY), as the script default API key may stop wor-
+	(look for variable CLAYAPIKEY), as the script default API key may stop wor-
 	king at any moment and without warning!
 
 	Gold and other metals are priced in Ounces.
@@ -57,6 +50,10 @@ DESCRIPTION
 	
 	Default precision is 16. Trailing zeroes are trimmed by default.
 
+
+API KEY
+	Please create a free API key and add it to the script source-code.
+	Look for variable \"CLAYAPIKEY\".
 
 
 WARRANTY
@@ -165,6 +162,12 @@ while getopts ":lhjs:tv" opt; do
 done
 shift $((OPTIND -1))
 
+#Check for API KEY
+if [[ -z "${CLAYAPIKEY}" ]]; then
+	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	exit 1
+fi
+
 
 ## Set default scale if no custom scale
 SCLDEFAULTS=16
@@ -184,15 +187,9 @@ fi
 
 ## Get JSON once
 cljsonf() {
-	CLJSON=$(curl -s http://www.apilayer.net/api/live?access_key=${APIKEY}&callback=CALLBACK_FUNCTION)
+	CLJSON=$(curl -s http://www.apilayer.net/api/live?access_key=${CLAYAPIKEY}&callback=CALLBACK_FUNCTION)
 }
 cljsonf
-
-# Test and try a different APIKEY
-#if printf "%s\n" "${CLJSON}" | grep -iq '"success":false'; then
-#	APIKEY="6f72de44bee2e5411640f522437e9a64"
-#	cljsonf
-#fi
 
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
