@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.1  05/10/2019  by mountaineer_br
+# v0.3.2  30/10/2019  by mountaineer_br
 
 # Check Tether rates
 LC_NUMERIC="en_US.UTF-8"
