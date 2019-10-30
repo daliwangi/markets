@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.8  2019/oct/29  by mountaineerbr
+# v0.4.9  2019/oct/30  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -327,7 +327,7 @@ shift $((OPTIND -1))
 
 #Check for API KEY
 if [[ -z "${CMCAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
 	exit 1
 fi
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3.2  2019/oct/29  by mountaineerbr
+# v0.3.3  2019/oct/30  by mountaineerbr
 
 
 ## Some defaults
@@ -52,7 +52,7 @@ DESCRIPTION
 
 
 API KEY
-	Please create a free API key and add it to the script source-code.
+	Please create a free API key and add it to the script source-code or set it as an environment variable.
 	Look for variable \"CLAYAPIKEY\".
 
 
@@ -164,7 +164,7 @@ shift $((OPTIND -1))
 
 #Check for API KEY
 if [[ -z "${CLAYAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
 	exit 1
 fi
 

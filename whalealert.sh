@@ -1,6 +1,6 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1.4  29/oct/2019  by mountaineerbr
+# v0.1.5  30/oct/2019  by mountaineerbr
 
 
 # Your own key
@@ -98,7 +98,7 @@ shift $((OPTIND -1))
 
 #Check for API KEY
 if [[ -z "${WALERTAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
 	exit 1
 fi
 

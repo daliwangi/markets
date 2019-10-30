@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.5.2 - 2019/oct/29  by mountaineerbr
+# v0.5.3 - 2019/oct/30  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -34,7 +34,7 @@ SYNOPSIS
      
 
 API KEY
-	Please create a free API key and add it to the script source-code.
+	Please create a free API key and add it to the script source-code or set it as an environment variable.
 	Look for variable \"OPENXAPPID\".
 
 
@@ -214,7 +214,7 @@ shift $((OPTIND -1))
 
 #Check for API KEY
 if [[ -z "${OPENXAPPID}" ]]; then
-	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
 	exit 1
 fi
 

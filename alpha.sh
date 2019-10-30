@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks (Most popular Yahoo Finance API alternative)
-# v0.2.2  29/oct/2019  by mountaineer_br
+# v0.2.3  30/oct/2019  by mountaineer_br
 
 
 # *YOUR* (free) API Private Key
@@ -20,7 +20,7 @@ fi
 
 #Check for API KEY
 if [[ -z "${ALPHAAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code.\n" 1>&2
+	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
 	exit 1
 fi
 
