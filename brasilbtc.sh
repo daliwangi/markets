@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.24  29/out/2019  by mountaineerbr
+# v0.2.26  06/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -12,10 +12,9 @@ HELP_LINES="NOME
 
 
 SINOPSE
-	$ brasilbtc.sh                    #Padrão: btc (Bitcoin)
-	
-	$ brasilbtc.sh [código_da_moeda]
-	        Ex: btc, ltc, eth, dash, etc.
+	brasilbtc.sh [código_cripto]
+	      
+		Ex: btc, ltc, eth, dash, etc; padrão=btc.
 
 
 DESCRIÇÃO
@@ -36,7 +35,14 @@ DESCRIÇÃO
 		    no momento: 3xBIT, AltasQuantum e NegocieCoins.
 
 		    São necessários os pacotes cURL, JQ, Bash e Coreutils (grep,
-		    tr, etc).
+		    tr, paste).
+
+
+BUGS
+ 	Este programa é distribuído sem suporte ou correções de bugs.
+	Licenciado sob a GPLv3 e superior.
+	Me dê um trocado! =)
+          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPÇÕES
@@ -45,25 +51,23 @@ OPÇÕES
 		-j 	Imprime linhas do script que puxam dados brutos
 			dos servidores;	para debugging.
 
+		-m 	Calcula a média das cotações das APIs.
+
 		-v 	Mostra versão deste programa.
-
-
-BUGS
- 	Este programa é distribuído sem suporte ou correções de bugs.
-	Licenciado sob a GPLv3 e superior.
-	Me dê um trocado! =)
-          bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 		"
 # Parse options
 # If the very first character of the option string is a colon (:) then getopts 
 # will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":jhv" opt; do
+while getopts ":jhvm" opt; do
   case ${opt} in
     	j ) # Grab JSON
 		printf "\nAbaixo, as linhas que puxam dados brutos JSON:\n\n"
 		grep -E -o -i -e "curl.+" -e "websocat.+" <"${0}" | sed -e 's/^[ \t]*//' | sort
 		exit
       		;;
+	m ) # Média somente
+		MOPT=1
+		;;
 	h ) # Show Help
 		echo -e "${HELP_LINES}"
 		exit 0
@@ -82,6 +86,27 @@ shift $((OPTIND -1))
 
 # Veja se há algum argumento
 test -z "${1}" && set -- btc
+
+# Média somente opt
+if test -n "${MOPT}"; then
+	CFILE='/tmp/brasilbtc.sh_cache'
+	# Trap rm cache
+	trapf() { rm "${CFILE}"; exit 1;}
+	trap 'trapf' INT EXIT 0
+	# Reexec script
+	printf "Aguarde..."
+	export MEDIAEXIT=1
+	"${0}" "${1}" >> "${CFILE}"
+	N="$(grep -E "^[0-9]+" < "${CFILE}" | wc -l)"
+	printf "\rN=%s       \n" "${N}"
+	printf "Média:\n"
+	bc -l <<< "scale=2;($(grep -E "^[0-9]+" < "${CFILE}" | cut -c-10 | tr -d '.' | tr ',' '.'| paste -sd+))/${N}" | tr '.' ','
+	printf "Mais baratas:\n"
+	grep -E "^[0-9]+" < "${CFILE}" |  sort -n | head -n3
+	printf "Mais caras:\n"
+	grep -E "^[0-9]+" < "${CFILE}" |  sort -n | tail -n3
+	exit 0
+fi
 
 ## Avoid errors being printed (check last line)
 (
@@ -210,7 +235,7 @@ unset RATE
 #https://walltime.info/api.html#orgaa3116b
 
 ## BitValor (Análise de Agências de Câmbio do Brasil)
-if [[ "${1^^}" = "BTC" ]]; then
+if [[ "${1^^}" = "BTC" ]] && [[ -z "${MEDIAEXIT}" ]]; then
 	printf "\nBitValor:\n"
 	# Nome das exchanges analisadas pelo BitValor
 	ARN="Arena Bitcoin"
