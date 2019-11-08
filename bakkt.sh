@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.1  08/oct/2019  by castaway
+# v0.1.2  08/oct/2019  by castaway
 
 
 HELP="SINOPSIS
@@ -92,15 +92,14 @@ fi
 
 # Ticker
 DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/chartdata/market/6137542/timespan/0")"
-	printf "Bakkt Ticker\n"
-	jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
-	jq -r '"Date     : \(.stripDescription)",
+printf "Bakkt Ticker\n"
+jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
+jq -r '"Date     : \(.stripDescription)",
 	"Settlem P: \(.settlementPrice)",
 	"Change   : \(.change)  \(.percentChangeDirection)",
 	"Last P   : \(.lastPrice)"' <<< "${DATA0}"
-	jq -r '.bars[-1][]' <<< "${DATA0}" | head -n1
+jq -r '.bars[-1][]' <<< "${DATA0}" | head -n1
 
 # Dead code
 #awk 'END-1 {print}'
-#jq -r '.bars[][]' | tail -n2 | head -n1 <<< "${DATA0}"
 
