@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1  08/oct/2019  by castaway
+# v0.1.1  08/oct/2019  by castaway
 
 
 HELP="SINOPSIS
@@ -13,7 +13,7 @@ HELP="SINOPSIS
 
 	Market data delayed minimum of 15 minutes.
 
-	Required software: Bash and JQ.
+	Required software: Bash, JQ and cURL or Wget.
 
 
 WARRANTY
@@ -55,8 +55,24 @@ while getopts ":hVv" opt; do
 done
 shift $((OPTIND -1))
 
+#Check for JQ
+if ! command -v jq &>/dev/null; then
+	printf "JQ is required.\n" 1>&2
+	exit 1
+fi
+
+# Test if cURL or Wget is available
+if command -v curl &>/dev/null; then
+	YOURAPP="curl -s"
+elif command -v wget &>/dev/null; then
+	YOURAPP="wget -qO-"
+else
+	printf "Package cURL or Wget is needed.\n"
+	exit 1
+fi
+
 # Get volume/contract data
-DATA1="$(curl -s "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
+DATA1="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
 # Contracts (Volumes)
 volf() {
 	jq -r '.|
@@ -76,7 +92,7 @@ fi
 
 
 # Ticker
-DATA0="$(curl -s "https://www.bakkt.com/api/bakkt/marketdata/chartdata/market/6137542/timespan/0")"
+DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/chartdata/market/6137542/timespan/0")"
 	printf "Bakkt Ticker\n"
 	jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
 	jq -r '"Date     : \(.stripDescription)",
