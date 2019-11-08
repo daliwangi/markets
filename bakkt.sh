@@ -90,7 +90,7 @@ if [[ -n "${VOPT}" ]]; then
 fi
 
 
-# Ticker
+# Price Ticker -- Default option
 DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/chartdata/market/6137542/timespan/0")"
 printf "Bakkt Ticker\n"
 jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
