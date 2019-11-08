@@ -75,8 +75,7 @@ fi
 DATA1="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
 # Contracts (Volumes)
 volf() {
-	jq -r '.|
-		reverse[]|
+	jq -r 'reverse[]|
 		"",
 		"Date     : \(.marketStrip)",
 		"End Date : \(.endDate)",
