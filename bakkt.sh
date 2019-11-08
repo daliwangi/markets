@@ -67,7 +67,7 @@ if command -v curl &>/dev/null; then
 elif command -v wget &>/dev/null; then
 	YOURAPP="wget -qO-"
 else
-	printf "Package cURL or Wget is needed.\n"
+	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1
 fi
 
