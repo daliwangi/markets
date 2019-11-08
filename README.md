@@ -29,6 +29,8 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>bcalc.sh --</b> Simple Bash calculator that uses bc and keeps a record of results;
 
+<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt;
+
 <b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker;
 
 <b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; shows notification on new block found for the Bitcoin blockchain;
