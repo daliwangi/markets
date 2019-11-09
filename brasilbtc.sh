@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.26  06/nov/2019  by mountaineerbr
+# v0.2.40  09/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -29,6 +29,9 @@ DESCRIÇÃO
 	brasileiras.
 	
 	No momento, somente algumas agências de câmbio são suportadas.
+
+	O nome do script em Bash (Brasilbtc.sh) não tem relação alguma com qual-
+	quer agência de câmbio com nome eventualmente parecido!
 	
 	IMPORTANTE: Cuidado com agências de câmbio golpistas! Faça seus estudos!
 		    Não recomendamos nenhuma em particular. São suspeitas
@@ -89,27 +92,34 @@ test -z "${1}" && set -- btc
 
 # Média somente opt
 if test -n "${MOPT}"; then
+	getnf() { sed -E -e "s/^([0-9]+.[0-9]+.[0-9]+)\s.+/\1/" -e '/^[a-zA-Z].+/d' -e 's/\.//' -e 's/,/\./';}
+	dotf() { sed -e 's/\.//' -e 's/,/./';}
 	CFILE='/tmp/brasilbtc.sh_cache'
 	# Trap rm cache
 	trapf() { rm "${CFILE}"; exit 1;}
 	trap 'trapf' INT EXIT 0
 	# Reexec script
-	printf "Aguarde..."
 	export MEDIAEXIT=1
+	printf "Aguarde..."
 	"${0}" "${1}" >> "${CFILE}"
-	N="$(grep -E "^[0-9]+" < "${CFILE}" | wc -l)"
-	printf "\rN=%s       \n" "${N}"
-	printf "Média:\n"
-	bc -l <<< "scale=2;($(grep -E "^[0-9]+" < "${CFILE}" | cut -c-10 | tr -d '.' | tr ',' '.'| paste -sd+))/${N}" | tr '.' ','
-	printf "Mais baratas:\n"
-	grep -E "^[0-9]+" < "${CFILE}" |  sort -n | head -n3
-	printf "Mais caras:\n"
-	grep -E "^[0-9]+" < "${CFILE}" |  sort -n | tail -n3
+	N="$(grep -cE "^[0-9]+" < "${CFILE}")"
+	printf "\rMenores:  \n"
+	{ 
+	grep -E "^[0-9]+" < "${CFILE}" | dotf | sort -n | head -n3
+	printf "Média(n=%s):\n" "${N}"
+	printf "%.2f\n" "$(bc -l <<< "($( getnf < "${CFILE}" | paste -sd+))/${N}")"
+	printf "Delta(máx/mín):\n"
+	MIN="$(getnf < "${CFILE}" | sort -n | head -1)" 
+	MAX="$(getnf < "${CFILE}" | sort -n | tail -1)" 
+	printf "%.2f %%\n" "$(bc -l <<< "((${MAX}/${MIN})-1)*100")"
+	printf "Maiores:\n"
+	grep -E "^[0-9]+" < "${CFILE}" | dotf | sort -n | tail -n3
+	} | sed -Ee 's/\s+/  /' -e 's/^[0-9]/ &/' -e 's/\./,/'
 	exit 0
 fi
 
 ## Avoid errors being printed (check last line)
-(
+{
 
 # Imprimir referência de hora
 date
@@ -129,7 +139,7 @@ test "${1^^}" = "BTC" && printf "%'.2f\tAtlasQuantum\n" "$(curl -s 'https://19py
 
 
 ## BitBlue
-(test "${1^^}" = "BTC" || test "${1^^}" = "ETH" || test "${1^^}" = "DASH") &&
+{ test "${1^^}" = "BTC" || test "${1^^}" = "ETH" || test "${1^^}" = "DASH";} &&
 	RATE="$(curl -s --request GET "https://bitblue.com/api/transactions?market=${1,,}&currency=brl"|jq '.[].data[0].price')"
 test "${RATE//./}" -gt "0" && printf "%'.2f\tBitBlue\n" "${RATE}"
 unset RATE
@@ -155,7 +165,7 @@ unset RATE
 #https://www.bitcointoyou.com/blog/api-b2u/
 
 ## BitcoinTrade
-RATE="$(curl -s https://api.bitcointrade.com.br/v2/public/BRL${1^^}/ticker | jq -r '.data.last')"
+RATE="$(curl -s "https://api.bitcointrade.com.br/v2/public/BRL${1^^}/ticker" | jq -r '.data.last')"
 test "${RATE//./}" -gt "0" && printf "%'.2f\tBitcoinTrade\n" "${RATE}"
 unset RATE
 #https://apidocs.bitcointrade.com.br/?version=latest#e3302798-a406-4150-8061-e774b2e5eed5
@@ -167,7 +177,7 @@ unset RATE
 #
 
 ## Braziliex
-RATE="$(curl -s  https://braziliex.com/api/v1/public/ticker/${1,,}_brl| jq -r '.last')"
+RATE="$(curl -s  "https://braziliex.com/api/v1/public/ticker/${1,,}_brl" | jq -r '.last')"
 test "${RATE//./}" -gt "0" && printf "%'.2f\tBraziliex\n" "${RATE}"
 unset RATE
 #https://braziliex.com/exchange/api.php
@@ -197,7 +207,7 @@ unset RATE
 #https://foxbit.com.br/grafico-bitcoin/
 
 ## MercadoBitcoin
-RATE="$(curl -s https://www.mercadobitcoin.net/api/${1^^}/ticker/ | jq -r '.ticker.last')"
+RATE="$(curl -s "https://www.mercadobitcoin.net/api/${1^^}/ticker/" | jq -r '.ticker.last')"
 test "${RATE//./}" -gt "0" && printf "%'.2f\tMercadoBitcoin\n" "${RATE}"
 unset RATE
 #https://www.mercadobitcoin.com.br/api-doc/
@@ -224,7 +234,7 @@ unset RATE
 #https://www.tembtc.com.br/api
 
 ## OmniTrade
-RATE="$(curl -s https://omnitrade.io/api/v2/tickers/${1,,}brl | jq -r '.ticker.last')"
+RATE="$(curl -s "https://omnitrade.io/api/v2/tickers/${1,,}brl" | jq -r '.ticker.last')"
 test "${RATE//./}" -gt "0" && printf "%'.2f\tOmniTrade\n" "${RATE}"
 unset RATE
 #https://help.omnitrade.io/pt-BR/articles/1572451-apis-como-integrar-seu-sistema
@@ -269,5 +279,5 @@ fi
 #https://unix.stackexchange.com/questions/41406/use-a-variable-reference-inside-another-variable
 
 ## Avoid errors being printed
-) 2>/dev/null | tr ',.' '.,'
+} 2>/dev/null | tr ',.' '.,'
 
