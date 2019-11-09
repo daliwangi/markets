@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.2  08/oct/2019  by castaway
+# v0.1.3  08/oct/2019  by castaway
 
 
 HELP="SINOPSIS
@@ -96,7 +96,7 @@ printf "Bakkt Ticker\n"
 jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
 jq -r '"Date     : \(.stripDescription)",
 	"Settlem P: \(.settlementPrice)",
-	"Change   : \(.change)  \(.percentChangeDirection)",
+	"Change(%): \(.change)  \(.percentChangeDirection)",
 	"Last P   : \(.lastPrice)"' <<< "${DATA0}"
 jq -r '.bars[-1][]' <<< "${DATA0}" | head -n1
 
