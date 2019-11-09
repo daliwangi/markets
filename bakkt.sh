@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.3  08/oct/2019  by castaway
+# v0.1.4  08/oct/2019  by castaway
 
 
 HELP="SINOPSIS
@@ -82,7 +82,7 @@ volf() {
 		"Last Time: \(.lastTime)",
 		"Volume   : \(.volume)",
 		"Last P   : \(.lastPrice)",
-		"Change   : \(.change)"' <<< "${DATA1}"
+		"Change(%): \(.change)"' <<< "${DATA1}"
 	}
 if [[ -n "${VOPT}" ]]; then
 	volf
