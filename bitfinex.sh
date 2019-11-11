@@ -1,11 +1,12 @@
 #!/bin/bash
 #
 # Bitfinix.sh  -- Websocket access to Bitfinex.com
-# v0.1.1  11/nov/2019  by mountainner_br
+# v0.1.8  11/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
 COLOROPT="cat"
+DECIMAL=2
 
 # BITFINIEX API DOCS
 #https://docs.bitfinex.com/reference#ws-public-ticker
@@ -21,46 +22,49 @@ DESCRIPTION
 	This script accesses the Bitfinex Exchange public API and fetches
 	market data.
 
-	Currently, only the order price live stream is implemented. Floating 
-	numbers are printed as received from the server.
+	Currently, only the tve rade live stream is implemented.
 	
 
 WARRANTY
-	This programme needs latest version of Bash, JQ, xargs, websocat and
-	lolcat.
+	This programme needs latest version of Bash, JQ, websocat, Xargs and
+	Lolcat.
 
 	This is free software and is licensed under the GPLv3 or later.
 	
 
 OPTIONS
-		-h 	Show this help.
+		-f [NUM] 	Set number of decimal plates; defaults=2.
 
-		-l 	List available markets.
+		-h 		Show this help.
+
+		-l 		List available markets.
 		
-		-c 	Coloured live stream price.
+		-c 		Coloured live stream price.
 		
-		-v 	Show this programme version.
-"
+		-v 		Show this programme version."
 
 
-## Bitstamp Websocket for Price Rolling -- Default opt
+## Bitfinex Websocket for Price Rolling -- Default opt
 streamf() {
-		websocat -nt --ping-interval 20 "wss://api-pub.bitfinex.com/ws/2 " <<< "{ \"event\": \"subscribe\",  \"channel\": \"trades\",  \"symbol\": \"tBTCUSD\" }" |  jq --unbuffered -r '..[3]? // empty' | ${COLOROPT}
+	{ websocat -nt --ping-interval 20 "wss://api-pub.bitfinex.com/ws/2 " <<< "{ \"event\": \"subscribe\",  \"channel\": \"trades\",  \"symbol\": \"t${1^^}\" }" |  jq --unbuffered -r '..[3]? // empty' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT};} 2>/dev/null
 }
 
 # Parse options
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of
 # handling the errors yourself.
-while getopts ":lhcv" opt; do
+while getopts ":f:lhcv" opt; do
   case ${opt} in
   	l ) # List Currency pairs
 		printf "Currency pairs:\n"
 		curl -s "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL" | jq -r '.[][0]' | grep -v "^f[A-Z][A-Z][A-Z]$" | tr -d 't' | column -c80
 		exit
 		;;
+	f ) # Decimal plates
+		DECIMAL="${OPTARG}"
+		;;
 	h ) # Show Help
-		printf "%s" "${HELP}"
+		printf "%s\n" "${HELP}"
 		exit 0
 		;;
 	s ) # Price stream -- Default opt

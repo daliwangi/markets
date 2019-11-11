@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.3  11/nov/2019  by mountainner_br
+# v0.3.1  11/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -17,7 +17,7 @@ HELP="SYNOPSIS
 DESCRIPTION:
 	
 	This script accesses the Bitstamp Exchange public API and fetches
-	market data. Currently, only the order price live stream is implemented.
+	market data. Currently, only the live trade stream is implemented.
 
 	Options \"-s\" and \"-i\" shows the same data as in:
 		<https://www.bitstamp.net/s/webapp/examples/live_trades_v2.html>
@@ -45,8 +45,7 @@ OPTIONS
 		
 		-c		Coloured prices; only for use with option \"-s\".
 		
-		-v 		Show this programme version.
-"
+		-v 		Show this programme version."
 
 ## Trade stream - Bitstamp Websocket for Price Rolling
 streamf() {
@@ -94,7 +93,7 @@ while getopts ":cf:lhsiv" opt; do
 		DECIMAL="${OPTARG}"
 		;;
 	h ) # Show Help
-		printf "%s" "${HELP}"
+		printf "%s\n" "${HELP}"
 		exit 0
 		;;
 	i ) # Price stream with more info
