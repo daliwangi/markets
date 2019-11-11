@@ -1,75 +1,79 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.2.2  21/08/2019  by mountainner_br
+# v0.3  11/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
+COLOROPT="cat"
+DECIMAL=2
 
-HELP="
-USAGE:
-	Bitstamp.sh [-s|-w] [market]
+HELP="SYNOPSIS
+	Bitstamp.sh [-c] [-fNUM] [-i|-s] [MARKET]
+
 	Bitstamp.sh [-h|-l|-v]
 
 
 DESCRIPTION:
+	
 	This script accesses the Bitstamp Exchange public API and fetches
 	market data. Currently, only the order price live stream is implemented.
-	Options \"-s\" and \"-w\" shows the same data as in:
+
+	Options \"-s\" and \"-i\" shows the same data as in:
 		<https://www.bitstamp.net/s/webapp/examples/live_trades_v2.html>
 
 
-OPTIONS:
-		-h 	Show this help.
-		-l 	List available markets.
-		-s 	Live stream price.
-		-w 	Coloured live stream price.
-		-v 	Show this programme version.
+WARRANTY
+	This programme needs latest version of Bash, JQ, websocat, Xargs and 
+	Lolcat.	This is free software and is licensed under the GPLv3 or later.
 
-NOTICE:
-	This programme needs latest version of Bash, JQ, websocat and lolcat.
-	This is free software and is licensed under the GPLv3 or later.
-	Copyleft 	by mountaineer_br 	2019
+	Give me a nickle! =)
 
-	"
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
-## Bitstamp Websocket for Price Rolling
+
+OPTIONS
+		-f [NUM] 	Set number of decimal plates; defaults=2.
+
+		-i [MARKET] 	Live trade stream with more info.
+
+		-h 	 	Show this help.
+
+		-l 	 	List available markets.
+		
+		-s [MARKET] 	Live trade stream (default opt).
+		
+		-c		Coloured prices; only for use with option \"-s\".
+		
+		-v 		Show this programme version."
+
+## Trade stream - Bitstamp Websocket for Price Rolling
 streamf() {
 while true; do
-	if [[ -z ${LOLCATOPT} ]]; then
-		(printf '{ "event": "bts:subscribe","data": { "channel": "live_trades_%s" } }' "${1,,}" |
-			websocat  --no-close --ping-interval 16 wss://ws.bitstamp.net |
-			jq --unbuffered -r .data.price |
-			xargs -n1 printf "\n%.2f") 2>/dev/null
-	else
-		(printf '{ "event": "bts:subscribe","data": { "channel": "live_trades_%s" } }' "${1,,}" |
-			websocat  --no-close --ping-interval 16 wss://ws.bitstamp.net |
-			jq --unbuffered -r .data.price |
-			xargs -n1 printf "\n%.2f" |
-			lolcat -p 2000 -F 5) 2>/dev/null
-	fi
-	echo -e "\n\n Press Ctrl+C twice to exit\n"
+	websocat -nt --ping-interval 20 "wss://ws.bitstamp.net" <<< "{ \"event\": \"bts:subscribe\",\"data\": { \"channel\": \"live_trades_${1,,}\" } }" | jq --unbuffered -r '.data.price // empty' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT}
+	#2>/dev/null
+	echo -e "\n\nPress Ctrl+C twice to exit.\n"
+	N=$((N+1))	
+	echo -e "Try #${N}\n"
 	sleep 2
-	N=$(( ${N} + 1 ))	
-	echo -e "\nTry #${N}\n"
 done
 exit
 }
 
-
-cstreamf() {
-	LOLCATOPT=1
-	streamf ${*}
+# Trade stream more info
+istreamf() {
+while true; do
+	websocat -nt --ping-interval 20 "wss://ws.bitstamp.net" <<< "{ \"event\": \"bts:subscribe\",\"data\": { \"channel\": \"live_trades_${1,,}\" } }" | jq --unbuffered -r '.data|"P: \(.price // empty) \tQ: \(.amount // empty) \tPQ: \((if .price == null then 1 else .price end)*(if .amount == null then 1 else .amount end)|round)    \t\(.timestamp // empty|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' | ${COLOROPT}
+	#2>/dev/null
+	echo -e "\n\nPress Ctrl+C twice to exit.\n"
+	N=$((N+1))	
+	echo -e "Try #${N}\n"
+	sleep 2
+done
+exit
 }
 
-lcpf () {
-	printf "Currency pairs:\n\n %s\n\n" "${CPAIRS[*]}"
-	printf "Also check <https://www.bitstamp.net/websocket/v2/>\n\n"
-	exit
-}
-
-CPAIRS=(btcusd btceur eurusd xrpusd xrpeur xrpbtc ltcusd ltceur
-	ltcbtc ethusd etheur ethbtc bchusd bcheur bchbtc)
+CPAIRS=(btcusd btceur eurusd xrpusd xrpeur xrpbtc ltcusd ltceur	ltcbtc ethusd etheur ethbtc bchusd bcheur bchbtc)
 # From: https://www.bitstamp.net/websocket/v2/
 
 
@@ -77,28 +81,29 @@ CPAIRS=(btcusd btceur eurusd xrpusd xrpeur xrpbtc ltcusd ltceur
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of
 # handling the errors yourself.
-while getopts ":lhswv" opt; do
+while getopts ":cf:lhsiv" opt; do
   case ${opt} in
-	b )
-		;;
-	m ) #
-		;;
   	l ) # List Currency pairs
-		LCPOPT=1
+		printf "Markets:\n"
+		printf "%s\n" "${CPAIRS[*]^^}"
+		printf "Also check <https://www.bitstamp.net/websocket/v2/>.\n"
+		exit
+		;;
+	f ) # Decimal plates
+		DECIMAL="${OPTARG}"
 		;;
 	h ) # Show Help
 		printf "%s" "${HELP}"
+		exit 0
 		;;
-	j ) # Print JSON
-		PJSON=1
-		;;
-	k ) #
+	i ) # Price stream with more info
+		ISTREAMOPT=1
 		;;
 	s ) # B&W price stream
 		STREAMOPT=1
 		;;
-	w ) # Coloured price stream
-		CSTREAMOPT=1
+	c ) # Coloured price stream
+		COLOROPT="lolcat -p 2000 -F 5"
 		;;
 	v ) # Version of Script
 		head "${0}" | grep -e '# v'
@@ -115,35 +120,24 @@ shift $((OPTIND -1))
 
 ## Check if there is any argument
 ## And set defaults
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+if ! [[ "${1}" =~ [a-zA-Z]+ ]]; then
 	set -- btcusd
 fi
 
 ## Check for valid market pair
-if test -z ${LCPOPT} && ! printf "%s\n" "${CPAIRS}" | grep -qi "${*}"; then
-	printf "Not a supported currency pair.\n"
-	printf "Run \"-l\" to list available markets.\n"
+if ! grep -qi "${1}" <<< "${CPAIRS[@]}"; then
+	printf "Usupported market/currency pair.\n" 1>&2
+	printf "Run \"-l\" to list available markets.\n" 1>&2
 	exit 1
 fi
 
-### Set default scale if no custom scale
-#SCLDEFAULTS=16
-#if [[ -z ${SCL} ]]; then
-#	SCL="${SCLDEFAULTS}"
-#fi
-#
-### Set equation arguments
-#if ! [[ ${1} =~ [0-9] ]]; then
-#	set -- 1 ${@:1:2}
-#fi
-#
-#if [[ -z ${3} ]]; then
-#	set -- ${@:1:2} usd
-#fi
-
 # Run Functions
-test -n "${STREAMOPT}" && streamf ${*}
-test -n "${CSTREAMOPT}" && cstreamf ${*}
-test -n "${LCPOPT}" && lcpf
+# Trade price stream
+test -n "${STREAMOPT}" && streamf ${@}
+# Trade price stream with additional information
+test -n "${ISTREAMOPT}" && istreamf ${@}
+
+#If no option set, run default opt
+streamf ${@}
 
 

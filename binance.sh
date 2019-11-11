@@ -1,13 +1,14 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.20  11/nov/2019  by mountaineerbr
+# v0.5.40  11/nov/2019  by mountaineerbr
 # 
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
 FSTR="%.2f" 
 COLORC="cat"
+WSSADD="wss://stream.binance.com:9443/ws/"
 
 HELP="NAME
 	\033[012;36mBinance.sh - Bash Cryptocurrency Converter\033[00m
@@ -129,7 +130,10 @@ OPTIONS
 		
 	-v 	Show this script version.
 	
-	-w 	Colored stream of latest trade prices; uses websocket & lolcat."
+	-w 	Colored stream of latest trade prices; uses websocket & lolcat.
+
+	-x 	Use Binance.us server instead of Binance.com; Binance US has 
+		lower volume (currently approx. 0.5%)."
 
 ## Error Check Function
 errf() {
@@ -174,7 +178,7 @@ mode3() {  # Price and trade info
 	# Websocat Mode
 	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
 	printf -- "Price, Quantity and Time.\n\n"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 	exit 0
 }
@@ -194,7 +198,7 @@ mode4() {  # Stream of prices
 
 	# Websocat Mode
 	printf "Stream of %s%s\n" "${2^^}" "${3^^}"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@aggTrade" |
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@aggTrade" |
 		jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | ${COLORC}
 	#stdbuf -i0 -o0 -e0 cut -c-8
 	exit
@@ -203,7 +207,7 @@ mode4() {  # Stream of prices
 mode6() { # Depth of order book (depth=10)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10@100ms" |
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@depth10@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -232,7 +236,7 @@ mode6() { # Depth of order book (depth=10)
 mode6extra() { # Depth of order book (depth=20)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20@100ms" |
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@depth20@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -279,7 +283,7 @@ mode6extra() { # Depth of order book (depth=20)
 	exit
 }
 mode7() { # 24-H Ticker
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@ticker" |
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@ticker" |
 		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
 			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
@@ -312,7 +316,7 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":def:hjlcistuwv" opt; do
+while getopts ":cdef:hjlistuwvx" opt; do
 	case ${opt} in
 		j ) # Grab JSON
 			printf "Check below script lines that fetch raw JSON data:\n"
@@ -367,6 +371,10 @@ while getopts ":def:hjlcistuwv" opt; do
 	      		head "${0}" | grep -e '# v'
 	      		exit 0
 	      		;;
+		x ) # Binance US
+			USOPT=1
+			WSSADD="wss://stream.binance.us:9443/ws/"
+			;;
 		\? )
 	     		echo "Invalid Option: -$OPTARG" 1>&2
 	     		exit 1
@@ -388,12 +396,18 @@ fi
 # Sets btc as "from_currency" for market code formation
 # Will not set when calling the script without any option
 if [[ -z ${2} ]]; then
-	set -- "${1}" "btc"
+	set -- "${1}" "BTC"
 fi
 
-MARKETS="$(curl -s "https://api.binance.com/api/v1/ticker/allPrices" | jq -r '.[].symbol')"
+# Check if it is Binance US option 
+if [[ -n "${USOPT}" ]]; then
+	MARKETS="$(curl -s "https://api.binance.us/api/v1/ticker/allPrices" | jq -r '.[].symbol')"
+else
+	MARKETS="$(curl -s "https://api.binance.com/api/v1/ticker/allPrices" | jq -r '.[].symbol')"
+fi
+
 if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
-	set -- ${@:1:2} "USDT"
+	test -z "${USOPT}" && set -- ${@:1:2} "USDT" || set -- ${@:1:2} "USD"
 fi
 
 ## Check if input is a supported market 
