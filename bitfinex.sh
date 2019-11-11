@@ -1,6 +1,5 @@
 #!/bin/bash
-#
-# Bitfinix.sh  -- Websocket access to Bitfinex.com
+# Bitfinex.sh  -- Websocket access to Bitfinex.com
 # v0.1.8  11/nov/2019  by mountainner_br
 
 ## Some defaults
@@ -26,7 +25,7 @@ DESCRIPTION
 	
 
 WARRANTY
-	This programme needs latest version of Bash, JQ, websocat, Xargs and
+	This programme needs latest version of Bash, JQ, Websocat, Xargs and
 	Lolcat.
 
 	This is free software and is licensed under the GPLv3 or later.

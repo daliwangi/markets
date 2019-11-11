@@ -24,7 +24,7 @@ DESCRIPTION:
 
 
 WARRANTY
-	This programme needs latest version of Bash, JQ, websocat, Xargs and 
+	This programme needs latest version of Bash, JQ, Websocat, Xargs and 
 	Lolcat.	This is free software and is licensed under the GPLv3 or later.
 
 	Give me a nickle! =)
