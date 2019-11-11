@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.62  2019/oct/27  by mountaineerbr
+# v0.7.66  2019/nov/11  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
