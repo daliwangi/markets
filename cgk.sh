@@ -470,15 +470,12 @@ exf() { # -el Show Exchange list
 	fi
 	printf "Table of Exchanges\n"
 	curl -s --head "https://api.coingecko.com/api/v3/exchanges" | grep -ie "total:" -e "per-page:" | sort -r
-	printf "\n"
 	# Check how many pages to fetch and fetch 4 instea dof one if nothing specified
 	test -z "${TPAGES}" && TPAGES=4
 	i="${TPAGES}"
 	while [[ "${i}" -ge 1 ]]; do
-		printf "Page %s of %s.\n" "${i}" "${TPAGES}"
-		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" |
-			jq -r '.[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' |
-			column -et -s'=' -N"TRANK,TSCORE,NAME_________,YEAR,COUNTRY,BTC_VOLUME(24H),[NORM_VOL],INC?,ID,URL" -W"NAME_________,COUNTRY" ${HCOL}
+		printf "Page %s of %s.\n" "${i}" "${TPAGES}" 1>&2
+		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" | jq -r 'reverse[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' | column -et -s'=' -N"TRANK,TSCORE,NAME    ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORM_VOL],INC?,ID,URL" -W"NAME    ,COUNTRY" ${HCOL}
 		i=$((i-1))
 	done
 	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
@@ -637,10 +634,10 @@ tickerf() {
 	test -n "${ORIGARG2}" && GREPARG="^${ORIGARG1}/${ORIGARG2}="
 	## Grep 4 pages of results instead of only 1
 	test -z "${TPAGES}" && TPAGES=4
-	printf "\n........"
+	printf "........"
 	i="${TPAGES}"
 	while [[ "${i}" -ge "1" ]]; do
-		printf "\rFetching page %s of %s..." "${i}" "${TPAGES}"
+		printf "\rFetching page %s of %s..." "${i}" "${TPAGES}" 1>&2
 		TICKERS+="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" |
 			jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"')"
 		i=$((i-1))
