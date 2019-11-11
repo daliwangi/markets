@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.11  24/oct/2019  by mountaineerbr
+# v0.5.18  11/nov/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -199,7 +199,7 @@ mode4() {  # Stream of prices
 mode6() { # Depth of order book (depth=10)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10" |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth10@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -228,7 +228,7 @@ mode6() { # Depth of order book (depth=10)
 mode6extra() { # Depth of order book (depth=20)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
-	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20" |
+	websocat -nt --ping-interval 20 "wss://stream.binance.com:9443/ws/${2,,}${3,,}@depth20@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
