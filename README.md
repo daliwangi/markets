@@ -35,7 +35,9 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; shows notification on new block found for the Bitcoin blockchain;
 
-<b>bitstamp.sh --</b> Bitstamp exchange public API for live price rolling;
+<b>bitstamp.sh --</b> Bitstamp exchange public API for live trade prices/info;
+
+<b>bitfinex.sh --</b> Bitfinex exchange public API for live tarde prices;
 
 <b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges;
 
