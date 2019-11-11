@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitfinix.sh  -- Websocket access to Bitfinex.com
-# v0.1  11/nov/2019  by mountainner_br
+# v0.1.1  11/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -12,7 +12,7 @@ COLOROPT="cat"
 
 HELP="
 SYNOPSIS
-	Bitfinex.sh [-c] [market]
+	Bitfinex.sh [-c] [MARKET]
 	
 	Bitfinex.sh [-h|-l|-v]
 
@@ -39,7 +39,8 @@ OPTIONS
 		
 		-c 	Coloured live stream price.
 		
-		-v 	Show this programme version."
+		-v 	Show this programme version.
+		"
 
 
 ## Bitstamp Websocket for Price Rolling -- Default opt
@@ -51,7 +52,7 @@ streamf() {
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of
 # handling the errors yourself.
-while getopts ":lhwv" opt; do
+while getopts ":lhcv" opt; do
   case ${opt} in
   	l ) # List Currency pairs
 		printf "Currency pairs:\n"
@@ -65,7 +66,7 @@ while getopts ":lhwv" opt; do
 	s ) # Price stream -- Default opt
 		STREAMOPT=1
 		;;
-	w ) # Coloured price stream
+	c ) # Coloured price stream
 		COLOROPT="lolcat -p 2000 -F 5"
 		;;
 	v ) # Version of Script
