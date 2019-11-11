@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.5.18  11/nov/2019  by mountaineerbr
+# v0.5.20  11/nov/2019  by mountaineerbr
 # 
 
 # Some defaults
@@ -51,6 +51,10 @@ SYNOPSIS
 
    	This programme needs Bash, cURL, JQ , Websocat, Lolcat, Xargs and Core-
 	utils to work properly.
+
+	Beware of unlimited scrollback buffers for terminal emulators. As data 
+	flow is very intense, scrollback buffers should be kept small or com-
+	pletely unset in order to avoid system freezes.
 
 
 WARRANTY
