@@ -40,7 +40,7 @@ OPTIONS
 		-c 	Coloured live stream price.
 		
 		-v 	Show this programme version.
-		"
+"
 
 
 ## Bitstamp Websocket for Price Rolling -- Default opt

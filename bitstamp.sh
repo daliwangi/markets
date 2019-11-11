@@ -45,7 +45,8 @@ OPTIONS
 		
 		-c		Coloured prices; only for use with option \"-s\".
 		
-		-v 		Show this programme version."
+		-v 		Show this programme version.
+"
 
 ## Trade stream - Bitstamp Websocket for Price Rolling
 streamf() {
