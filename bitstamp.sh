@@ -65,7 +65,7 @@ istreamf() {
 while true; do
 	websocat -nt --ping-interval 20 "wss://ws.bitstamp.net" <<< "{ \"event\": \"bts:subscribe\",\"data\": { \"channel\": \"live_trades_${1,,}\" } }" | jq --unbuffered -r '.data|"P: \(.price // empty) \tQ: \(.amount // empty) \tPQ: \((if .price == null then 1 else .price end)*(if .amount == null then 1 else .amount end)|round)    \t\(.timestamp // empty|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' | ${COLOROPT}
 	#2>/dev/null
-	echo -e "\n\nPress Ctrl+C twice to exit.\n"
+	printf "\nPress Ctrl+C twice to exit.\n"
 	N=$((N+1))	
 	printf "Recconection #${N}\n"
 	sleep 4
