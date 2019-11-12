@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.3.2  12/nov/2019  by mountainner_br
+# v0.3.3  12/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -52,10 +52,10 @@ streamf() {
 while true; do
 	websocat -nt --ping-interval 20 "wss://ws.bitstamp.net" <<< "{ \"event\": \"bts:subscribe\",\"data\": { \"channel\": \"live_trades_${1,,}\" } }" | jq --unbuffered -r '.data.price // empty' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT}
 	#2>/dev/null
-	echo -e "\n\nPress Ctrl+C twice to exit.\n"
+	printf "\nPress Ctrl+C twice to exit.\n"
 	N=$((N+1))	
-	echo -e "Try #${N}\n"
-	sleep 2
+	printf "Recconection #${N}\n"
+	sleep 4
 done
 exit
 }
