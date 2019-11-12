@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.1  12/nov/2019  by mountainner_br
+# v0.2.6  12/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -45,7 +45,14 @@ OPTIONS
 
 ## Bitfinex Websocket for Price Rolling -- Default opt
 streamf() {
-	{ websocat -nt --ping-interval 20 "wss://api-pub.bitfinex.com/ws/2 " <<< "{ \"event\": \"subscribe\",  \"channel\": \"trades\",  \"symbol\": \"t${1^^}\" }" |  jq --unbuffered -r '..|select(type == "array" and length == 4)|.[3]' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT};} 2>/dev/null
+	while true; do
+		websocat -nt --ping-interval 5 "wss://api-pub.bitfinex.com/ws/2 " <<< "{ \"event\": \"subscribe\",  \"channel\": \"trades\",  \"symbol\": \"t${1^^}\" }" |  jq --unbuffered -r '..|select(type == "array" and length == 4)|.[3]' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT}
+		echo -e "\n\nPress Ctrl+C twice to exit.\n"
+		N=$((N+1))	
+		printf "Recconection #${N}\n"
+		sleep 4
+	done
+	exit
 }
 
 # Parse options
