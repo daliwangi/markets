@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.3.3  12/nov/2019  by mountainner_br
+# v0.3.4  12/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -67,8 +67,8 @@ while true; do
 	#2>/dev/null
 	echo -e "\n\nPress Ctrl+C twice to exit.\n"
 	N=$((N+1))	
-	echo -e "Try #${N}\n"
-	sleep 2
+	printf "Recconection #${N}\n"
+	sleep 4
 done
 exit
 }
