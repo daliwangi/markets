@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.3.1  11/nov/2019  by mountainner_br
+# v0.3.2  12/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -73,10 +73,8 @@ done
 exit
 }
 
-CPAIRS=(btcusd btceur eurusd xrpusd xrpeur xrpbtc ltcusd ltceur	ltcbtc ethusd etheur ethbtc bchusd bcheur bchbtc)
+CPAIRS=(bchbtc bcheur bchusd btceur btcusd ethbtc etheur ethusd eurusd ltcbtc ltceur ltcusd xrpbtc xrpeur xrpusd)
 # From: https://www.bitstamp.net/websocket/v2/
-
-
 # Parse options
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of

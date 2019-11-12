@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2  11/nov/2019  by mountainner_br
+# v0.2.1  12/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -56,7 +56,7 @@ while getopts ":f:lhcv" opt; do
   case ${opt} in
   	l ) # List Currency pairs
 		printf "Currency pairs:\n"
-		curl -s "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL" | jq -r '.[][0]' | grep -v "^f[A-Z][A-Z][A-Z]$" | tr -d 't' | column -c80
+		curl -s "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL" | jq -r '.[][0]' | grep -v "^f[A-Z][A-Z][A-Z]$" | tr -d 't' | sort | column -c80
 		exit
 		;;
 	f ) # Decimal plates
