@@ -1,4 +1,8 @@
 # markets
+<b>IMPORTANT: Please create free accounts and API keys to use with scripts that require them! You can add your API key to the script source code as per help pages or set them as environment variables.
+  
+IMPORTANTE: Crie contas e chaves de API gratuitas para usar com os scripts que as exijam! Você pode adicionar sua chave de API ao código-fonte do script de acordo com as páginas de ajuda ou configurá-las como variáveis de ambiente.</b>
+
 <b>SUMMARY:</b>
 
 Related to crypto and bank currency markets. Run them with "-h" for a Help Page.
