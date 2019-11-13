@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.9  2019/oct/30  by mountaineerbr
+# v0.4.20  2019/nov/13  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -461,8 +461,21 @@ tickerf() {
 		printf "%s\n" "${TICKERJSON}"
 		exit 0
 	fi
+	# Test screen width
+	# If stdout is redirected; skip this
+	if ! [[ -t 1 ]]; then
+		true
+	elif test "$(tput cols)" -lt "100"; then
+		COLCONF="-HMCAP(${3^^}),SUPPLY/TOTAL,UPDATE"
+		printf "OBS: More columns are needed to print more info.\n" 1>&2
+	elif test "$(tput cols)" -lt "120"; then
+		COLCONF="-HSUPPLY/TOTAL,UPDATE"
+		printf "OBS: More columns are needed to print more info.\n" 1>&2
+	else
+		COLCONF="-TSUPPLY/TOTAL,UPDATE"
+	fi
 	jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${3,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${3,,}"'")=\(.market_cap_'"${3,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" |
-		column -s"=" -t -T"ID,LastUpdate" -N"Rank,ID,Symbol,Price${3^^},D1h,D24h,D7D,Vol24h${3^^},MarketCap${3^^},AvailableSupply/Total,LastUpdate"
+		column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${3^^}),D1h,D24h,D7D,VOL(24h;${3^^}),MCAP(${3^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
 # https://api.coinmarketcap.com/v1/ticker/?limit=10&convert=USD
 # https://api.coinmarketcap.com/v1/ticker/bitcoin-cash/?convert=EUR
 	exit 0
