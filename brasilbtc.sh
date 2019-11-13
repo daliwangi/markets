@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.40  09/nov/2019  by mountaineerbr
+# v0.2.50  13/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -12,39 +12,42 @@ HELP_LINES="NOME
 
 
 SINOPSE
-	brasilbtc.sh [código_cripto]
-	      
-		Ex: btc, ltc, eth, dash, etc; padrão=btc.
+	brasilbtc.sh [CÓDIGO_CRIPTO]
+
+	brasilbtc.sh [-hjmmv]
 
 
 DESCRIÇÃO
-	Este programa puxa taxas/cotações de algumas agências de câmbio brasilei-
-	ras. Por padrão, puxara as taxas para o Bitcoin. Caso seja fornecida uma
-	outra moeda, os resultados serão exibidos caso a moeda solicitada seja 
-	suportada em cada uma das agências de câmbio. Alguns APIs só oferecem co-
-	tações para o Bitcoin.
+	O script puxa as cotações de algumas agências de câmbio brasileiras. Por
+	padrão, puxará as taxas para o Bitcoin. Caso seja fornecida o código de
+	outra cripto, os resultados serão exibidos somente caso ela seja supor-
+	tada em cada uma das agências de câmbio. Alguns APIs só oferecem cota-
+	ções para o Bitcoin.
 
-	Para cotações de Bitcoins, usa-se, também, a API do BitValor, uma empresa
-	como o CoinGecko ou CoinMarketCap, que analisa algumas agências de câmbio
-	brasileiras.
+	Para cotações de Bitcoins, usa-se, também, a API do BitValor, uma empre-
+	sa como o CoinGecko ou CoinMarketCap, que analisa algumas agências de
+	câmbio	brasileiras.
 	
-	No momento, somente algumas agências de câmbio são suportadas.
+	Somente algumas agências de câmbio são suportadas.
 
 	O nome do script em Bash (Brasilbtc.sh) não tem relação alguma com qual-
 	quer agência de câmbio com nome eventualmente parecido!
+
+	São necessários os pacotes cURL, JQ, Bash e Coreutils (grep, tr, paste).
+
 	
-	IMPORTANTE: Cuidado com agências de câmbio golpistas! Faça seus estudos!
-		    Não recomendamos nenhuma em particular. São suspeitas
-		    no momento: 3xBIT, AltasQuantum e NegocieCoins.
-
-		    São necessários os pacotes cURL, JQ, Bash e Coreutils (grep,
-		    tr, paste).
+IMPORTANTE
+	Cuidado com agências de câmbio golpistas! Faça seus estudos! Não reco-
+	mendamos nenhuma em particular. São suspeitas no momento de meu conhe-
+	cimento: 3xBIT, AltasQuantum e NegocieCoins.
 
 
-BUGS
- 	Este programa é distribuído sem suporte ou correções de bugs.
-	Licenciado sob a GPLv3 e superior.
+GARANTIA
+ 	Este programa é distribuído sem suporte ou correções de bugs. Licenciado
+	sob a GPLv3 e superior.
+
 	Me dê um trocado! =)
+
           bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
@@ -54,44 +57,20 @@ OPÇÕES
 		-j 	Imprime linhas do script que puxam dados brutos
 			dos servidores;	para debugging.
 
-		-m 	Calcula a média das cotações das APIs.
+		-m 	Calcula a média das cotações das agências de câm-
+			bio; passe duas vezes para mostrar somente a cota-
+			ção média.
 
-		-v 	Mostra versão deste programa.
-		"
-# Parse options
-# If the very first character of the option string is a colon (:) then getopts 
-# will not report errors and instead will provide a means of handling the errors yourself.
-while getopts ":jhvm" opt; do
-  case ${opt} in
-    	j ) # Grab JSON
-		printf "\nAbaixo, as linhas que puxam dados brutos JSON:\n\n"
-		grep -E -o -i -e "curl.+" -e "websocat.+" <"${0}" | sed -e 's/^[ \t]*//' | sort
-		exit
-      		;;
-	m ) # Média somente
+		-v 	Mostra versão deste programa.\n"
+
+# Pegar somente média
+getmediaf() {
+	# Teste se foram passados -mm
+	if [[ "${MOPT}" = "2" ]]; then
 		MOPT=1
-		;;
-	h ) # Show Help
-		echo -e "${HELP_LINES}"
-		exit 0
-		;;
-	\? )
-		echo "Opção inválida: -$OPTARG" 1>&2
-		exit 1
-		;;
-    	v ) # Version of Script
-      		head "${0}" | grep -e '# v'
-      		exit
-      		;;
-  esac
-done
-shift $((OPTIND -1))
-
-# Veja se há algum argumento
-test -z "${1}" && set -- btc
-
-# Média somente opt
-if test -n "${MOPT}"; then
+		getmediaf | grep -A1 "^Média" | tail -n1 | cut -c2-
+		exit
+	fi
 	getnf() { sed -E -e "s/^([0-9]+.[0-9]+.[0-9]+)\s.+/\1/" -e '/^[a-zA-Z].+/d' -e 's/\.//' -e 's/,/\./';}
 	dotf() { sed -e 's/\.//' -e 's/,/./';}
 	CFILE='/tmp/brasilbtc.sh_cache'
@@ -115,15 +94,49 @@ if test -n "${MOPT}"; then
 	printf "Maiores:\n"
 	grep -E "^[0-9]+" < "${CFILE}" | dotf | sort -n | tail -n3
 	} | sed -Ee 's/\s+/  /' -e 's/^[0-9]/ &/' -e 's/\./,/'
-	exit 0
+}
+# Parse options
+# If the very first character of the option string is a colon (:) then getopts 
+# will not report errors and instead will provide a means of handling the errors yourself.
+while getopts ":jhvm" opt; do
+  case ${opt} in
+    	j ) # Grab JSON
+		printf "\nAbaixo, as linhas que puxam dados brutos JSON:\n\n"
+		grep -E -o -i -e "curl.+" -e "websocat.+" <"${0}" | sed -e 's/^[ \t]*//' | sort
+		exit
+      		;;
+	m ) # Média somente
+		test -n "${MOPT}" && MOPT=2 || MOPT=1
+		;;
+	h ) # Show Help
+		echo -e "${HELP_LINES}"
+		exit 0
+		;;
+	\? )
+		echo "Opção inválida: -$OPTARG" 1>&2
+		exit 1
+		;;
+    	v ) # Version of Script
+      		head "${0}" | grep -e '# v'
+      		exit
+      		;;
+  esac
+done
+shift $((OPTIND -1))
+
+# Veja se há algum argumento
+test -z "${1}" && set -- btc
+
+# Média somente opt
+if test -n "${MOPT}"; then
+	getmediaf
+	exit
 fi
 
 ## Avoid errors being printed (check last line)
 {
-
 # Imprimir referência de hora
 date
-
 # Exchanges e Valores
 printf "Valores diretamente das APIs:\n"
 
