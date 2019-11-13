@@ -1,8 +1,6 @@
 #!/bin/bash
-#
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6  12/nov/2019  by mountaineerbr
-# 
+# v0.6.1  12/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -21,7 +19,7 @@ SYNOPSIS
 	
 	binance.sh [-detu] [FROM_CRYPTO] [TO_CRYPTO]
 	
-	binance.sh [-hlv]
+	binance.sh [-hjlv]
 
 
 	This script gets rate of any cryptocurrency pair that Binance supports
@@ -185,7 +183,7 @@ mode3() {  # Price and trade info
 	# Websocat Mode
 	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
 	printf -- "Price, Quantity and Time.\n\n"
-	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tP*Q: \((.p|tonumber)*(.q|tonumber)|round)   \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
+	websocat -nt --ping-interval 20 "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tPQ: \((.p|tonumber)*(.q|tonumber)|round)    \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
 	exit 0
 }
 
@@ -313,7 +311,6 @@ mode7() { # 24-H Ticker
 			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
 	exit
 }
-
 
 # Check for no arguments or options in input
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
