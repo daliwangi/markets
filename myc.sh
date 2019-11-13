@@ -1,6 +1,6 @@
 #!/bin/bash
 # openx.sh - bash (crypto)currency converter
-# v0.2.10  2019/oct/15  by mountaineerbr
+# v0.2.20  2019/nov/13  by mountaineerbr
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -118,12 +118,18 @@ if [[ -n "${PJSON}" ]]; then
 fi
 ## List all suported currencies and USD rates?
 if [[ -n ${LISTOPT} ]]; then
-	printf "Rates are in USD.\n"
- 	jq -r '.rates[] |
-		"",
-		"\(.name) (\(.code|ascii_downcase))",
-		"Curr: \(.currency_name)  Code: \(.currency_code)",
-		"Rate: \(.rate) \(.currency_code)/USD"' <<< "${JSON}"
+
+
+	# Test screen width
+	# If stdout is redirected; skip this
+	if ! [[ -t 1 ]]; then
+		true
+	else
+		COLCONF="-TCOUNTRY,CURRENCY"
+	fi
+	printf "Rates are against USD.\n"
+	jq -r '.rates[]|"\(.currency_code)/USD=\(.rate)=\(.name) (\(.code|ascii_downcase))=\(.currency_name)=\(.hits)"' <<< "${JSON}" | column -et -s'=' -N'MARKET,RATE,COUNTRY,CURRENCY,WEBHITS' ${COLCONF}
+	printf "Currencies: %s.\n" "$(jq -r '.rates[].currency_code' <<< "${JSON}" | wc -l)"
 	exit
 fi
 ## Grep currency list and rates
