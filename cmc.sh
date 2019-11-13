@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.20  2019/nov/13  by mountaineerbr
+# v0.4.24  2019/nov/13  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -466,7 +466,7 @@ tickerf() {
 	if ! [[ -t 1 ]]; then
 		true
 	elif test "$(tput cols)" -lt "100"; then
-		COLCONF="-HMCAP(${3^^}),SUPPLY/TOTAL,UPDATE"
+		COLCONF="-HMCAP(${3^^}),SUPPLY/TOTAL,UPDATE -TPRICE(${3^^})"
 		printf "OBS: More columns are needed to print more info.\n" 1>&2
 	elif test "$(tput cols)" -lt "120"; then
 		COLCONF="-HSUPPLY/TOTAL,UPDATE"
