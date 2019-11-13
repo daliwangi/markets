@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.7.66  2019/nov/11  by mountaineerbr
+# v0.8  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -68,14 +68,15 @@ DESCRIPTION
 	noughts are trimmed by default.
 	
 
-FUNCTION \"-e\" EXCHANGE INFORMATION
-	The Exchange information function \"-e\" uses some abbreviations,
-	such as:
+ABBREVIATIONS
+	Some functions function uses abbreviations to indicate data type.
 
-			TRANK 		Trust Rank
-			TSCORE 		Trust Score
-			INC? 		Has Incentives for Trading?
-			NORM_VOL 	Normalized Volume
+		EX_ID 		Exchange identifier
+		EX_NAME 	Exchange name
+		INC? 		Incentives for trading?
+		P_SP 		Price spread
+		TRANK 		Trust rank
+		TSCORE 		Trust score
 
 	
 	For more information, such as normal and normalized volume, check:
@@ -88,13 +89,14 @@ FUNCTION \"-t\" 24H ROLLING TICKER
 	Function \"-m\". You can choose which currency to display data, when 
 	available, from the table below:
 
-	aed     bmd     clp     eur     inr     mmk     pkr     thb     vnd
-	ars     bnb     cny     gbp     jpy     mxn     pln     try     xag
-	aud     brl     czk     hkd     krw     myr     rub     twd     xau
-	bch     btc     dkk     huf     kwd     nok     sar     uah     xdr
-	bdt     cad     eos     idr     lkr     nzd     sek     usd     xlm
-	bhd     chf     eth     ils     ltc     php     sgd     vef     xrp
-									zar
+ 	AED     BMD     CLP     EUR     INR     MMK     PKR     THB     VND
+ 	ARS     BNB     CNY     GBP     JPY     MXN     PLN     TRY     XAG
+ 	AUD     BRL     CZK     HKD     KRW     MYR     RUB     TWD     XAU
+ 	BCH     BTC     DKK     HUF     KWD     NOK     SAR     UAH     XDR
+ 	BDT     CAD     EOS     IDR     LKR     NZD     SEK     USD     XLM
+	BHD     CHF     ETH     ILS     LTC     PHP     SGD     VEF     XRP
+        								ZAR
+
 
 	Otherwise, the market capitulation table will display data in various
 	currencies by defaults.
@@ -452,16 +454,23 @@ exf() { # -el Show Exchange list
 			printf "%s\n" "${ELIST}"
 			exit
 		fi
-		jq -r '.[]|"\(.name)=\(.id)"' <<< "${ELIST}" | column -et -s'=' -N"NAME,ID"
+		jq -r '.[]|"\(.id)=\(.name)"' <<< "${ELIST}" | column -et -s'=' -N"EXCHANGE_ID,EXCHANGE_NAME"
 		printf "Exchanges: %s.\n" "$(jq -r '.[].id' <<< "${ELIST}" | wc -l)"
 		exit
 	fi
 
 	# Test screen width
-	if test "$(tput cols)" -lt "110"; then
-		HCOL="-HINC?,ID,URL"
-		printf "Note: Extra info needs more than 110 columns.\n" 1>&2
+	if test "$(tput cols)" -lt "80"; then
+		HCOL="-HINC?,COUNTRY,EX_NAME -TEX_ID"
+		printf "OBS: More columns are needed to print table properly.\n" 1>&2
+	elif test "$(tput cols)" -lt "105"; then
+		HCOL="-HINC?,COUNTRY,EX_NAME"
+		printf "OBS: More columns are needed to print table properly.\n" 1>&2
+	elif test "$(tput cols)" -lt "115"; then
+		HCOL="-HINC?,EX_NAME"
+		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	fi
+	
 	#Get pages with exchange info
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
@@ -475,7 +484,7 @@ exf() { # -el Show Exchange list
 	i="${TPAGES}"
 	while [[ "${i}" -ge 1 ]]; do
 		printf "Page %s of %s.\n" "${i}" "${TPAGES}" 1>&2
-		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" | jq -r 'reverse[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.name)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(if .trade_volume_24h_btc == .trade_volume_24h_btc_normalized then "\(.trade_volume_24h_btc)=[same]" else "\(.trade_volume_24h_btc)=[\(.trade_volume_24h_btc_normalized)]" end)=\(if .has_trading_incentive == true then "YES" else "NO" end)=\(.id)=\(.url)"' | column -et -s'=' -N"TRANK,TSCORE,NAME    ,YEAR,COUNTRY,BTC_VOLUME(24H),[NORM_VOL],INC?,ID,URL" -W"NAME    ,COUNTRY" ${HCOL}
+		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" | jq -r 'reverse[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.id)=[\(.trade_volume_24h_btc)]=\(.trade_volume_24h_btc_normalized)=\(if .has_trading_incentive == true then "yes" else "no" end)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(.name)"' | column -et -s'=' -N"TRANK,TSCORE,EX_ID,[VOLUME(24H;BTC)],NORMALISED_VOLUME,INC?,YEAR,COUNTRY,EX_NAME" -W"COUNTRY,EX_NAME"  ${HCOL}
 		i=$((i-1))
 	done
 	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
@@ -494,7 +503,7 @@ listsf() {
 		exit
 	fi
 	printf "List of supported FROM_CURRENCY and precious metal IDs and codes\n"
-	jq -r '.[] | "\(.name) = \(.id) = \(.symbol)"' <<< "${FCLISTS}" | column -s'=' -et -W'FROM_CURRENCY_NAME,ID' -o'|' -N'FROM_CURRENCY_NAME,ID,SYMBOL/CODE'
+	jq -r '.[]|"\(.symbol)=\(.id)=\(.name)"' <<< "${FCLISTS}" | column -s'=' -et -N'SYMBOL,ID,NAME'
 	printf "\nList of supported VS_CURRENCY Codes\n"
 	jq -r '.[]' <<< "${VSCLISTS}" | tr "[:lower:]" "[:upper:]" | sort | column -c 80
 }
@@ -612,9 +621,12 @@ fi
 ## -t Ticker Function
 tickerf() {
 	# Test screen width
-	if test "$(tput cols)" -lt "120"; then
+	if test "$(tput cols)" -lt "115"; then
+		HCOL="-HEX_NAME,LAST_TRADE_TIME"
+		printf "Note: More columns are needed to show more info.\n" 1>&2
+	elif test "$(tput cols)" -lt "140"; then
 		HCOL="-HLAST_TRADE_TIME"
-		printf "Note: Extra info needs more than 120 columns.\n" 1>&2
+		printf "Note: More columns are needed to show more info.\n" 1>&2
 	fi
 	# Start print Heading
 	printf "Tickers\n" 
@@ -638,13 +650,12 @@ tickerf() {
 	i="${TPAGES}"
 	while [[ "${i}" -ge "1" ]]; do
 		printf "\rFetching page %s of %s..." "${i}" "${TPAGES}" 1>&2
-		TICKERS+="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" |
-			jq -er '.tickers[]|"\(.base)/\(.target)= \(.market.name)= \(.last)= \(.volume)= \(.bid_ask_spread_percentage)= \(.converted_last.btc)= \(.converted_last.usd)= \(.last_traded_at)"')"
+		TICKERS+="$(curl -s -X GET "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" -H  "accept: application/json" | jq -r '.tickers[]|"\(.base)/\(.target)=\(.last)=\(.market.identifier)=\(.volume)=\(if .bid_ask_spread_percentage ==  null then "??" else .bid_ask_spread_percentage end)=\(.converted_last.btc)=\(.converted_last.usd)=\(.market.name)=\(.last_traded_at)"')"
 		i=$((i-1))
 	done
 	printf "\n"
 	# Format all table and print
-	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"PAIR,MARKET,LAST_PRICE,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),LAST_TRADE_TIME" ${HCOL}
+	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,P_SP(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE_TIME" ${HCOL}
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
