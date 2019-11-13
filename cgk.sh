@@ -478,8 +478,8 @@ exf() { # -el Show Exchange list
 		exit
 	fi
 	printf "Table of Exchanges\n"
-	curl -s --head "https://api.coingecko.com/api/v3/exchanges" | grep -ie "total:" -e "per-page:" | sort -r
-	# Check how many pages to fetch and fetch 4 instea dof one if nothing specified
+	curl -s --head "https://api.coingecko.com/api/v3/exchanges" | grep -ie "total:" -e "per-page:" | sort -r 1>&2
+	# Check how many pages to fetch and fetch 4 instead of one if nothing specified
 	test -z "${TPAGES}" && TPAGES=4
 	i="${TPAGES}"
 	while [[ "${i}" -ge 1 ]]; do
