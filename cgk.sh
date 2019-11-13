@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.8  2019/nov/13  by mountaineerbr
+# v0.8.2  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -460,7 +460,9 @@ exf() { # -el Show Exchange list
 	fi
 
 	# Test screen width
-	if test "$(tput cols)" -lt "80"; then
+	if ! [[ -t 1 ]]; then
+		:
+	elif test "$(tput cols)" -lt "80"; then
 		HCOL="-HINC?,COUNTRY,EX_NAME -TEX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	elif test "$(tput cols)" -lt "105"; then
@@ -621,7 +623,9 @@ fi
 ## -t Ticker Function
 tickerf() {
 	# Test screen width
-	if test "$(tput cols)" -lt "115"; then
+	if ! [[ -t 1 ]]; then
+		:
+	elif test "$(tput cols)" -lt "115"; then
 		HCOL="-HEX_NAME,LAST_TRADE_TIME"
 		printf "Note: More columns are needed to show more info.\n" 1>&2
 	elif test "$(tput cols)" -lt "140"; then
