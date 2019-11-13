@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cgk.sh -- Coingecko.com API Access
-# v0.8.2  2019/nov/13  by mountaineerbr
+# v0.8.3  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -461,18 +461,20 @@ exf() { # -el Show Exchange list
 
 	# Test screen width
 	if ! [[ -t 1 ]]; then
+		echo here0; exit
 		:
-	elif test "$(tput cols)" -lt "80"; then
-		HCOL="-HINC?,COUNTRY,EX_NAME -TEX_ID"
+	fi
+	if test "$(tput cols)" -lt "85"; then
+		COLCONF="-HINC?,COUNTRY,EX_NAME -TEX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	elif test "$(tput cols)" -lt "105"; then
-		HCOL="-HINC?,COUNTRY,EX_NAME"
+		COLCONF="-HINC?,COUNTRY,EX_NAME"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	elif test "$(tput cols)" -lt "115"; then
-		HCOL="-HINC?,EX_NAME"
+		COLCONF="-HINC?,EX_NAME -WCOUNTRY"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	fi
-	
+
 	#Get pages with exchange info
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
@@ -486,7 +488,7 @@ exf() { # -el Show Exchange list
 	i="${TPAGES}"
 	while [[ "${i}" -ge 1 ]]; do
 		printf "Page %s of %s.\n" "${i}" "${TPAGES}" 1>&2
-		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" | jq -r 'reverse[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.id)=[\(.trade_volume_24h_btc)]=\(.trade_volume_24h_btc_normalized)=\(if .has_trading_incentive == true then "yes" else "no" end)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(.name)"' | column -et -s'=' -N"TRANK,TSCORE,EX_ID,[VOLUME(24H;BTC)],NORMALISED_VOLUME,INC?,YEAR,COUNTRY,EX_NAME" -W"COUNTRY,EX_NAME"  ${HCOL}
+		curl -sX GET "https://api.coingecko.com/api/v3/exchanges?page=${i}" -H  "accept: application/json" | jq -r 'reverse[] | "\(if .trust_score_rank == null then "??" else .trust_score_rank end)=\(if .trust_score == null then "??" else .trust_score end)=\(.id)=[\(.trade_volume_24h_btc)]=\(.trade_volume_24h_btc_normalized)=\(if .has_trading_incentive == true then "yes" else "no" end)=\(if .year_established == null then "??" else .year_established end)=\(if .country != null then .country else "??" end)=\(.name)"' | column -et -s'=' -N"TRANK,TSCORE,EX_ID,[VOLUME(24H;BTC)],NORMALISED_VOLUME,INC?,YEAR,COUNTRY,EX_NAME" ${COLCONF}
 		i=$((i-1))
 	done
 	# Check if CoinEgg still has a weird "en_US" in its name that havocks table
@@ -626,10 +628,10 @@ tickerf() {
 	if ! [[ -t 1 ]]; then
 		:
 	elif test "$(tput cols)" -lt "115"; then
-		HCOL="-HEX_NAME,LAST_TRADE_TIME"
+		COLCONF="-HEX_NAME,LAST_TRADE_TIME"
 		printf "Note: More columns are needed to show more info.\n" 1>&2
 	elif test "$(tput cols)" -lt "140"; then
-		HCOL="-HLAST_TRADE_TIME"
+		COLCONF="-HLAST_TRADE_TIME"
 		printf "Note: More columns are needed to show more info.\n" 1>&2
 	fi
 	# Start print Heading
@@ -659,7 +661,7 @@ tickerf() {
 	done
 	printf "\n"
 	# Format all table and print
-	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,P_SP(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE_TIME" ${HCOL}
+	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,P_SP(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE_TIME" ${COLCONF}
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
