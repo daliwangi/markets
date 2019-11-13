@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.8.6  2019/nov/13  by mountaineerbr
+# v0.8.8  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -465,8 +465,10 @@ exf() { # -el Show Exchange list
 		COLCONF="-HINC?,COUNTRY,EX_NAME -TEX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	elif test "$(tput cols)" -lt "115"; then
-		COLCONF="-HINC?,EX_NAME -WCOUNTRY -TEX_ID"
+		COLCONF="-HINC?,EX_NAME -TCOUNTRY,EX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
+	else
+		COLCONF="-TCOUNTRY,EX_ID,EX_NAME"
 	fi
 
 	#Get pages with exchange info
