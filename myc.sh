@@ -1,6 +1,6 @@
 #!/bin/bash
 # openx.sh - bash (crypto)currency converter
-# v0.2.20  2019/nov/13  by mountaineerbr
+# v0.2.21  2019/nov/13  by mountaineerbr
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -118,8 +118,6 @@ if [[ -n "${PJSON}" ]]; then
 fi
 ## List all suported currencies and USD rates?
 if [[ -n ${LISTOPT} ]]; then
-
-
 	# Test screen width
 	# If stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
