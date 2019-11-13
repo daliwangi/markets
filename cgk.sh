@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.8.5  2019/nov/13  by mountaineerbr
+# v0.8.6  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -73,7 +73,6 @@ ABBREVIATIONS
 		EX_ID 		Exchange identifier
 		EX_NAME 	Exchange name
 		INC? 		Incentives for trading?
-		P_SP 		Price spread
 		TRANK 		Trust rank
 		TSCORE 		Trust score
 
@@ -465,11 +464,8 @@ exf() { # -el Show Exchange list
 	elif test "$(tput cols)" -lt "85"; then
 		COLCONF="-HINC?,COUNTRY,EX_NAME -TEX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
-	elif test "$(tput cols)" -lt "105"; then
-		COLCONF="-HINC?,COUNTRY,EX_NAME"
-		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	elif test "$(tput cols)" -lt "115"; then
-		COLCONF="-HINC?,EX_NAME -WCOUNTRY"
+		COLCONF="-HINC?,EX_NAME -WCOUNTRY -TEX_ID"
 		printf "OBS: More columns are needed to print table properly.\n" 1>&2
 	fi
 
@@ -626,12 +622,14 @@ tickerf() {
 	# if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
 		true
+	elif test "$(tput cols)" -lt "90"; then
+		COLCONF="-HEX_NAME,LAST_TRADE,PRICE(BTC),PRICE(USD)"
+		printf "Note: More columns are needed to show more info.\n" 1>&2
 	elif test "$(tput cols)" -lt "115"; then
-		COLCONF="-HEX_NAME,LAST_TRADE_TIME"
+		COLCONF="-HEX_NAME,LAST_TRADE"
 		printf "Note: More columns are needed to show more info.\n" 1>&2
-	elif test "$(tput cols)" -lt "140"; then
-		COLCONF="-HLAST_TRADE_TIME"
-		printf "Note: More columns are needed to show more info.\n" 1>&2
+	else
+		COLCONF="-TLAST_TRADE" 
 	fi
 	# Start print Heading
 	printf "Tickers\n" 
@@ -660,7 +658,7 @@ tickerf() {
 	done
 	printf "\n"
 	# Format all table and print
-	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,P_SP(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE_TIME" ${COLCONF}
+	grep -i "${GREPARG}" <<< "${TICKERS}" |	column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE" ${COLCONF}
 }
 if [[ -n ${TOPT} ]]; then
 	tickerf ${*}
