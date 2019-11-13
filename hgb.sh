@@ -1,6 +1,6 @@
 #!/bin/bash
 # HG Brasil -- Cotações
-# v0.2.2  29/oct/2019  by mountaineer_br
+# v0.2.4  13/nov/2019  by mountaineer_br
 
 
 # *Sua* chave privada (grátis) do HG Brasil
@@ -9,8 +9,8 @@
 
 HELP="Visão Geral :  $ hgb
 Cotação Ação:  $ hgb -a [código_ação]
-Procurar por símbolo de ação em:
-          <https://hgbrasil.com/status/finance>."
+Procurar por símbolo de ação em <https://hgbrasil.com/status/finance>.
+Variável para sua chave de API 'HGBAPIKEY=\"\"'"
 
 # Cotações do HG Brasil Finança - Visão Geral do Mercado
 hgb() {

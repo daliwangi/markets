@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.31  23/oct/2019
+# v0.2.33  13/nov/2019
 
 # You can create a blockchair.com API key for more requests/min
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -76,9 +76,7 @@ RATE LIMITS
 
 	\"Code 402: Current limits are 30 requests per minute and 1800 per hour.\"
 
-	You may want to try and create a blockchair.com API key for more 
-	requests/min. Add your API key to the CHAIRKEY variable in the script 
-	source code.
+	\"Limit of 1440 queries per day.\"
 
 
 	BTC.com API docs:

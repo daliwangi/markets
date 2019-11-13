@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.5.3 - 2019/oct/30  by mountaineerbr
+# v0.5.6 - 2019/nov/13  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -34,8 +34,8 @@ SYNOPSIS
      
 
 API KEY
-	Please create a free API key and add it to the script source-code or set it as an environment variable.
-	Look for variable \"OPENXAPPID\".
+	Please create a free API key and add it to the script source-code or 
+	set it as an environment variable as \"OPENXAPPID\".
 
 
 ACCURACY

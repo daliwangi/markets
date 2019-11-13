@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.4.26  2019/nov/13  by mountaineerbr
+# v0.4.30  2019/nov/13  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -59,6 +59,12 @@ DESCRIPTION
 
 	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
 	are trimmed by default.
+
+
+IMPORTANT NOTICE
+	Please take a little time to register at <https://coinmarketcap.com/api/>
+	for a free API key and add it to the \"CMCAPIKEY\" variable in the script 
+	source code or set it as an environment variable.
 
 
 WARRANTY
@@ -162,12 +168,7 @@ OPTIONS
 		-t 	Tickers for top cryptos; enter the number of top cur-
 			rencies to show; defaults=10, max=100;
 
-		-v 	Show this programme version.
-
-IMPORTANT NOTICE
-	Please take a little time to register at <https://coinmarketcap.com/api/>
-	for a free API key and change the CMCAPIKEY variable in the script 
-	source code for yours."
+		-v 	Show this programme version."
 
 OTHERCUR="
 2781 = USD = United States Dollar ($)

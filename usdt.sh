@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.2  30/10/2019  by mountaineer_br
+# v0.4  13/nov/2019  by mountaineer_br
 
 # Check Tether rates
 LC_NUMERIC="en_US.UTF-8"
@@ -24,6 +24,4 @@ CGKUSDT=$(~/_scripts/markets/cgk.sh -s8 usdt usd 2>/dev/null)
 printf "CGK:\t%.6f\n" "${CGKUSDT}"
 printf "\nAvg:\t%.6f\n\n" "$(printf "scale=8;(%s+%s+%s)/5\n" "${CLIBAVG}" "${CMCUSDT}" "${CGKUSDT}" | bc -l)"
 
-# Coinlib.io
-# fdcd5af7010ab1e0
 
