@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.2.50  13/nov/2019  by mountaineerbr
+# v0.2.51  13/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -12,9 +12,9 @@ HELP_LINES="NOME
 
 
 SINOPSE
-	brasilbtc.sh [CÓDIGO_CRIPTO]
+	brasilbtc.sh [-mm] [CÓDIGO_CRIPTO]
 
-	brasilbtc.sh [-hjmmv]
+	brasilbtc.sh [-hjv]
 
 
 DESCRIÇÃO
@@ -68,14 +68,14 @@ getmediaf() {
 	# Teste se foram passados -mm
 	if [[ "${MOPT}" = "2" ]]; then
 		MOPT=1
-		getmediaf | grep -A1 "^Média" | tail -n1 | cut -c2-
+		getmediaf "${1}" | grep -A1 "^Média" | tail -n1 | cut -c2-
 		exit
 	fi
 	getnf() { sed -E -e "s/^([0-9]+.[0-9]+.[0-9]+)\s.+/\1/" -e '/^[a-zA-Z].+/d' -e 's/\.//' -e 's/,/\./';}
 	dotf() { sed -e 's/\.//' -e 's/,/./';}
 	CFILE='/tmp/brasilbtc.sh_cache'
 	# Trap rm cache
-	trapf() { rm "${CFILE}"; exit 1;}
+	trapf() { rm "${CFILE}" 2>/dev/null; exit 1;}
 	trap 'trapf' INT EXIT 0
 	# Reexec script
 	export MEDIAEXIT=1
@@ -129,7 +129,7 @@ test -z "${1}" && set -- btc
 
 # Média somente opt
 if test -n "${MOPT}"; then
-	getmediaf
+	getmediaf "${1}"
 	exit
 fi
 
