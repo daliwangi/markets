@@ -1,7 +1,6 @@
 #!/bin/bash
-#
 # Cgk.sh -- Coingecko.com API Access
-# v0.8.4  2019/nov/13  by mountaineerbr
+# v0.8.5  2019/nov/13  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC="en_US.UTF-8"
@@ -460,6 +459,7 @@ exf() { # -el Show Exchange list
 	fi
 
 	# Test screen width
+	# if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
 		true
 	elif test "$(tput cols)" -lt "85"; then
@@ -623,6 +623,7 @@ fi
 ## -t Ticker Function
 tickerf() {
 	# Test screen width
+	# if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
 		true
 	elif test "$(tput cols)" -lt "115"; then
