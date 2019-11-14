@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.5  08/oct/2019  by castaway
+# v0.1.5  14/nov/2019  by castaway
 
 
 HELP="SINOPSIS
