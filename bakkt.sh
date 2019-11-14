@@ -1,7 +1,6 @@
 #!/bin/bash
 #
-# v0.1.6  14/nov/2019  by castaway
-
+# v0.1.7  14/nov/2019  by castaway
 
 HELP="SINOPSIS
 	bakkt.sh [-hV]
@@ -11,7 +10,7 @@ HELP="SINOPSIS
 	at the terminal. The default option is to get intraday/last weekday 
 	prices and volume.
 
-	Market data delayed minimum of 15 minutes.
+	Market data delayed minimum of 15 minutes. 
 
 	Required software: Bash, JQ and cURL or Wget.
 
@@ -80,14 +79,15 @@ fi
 # Price Ticker -- Default option
 DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
 
-printf "Bakkt Ticker\n"
-jq -r '.[]|"Market ID: \(.marketId)",
-	"Last time: \(.lastTime)",
-	"End date : \(.endDate)",
-	"Date     : \(.marketStrip)",
-	"Change(%): \(.change)",
-	"Volume   : \(.volume)",
-	"L price  : \(.lastPrice)"' <<< "${DATA0}"
+printf "Bakkt Contract List\n"
+jq -r 'reverse[]|"",
+	"Market ID: \(.marketId // empty)",
+	"Last time: \(.lastTime // empty)",
+	"End date : \(.endDate // empty)",
+	"Date     : \(.marketStrip // empty)",
+	"Change(%): \(.change // empty)",
+	"Volume   : \(.volume // empty)",
+	"L price  : \(.lastPrice // empty)"' <<< "${DATA0}"
 
 exit
 
