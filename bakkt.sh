@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# v0.1.4  08/oct/2019  by castaway
+# v0.1.5  08/oct/2019  by castaway
 
 
 HELP="SINOPSIS
-	bakkt.sh [-hvV]
+	bakkt.sh [-hV]
 
 
 	Bakkt price ticker and contract volume from <https://www.bakkt.com/> 
 	at the terminal. The default option is to get intraday/last weekday 
-	prices. Option \"-v\" fetches information about contracts/volume.
+	prices and volume.
 
 	Market data delayed minimum of 15 minutes.
 
@@ -29,20 +29,15 @@ WARRANTY
 OPTIONS
 	-h 	Show this help.
 
-	-v 	Contract/volume tickers.
-
 	-V 	Print this script version."
 
 # Parse options
-while getopts ":hVv" opt; do
+while getopts ":hV" opt; do
 	case ${opt} in
 		h ) # Help
 	      		echo -e "${HELP}"
 	      		exit 0
 	      		;;
-		v ) # Volume/Contract Ticker
-			VOPT=1
-			;;
 		V ) # Version of Script
 	      		head "${0}" | grep -e '# v'
 	      		exit 0
@@ -71,35 +66,42 @@ else
 	exit 1
 fi
 
-# Get volume/contract data
-DATA1="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
-# Contracts (Volumes)
-volf() {
-	jq -r 'reverse[]|
-		"",
-		"Date     : \(.marketStrip)",
-		"End Date : \(.endDate)",
-		"Last Time: \(.lastTime)",
-		"Volume   : \(.volume)",
-		"Last P   : \(.lastPrice)",
-		"Change(%): \(.change)"' <<< "${DATA1}"
-	}
-if [[ -n "${VOPT}" ]]; then
-	volf
-	exit
-fi
-
-
 # Price Ticker -- Default option
-DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/chartdata/market/6137542/timespan/0")"
+DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
+
 printf "Bakkt Ticker\n"
-jq -r '.|"Volume   : \(.[0].volume)"' <<< "${DATA1}"
-jq -r '"Date     : \(.stripDescription)",
-	"Settlem P: \(.settlementPrice)",
-	"Change(%): \(.change)  \(.percentChangeDirection)",
-	"Last P   : \(.lastPrice)"' <<< "${DATA0}"
-jq -r '.bars[-1][]' <<< "${DATA0}" | head -n1
+jq -r '.[]|"Market ID: \(.marketId)",
+	"Last time: \(.lastTime)",
+	"End date : \(.endDate)",
+	"Date     : \(.marketStrip)",
+	"Change(%): \(.change)",
+	"Volume   : \(.volume)",
+	"L price  : \(.lastPrice)"' <<< "${DATA0}"
+
+exit
 
 # Dead code
 #awk 'END-1 {print}'
+# Get volume/contract data
+#DATA1="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
+# Contracts (Volumes)
+#volf() {
+#	jq -r 'reverse[]|
+#		"",
+#		"Date     : \(.marketStrip)",
+#		"End Date : \(.endDate)",
+#		"Last Time: \(.lastTime)",
+#		"Volume   : \(.volume)",
+#		"Last P   : \(.lastPrice)",
+#		"Change(%): \(.change)"' <<< "${DATA1}"
+#	}
+#if [[ -n "${VOPT}" ]]; then
+#	volf
+#	exit
+#fi
+#
+#v ) # Volume/Contract Ticker
+#	VOPT=1
+#			;;
+#-v 	Contract/volume tickers.
 
