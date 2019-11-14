@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.5  14/nov/2019  by castaway
+# v0.1.6  14/nov/2019  by castaway
 
 
 HELP="SINOPSIS
@@ -27,13 +27,18 @@ WARRANTY
 
 
 OPTIONS
+	-j 	Debug; print JSON.
+
 	-h 	Show this help.
 
 	-V 	Print this script version."
 
 # Parse options
-while getopts ":hV" opt; do
+while getopts ":jhV" opt; do
 	case ${opt} in
+		j ) # Print JSON
+			PJSON=1
+			;;
 		h ) # Help
 	      		echo -e "${HELP}"
 	      		exit 0
@@ -64,6 +69,12 @@ elif command -v wget &>/dev/null; then
 else
 	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1
+fi
+
+# Print JSON?
+if [[ -n ${PJSON} ]]; then
+ 	${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066"
+	exit
 fi
 
 # Price Ticker -- Default option
