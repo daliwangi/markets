@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.8  14/nov/2019  by castaway
+# v0.1.9  14/nov/2019  by castaway
 
 HELP="SINOPSIS
 	bakkt.sh [-hV]
@@ -73,14 +73,14 @@ fi
 #Some defaults
 CONTRACTURL="https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066"
 
+# Contracts opt -- Default option
+DATA0="$(${YOURAPP} "${CONTRACTURL}")"
+
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
- 	${YOURAPP} "${CONTRACTURL}"
+	printf "%s\n" "${DATA0}"
 	exit
 fi
-
-# Price Ticker -- Default option
-DATA0="$(${YOURAPP} "${CONTRACTURL}")"
 
 printf "Bakkt Contract List\n"
 jq -r 'reverse[]|"",
