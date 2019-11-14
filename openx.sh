@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6 - 2019/nov/14  by mountaineerbr
+# v0.6.1 - 2019/nov/14  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -223,6 +223,7 @@ fi
 if [[ -n "${LISTOPT}" ]]; then
 	printf "List of supported currency codes.\n"
 	jq -r ".rates|keys[]" <<< "${JSON}" | column -c 80
+	printf "Currencies: %s.\n" "$(jq -r ".rates|keys[]" <<< "${JSON}" | wc -l)"
 	printf "<https://docs.openexchangerates.org/docs/supported-currencies>.\n"
 	exit 0
 fi
