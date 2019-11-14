@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.7  14/nov/2019  by castaway
+# v0.1.8  14/nov/2019  by castaway
 
 HELP="SINOPSIS
 	bakkt.sh [-hV]
@@ -70,14 +70,17 @@ else
 	exit 1
 fi
 
+#Some defaults
+CONTRACTURL="https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066"
+
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
- 	${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066"
+ 	${YOURAPP} "${CONTRACTURL}"
 	exit
 fi
 
 # Price Ticker -- Default option
-DATA0="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
+DATA0="$(${YOURAPP} "${CONTRACTURL}")"
 
 printf "Bakkt Contract List\n"
 jq -r 'reverse[]|"",
@@ -92,27 +95,4 @@ jq -r 'reverse[]|"",
 exit
 
 # Dead code
-#awk 'END-1 {print}'
-# Get volume/contract data
-#DATA1="$(${YOURAPP} "https://www.bakkt.com/api/bakkt/marketdata/contractslist/product/23808/hub/26066")"
-# Contracts (Volumes)
-#volf() {
-#	jq -r 'reverse[]|
-#		"",
-#		"Date     : \(.marketStrip)",
-#		"End Date : \(.endDate)",
-#		"Last Time: \(.lastTime)",
-#		"Volume   : \(.volume)",
-#		"Last P   : \(.lastPrice)",
-#		"Change(%): \(.change)"' <<< "${DATA1}"
-#	}
-#if [[ -n "${VOPT}" ]]; then
-#	volf
-#	exit
-#fi
-#
-#v ) # Volume/Contract Ticker
-#	VOPT=1
-#			;;
-#-v 	Contract/volume tickers.
 
