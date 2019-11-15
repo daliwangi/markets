@@ -1,55 +1,65 @@
 #!/bin/bash
-#
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.4.17  2019/10/14  by mountaineerbr
+# v0.4.20  15/nov/2019  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
 
-HELP="\"This programme is licensed under the GNU General Public License v3 or better\".
-
-NAME
-
-    Binfo.sh  -- Bash Interface for Blockchain.info & Blockchair.com APIs
+HELP="NAME
+    binfo.sh  -- Bitcoin Explorer for Bash
+    		 Bash Interface for Blockchain.info & Blockchair.com APIs
     
 
 SYNOPSIS
-
-    binfo.sh  [option]  [block|address|tx|id]
-
-This programme fetches information of Bitcoin blocks, addresses and transactions
-from Blockchain.info (same as Blockchain.com) public APIs. It is intended to be
-used as a simple Bitcoin blockchain explorer. It only accepts one argument for 
-lookup at a time.
-
-Blockchain.info  still  does  not  support segwit addresses. A workaround is to
-fetch information from Blockchair.com. Blockchair.com supports segwit and other 
-types of addresses.
-
-A note on the websocket stream for receiving notification on new block: it is u-
-sual that the websocket connection will drop. Automatic reconnection will occur.
-
-This script needs the latest Bash, cURL, JQ, Websocat and Coreutils.
-
-Give me a nickle!
-	bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+	$ binfo.sh  [-acsu\"AddressHx\"]
+	
+	$ binfo.sh  [-b\"BlockHx|ID\"] [-n\"BlockHeight\"]
+	
+	$ binfo.sh  [-tx\"TransactionHx|ID\"]
+	
+	$ binfo.sh  [-e|-h|-i|-l|-m|-o|-v]
 
 
-Blockchain Organisation and Exploration
+	This programme fetches information of Bitcoin blocks, addresses and 
+	transactions from Blockchain.info (same as Blockchain.com) public APIs.
+	It is intended to be used as a simple Bitcoin blockchain explorer. It 
+	only accepts one argument for lookup at a time.
 
-The blockchain has four basic levels of organisation:
+	Blockchain.info still does not support segwit addresses. On the other
+	hand, Blockchair.com supports segwit and other types of addresses.
+
+	Websocket connections are expected to drop ocasionally. Automatic recon-
+	nection will be tried.
+
+
+WARRANTY
+	Licensed under the GNU Public License v3 or better and is distributed
+	without support or bug corrections.
+
+	This script needs the latest Bash, cURL or Wget, JQ, Websocat and
+	Coreutils.
+	
+	Give me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
+
+
+BLOCKCHAIN STRUCTURE
+
+	The blockchain has four basic levels of organisation:
     
-	(0)  Blockchain itself.
-	(1)  Block.
-	(2)  Address.
-	(3)  Transaction.
+		(0)  Blockchain itself.
+		(1)  Block.
+		(2)  Address.
+		(3)  Transaction.
 
-If you do not have a specific address or transaction to lookup, try fetching the
-latest block info (option \"-l\"), and from there you can look up an address by
-its transaction ID (with the option \"-t\"). Notice that the latest block takes
-a while to process, so you only get transaction IDs at first. For thorough block
-information, use option \"-b\" with the block hash. You can also inspect a block
-with option \"-n\" and its height number.
+	If you do not have a specific address or transaction to lookup, try 
+	fetching the latest block hash and transaction info (option \"-l\").
+	Note that the latest block takes a while to process, so you only get
+	transaction IDs at first. For thorough block information, use option \"-b\"
+	with the block hash. You can also inspect a block with option \"-n\" 
+	and its height number.
 
 
 ABBREVIATIONS
@@ -100,15 +110,7 @@ ABBREVIATIONS
 	Vol              Volume
 
 
-USAGE
-
-	$ binfo.sh  [-e|-h|-i|-l|-m|-o|-v]
-
-	$ binfo.sh  [-a|-b|-c|-n|-s|-t|-u|-x]  [BlockHx|AddressHx|TransactionHx|ID]
-
-
-EXAMPLES
-
+USAGE EXAMPLES
 	(1) Get latest block hash and Transaction indexes:
 
 		binfo.sh -l
@@ -132,54 +134,57 @@ EXAMPLES
 	(5) Summary address information
 
 		binfo.sh -s 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+	
 		binfo.sh -u 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
 		
 	
 	(6) Complete address information
 
 		binfo.sh -a 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
+	
 		binfo.sh -c 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
 		
 	
 	(7) Transaction information
 	
 		binfo.sh -t a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d
+	
 		binfo.sh -x a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d
 
 
 	(8) Market information
 
 		binfo.sh -i
+	
 		binfo.sh -o
 
 
-Examples note: first block with transaction, genesis block,
-	       Binance cold wallet and the pizza transaction.
+Note: 	First block with transaction, genesis block, Binance cold wallet and
+	the pizza transaction.
 
 
 OPTIONS
-
     Blockhain
       -i 	Bitcoin blockchain info (24H rolling ticker).
-      -o 	Bitcoin blockchain stats/info (from Blockchair).
+      -o 	Same as \"-i\"; uses Blockchair.
     Block
-      -b 	Block information by hash or id (index number).
-      -e 	Socket stream for new blocks (requires Websocat).
+      -b 	Block information by hash or ID.
+      -e 	Socket stream for new blocks.
       -l 	Latest block summary information.
       -n 	Block information by height.
     Address
       -a 	Address information.
-      -c 	Address information from BlockChair.
-      -s 	Summary Address information.
-      -u 	Summary Address information from Blockchair.
+      -c 	Same as \"-a\"; uses Blockchair.
+      -s 	Summary address information.
+      -u 	Same as \"-s\"; uses Blockchair.
     Transaction
-      -t 	Transaction information by hash or id.
-      -x 	Transaction information by hash or id from Blockchair.
+      -t 	Transaction information by hash or ID.
+      -x 	Same as \"-t\"; uses Blockchair.
     Other
-      -h 	Help (this textpage).
-      -j 	Fetch and print JSON (for debugging).
+      -h 	Show this help.
+      -j 	Debug; print JSON.
       -m 	Memory pool (unconfirmed) transaction Addresses and Balance
-      		deltas from BlockChair; pipe output to grep a specific address.
+      		deltas from BlockChair; pipe output to grep specific addresses.
       -v        Print version of this script."
 
 ## Check if there is any argument
@@ -187,6 +192,20 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
 	exit 0
 fi
+# Must have packages
+if ! command -v jq &>/dev/null; then
+	printf "JQ is required.\n" 1>&2
+	exit 1
+fi
+if command -v curl &>/dev/null; then
+	YOURAPP="curl -s"
+elif command -v wget &>/dev/null; then
+	YOURAPP="wget -qO-"
+else
+	printf "cURL or Wget is required.\n" 1>&2
+	exit 1
+fi
+
 
 # Parse options
 while getopts ":acsnjlmbetuhioxv" opt; do
@@ -307,7 +326,7 @@ fi
 ## -l Latest block (Similar to socket stream data )
 latestf() {
 	# Get JSON ( only has hash, time, block_index, height and txIndexes )
-	LBLOCK="$(curl -s https://blockchain.info/latestblock)"
+	LBLOCK="$(${YOURAPP} "https://blockchain.info/latestblock")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${LBLOCK}"
@@ -332,7 +351,7 @@ fi
 rtxf() {
 	# Check if there is a RAWTX from another function already
 	if [[ -z "${RAWTX}" ]]; then 
-		RAWTX=$(curl -s "https://blockchain.info/rawtx/${1}")
+		RAWTX=$(${YOURAPP} "https://blockchain.info/rawtx/${1}")
 	fi
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
@@ -363,9 +382,9 @@ rblockf() {
 	# whether RAWB is from the hblockf function
 	if [[ -z "${RAWB}" ]] && [[ -z "${1}" ]]; then
 		printf "Fetching latest block hash...\n" 1>&2
-		RAWB="$(curl -s "https://blockchain.info/rawblock/$(curl -s "https://blockchain.info/latestblock" | jq -r '.hash')")"
+		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/$(${YOURAPP} "https://blockchain.info/latestblock" | jq -r '.hash')")"
 	elif [[ -z "${RAWB}" ]]; then
-		RAWB="$(curl -s "https://blockchain.info/rawblock/${1}")"
+		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/${1}")"
 	fi
 	# print JSON?
 	if [[ -n "${PJSON}" ]]; then
@@ -409,7 +428,7 @@ fi
 
 ## -n Block info by height
 hblockf() {
-	RAWBORIG="$(curl -s "https://blockchain.info/block-height/${1}?format=json")"
+	RAWBORIG="$(${YOURAPP} "https://blockchain.info/block-height/${1}?format=json")"
 	RAWB="$(jq -er '.blocks[]' <<< "${RAWBORIG}" 2>/dev/null)" || unset RAWB
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
@@ -428,7 +447,7 @@ fi
 raddf() {
 	# -s Address Sumary?
 	if [[ -n "${SUMMARYOPT}" ]]; then
-		SUMADD=$(curl -s "https://blockchain.info/balance?active=${1}")
+		SUMADD=$(${YOURAPP} "https://blockchain.info/balance?active=${1}")
 		# Print JSON?
 		if [[ -n  "${PJSON}" ]]; then
 			printf "%s\n" "${SUMADD}"
@@ -449,7 +468,7 @@ raddf() {
 		exit 0
 	fi
 	# Get RAW ADDR
-	RAWADD=$(curl -s "https://blockchain.info/rawaddr/${1}")
+	RAWADD=$(${YOURAPP} "https://blockchain.info/rawaddr/${1}")
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${RAWADD}"
@@ -483,7 +502,7 @@ fi
 ## -c Address Info ( from Blockchair )
 chairaddf() {
 	# Get address info
-	CHAIRADD="$(curl -s "https://api.blockchair.com/bitcoin/dashboards/address/${1}")"
+	CHAIRADD="$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${1}")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${CHAIRADD}"
@@ -535,7 +554,7 @@ fi
 ## Uses blockchain.info and blockchair.com
 utxf() {
 	printf "All Tx Addresses and balance change in mempool.\n" 1>&2
-	MEMPOOL="$(curl -s https://api.blockchair.com/bitcoin/state/changes/mempool)"
+	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${MEMPOOL}"
@@ -545,15 +564,15 @@ utxf() {
 	jq -r '.data | keys_unsorted[] as $k | "\($k)    \(.[$k]) sat    \(.[$k]/100000000) BTC"' <<< "${MEMPOOL}"
 	# 100 last blocks:
 	printf "\nStats for last 100 blocks\n"
-	printf "AvgTx/B: %.0f\n" "$(curl -s https://blockchain.info/q/avgtxnumber)"
+	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
 	sleep 0.4
-	printf "A_BTime: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/interval)/60")"
+	printf "A_BTime: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
 	sleep 0.4
 
 	printf "\nMempool stats\n"
-	printf "Unc_Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
+	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
 	sleep 0.4
-	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
+	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
 }
 if [[ -n "${UTXOPT}" ]]; then
 	utxf
@@ -562,7 +581,7 @@ fi
 
 ## -x Transaction info from Blockchair.com
 txinfobcf() {
-	TXCHAIR=$(curl -s "https://api.blockchair.com/bitcoin/dashboards/transaction/${1}")
+	TXCHAIR=$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/transaction/${1}")
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${TXCHAIR}"
@@ -595,7 +614,7 @@ fi
 ## -i 24-H Ticker for the Bitcoin Blockchain
 blkinfof() {
 	printf "Bitcoin Blockchain General Info\n" 1>&2
-	CHAINJSON="$(curl -s https://api.blockchain.info/stats)"
+	CHAINJSON="$(${YOURAPP} "https://api.blockchain.info/stats")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${CHAINJSON}"
@@ -641,11 +660,11 @@ blkinfof() {
 		"Price__: \(.market_price_usd) USD",
 		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
 	printf "\nStats for last 100 blocks\n"
-	printf "AvgTx/B: %.0f\n" "$(curl -s https://blockchain.info/q/avgtxnumber)"
+	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
 	sleep 0.4
-	printf "Unc_Txs: %s\n" "$(curl -s https://blockchain.info/q/unconfirmedcount)"
+	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
 	sleep 0.4
-	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(curl -s https://blockchain.info/q/eta)/60")"
+	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
 }
 if [[ -n "${BLKCHAINOPT}" ]]; then
 	blkinfof
@@ -656,7 +675,7 @@ fi
 blkinfochairf() {
 	printf "Bitcoin Blockchain Stats from Blockchair\n"
 	printf "Fetched at %s.\n\n" "$(date "+%Y-%m-%dT%H:%M:%S%Z")"
-	CHAINJSON="$(curl -s "https://api.blockchair.com/bitcoin/stats")"
+	CHAINJSON="$(${YOURAPP} "https://api.blockchair.com/bitcoin/stats")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${CHAINJSON}"
