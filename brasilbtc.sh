@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.3.5  14/nov/2019  by mountaineerbr
+# v0.3.6  14/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -230,12 +230,12 @@ bitvalorf() {
 		# Pegar o JSON uma única vez ( limit: 1 request/min )
 		BVJSON=$(${YOURAPP} "https://api.bitvalor.com/v1/ticker.json")
 		# Extrair a montar Array com nomes das exchanges
-		ENAMES=($(printf "%s\n" "${BVJSON}" | jq -r '.ticker_24h.exchanges | keys[]'))
+		ENAMES=($(jq -r '.ticker_24h.exchanges | keys[]' <<< "${BVJSON}"))
 		# Print nomes e valores das exchanges
 		for i in "${ENAMES[@]}"; do
 			EFN="$(eval "echo \${$i}")"
 			#Or: eval printf "%s'\n'" "\${${i}}"
-			printf "%'.2f  %s\t%s\n" "$(printf "%s\n" "${BVJSON}" | jq -r ".ticker_24h.exchanges.${i}.last")" "${i}" "${EFN}"
+			printf "%'.2f  %s\t%s\n" "$(jq -r ".ticker_24h.exchanges.${i}.last" <<< "${BVJSON}")" "${i}" "${EFN}"
 		done
 	fi
 	#https://bitvalor.com/api
