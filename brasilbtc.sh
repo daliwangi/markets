@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.3.4  14/nov/2019  by mountaineerbr
+# v0.3.5  14/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -8,7 +8,7 @@ LC_NUMERIC=en_US.UTF-8
 ## Manual and help
 # printf "brasilbtc [código_da_moeda] #Ex: btc, eth ltc"
 HELP_LINES="NOME
- 	\033[01;36mBrazilbtc.sh -- Puxa Taxas de Bitcoin/Criptos de Exchanges do Brasil\033[00m
+ 	\033[01;36mBrasilbtc.sh -- Puxa Taxas de Bitcoin/Criptos de Exchanges do Brasil\033[00m
 
 
 SINOPSE
