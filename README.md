@@ -190,6 +190,6 @@ or move them to the /bin folder or some other folder under your PATH.
 
 bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
-
+-------------------------------------------------------------------------------------------------
 ![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
 Fig. 1. Running scripts demo: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh and cmc.sh.
