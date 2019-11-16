@@ -192,3 +192,4 @@ bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 ![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git1.png)
+Fig. 1. Running scripts demo: binance.sh, binfo.sh, bitfinex.sh and bitstamp.sh.
