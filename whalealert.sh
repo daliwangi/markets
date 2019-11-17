@@ -1,6 +1,6 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1.5  30/oct/2019  by mountaineerbr
+# v0.1.7  17/nov/2019  by mountaineerbr
 
 
 # Your own key
@@ -54,9 +54,9 @@ OPTIONS
 
 	-h 	Show this help page.
 
-	-p 	Price minimum; min(USD)=500000.
+	-p 	Minimum price; min(USD)=500000.
 
-	-r 	Results maximum; max=100.
+	-r 	Maximum number of results per page; max=100.
 
 	-t 	Time of history start; accepts \"s\" (seconds) and 
 		\"m\" (minutes); max~=59m.
@@ -180,7 +180,6 @@ if [[ "$(jq -r '.result' <<< "${PAGE}")" =~ "error" ]]; then
 	jq -r '.message' <<< "${PAGE}" 1>&2
 	exit 1
 fi
-
 #More testing
 if [[ "$(jq -r '.count' <<< "${PAGE}")" -eq "0" ]]; then
 	printf "No transactions in the last %s seconds.\n" "${STIMESECS}" 1>&2
@@ -202,9 +201,9 @@ jq -er '"\(.transactions[]|
 	"",
 	"While-alert.io Information",
 	.result,
-	"Cursor: \(.cursor)",
 	"Count : \(.count)"' <<< "${PAGE}"
-[[ "${?}" -eq "0" ]] && printf "History time: last %s seconds.\n" "${STIMESECS}"
+#"Cursor: \(.cursor)",
+[[ "${?}" -eq "0" ]] && printf "History time: last %s seconds (approx. %s minutes).\n" "${STIMESECS}" "$((STIMESECS/60))"
 
 
 exit 0
