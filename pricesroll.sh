@@ -1,24 +1,26 @@
 #!/bin/bash
 
-uxterm -T 'BNB Stream' -geometry 6x25+0+340 -e '/home/jsn/_scripts/markets/binance.sh -f3 -w bnbusdt' &
+uxterm -T 'BNB Binance' -geometry 6x25+0+340 -e '/home/jsn/_scripts/markets/binance.sh -f3 -w bnbusdt' &
 
-uxterm -T 'LTC Stream' -geometry 6x25+54+340 -e '/home/jsn/_scripts/markets/binance.sh -s ltcusdt' &
+uxterm -T 'LTC Binance' -geometry 6x25+54+340 -e '/home/jsn/_scripts/markets/binance.sh -s ltcusdt' &
 
-uxterm -T 'BTC Bitfinex Stream' -geometry 7x13+108+340 -e "/home/jsn/_scripts/markets/bitfinex.sh" &
+uxterm -T 'BTC Binance US' -geometry 7x6+108+340 -e "/home/jsn/_scripts/markets/binance.sh -us btc usd" &
 
-uxterm -T 'BTC Bitstamp Stream' -geometry 7x11+108+570 -e "/home/jsn/_scripts/markets/bitstamp.sh -c" &
+uxterm -T 'BTC Bitstamp' -geometry 7x8+108+455 -e "/home/jsn/_scripts/markets/bitstamp.sh -c" &
 
-uxterm -T 'XRP Binance Stream' -geometry 7x20+0+0 -e "/home/jsn/_scripts/markets/binance.sh -f5 -s xrpusdt" &
+uxterm -T 'BTC Bitfinex' -geometry 7x8+108+615 -e "/home/jsn/_scripts/markets/bitfinex.sh" &
 
-uxterm -T 'BCHABC Binance Stream' -geometry 6x20+62+0 -e "/home/jsn/_scripts/markets/binance.sh -w bchabcusdt" &
+uxterm -T 'XRP Binance' -geometry 7x20+0+0 -e "/home/jsn/_scripts/markets/binance.sh -f5 -s xrpusdt" &
 
-uxterm -T 'ETH Binance Stream' -geometry 6x20+115+0 -e "/home/jsn/_scripts/markets/binance.sh -w ethusdt" &
+uxterm -T 'BCHABC Binance' -geometry 6x20+62+0 -e "/home/jsn/_scripts/markets/binance.sh -w bchabcusdt" &
 
-uxterm -T 'BTC Detailed Stream' -geometry 77x53+172+0 -e '/home/jsn/_scripts/markets/binance.sh -i' &
+uxterm -T 'ETH Binance' -geometry 6x20+115+0 -e "/home/jsn/_scripts/markets/binance.sh -w ethusdt" &
 
-uxterm -T 'Book Depth' -geometry 36x44+800+0 -e '/home/jsn/_scripts/markets/binance.sh -e' &
+uxterm -T 'BTC Detailed' -geometry 77x53+172+0 -e '/home/jsn/_scripts/markets/binance.sh -i' &
 
-uxterm -T 'BTC New-Block' -geometry 74x18+506+487 -e '/home/jsn/_scripts/markets/binfo.sh -e' &
+uxterm -T 'BTC Book Depth Binance' -geometry 36x44+800+0 -e '/home/jsn/_scripts/markets/binance.sh -e' &
 
-uxterm -T 'XAU-XAG-BRL Price roll' -geometry 30x42+1149+149 &
+uxterm -T 'BTC New-Block Blockchain.info' -geometry 74x17+506+495 -e '/home/jsn/_scripts/markets/binfo.sh -e' &
+
+uxterm -T 'Misc' -geometry 30x42+1149+149 &
 
