@@ -1,4 +1,8 @@
 # markets
+![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
+Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc.
+-------------------------------------------------------------------------------------------------
+
 <b>IMPORTANT: Please create free accounts and API keys to use with scripts that require them! You can add your API key to the script source code as per help pages or set them as environment variables.
   
 IMPORTANTE: Crie contas e chaves de API gratuitas para usar com os scripts que as exijam! Você pode adicionar sua chave de API ao código-fonte do script de acordo com as páginas de ajuda ou configurá-las como variáveis de ambiente.</b>
@@ -189,7 +193,3 @@ or move them to the /bin folder or some other folder under your PATH.
 <b>Give me a nickle! =)</b>
 
 bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
-
--------------------------------------------------------------------------------------------------
-![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
-Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc.
