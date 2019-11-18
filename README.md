@@ -1,6 +1,7 @@
 # markets
 ![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
 Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc.
+
 -------------------------------------------------------------------------------------------------
 
 <b>IMPORTANT: Please create free accounts and API keys to use with scripts that require them! You can add your API key to the script source code as per help pages or set them as environment variables.
