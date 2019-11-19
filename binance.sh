@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6.10  19/nov/2019  by mountaineerbr
+# v0.6.12  19/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -338,6 +338,13 @@ tickerf() { # 24-H Ticker
 			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
 	exit
 }
+# List markets and prices
+lcoinsf() {
+	LDATA="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price")"
+	jq -r '.[] | "\(.symbol)=\(.price)"' <<< "${LDATA}"| sort | column -s '=' -et -N 'Market,Rate'
+	printf "Markets: %s\n" "$(jq -r '.[].symbol' <<< "${LDATA}"| wc -l)"
+	exit
+}
 
 # Check for no arguments or options in input
 if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
@@ -410,7 +417,7 @@ while getopts ":cdef:hjlistuwvr" opt; do
 done
 shift $((OPTIND -1))
 
-# Must have packages
+# Test for must have packages
 if ! command -v jq &>/dev/null; then
 	printf "JQ is required.\n" 1>&2
 	exit 1
@@ -432,17 +439,6 @@ fi
 WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42"
 WSSADD="wss://stream.binance.${WHICHB}:9443/ws/"
 
-# List markets and prices
-lcoinsf() {
-	LDATA="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price")"
-	jq -r '.[] | "\(.symbol)=\(.price)"' <<< "${LDATA}"| sort | column -s '=' -et -N 'Market,Rate'
-	printf "Markets: %s\n" "$(jq -r '.[].symbol' <<< "${LDATA}"| wc -l)"
-	exit
-}
-test -n "${LOPT}" && lcoinsf
-
-## Cryptocurrency Converter
-
 # Arrange arguments
 # If first argument does not have numbers OR isn't a  valid expression
 if ! [[ "${1}" =~ [0-9] ]] || [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
@@ -455,9 +451,8 @@ if [[ -z ${2} ]]; then
 	set -- "${1}" "BTC"
 fi
 
-# Get markets symbols 
+# Get markets symbols and test if inputs are valid markets
 MARKETS="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price" | jq -r '.[].symbol')"
-
 if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
 	if [[ "${WHICHB}" = "com" ]]; then
 		set -- ${@:1:2} "USDT"
@@ -473,6 +468,8 @@ if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
 	exit 1
 fi
 
+# get a list of markets/coins
+test -n "${LOPT}" && lcoinsf
 # Viewing/Watching Modes opts
 # Detailed Trade info
 test -n "${IOPT}" && infof "${@}"
@@ -487,7 +484,7 @@ test -n "${TOPT}" && tickerf "${@}"
 # Price in columns
 test -n "${COPT}" && colf "${@}"
 
-## Currency conversion/market rate
+## Crypto conversion/market rate -- DEFAULT OPT
 # Get rate
 BRATE=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price?symbol=${2^^}${3^^}" | jq -r ".price")
 # Check for floating point specs (decimal plates) and print result
