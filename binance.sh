@@ -6,7 +6,6 @@
 LC_NUMERIC=en_US.UTF-8
 FSTR="%.2f" 
 WHICHB="com"
-WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42"
 
 HELP="NAME
 	\033[012;36mBinance.sh - Bash Cryptocurrency Converter\033[00m
@@ -193,6 +192,7 @@ colf() {  # Price in columns
 infof() {  # Price and trade info
 # Note: Only with this method you can access QuoteQty!!
 	curlmode() {
+		printf "Rate, quantity and time (%s).\n" "${2^^}${3^^}"
 	while true; do
 		JSON=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/trades?symbol=${2^^}${3^^}&limit=1")
 		errf
@@ -200,7 +200,7 @@ infof() {  # Price and trade info
 		QQT="$(jq -r '.[] | .quoteQty' <<< "${JSON}")"
 		TS="$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)"
 		DATE="$(date -d@"${TS}" "+%T%Z")"
-		printf "\n${FSTR}  %s  %'.f" "${RATE}" "${DATE}" "${QQT}"   
+		printf "\n${FSTR} \t%'.f\t%s" "${RATE}" "${QQT}" "${DATE}"   
 	done
 	exit 0
 	}
@@ -216,6 +216,7 @@ infof() {  # Price and trade info
 
 socketf() {  # Stream of prices
 	curlmode() { 
+		printf "Rate for %s.\n" "${2^^}${3^^}"
 		while true; do
 			JSON="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=1")"
 	 		errf
@@ -344,21 +345,6 @@ if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
 	exit 1
 fi
 
-# Must have packages
-if ! command -v jq &>/dev/null; then
-	printf "JQ is required.\n" 1>&2
-	exit 1
-fi
-if command -v curl &>/dev/null; then
-	YOURAPP="curl -s"
-elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
-else
-	printf "cURL or Wget is required.\n" 1>&2
-	exit 1
-fi
-# OBS: Lolcat is not really required..
-
 # Parse options
 while getopts ":cdef:hjlistuwvr" opt; do
 	case ${opt} in
@@ -424,7 +410,26 @@ while getopts ":cdef:hjlistuwvr" opt; do
 done
 shift $((OPTIND -1))
 
+# Must have packages
+if ! command -v jq &>/dev/null; then
+	printf "JQ is required.\n" 1>&2
+	exit 1
+fi
+if command -v curl &>/dev/null; then
+	YOURAPP="curl -s"
+elif command -v wget &>/dev/null; then
+	YOURAPP="wget -qO-"
+else
+	printf "cURL or Wget is required.\n" 1>&2
+	exit 1
+fi
+if [[ -n "${IOPT}${SOPT}${BOPT}${BEOPT}${TOPT}" ]] && [[ -z "${CURLOPT}" ]] && ! command -v websocat &>/dev/null; then
+	printf "Websocat is required.\n" 1>&2
+	exit 1
+fi
+
 # More defaults
+WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42"
 WSSADD="wss://stream.binance.${WHICHB}:9443/ws/"
 
 # List markets and prices
@@ -492,35 +497,4 @@ else
 	bc -l <<< "${1}*${BRATE}"
 fi
 exit 
-
-# Dead code:
-
-# EXPERIMENTAL AND NOT MUCH USEFUL -- Run script in while true loop?
-#if [[ -n "${LOOPOPT}" ]] && [[ -z "${CURLOPT}" ]]; then
-#	while true; do
-#		"${0}"
-#		printf "\nPress Ctrl+C twice to exit.\n" 1>&2
-#		N=$((N+1))	
-#		printf "Recconection #%s.\n" "${N}"
-#		sleep 4
-#	done
-#	exit
-#fi
-#		o ) # EXPERIMENTAL AND NOT MUCH USEFUL -- Run script in while true loop
-#			LOOPOPT=1
-#			;;
-#--ping-timeout 610   #10m + 10s
-#--ping-timeout 420   #7m
-#--ping-timeout <ws_ping_timeout>
-#            Drop WebSocket connection if Pong message not received for this number of seconds
-#
-#Add to manual
-#	-o 	Run websocket market stream on a while true loop.
-#
-#Add to LIMITS section
-#	To circunvent this limit, run the script with option \"-o\", which will
-#	use a while true loop to run the socket options until Ctrl+C is pressed
-#	twice to exit.
-#
-#The websocket server will send a ping frame every 3 minutes. If the websocket server does not receive a pong frame back from the connection within a 10 minute period, the connection will be disconnected. Unsolicited pong frames are allowed.
 
