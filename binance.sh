@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6.6  14/nov/2019  by mountaineerbr
+# v0.6.10  19/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -57,13 +57,6 @@ SYNOPSIS
 	very large or very small. It is also possible to add \"thousands\" sepa-
 	rator. See usage example (4).
 
-   	This programme needs Bash, cURL or Wget, JQ , Websocat, Lolcat and Core-
-	utils to work properly.
-
-	Beware of unlimited scrollback buffers for terminal emulators. As data 
-	flow is very intense, scrollback buffers should be kept small or com-
-	pletely unset in order to avoid system freezes.
-
   
 LIMITS ON WEBSOCKET MARKET STREAMS
 
@@ -74,8 +67,15 @@ LIMITS ON WEBSOCKET MARKET STREAMS
 
 
 WARRANTY
-	Licensed under the GNU Public License v3 or better.
- 	This programme is distributed without support or bug corrections.
+	Licensed under the GNU Public License v3 or better and is distributed
+	without support or bug corrections.
+   	
+	This script needs Bash, cURL or Wget, JQ , Websocat, Lolcat and Core-
+	utils to work properly.
+
+	Beware of unlimited scrollback buffers for terminal emulators. As data 
+	flow is very intense, scrollback buffers should be kept small or com-
+	pletely unset in order to avoid system freezes.
 
 	Give me a nickle! =)
 
@@ -129,6 +129,7 @@ USAGE EXAMPLES
 			
 			$ binance.sh -l	| grep BTC
 
+			
 			OBS: use \"^BTC\" to get markets that start with BTCxxx;
 			     use \"BTC$\" to get markets that  end  with xxxBTC.
 
@@ -180,7 +181,7 @@ errf() {
 }
 
 # Functions
-mode1() {  # Price in columns
+colf() {  # Price in columns
 	while true; do
 		JSON="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")"
 		errf
@@ -189,7 +190,7 @@ mode1() {  # Price in columns
 	done
 	exit 0
 }
-mode3() {  # Price and trade info
+infof() {  # Price and trade info
 # Note: Only with this method you can access QuoteQty!!
 	curlmode() {
 	while true; do
@@ -204,7 +205,7 @@ mode3() {  # Price and trade info
 	exit 0
 	}
 	# cURL Mode?
-	test -n "${CURLOPT}" &&	curlmode ${*}
+	test -n "${CURLOPT}" &&	curlmode "${@}"
 
 	# Websocat Mode
 	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
@@ -213,7 +214,7 @@ mode3() {  # Price and trade info
 	exit 0
 }
 
-mode4() {  # Stream of prices
+socketf() {  # Stream of prices
 	curlmode() { 
 		while true; do
 			JSON="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=1")"
@@ -223,7 +224,7 @@ mode4() {  # Stream of prices
 		exit 0
 		}
 	# cURL Mode?
-	test -n "${CURLOPT}" &&	curlmode ${*}
+	test -n "${CURLOPT}" &&	curlmode "${@}"
 
 	# Websocat Mode
 	printf "Stream of %s%s\n" "${2^^}" "${3^^}"
@@ -232,7 +233,7 @@ mode4() {  # Stream of prices
 	exit
 }
 
-mode6() { # Depth of order book (depth=10)
+bookdf() { # Depth of order book (depth=10)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
 	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@depth10@100ms" |
@@ -261,7 +262,7 @@ mode6() { # Depth of order book (depth=10)
 		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)"'
 		exit
 }
-mode6extra() { # Depth of order book (depth=20)
+bookdef() { # Depth of order book (depth=20)
 	printf "Order Book Depth\n"
 	printf "Price and Quantity\n"
 	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@depth20@100ms" |
@@ -310,7 +311,7 @@ mode6extra() { # Depth of order book (depth=20)
 		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
 	exit
 }
-mode7() { # 24-H Ticker
+tickerf() { # 24-H Ticker
 	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@ticker" |
 		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
 			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
@@ -338,7 +339,7 @@ mode7() { # 24-H Ticker
 }
 
 # Check for no arguments or options in input
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
 	exit 1
 fi
@@ -359,7 +360,7 @@ fi
 # OBS: Lolcat is not really required..
 
 # Parse options
-while getopts ":cdef:hjliostuwvr" opt; do
+while getopts ":cdef:hjlistuwvr" opt; do
 	case ${opt} in
 		j ) # Grab JSON
 			printf "Check below script lines that fetch raw JSON data:\n"
@@ -370,14 +371,14 @@ while getopts ":cdef:hjliostuwvr" opt; do
 			LOPT=1
 	      		;;
 		c ) # Price in columns
-	      		export M1OPT=1
+	      		export COPT=1
 	      		export LIMIT=250
 	      		;;
 		d ) # Order book depth view
-	      		export M6OPT=1
+	      		export BOPT=1
 	      		;;
 		e ) # Extended order book depth view
-	      		export M6EXTRAOPT=1
+	      		export BEOPT=1
 	      		;;
 		f ) # Printf-like format numbers
 	 	     	export FCONVERTER=1
@@ -388,18 +389,18 @@ while getopts ":cdef:hjliostuwvr" opt; do
 	      		fi
 	      		;;
 		i ) # Detailed latest trade information
-	      		export M3OPT=1
+	      		export IOPT=1
 	      		;;
 		s ) # Stream of trade prices
 			export COLORC="cat"
-	      		export M4OPT=1
+	      		export SOPT=1
 	      		;;
 		w ) # Coloured stream of trade prices
-	      		export M4OPT=1
+	      		export SOPT=1
 	      		export COLORC="lolcat -p 2000 -F 5"
 	      		;;
 		t ) # Rolling Ticker 
-	      		export M7OPT=1
+	      		export TOPT=1
 	      		;;
 		r ) # cURL opt instead of Websocat
 	      		CURLOPT=1
@@ -414,9 +415,6 @@ while getopts ":cdef:hjliostuwvr" opt; do
 	      		;;
 		u ) # Binance US
 			export WHICHB="us"
-			;;
-		o ) # EXPERIMENTAL AND NOT MUCH USEFUL -- Run in while true loop
-			LOOPOPT=1
 			;;
 		\? )
 	     		echo "Invalid Option: -$OPTARG" 1>&2
@@ -437,32 +435,6 @@ lcoinsf() {
 	exit
 }
 test -n "${LOPT}" && lcoinsf
-
-# EXPERIMENTAL AND NOT MUCH USEFUL -- Run in while true loop?
-if [[ -n "${LOOPOPT}" ]] && [[ -z "${CURLOPT}" ]]; then
-	while true; do
-		"${0}"
-		printf "\nPress Ctrl+C twice to exit.\n" 1>&2
-		N=$((N+1))	
-		printf "Recconection #%s.\n" "${N}"
-		sleep 4
-	done
-	exit
-fi
-#--ping-timeout 610   #10m + 10s
-#--ping-timeout 420   #7m
-#--ping-timeout <ws_ping_timeout>
-#            Drop WebSocket connection if Pong message not received for this number of seconds
-#
-#Add to manual
-#	-o 	Run websocket market stream on a while true loop.
-#
-#Add to LIMITS section
-#	To circunvent this limit, run the script with option \"-o\", which will
-#	use a while true loop to run the socket options until Ctrl+C is pressed
-#	twice to exit.
-#
-#The websocket server will send a ping frame every 3 minutes. If the websocket server does not receive a pong frame back from the connection within a 10 minute period, the connection will be disconnected. Unsolicited pong frames are allowed.
 
 ## Cryptocurrency Converter
 
@@ -498,17 +470,17 @@ fi
 
 # Viewing/Watching Modes opts
 # Detailed Trade info
-test -n "${M3OPT}" && mode3 ${*}
+test -n "${IOPT}" && infof "${@}"
 # Socket Stream
-test -n "${M4OPT}" && mode4 ${*}
+test -n "${SOPT}" && socketf "${@}"
 # Book Order Depth 10
-test -n "${M6OPT}" && mode6 ${*}
+test -n "${BOPT}" && bookdf "${@}"
 # Book Order Depth 20
-test -n "${M6EXTRAOPT}" && mode6extra ${*}
+test -n "${BEOPT}" && bookdef "${@}"
 # 24-H Ticker
-test -n "${M7OPT}" && mode7 ${*}
+test -n "${TOPT}" && tickerf "${@}"
 # Price in columns
-test -n "${M1OPT}" && mode1 ${*}
+test -n "${COPT}" && colf "${@}"
 
 ## Currency conversion/market rate
 # Get rate
@@ -522,4 +494,33 @@ fi
 exit 
 
 # Dead code:
+
+# EXPERIMENTAL AND NOT MUCH USEFUL -- Run script in while true loop?
+#if [[ -n "${LOOPOPT}" ]] && [[ -z "${CURLOPT}" ]]; then
+#	while true; do
+#		"${0}"
+#		printf "\nPress Ctrl+C twice to exit.\n" 1>&2
+#		N=$((N+1))	
+#		printf "Recconection #%s.\n" "${N}"
+#		sleep 4
+#	done
+#	exit
+#fi
+#		o ) # EXPERIMENTAL AND NOT MUCH USEFUL -- Run script in while true loop
+#			LOOPOPT=1
+#			;;
+#--ping-timeout 610   #10m + 10s
+#--ping-timeout 420   #7m
+#--ping-timeout <ws_ping_timeout>
+#            Drop WebSocket connection if Pong message not received for this number of seconds
+#
+#Add to manual
+#	-o 	Run websocket market stream on a while true loop.
+#
+#Add to LIMITS section
+#	To circunvent this limit, run the script with option \"-o\", which will
+#	use a while true loop to run the socket options until Ctrl+C is pressed
+#	twice to exit.
+#
+#The websocket server will send a ping frame every 3 minutes. If the websocket server does not receive a pong frame back from the connection within a 10 minute period, the connection will be disconnected. Unsolicited pong frames are allowed.
 
