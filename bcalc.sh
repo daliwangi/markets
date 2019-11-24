@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.6  2019/nov/24  by mountaineerbr
+# v0.4.7  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -170,7 +170,8 @@ while getopts ":cehnrs:t" opt; do
 			SCL="${OPTARG}"
 			;;
 		\? )
-			break
+	     		printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+	     		exit 1
 	esac
 done
 shift $((OPTIND -1))
@@ -221,7 +222,8 @@ test -n "${CIENTIFIC}" && cientificf
 ## Grep last answer result from calc Record and prepare equation
 if grep -q ans <<< "${*}"; then 
 	ANS=$(tail -1 "${RECFILE}")
-	EQ="$(sed -e "s/ans/(${ANS})/" <<< "${*//,}")"
+	EQ="${*//,}"
+	EQ="${EQ//ans/(${ANS})}"
 # If no args, reuses last Ans (format last ans with -s and/or -g )
 elif [[ -z "${*}" ]]; then
 	EQ="$(tail -1 "${RECFILE}")"
@@ -251,6 +253,5 @@ else
 	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
 fi
 
-# Nought truncation (does not wortk with custom variables, etc)
-# printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s/1)\n" "${EQ}" | bc -l
+exit
 
