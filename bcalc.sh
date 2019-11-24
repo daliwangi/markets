@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.3  2019/nov/24  by mountaineerbr
+# v0.4.4  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -28,8 +28,8 @@ SYNOPSIS
 DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
 
-	It creates a Record file at \"${RECFILE}\". Use of \"ans\" in new 
-	expression greps last result from record file.
+	It creates a Record file at \"${RECFILE}\".
+	Use of \"ans\" in new expression greps last result from record file.
 
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
@@ -44,9 +44,9 @@ DESCRIPTION
 SCIENTIFIC EXTENSION
 	
 	The scientific option will try to download a copy of a table of scien-
-	tific constants and extra math functions to \"${EXTFILE}\" in a format
-	readable by Bash Calculator (bc). Once downloaded, the table is kept for
-	future use (needs Wget or cURL).
+	tific constants and extra math functions to \"${EXTFILE}\"
+	in a format readable by Bash Calculator (bc). Once downloaded, it is 
+	kept for future use. Needs Wget or cURL to download, or make it manually.
 
 	Data is downloaded from:
 
