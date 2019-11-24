@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.4  2019/nov/24  by mountaineerbr
+# v0.4.5  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -38,13 +38,30 @@ DESCRIPTION
 	Results may use printf to add a comma \",\" as thousands separator if set
 	with option \"-t\".
 
-	Results may round, depending on the scale setting.
+
+BC MATH LIBRARY
+	Bcalc.sh uses bc with the math library. From Bc man page:       
+
+		The math  library  defines the following functions:
+
+		s (x)  The sine of x, x is in radians.
+
+		c (x)  The cosine of x, x is in radians.
+
+		a (x)  The arctangent of x, arctangent returns radians.
+
+		l (x)  The natural logarithm of x.
+
+		e (x)  The exponential function of raising e to the value x.
+
+		j (n,x)
+			The Bessel function of integer order n of x.
 
 
 SCIENTIFIC EXTENSION
 	
 	The scientific option will try to download a copy of a table of scien-
-	tific constants and extra math functions to \"${EXTFILE}\"
+	tific constants and extra math functions such as ln and log to \"${EXTFILE}\"
 	in a format readable by Bash Calculator (bc). Once downloaded, it is 
 	kept for future use. Needs Wget or cURL to download, or make it manually.
 
