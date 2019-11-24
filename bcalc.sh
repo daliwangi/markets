@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.8  2019/nov/24  by mountaineerbr
+# v0.4.10  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -28,19 +28,16 @@ SYNOPSIS
 DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
 
-	It creates a Record file at \"${RECFILE}\".
+	A record file is created at \"${RECFILE}\".
 	Use of \"ans\" in EXPRESSION is substituted by last result from record 
-	file. If no EXPRESSION is given, prints last answer/result only. Stdin 
-	input (pipe) can be used to send EXPRESSION to Bcalc.sh.
+	file. If no EXPRESSION is given, wait for Stdin or user input. Press 
+	\"Ctr+D\" to send the EOF signal. If input is empty, prints last answer.
 
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
-	Bash calculator uses LC_NUMERIC=\"en_US.UTF-8\", so a dot \".\" must be
-	used as decimal separator and scale (decimal plates) can be set with \"-s\".
-	Results may use printf to add a comma \",\" as thousands separator if 
-	set with option \"-t\".
-
-
+	Decimal separator must be a dot \".\". Number of decimal plates (scale)
+	can be set with option \"-s\". Results can be printed with thousands 
+	separator with option \"-t\" in which case a comma \",\" is used.
 
 
 BC MATH LIBRARY
