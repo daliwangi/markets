@@ -1,7 +1,18 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.3  2019/set/25  by mountaineerbr
+# v0.4.1  2019/nov/23  by mountaineerbr
+
+#Defaults
+# Record file:
+RECFILE="${HOME}/.bcalc_record"
+# Extensions file:
+EXTFILE="${HOME}/.bcalc_extensions"
+# Number of decimal plates (16 bc defaults):
+SCLDEF=16
+# Don't change LC_NUMERIC
+LC_NUMERIC="en_US.UTF-8"
+
 
 ## Manual and help
 HELP_LINES="NAME
@@ -9,26 +20,50 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	bcalc.sh \e[0;33;40m[options]\033[00m \e[0;31;40m[equation]\033[00m
+	bcalc.sh [-ct] [-sNUM] [\"EQUATION\"]
 	
-	bcalc.sh \e[0;33;40m[options]\033[00m
+	bcalc.sh [-ehr] [-n\"SHORT NOTE\"]
 
 
 DESCRIPTION
-	Bcalc.sh uses the powerful Bash Calculator and adds some useful features
-	for use within Bash.
+	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
 
-	It creates a Record file at \"~/.bcalc_record\". Use of \"ans\" in new 
-	expression greps last result from Record.
+	It creates a Record file at '${RECFILE}'. Use of \"ans\" in new 
+	expression greps last result from record file.
 
-	The  sCientific  extension  will  try to download a copy of a table of
-	values   of   scientific   variables  and  extra  math  functions  to
-	\"~/.bcalc_extensions\" in a format readable by Bash Calculator (bc).
+	Equations containing () with backslashes may need escaping with \"\" or ''.
+
+	Bash calculator uses LC_NUMERIC=\"en_US.UTF-8\", so a dot \".\" must be
+	used as decimal separator and scale (decimal plates) can be set with \"-s\".
+	Results may use printf to add a comma \",\" as thousands separator if set
+	with option \"-t\".
+
+	Results may round, depending on the scale setting.
 
 
-		Usage examples:	
+SCIENTIFIC EXTENSION
+	
+	The scientific option will try to download a copy of a table of scien-
+	tific constants and extra math functions to '${EXTFILE}' in a format
+	readable by Bash Calculator (bc). Once downloaded, the table is kept for
+	future use (needs Wget or cURL).
 
+	Data is downloaded from:
+
+		<http://x-bc.sourceforge.net/scientific_constants.bc>
 		
+		<http://x-bc.sourceforge.net/extensions.bc>
+
+
+BASH ALIAS
+	You may consider creating a bash alias to easier use. A suggestion is to
+	add to your ~/.bashrc:
+	
+
+	  alias c=\"/path/to/bcalc.sh\"
+
+
+USAGE EXAMPLES
 			$ bcalc.sh 50.7+9
 
 			$ bcalc.sh \"(100+100/2)*2\" 
@@ -43,238 +78,159 @@ DESCRIPTION
 			
 			$ bcalc.sh ans+33
 			
-			$ bcalc.sh -g -s4 50000*5
+			$ bcalc.sh -t -s4 50000*5
 
-			$ bcalc.sh -t 1/10000000
+			$ bcalc.sh -c \"ln(0.3)\"
+			
+			$ bcalc.sh -c \"log(16)\"
 
 		
-		Define variables for use in the equation:
+		Define variables for use in the equation (lowercase):
 		
-			$ bcalc.sh \"s=5; -s+20\"
+			$ bcalc.sh \"a=5; -a+20\"
 
 
-		Use of cientific constants.
-		Discover how many molecules in 0.234 M of solution;
-		na = Avogadro's constant :
+		Use of cientific constants option \"-c\"; na = Avogadro's con-
+		stant; how many molecules in 0.234 M of solution? 
 			
 			$ bcalc.sh -c 0.234*na
 
 
-	You may need escape equations containing () with backslashes, \"\" or ''.
-
-	Also, you may consider creating a bash alias to this script for easier
-	use. A suggestion to add to you ~/.bashrc :
-	
-	  alias c=\"/home/path/to/bcalc.sh\"
-
-	Floating numbers with a comma in the input have it swapped to a dot au-
-	tomatically for processing. Print format tries to use local LC_NUMERIC.
-
-	Noughts are truncated automatically. Grouping \"-g\" option merely adds
-	thousand separtors and prints answer with two decimal plates, unless
-	otherwise further specified with \"-s\".
-		    
-	Results may round, depending on the scale setting.
-
-
 BUGS
-	Made and tested with Bash 5.0.
- 	This programme is distributed without support or bug corrections.
-	Licensed under GPLv3 and above.
+	Made and tested with Bash 5.0. This programme is distributed without 
+	support or bug corrections. Licensed under GPLv3 and above.
 
 	Give me a nickle! =)
         
+
 	  bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPTIONS
-		-c 	Run calc with the scientific extension;
-			it enables use of many cientific constants and
-			disables options \"-g\" and \"-s\".
+		-c 	Use scientific extensions.
     		
-		-e 	Print cientific extensions;
-			Only works with \"-c\" opt.
+		-e 	Print cientific extensions.
     		
-		-g 	Group thousands; if no expression is given, uses last answer.
+		-t 	Group thousands; if no expression is given, reuse last 
+			answer.
 
     		-h 	Show this help.
 
-		-n 	Add Note to Record;
-			Useful to tag previous result for later manual consult;
-			It should be used after a new result is computed.
-			Should not be used together with a equation.
+		-n 	Add note to last result record; it should be used after 
+			a result is recorded to record file.
     		
-		-r 	Print calc Record.
+		-r 	Print results record.
     		
-		-s 	Set scale ( decimal plates ); if no expression is given,
-			uses last answer.
-		
-		-t 	Truncation of trailling noughts
-			( Does not work in scientific mode; also it throws syntax
-			errors if you define variables for equations )."
+		-s 	Set scale (decimal plates); defaults='${SCLDEF}'; if no
+			expression is passed, reuse last answer."
+
 # Parse options
-while getopts ":ceghnrs:t" opt; do
-  case ${opt} in
-    c ) # Run calc with cientific extensions
-	CIENTIFIC=1
-	;;
-    e ) # Print cientific extensions
-	PEXT=1
-	;;
-    g ) # Group thousands
-	GROUP=1
-	;;
-    h ) # Show Help
-	echo -e "${HELP_LINES}"
-	exit
-	;;
-    n ) # Add comment to Record
-	NOTE=1
-	;;
-    r ) # Print record
-	cat ~/.bcalc_record
-	exit
-	;;
-    s ) # Scale ( decimal plates )
-    	SCL="${OPTARG}"
-	;;
-    t ) # Nought Truncation function
-	TR=1
-	;;
-    \? )
-	break
-  esac
+while getopts ":cehnrs:t" opt; do
+	case ${opt} in
+		c ) # Run calc with cientific extensions
+			CIENTIFIC=1
+			;;
+		e ) # Print cientific extensions
+			CIENTIFIC=1
+			PEXT=1
+			;;
+		t ) # Group thousands
+			GROUP="'"
+			;;
+		h ) # Show Help
+			echo -e "${HELP_LINES}"
+			exit
+			;;
+		n ) # Add comment to Record
+			NOTE=1
+			;;
+		r ) # Print record
+			cat "${RECFILE}"
+			exit
+			;;
+		s ) # Scale ( decimal plates )
+			SCL="${OPTARG}"
+			;;
+		\? )
+			break
+	esac
 done
 shift $((OPTIND -1))
 
-## Add Note function
-if [[ -n "${NOTE}" ]];then
-	sed -i "$ i\>> NOTE: ${*}" ~/.bcalc_record
-	# https://superuser.com/questions/781558/sed-insert-file-before-last-line
-	# http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
-	exit
+# Set scale
+if [[ -z ${SCL} ]]; then
+	SCL="${SCLDEF}"
 fi
 
 ## Check if there is a Record file available
 ## Otherwise, create an empty one
-if ! [[ -e ~/.bcalc_record ]]; then
-	printf "## Bcalc.sh Record\n\n" >> ~/.bcalc_record
+if [[ ! -f "${RECFILE}" ]]; then
+	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
 fi
+## Add Note function
+if [[ -n "${NOTE}" ]];then
+	sed -i "$ i\>> NOTE: ${*}" "${RECFILE}"
+	exit
+fi
+# https://superuser.com/questions/781558/sed-insert-file-before-last-line
+# http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
 
 ## Scientific Extension Function
 cientificf() {
 	# Grab extensions and scientific constants
-	if ! [[ -e ~/.bcalc_extensions ]]; then
-		curl -s "http://x-bc.sourceforge.net/scientific_constants.bc" > ~/.bcalc_extensions
-		printf "\n" >> ~/.bcalc_extensions
-		curl -s "http://x-bc.sourceforge.net/extensions.bc" >> ~/.bcalc_extensions
-		printf "\n" >> ~/.bcalc_extensions
+	if ! [[ -f "${EXTFILE}" ]]; then
+		if command -v curl &>/dev/null; then
+			YOURAPP="curl"
+		elif command -v wget &>/dev/null; then
+			YOURAPP="wget -O-"
+		else
+			printf "cURL or Wget is required.\n" 1>&2
+			exit 1
+		fi
+		${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc" > "${EXTFILE}"
+		${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc" >> "${EXTFILE}"
 	fi
 	if [[ -n "${PEXT}" ]]; then
-		less ~/.bcalc_extensions
+		cat "${EXTFILE}"
 		exit
-	elif [[ -n ${GROUP} || -n ${SCL} ]]; then
-		printf "Ignoring options \"-g\" and/or \"-s\"...\n" 1>&2
 	fi
-
-	# Grep last ans
-	if grep -q ans <<< "${*}"; then 
-		ANS=$(tail -1 ~/.bcalc_record)
-		EQ=$(sed -e "s/ans/(${ANS})/" -e "s/,/./" <<< "${*}")
-	else
-		EQ="${*//,/.}"
-	fi
-
-
-	# Calculate Results
-	## Try to execute expression ( get a Result )
-	RES=$(bc -l <<< "$(cat ~/.bcalc_extensions); ${EQ}")
-
-	## Check if equation syntax is valid
-	if [[ -z "${RES}" ]]; then
-		exit 1
-	fi
-	## Calc Record -- Timestamp and show result
-	## If result is the same as last result, do not print it to Record again
-	if ! [[ ${RES} = $(tail -1 ~/.bcalc_record) ]]; then
-		## Print timestamp in Record
-		printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> ~/.bcalc_record
-		## Print original result to Record (default bc mathlib scale is 20)
-		printf "%s\n" "${RES}" >> ~/.bcalc_record
-	fi
-	## Print result to STDOUT
-	printf "%s\n" "${RES}"
-	exit
-	}
-if [[ -n "${CIENTIFIC}" ]]; then
-	cientificf "${*}"
-fi		
+	EXT="$(cat "${EXTFILE}")"
+}
+test -n "${CIENTIFIC}" && cientificf
 
 ## Grep last answer result from calc Record and prepare equation
 if grep -q ans <<< "${*}"; then 
-	ANS=$(tail -1 ~/.bcalc_record)
-	EQ=$(sed -e "s/ans/(${ANS})/" -e "s/,/./" <<< "${*}")
+	ANS=$(tail -1 "${RECFILE}")
+	EQ="$(sed -e "s/ans/(${ANS})/" <<< "${*//,}")"
+# If no args, reuses last Ans (format last ans with -s and/or -g )
+elif [[ -z "${*}" ]]; then
+	EQ="$(tail -1 "${RECFILE}")"
 else
-	EQ="${*//,/.}"
-fi
-
-# If you just want to format last result ( -s and/or -g )
-if [[ -z ${*} ]] && [[ -n ${SCL} || -n ${GROUP} ]]; then
-	printf "Formatting last answer...\n" >&2
-	EQ="$(tail -1 ~/.bcalc_record)"
+	EQ="${*//,}"
 fi
 
 ## Check if equation syntax is valid
-if [[ -z $(bc -l <<< "${EQ}") ]]; then
+PRES="$(bc -l <<< "${EXT};${EQ}")"
+if [[ -z "${PRES}" ]]; then
 	exit 1
-fi
-
-## Check if your locale uses a comma or dot for decimal separation
-if ! printf "%f\n" "1" | grep -q "\."; then
-	COMMA=1
 fi
 
 ## Calculate result
 ## If result is the same as last result, do not print it to Record again
-if ! [[ $(bc -l <<< "${EQ}") = $(tail -1 ~/.bcalc_record) ]]; then
+if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
 	## Print timestamp in Record
-	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> ~/.bcalc_record
-	## Print original result to Record (default bc mathlib scale is 20)
-	bc -l <<< "${EQ}" >> ~/.bcalc_record
+	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
+	## Print original result to Record (default bc mathlib scale is 16)
+	printf "%s\n" "${PRES}" >> "${RECFILE}"
 fi
 
-## Format viewing result ( scale and thousands grouping )
-# Set thousands grouping and scale
-# Will format numbers according to your locale
-if [[ -n ${GROUP} && -n ${SCL} ]]; then
-	if [[ -z ${COMMA} ]]; then
-		# Maximum Scale Result - printf cannot get more decimals than 58
-		MXS="$(bc -l <<< "scale=25; (${EQ})/1")"
-	else
-		MXS="$(bc -l <<< "scale=25; (${EQ})/1" | sed 's/\./\,/')"
-	fi
-	printf "%'.${SCL}f\n" "${MXS}"
-	exit
-# Set only thousands grouping
-elif [[ -n ${GROUP} ]]; then
-	if [[ -z ${COMMA} ]]; then
-		printf "%'.2f\n" "$(bc -l <<< "${EQ}")"
-	else
-		printf "%'.2f\n" "$(bc -l <<< "${EQ}" | sed 's/\./\,/')"
-	fi
-	exit
-fi
-# Set only scale
-if [[ -z ${SCL} ]]; then
-		SCL=20
-fi
-if [[ -n "${TR}" ]]; then
-	TFUNC="define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}"
-	bc -l <<< "${TFUNC}; scale=${SCL}; trunc((${EQ})/1)"
+## Format result
+if [[ -n "${GROUP}" ]]; then
+	printf "%${GROUP}.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
 else
-	bc -l <<< "scale=${SCL}; ${EQ}/1"
-
+	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
 fi
 
+# Nought truncation (does not wortk with custom variables, etc)
 # printf "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(%s/1)\n" "${EQ}" | bc -l
 
