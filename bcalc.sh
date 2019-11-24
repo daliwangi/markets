@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.7  2019/nov/24  by mountaineerbr
+# v0.4.8  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -29,14 +29,18 @@ DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
 
 	It creates a Record file at \"${RECFILE}\".
-	Use of \"ans\" in new expression greps last result from record file.
+	Use of \"ans\" in EXPRESSION is substituted by last result from record 
+	file. If no EXPRESSION is given, prints last answer/result only. Stdin 
+	input (pipe) can be used to send EXPRESSION to Bcalc.sh.
 
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
 	Bash calculator uses LC_NUMERIC=\"en_US.UTF-8\", so a dot \".\" must be
 	used as decimal separator and scale (decimal plates) can be set with \"-s\".
-	Results may use printf to add a comma \",\" as thousands separator if set
-	with option \"-t\".
+	Results may use printf to add a comma \",\" as thousands separator if 
+	set with option \"-t\".
+
+
 
 
 BC MATH LIBRARY
@@ -187,9 +191,14 @@ if [[ ! -f "${RECFILE}" ]]; then
 	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
 fi
 ## Add Note function
-if [[ -n "${NOTE}" ]];then
-	sed -i "$ i\>> NOTE: ${*}" "${RECFILE}"
-	exit
+if [[ -n "${NOTE}" ]]; then
+	if [[ -n "${*}" ]]; then
+		sed -i "$ i\>> NOTE: ${*}" "${RECFILE}"
+		exit
+	else
+		printf "Note is empty.\n" 1>&2
+		exit 1
+	fi
 fi
 # https://superuser.com/questions/781558/sed-insert-file-before-last-line
 # http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
@@ -219,16 +228,16 @@ cientificf() {
 }
 test -n "${CIENTIFIC}" && cientificf
 
-## Grep last answer result from calc Record and prepare equation
-if grep -q ans <<< "${*}"; then 
+## Process Expression
+EQ="${*:-$(</dev/stdin)}"
+EQ="${EQ//,}"
+if grep -q ans <<< "${EQ}"; then 
+	#Grep last answer result from calc Record
 	ANS=$(tail -1 "${RECFILE}")
-	EQ="${*//,}"
 	EQ="${EQ//ans/(${ANS})}"
-# If no args, reuses last Ans (format last ans with -s and/or -g )
-elif [[ -z "${*}" ]]; then
+elif [[ -z "${EQ}" ]]; then
+	# If no args, reuses last Ans
 	EQ="$(tail -1 "${RECFILE}")"
-else
-	EQ="${*//,}"
 fi
 
 ## Check if equation syntax is valid
