@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.1  2019/nov/23  by mountaineerbr
+# v0.4.2  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -187,8 +187,10 @@ cientificf() {
 			printf "cURL or Wget is required.\n" 1>&2
 			exit 1
 		fi
-		${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc" > "${EXTFILE}"
-		${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc" >> "${EXTFILE}"
+		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
+		  printf "\n"
+		  ${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
+		  printf "\n";} > "${EXTFILE}"
 	fi
 	if [[ -n "${PEXT}" ]]; then
 		cat "${EXTFILE}"
