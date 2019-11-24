@@ -1,7 +1,7 @@
-#!/usr/bin/bash
+#!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.5  2019/nov/24  by mountaineerbr
+# v0.4.6  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -41,6 +41,7 @@ DESCRIPTION
 
 BC MATH LIBRARY
 	Bcalc.sh uses bc with the math library. From Bc man page:       
+
 
 		The math  library  defines the following functions:
 
