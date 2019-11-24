@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.10  2019/nov/24  by mountaineerbr
+# v0.4.12  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -202,8 +202,9 @@ fi
 
 ## Scientific Extension Function
 cientificf() {
-	# Grab extensions and scientific constants
+	# Test if extensions file exists, if not download it from the internet
 	if ! [[ -f "${EXTFILE}" ]]; then
+		# Test for cURL or Wget
 		if command -v curl &>/dev/null; then
 			YOURAPP="curl"
 		elif command -v wget &>/dev/null; then
@@ -212,15 +213,18 @@ cientificf() {
 			printf "cURL or Wget is required.\n" 1>&2
 			exit 1
 		fi
+		# Download extensions
 		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
 		  printf "\n"
 		  ${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
 		  printf "\n";} > "${EXTFILE}"
 	fi
+	#Print extension file?
 	if [[ -n "${PEXT}" ]]; then
 		cat "${EXTFILE}"
 		exit
 	fi
+	# Set extensions for use with Bc
 	EXT="$(cat "${EXTFILE}")"
 }
 test -n "${CIENTIFIC}" && cientificf
@@ -233,11 +237,11 @@ if grep -q ans <<< "${EQ}"; then
 	ANS=$(tail -1 "${RECFILE}")
 	EQ="${EQ//ans/(${ANS})}"
 elif [[ -z "${EQ}" ]]; then
-	# If no args, reuses last Ans
+	# If no expression, reuses last Ans
 	EQ="$(tail -1 "${RECFILE}")"
 fi
 
-## Check if equation syntax is valid
+## Check if equation syntax is valid (pre-result)
 PRES="$(bc -l <<< "${EXT};${EQ}")"
 if [[ -z "${PRES}" ]]; then
 	exit 1
@@ -252,8 +256,9 @@ if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
 	printf "%s\n" "${PRES}" >> "${RECFILE}"
 fi
 
-## Format result
+## Calc expression and format result
 if [[ -n "${GROUP}" ]]; then
+	# Add thousands separator
 	printf "%${GROUP}.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
 else
 	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
