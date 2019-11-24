@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6.12  19/nov/2019  by mountaineerbr
+# v0.6.20  23/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -17,7 +17,7 @@ SYNOPSIS
 
 	binance.sh [-fNUM|STR] [-cirsuw] [FROM_CRYPTO] [TO_CRYPTO]
 	
-	binance.sh [-detu] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-bbbtu] [FROM_CRYPTO] [TO_CRYPTO]
 	
 	binance.sh [-hjlv]
 
@@ -99,24 +99,24 @@ USAGE EXAMPLES
 
 		(3)     1000 Z-Cash in Paxos Standard:
 			
-			$ binance.sh 100 zecpax 
+			$ binance.sh 100 zec pax 
 
 
 		(4)     Price of one XRP in USDC, four decimal plates:
 			
-			$ binance.sh -f4 xrpusdc 
+			$ binance.sh -f4 xrp usdc 
 			
 		
 		(5)     Price stream of BTCUSDT, group thousands; print only 
 			one decimal plate:
 			
-			$ binance.sh -s -f\"%'.1f\" btcusdt
+			$ binance.sh -s -f\"%'.1f\" btc usdt
 
 
 		(6) 	Order book depth view of ETHUSDT (20 levels on each 
 			side), data from Binance US:
 
-			$ binance.sh -eu ethusdt
+			$ binance.sh -bbu eth usdt
 
 
 		(7)     Grep rates for all Bitcoin markets:
@@ -133,13 +133,12 @@ USAGE EXAMPLES
 			     use \"BTC$\" to get markets that  end  with xxxBTC.
 
 OPTIONS
+	-b 	Order book depth streams; depth=10; pass twice to depth=20; pass
+		three times to get some book order stats.
+
 	-c 	Price in columns (last 250 orders); screen prices overlap in 
 		each update; prices update from bottom right to top left; uses
 		cURL/Wget.
-
-	-d 	Depth view of the order book; depth=10; uses Websocket.
-	
-	-e 	Extended depth view of the order book; depth=20; uses Websocket.
 
 	-f 	Formatting of prices (printf-like); number of decimal plates; 
 		for use with options \"-c\", \"-s\" and \"-w\".
@@ -312,6 +311,21 @@ bookdef() { # Depth of order book (depth=20)
 		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
 	exit
 }
+booktf() {
+	printf "Order Book Total Stats (%s%s).\n" "${2^^}" "${3^^}"
+	BOOK="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
+	BIDSL="$(jq '.bids[]|.[1]' <<<"${BOOK}" | wc -l)"
+	ASKSL="$(jq '.asks[]|.[1]' <<<"${BOOK}" | wc -l)"
+	BIDST="$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
+	ASKST="$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
+	BARATE="$(bc -l <<<"scale=4;$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)/$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)")"
+	column -N' ,TOTAL,LEVELS' -s'=' -t <<- TABLE
+	B/A=${BARATE}
+	BIDS=${BIDST}=${BIDSL}
+	ASKS=${ASKST}=${ASKSL}
+	TABLE
+}
+
 tickerf() { # 24-H Ticker
 	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@ticker" |
 		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
@@ -353,9 +367,9 @@ if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":cdef:hjlistuwvr" opt; do
+while getopts ":bdecf:hjlistuwvr" opt; do
 	case ${opt} in
-		j ) # Grab JSON
+		j ) # Print JSON
 			printf "Check below script lines that fetch raw JSON data:\n"
 			grep -e "YOURAPP" -e "WEBSOCATC" <"${0}" | sed -e 's/^[ \t]*//' | sort
 			exit 0
@@ -364,36 +378,39 @@ while getopts ":cdef:hjlistuwvr" opt; do
 			LOPT=1
 	      		;;
 		c ) # Price in columns
-	      		export COPT=1
-	      		export LIMIT=250
+	      		COPT=1
+	      		LIMIT=250
 	      		;;
-		d ) # Order book depth view
-	      		export BOPT=1
-	      		;;
-		e ) # Extended order book depth view
-	      		export BEOPT=1
+		[bde] ) # Order book depth view
+	      		if [[ -z "${BOPT}" ]]; then
+				BOPT=1
+	      		elif [[ "${BOPT}" -eq 1 ]]; then
+				BOPT=2
+	      		elif [[ "${BOPT}" -eq 2 ]]; then
+				BOPT=3
+			fi
 	      		;;
 		f ) # Printf-like format numbers
-	 	     	export FCONVERTER=1
+	 	     	FCONVERTER=1
 	      		if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
-		   		export FSTR="%.${OPTARG}f"
+		   		FSTR="%.${OPTARG}f"
 		   		else
-		   		export FSTR="${OPTARG}"
+		   		FSTR="${OPTARG}"
 	      		fi
 	      		;;
 		i ) # Detailed latest trade information
-	      		export IOPT=1
+	      		IOPT=1
 	      		;;
 		s ) # Stream of trade prices
-			export COLORC="cat"
-	      		export SOPT=1
+			COLORC="cat"
+	      		SOPT=1
 	      		;;
 		w ) # Coloured stream of trade prices
-	      		export SOPT=1
-	      		export COLORC="lolcat -p 2000 -F 5"
+	      		SOPT=1
+	      		COLORC="lolcat -p 2000 -F 5"
 	      		;;
 		t ) # Rolling Ticker 
-	      		export TOPT=1
+	      		TOPT=1
 	      		;;
 		r ) # cURL opt instead of Websocat
 	      		CURLOPT=1
@@ -407,7 +424,7 @@ while getopts ":cdef:hjlistuwvr" opt; do
 	      		exit 0
 	      		;;
 		u ) # Binance US
-			export WHICHB="us"
+			WHICHB="us"
 			;;
 		\? )
 	     		echo "Invalid Option: -$OPTARG" 1>&2
@@ -475,10 +492,18 @@ test -n "${LOPT}" && lcoinsf
 test -n "${IOPT}" && infof "${@}"
 # Socket Stream
 test -n "${SOPT}" && socketf "${@}"
-# Book Order Depth 10
-test -n "${BOPT}" && bookdf "${@}"
-# Book Order Depth 20
-test -n "${BEOPT}" && bookdef "${@}"
+# Book Order Depth View Optios
+if [[ "${BOPT}" -eq 1 ]]; then
+	# Book Order Depth 10
+	bookdf "${@}"
+elif [[ "${BOPT}" -eq 2 ]]; then
+	# Book Order Depth 20
+	bookdef "${@}"
+elif [[ "${BOPT}" -eq 3 ]]; then
+	# Book Order total bids/asks max depth levels
+	booktf "${@}"
+	exit
+fi
 # 24-H Ticker
 test -n "${TOPT}" && tickerf "${@}"
 # Price in columns
