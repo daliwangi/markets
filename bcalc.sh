@@ -1,15 +1,15 @@
 #!/usr/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.2  2019/nov/24  by mountaineerbr
+# v0.4.3  2019/nov/24  by mountaineerbr
 
 #Defaults
 # Record file:
 RECFILE="${HOME}/.bcalc_record"
 # Extensions file:
 EXTFILE="${HOME}/.bcalc_extensions"
-# Number of decimal plates (16 bc defaults):
-SCLDEF=16
+# Number of decimal plates (bc mathlib defaults is 20):
+SCLDEF=20
 # Don't change LC_NUMERIC
 LC_NUMERIC="en_US.UTF-8"
 
@@ -28,7 +28,7 @@ SYNOPSIS
 DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
 
-	It creates a Record file at '${RECFILE}'. Use of \"ans\" in new 
+	It creates a Record file at \"${RECFILE}\". Use of \"ans\" in new 
 	expression greps last result from record file.
 
 	Equations containing () with backslashes may need escaping with \"\" or ''.
@@ -44,7 +44,7 @@ DESCRIPTION
 SCIENTIFIC EXTENSION
 	
 	The scientific option will try to download a copy of a table of scien-
-	tific constants and extra math functions to '${EXTFILE}' in a format
+	tific constants and extra math functions to \"${EXTFILE}\" in a format
 	readable by Bash Calculator (bc). Once downloaded, the table is kept for
 	future use (needs Wget or cURL).
 
@@ -121,7 +121,7 @@ OPTIONS
     		
 		-r 	Print results record.
     		
-		-s 	Set scale (decimal plates); defaults='${SCLDEF}'; if no
+		-s 	Set scale (decimal plates); defaults=${SCLDEF}; if no
 			expression is passed, reuse last answer."
 
 # Parse options
@@ -222,7 +222,7 @@ fi
 if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
 	## Print timestamp in Record
 	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
-	## Print original result to Record (default bc mathlib scale is 16)
+	## Print original result to Record
 	printf "%s\n" "${PRES}" >> "${RECFILE}"
 fi
 
