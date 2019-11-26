@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6.20  23/nov/2019  by mountaineerbr
+# v0.6.21  23/nov/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -312,7 +312,7 @@ bookdef() { # Depth of order book (depth=20)
 	exit
 }
 booktf() {
-	printf "Order Book Total Stats (%s%s).\n" "${2^^}" "${3^^}"
+	printf "Order Book Total Stats (%s%s)\n" "${2^^}" "${3^^}"
 	BOOK="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
 	BIDSL="$(jq '.bids[]|.[1]' <<<"${BOOK}" | wc -l)"
 	ASKSL="$(jq '.asks[]|.[1]' <<<"${BOOK}" | wc -l)"

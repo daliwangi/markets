@@ -673,35 +673,28 @@ fi
 if [[ "${BLKCHAINOPT}" = info ]]; then
 	blkinfof
 	exit
-fi
-if [[ "${BLKCHAINOPT}" = chair ]]; then
+elif [[ "${BLKCHAINOPT}" = chair ]]; then
 	blkinfochairf
 	exit
-fi
 # Blocks
-if [[ -n "${HOPT}" ]]; then
+elif [[ -n "${HOPT}" ]]; then
 	hblockf "${1}"
 	exit
-fi
-if [[ -n "${RAWOPT}" ]]; then
+elif [[ -n "${RAWOPT}" ]]; then
 	rblockf "${1}"
 	exit
-fi
 # Addresses
-if [[ "${ADDOPT}" = info ]]; then
+elif [[ "${ADDOPT}" = info ]]; then
 	raddf "${1}"
 	exit
-fi
-if [[ "${ADDOPT}" = chair ]]; then
+elif [[ "${ADDOPT}" = chair ]]; then
 	chairaddf "${1}"
 	exit
-fi
 # Transactions
-if [[ "${TXOPT}" = info ]]; then
+elif [[ "${TXOPT}" = info ]]; then
 	rtxf "${1}"
 	exit
-fi
-if [[ "${TXOPT}" = chair ]]; then
+elif [[ "${TXOPT}" = chair ]]; then
 	txinfobcf "${@}"
 	exit
 fi

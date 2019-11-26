@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9  2019/nov/25  by mountaineerbr
+# v0.9.10  2019/nov/26  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -105,9 +105,7 @@ WARRANTY
 	Licensed under the GNU Public License v3 or better.
  	This programme is distributed without support or bug corrections.
 
-   	This programme needs Bash, cURL, JQ , Xargs and Coreutils to work pro-
-	perly.
-
+   	This programme needs Bash, cURL or Wget, JQ , Xargs and Coreutils.
 
 	Give me a nickle! =)
 
@@ -122,123 +120,105 @@ USAGE EXAMPLES:
 			$ cgk.sh 1 btc usd
 
 
-		(2) 	One Bitcoin in Brazilian Real:
-
-			$ cmc.sh btc brl
-
-
-		(3)     0.1 Bitcoin in Ether:
-			
-			$ cgk.sh 0.1 btc eth 
-
-
-		(4)     One Bitcoin in DigiBytes (unofficial market; use \"-b\"):
+		(2)     One Bitcoin in DigiBytes (unofficial market; use \"-b\"):
 			
 			$ cgk.sh -b btc dgb 
 
 
-		(5)     100 ZCash in Digibyte (unofficial market) 
+		(3)     100 ZCash in Digibyte (unofficial market) 
 			with 8 decimal plates:
 			
-			$ cgk.sh -bs8 100 zcash digibyte 
+			$ cgk.sh -b -s8 100 zcash digibyte 
 			
-			$ cgk.sh -bs8 100 zec dgb 
+			$ cgk.sh -b -s8 100 zec dgb 
 
 		
-		(6)     One Canadian Dollar in Japanese Yen (for bank-currency-
-			only rates, use the Bank Currency Function option \"-b\"):
-			
-			$ cgk.sh -b cad jpy 
-
-
-		(7)     One thousand Brazilian Real in U.S.A. Dollars with 4
+		(4)     One thousand Brazilian Real in U.S.A. Dollars with 4
 			decimal plates:
 			
 			$ cgk.sh -b -s4 1000 brl usd 
 
 
-		(8)     One ounce of Gold in U.S.A. Dollar:
+		(5)     One ounce of Gold in U.S.A. Dollar:
 			
 			$ cgk.sh -b xau 
 			
 			$ cgk.sh -b 1 xau usd 
 
 
-		(09)    One Bitcoin in ounces of Gold:
+		(6)    One Bitcoin in ounces of Gold:
 					
 			$ cgk.sh 1 btc xau 
 
 
-		(10)    \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
+		(7)    \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
 					
 			$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
 
 			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(11)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
+		(8)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
 
 
-		(12)    \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
+		(9)    \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
 					
 			$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
 			
 			    Just divide amount by the \"gram/ounce\" rate.
 
 		
-		(13)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
+		(10)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
 					
 			$ cgk.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 
 
-		(14)    Tickers of any Ethereum pair from all exchanges;
+		(11)    Tickers of any Ethereum pair from all exchanges;
 					
 			$ cgk.sh -t eth 
 
 
-		(15)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
+		(12)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
 			of results:
 					
 			$ cgk.sh -t -p10 eth btc 
 
 
-		(16) 	Market cap function, show data for Chinese CNY:
+		(13) 	Market cap function, show data for Chinese CNY:
 
 			$ cgk.sh -m cny
 
 
 OPTIONS
-		-b 	Activate Bank Currency function; it extends support for
-			converting any central bank or crypto currency to any
-			other.
+	-b 	  Activate Bank Currency function; it extends support for con-
+		  verting any central bank or crypto currency to any other.
 
-		-e 	Exchange information; number of pages to fetch with opt-
-			ion \"-p\"; pass \"-ee\" to print a list of exchange 
-			names and IDs only.
+	-e 	  Exchange information; number of pages to fetch with option \"-p\";
+		  pass \"-ee\" to print a list of exchange names and IDs only.
 
-		-h 	Show this help.
+	-h 	  Show this help.
 
-		-j 	Fetch JSON and print to STOUT.
+	-j 	  Debug; print JSON.
 
-		-l 	List supported currencies.
+	-l 	  List supported currencies.
 
-		-m 	Market Capitulation table; accepts one currency as arg;
-			defaults=show all available.
+	-m [TO_CURRENCY]
+		  Market Capitulation table; defaults=USD.
 
-		-p 	Number of pages retrieved from the server; each page may
-			contain 100 results; use with option \"-e\" and \"-t\";
-			defaults=4.
+	-p [NUM]
+		  Number of pages retrieved from the server; each page may con-
+		  tain 100 results; use with option \"-e\" and \"-t\"; defaults=4.
 	 	
-		-s 	Scale setting (decimal plates).
+	-s [NUM]  Scale setting (decimal plates).
+	
+	-t 	  Tickers of a single cryptocurrency from all suported exchanges
+		  and all its pairs; a second crypto can also be set to form a 
+		  currency pair (market); change number of pages to fetch with 
+		  option \"-p\".
 		
-		-t 	Tickers of a single cryptocurrency from all suported ex-
-			changes and all its pairs; a second crypto can also be
-			set to form a currency pair (market); change number of 
-			pages to fetch with option \"-p\".
-		
-		-v 	Show this programme version."
+	-v 	  Show this programme version."
 
 ## Functions
 ## -m Market Cap function		
@@ -292,8 +272,8 @@ mcapf() {
 	printf " # Change(%%USD/24h): %.4f %%\n" "$(jq -r '.data.market_cap_change_percentage_24h_usd' <<< "${CGKGLOBAL}")"
 
 	printf "\n## Market Cap per Coin\n"
-	printf "  # SYMBOL      CAP                   CHANGE(24h)\n" "${1^^}"
-	jq -r '.[]|"\(.symbol) \(.market_cap) '${1^^}' \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s  %'"'"'22.2f %s    %.4f%%\n", toupper($1) , $2 , $3 , $4 , $5 }'
+	printf "  # SYMBOL      CAP(%s)            CHANGE(24h)\n" "${1^^}"
+	jq -r '.[]|"\(.symbol) \(.market_cap)  \(.market_cap_change_percentage_24h)"' <<< "${MARKETGLOBAL}"  | awk '{ printf "  # %s  %'"'"'22.2f    %.4f%%\n", toupper($1) , $2 , $3 , $4 }'
 	#Valid, but it they become indirect calculated numbers:
 	#for i in ${DOMINANCEARRAY[@]}; do
 	#	printf " #  %s    : %'22.2f %s\n" "${i^^}" "$(jq -r "(.data.total_market_cap.${1,,}*(.data.market_cap_percentage.${i,,}/100))" <<< "${CGKGLOBAL}")" "${1^^}"
@@ -385,11 +365,7 @@ exf() { # -ee Show Exchange list
 
 ## Bank currency rate function
 bankf() {
-	# Call CGK.com less
-	# Get currency lists (they will be exported by the function)
-	clistf
-	tolistf
-	
+	unset BANK
 	# Grep possible currency ids
 	if jq -r '.[],keys[]' <"${CGKTEMPLIST1}" | grep -qi "^${2}$"; then
 		changevscf "${2}" 2>/dev/null
@@ -425,7 +401,6 @@ bankf() {
 	# Timestamp? No timestamp for this API
 	# Calculate result
 	bc -l <<< "(${1}*${BTCBANK})/${BTCTOCUR}" | xargs printf "%.${SCL}f\n"
-	exit
 }
 
 ## -t Ticker Function
@@ -433,7 +408,7 @@ tickerf() {
 	# Temp file for tickers
 	CGKTEMPLIST3=$(mktemp /tmp/cgk.tickers.XXXXX) || tmperrf
 	## Trap temp cleaning functions
-	trap "rm3f; exit 130" EXIT SIGINT
+	trap "rm1f; rm3f; exit 130" EXIT SIGINT
 	# Test screen width
 	# if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
@@ -462,8 +437,7 @@ tickerf() {
 		exit
 	fi
 	## If there is CODE 2, then make sure you get only those pairs specified
-	GREPARG="."
-	test -n "${CODE2}" && GREPARG="^${CODE1}/${CODE2}="
+	test -n "${CODE2}" && GREPARG="^${CODE1}/${CODE2}=" || GREPARG="."
 	## Grep 4 pages of results instead of only 1
 	test -z "${TPAGES}" && TPAGES=4
 	printf "..." 1>&2
@@ -476,12 +450,6 @@ tickerf() {
 	done
 	printf "\n"
 	# Format all table and print
-
-	
-
-
-
-
 	grep -i -e "${GREPARG}" "${CGKTEMPLIST3}" | column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE" ${COLCONF}
 }
 
@@ -505,9 +473,9 @@ listsf() {
 # Create temp file only if not yet created
 clistf() {
 	# Check if there is a list or create one
-	if [[ -z "${CGKTEMPLIST1}" ]]; then
+	if [[ ! -f "${CGKTEMPLIST1}" ]]; then
 		# Make Temp files
-		CGKTEMPLIST1=$(mktemp /tmp/cgk.list2.XXXXX) || tmperrf
+		CGKTEMPLIST1=$(mktemp /tmp/cgk.list1.XXXXX) || tmperrf
 		export CGKTEMPLIST1
 		## Trap temp cleaning functions
 		trap "rm1f; exit 130" EXIT SIGINT
@@ -518,9 +486,9 @@ clistf() {
 
 # List of vs_currencies
 tolistf() {
-	# Ceck if there is a list or create one
-	if [[ -z "${CGKTEMPLIST2}" ]]; then
-		CGKTEMPLIST2=$(mktemp /tmp/cgk.list3.XXXXX) || tmperrf
+	# Check if there is a list or create one
+	if [[ ! -f "${CGKTEMPLIST2}" ]]; then
+		CGKTEMPLIST2=$(mktemp /tmp/cgk.list2.XXXXX) || tmperrf
 		export CGKTEMPLIST2
 		## Trap temp cleaning functions
 		trap "rm1f; rm2f; exit 130" EXIT SIGINT
@@ -594,19 +562,22 @@ done
 shift $((OPTIND -1))
 
 # Test for must have packages
-if ! command -v jq &>/dev/null; then
-	printf "JQ is required.\n" 1>&2
-	exit 1
-fi
-if command -v curl &>/dev/null; then
-	YOURAPP="curl -s"
-	YOURAPP2="curl -s --head"
-elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
-	YOURAPP2="wget -qO- --server-response"
-else
-	printf "cURL or Wget is required.\n" 1>&2
-	exit 1
+if [[ -z "${YOURAPP}" ]]; then
+	if ! command -v jq &>/dev/null; then
+		printf "JQ is required.\n" 1>&2
+		exit 1
+	fi
+	if command -v curl &>/dev/null; then
+		YOURAPP="curl -s"
+		YOURAPP2="curl -s --head"
+	elif command -v wget &>/dev/null; then
+		YOURAPP="wget -qO-"
+		YOURAPP2="wget -qO- --server-response"
+	else
+		printf "cURL or Wget is required.\n" 1>&2
+		exit 1
+	fi
+	export YOURAPP YOURAPP2
 fi
 
 # Call opt function
@@ -621,10 +592,13 @@ if [[ -z ${SCL} ]]; then
 fi
 
 # Set equation arguments
-# If first argument does not have numbers OR isn't a  valid expression
-if ! [[ "${1}" =~ [0-9] ]] ||
-	[[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
-	set -- 1 "${@:1:2}"
+# If first argument does not have numbers
+if ! [[ "${1}" =~ [0-9] ]]; then
+	set -- 1 "${@}"
+# if AMOUNT is not a valid expression for Bc
+elif [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
+	printf "Invalid expression in \"AMOUNT\"." 1>&2
+	exit 1
 fi
 # For use with ticker option
 CODE1="${2}"
@@ -633,69 +607,62 @@ if [[ -z ${2} ]]; then
 	set -- "${1}" btc
 fi
 if [[ -z ${3} ]]; then
-	set -- "${@:1:2}" usd
+	set -- "${1}" "${2}" usd
 fi
 
 ## Check FROM currency
 # Make sure "XAG Silver" does not get translated to "XAG Xrpalike Gene"
-if [[ -z "${BANK}" && "${2,,}" = "xag" ]]; then
-	printf "Did you mean xrpalike-gene?\n" 1>&2
-	exit 1
-fi
-clistf   # Bank opt needs this anyways
-if [[ -z "${BANK}" ]]; then
+if [[ -n "${BANK}" ]]; then
+	clistf
+	tolistf
+else
+	if [[ "${2,,}" = "xag" ]]; then
+		printf "Did you mean xrpalike-gene?\n" 1>&2
+		exit 1
+	fi
+	clistf   # Bank opt needs this anyways
 	if ! jq -r '.[],keys[]' <"${CGKTEMPLIST1}" | grep -qi "^${2}$"; then
 		printf "ERR: FROM_CURRENCY -- %s\n" "${2^^}" 1>&2
 		printf "Check symbol/ID and market pair.\n" 1>&2
 		exit 1
 	fi
-fi
-## Check VS_CURRENCY
-tolistf  # Bank opt needs this anyways
-if [[ -z "${TOPT}" && -z "${BANK}" ]]; then
-	if ! grep -qi "^${3}$" <"${CGKTEMPLIST2}"; then
-		printf "ERR: VS_CURRENCY -- %s\n" "${3^^}" 1>&2
-		printf "Check symbol/ID and market pair.\n" 1>&2
-		exit 1
+	## Check VS_CURRENCY
+	if [[ -z "${TOPT}" ]]; then
+		tolistf  # Bank opt needs this anyways
+		if ! grep -qi "^${3}$" <"${CGKTEMPLIST2}"; then
+			printf "ERR: VS_CURRENCY -- %s\n" "${3^^}" 1>&2
+			printf "Check symbol/ID and market pair.\n" 1>&2
+			exit 1
+		fi
 	fi
 	unset GREPID
-fi
-# Check if I can get from currency ID
-changevscf "${2}"
-if [[ -n ${GREPID} ]]; then
-	set -- "${1}" "${GREPID}" "${3}"
+	# Check if I can get from currency ID
+	changevscf "${2}"
+	if [[ -n ${GREPID} ]]; then
+		set -- "${1}" "${GREPID}" "${3}"
+	fi
 fi
 
 ## Call opt functions
 if [[ -n ${TOPT} ]]; then
 	tickerf "${@}"
 	exit
-fi
-if [[ -n "${EXOPT}" ]]; then
+elif [[ -n "${EXOPT}" ]]; then
 	exf
 	exit
-fi
-if [[ -n "${BANK}" ]]; then
+elif [[ -n "${BANK}" ]]; then
 	bankf "${@}"
 	exit
 fi
 
 ## Crypto and Central Bank Currency converter (Default option)
-if [[ -z "${CGKRATERAW}" ]]; then
+if [[ -n "${CGKRATERAW}" ]]; then
+	# Result for Bank function
+	bc -l <<< "scale=${SCL};(${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g'))/1"
+else
 	# Make equation and print result
 	bc -l <<< "scale=${SCL};(${1}*$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g'))/1"
-else	
-	# From Bank function
-	# Make equation and print result
-	bc -l <<< "scale=${SCL};(${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g'))/1"
 fi
 
 exit
-
-#Dead code
-# Ticker function Check for NO currency 
-if [[ -n "${TOPT}" ]] && [[ -z "${1}" ]]; then
-	printf "No currency given.\n" 1>&2
-	exit 1
-fi
 
