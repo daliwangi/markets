@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5  2019/nov/25  by mountaineerbr
+# v0.5.2  2019/nov/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -356,26 +356,27 @@ blkinfochairf() {
 ## -m Memory Pool Unconfirmed Txs ( Mempool )
 ## Uses blockchain.info and blockchair.com
 utxf() {
-	printf "All Tx Addresses and balance change in mempool.\n" 1>&2
+	printf "Mempool tx addresses and balance changes.\n" 1>&2
 	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
+	#MEMPOOL2="$(${YOURAPP} "https://api.blockchair.com/bitcoin-cash/mempool/transactions")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${MEMPOOL}"
 		exit 0
 	fi
 	# Print Addresses and balance delta (in satoshi and BTC)
-	jq -r '.data | keys_unsorted[] as $k | "\($k)    \(.[$k]) sat    \(.[$k]/100000000) BTC"' <<< "${MEMPOOL}"
-	# 100 last blocks:
-	printf "\nStats for last 100 blocks\n"
-	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
-	sleep 0.4
-	printf "A_BTime: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
-	sleep 0.4
+	jq -r '.data | keys_unsorted[] as $k | "\($k)  \(.[$k])  \(.[$k]/100000000) BTC"' <<< "${MEMPOOL}"
+	
+	# Some Stats
+	printf "Mempool\n"
+	printf "Addresses_: %s\n" "$(jq -r '.data|keys[]' <<<"${MEMPOOL}"|wc -l)"
+	printf "Unc_Txs___: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
+	#curl -s "https://api.blockchair.com/bitcoin/mempool/transactions" | jq -r '.context.total_rows'
+	printf "Blk_ETA___: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
+	printf "Last 100 blocks\n"
+	printf "Avg_Txs/B_: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
+	printf "Avg_B_Time: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
 
-	printf "\nMempool stats\n"
-	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
-	sleep 0.4
-	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
 }
 
 ## -b Raw Block info
@@ -446,10 +447,10 @@ raddf() {
 			exit 0
 		fi
 		# Check for error, then try Blockchair
-		if grep -iq  -e "invalid" <<< "${SUMADD}"; then
+		if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${SUMADD}"; then
 			printf "Err: <blockchain.com> -- %s\n" "${SUMADD}" 1>&2
-			printf "Changing to option \"-u\".\n" 1>&2
-			${0} -u "${1}"
+			printf "Trying with Blockchair...\n" 1>&2
+			chairaddf "${1}"
 			exit
 		fi	
 		printf "Summary Address Info\n"
@@ -467,10 +468,10 @@ raddf() {
 		exit 0
 	fi
 	# Check for error, try Blockchair
-	if grep -iq -e "illegal" -e "invalid" <<< "${RAWADD}"; then
+	if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${RAWADD}"; then
 		printf "Err: <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
-		printf "Changing to option \"-c\".\n" 1>&2
-		${0} -c "${1}"
+		printf "Trying with Blockchair...\n" 1>&2
+		chairaddf "${1}"
 		exit
 	fi
 	# Tx info
@@ -608,25 +609,11 @@ else
 fi
 
 # Parse options
-while getopts ":acsnjlmbetuhioxv" opt; do
+while getopts ":acbehiojlmnsutxv" opt; do
 	case ${opt} in
 		a|c ) # Address info
 			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
 		  	;;
-		s|u ) # Summary  Address info
-			SUMMARYOPT=1
-			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
-			;;
-		n ) # Block Height info
-			HOPT=1
-			;;
-		j ) # Print JSON
-			PJSON=1
-			;;
-		l ) # Latest Block info
-			latestf
-			exit
-			;;
 		b ) # Raw Block info
 			RAWOPT=1
 			;;
@@ -635,19 +622,33 @@ while getopts ":acsnjlmbetuhioxv" opt; do
 			# Exits automatically as err
 			exit 1
 			;;
-		t|x ) # Transaction info
-			test -z "${TXOPT}" && TXOPT=info || TXOPT=chair
+		h ) # Help
+			echo -e "${HELP}"
+			exit 0
+			;;
+		i|o ) # 24-H Blockchain Ticker
+			test -z "${BLKCHAINOPT}" && BLKCHAINOPT=info || BLKCHAINOPT=chair
+			;;
+		j ) # Print JSON
+			PJSON=1
+			;;
+		l ) # Latest Block info
+			latestf
+			exit
 			;;
 		m ) # Memory Pool Unconfirmed Txs
 			utxf
 			exit
 			;;
-		i|o ) # 24-H Blockchain Ticker
-			test -z "${BLKCHAINOPT}" && BLKCHAINOPT=info || BLKCHAINOPT=chair
+		n ) # Block Height info
+			HOPT=1
 			;;
-		h ) # Help
-			echo -e "${HELP}"
-			exit 0
+		s|u ) # Summary  Address info
+			SUMMARYOPT=1
+			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
+			;;
+		t|x ) # Transaction info
+			test -z "${TXOPT}" && TXOPT=info || TXOPT=chair
 			;;
 		v ) # Version of Script
 			head "${0}" | grep -e '# v'
@@ -664,12 +665,6 @@ shift $((OPTIND -1))
 # Check function args
 if { [[ -n "${ADDOPT}" ]] || [[ -n "${TXOPT}" ]];} && [[ -z "${1}" ]]; then
 	printf "Err: Tx/Addr ID/Hash is needed.\n" 1>&2
-	exit 1
-fi
-
-# Run -j without any other opt?
-if [[ -n "${PJSON}" ]]; then
-	printf "Err: option \"-j\" requires more parameters.\n"
 	exit 1
 fi
 
