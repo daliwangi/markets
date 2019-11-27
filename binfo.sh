@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.6  2019/nov/25  by mountaineerbr
+# v0.5.7  2019/nov/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -360,6 +360,10 @@ utxf() {
 	printf "Mempool unconfirmed transactions.\n" 1>&2
 	printf "Addresses and balance deltas.\n" 1>&2
 	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
+	if [[ -n  "${PJSON}" ]]; then
+		printf "%s\n" "${MEMPOOL}"
+		exit 0 
+	fi
 	#MEMPOOL2="$(${YOURAPP} "https://api.blockchair.com/bitcoin-cash/mempool/transactions")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
@@ -368,13 +372,12 @@ utxf() {
 	fi
 	# Print Addresses and balance delta (in satoshi and BTC)
 	jq -r '.data | keys_unsorted[] as $k | "\($k)      \(.[$k])      \(.[$k]/100000000)  BTC"' <<< "${MEMPOOL}"
-	date
+	jq -r '.context.cache.since' <<< "${MEMPOOL}"
 	printf "Results____: %s\n" "$(jq -r '.context.results' <<<"${MEMPOOL}")"
 	#curl -s "https://api.blockchair.com/bitcoin/mempool/transactions" | jq -r '.context.total_rows'
-	{ TOTALDELTA="$(jq -r '.data[]|tostring|match("^[1-9][0-9]+")|.string' <<<"${MEMPOOL}" | paste -sd+ | bc -l)"
-	  TOTALDELTA="$(bc -l <<<"${TOTALDELTA}/100000000")"
-	  printf "Total_Value: %.8f  BTC\n" "${TOTALDELTA}"
-	} 2>/dev/null
+	TOTALDELTA="$(jq -r '.data[]|tostring|match("^[1-9][0-9]+")|.string' <<<"${MEMPOOL}" | paste -sd+ | bc -l)"
+	TOTALDELTA="$(bc -l <<<"${TOTALDELTA}/100000000")"
+	printf "Total_Value: %.8f  BTC\n" "${TOTALDELTA}"
 }
 
 ## -b Raw Block info
@@ -635,8 +638,7 @@ while getopts ":abehijlmnsutv" opt; do
 			exit
 			;;
 		m|u ) # Memory Pool Unconfirmed Txs
-			utxf
-			exit
+			MEMOPT=1
 			;;
 		n ) # Block Height info
 			HOPT=1
@@ -694,6 +696,9 @@ elif [[ "${TXOPT}" = info ]]; then
 	exit
 elif [[ "${TXOPT}" = chair ]]; then
 	txinfobcf "${@}"
+	exit
+elif [[ -n "${MEMOPT}" ]]; then
+	utxf
 	exit
 fi
 
