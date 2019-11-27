@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.17  2019/nov/27  by mountaineerbr
+# v0.4.18  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -89,7 +89,6 @@ SCIENTIFIC EXTENSION
 BASH ALIAS
 	Consider creating a bash alias. Add to your ~/.bashrc:
 	
-
 		alias c=\"/path/to/bcalc.sh\"
 
 	
