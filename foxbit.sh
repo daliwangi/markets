@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.29  27/nov/2019  by mountaineer_br
+# v0.2.30  27/nov/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -104,6 +104,30 @@ INTV=86400
 #INTV=21600
 KEEPCONN="-n"
 
+# Functions
+## Price of Instrument
+statsf () {
+	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
+		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
+			"Foxbit Ticker Rolante",
+			"InstrID: \(.[8]) (\($IDNA))",
+			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Volume_: \(.[5])",
+			"Demanda: \(.[7])",
+			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
+			"Alta___: \(.[1])",
+			"Baixa__: \(.[2])  Var: \((.[1]-.[2])|round)",
+			"Abert._: \(.[3])",
+			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)"'
+}
+
+## Only Price of Instrument
+pricef () {
+	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
+}
+
 # Parse options
 while getopts ":hvi:pq" opt; do
 	case ${opt} in
@@ -190,36 +214,17 @@ fi
 # Trap Interrupt sign INT
 trap 'printf "\n"; exit 0;' INT
 
-## *Only* Price of Instrument
-pricef () {
-	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
-}
+# Call opt functions
 if [[ -n "${POPT}" ]]; then
 	pricef
 	exit
 fi
 
-## Price of Instrument
-statsf () {
-	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
-		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
-			"Foxbit Ticker Rolante",
-			"InstrID: \(.[8]) (\($IDNA))",
-			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-			"Volume_: \(.[5])",
-			"Demanda: \(.[7])",
-			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
-			"Alta___: \(.[1])",
-			"Baixa__: \(.[2])  Var: \((.[1]-.[2])|round)",
-			"Abert._: \(.[3])",
-			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)"'
-}
 # Defaul opt
 statsf
 
 exit
+
 
 # Dead code
 :<<COMMENT
