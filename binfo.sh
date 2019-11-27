@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.2  2019/nov/25  by mountaineerbr
+# v0.5.3  2019/nov/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -172,8 +172,8 @@ OPTIONS
     Other
       -h 	Show this help.
       -j 	Debug; print JSON.
-      -m 	Memory pool (unconfirmed) transaction Addresses and Balance
-      		deltas from Blockchair.
+      -m 	Memory pool unconfirmed transaction addresses and balance deltas
+      		from Blockchair.
       -v        Print script version."
 
 ## Functions
@@ -356,7 +356,8 @@ blkinfochairf() {
 ## -m Memory Pool Unconfirmed Txs ( Mempool )
 ## Uses blockchain.info and blockchair.com
 utxf() {
-	printf "Mempool tx addresses and balance changes.\n" 1>&2
+	printf "Mempool unconfirmed transactions.\n" 1>&2
+	printf "Addresses and balance deltas.\n" 1>&2
 	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
 	#MEMPOOL2="$(${YOURAPP} "https://api.blockchair.com/bitcoin-cash/mempool/transactions")"
 	# Print JSON?
@@ -609,9 +610,9 @@ else
 fi
 
 # Parse options
-while getopts ":acbehiojlmnsutxv" opt; do
+while getopts ":abehijlmnsutv" opt; do
 	case ${opt} in
-		a|c ) # Address info
+		a ) # Address info
 			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
 		  	;;
 		b ) # Raw Block info
@@ -626,7 +627,7 @@ while getopts ":acbehiojlmnsutxv" opt; do
 			echo -e "${HELP}"
 			exit 0
 			;;
-		i|o ) # 24-H Blockchain Ticker
+		i ) # 24-H Blockchain Ticker
 			test -z "${BLKCHAINOPT}" && BLKCHAINOPT=info || BLKCHAINOPT=chair
 			;;
 		j ) # Print JSON
@@ -636,18 +637,18 @@ while getopts ":acbehiojlmnsutxv" opt; do
 			latestf
 			exit
 			;;
-		m ) # Memory Pool Unconfirmed Txs
+		m|u ) # Memory Pool Unconfirmed Txs
 			utxf
 			exit
 			;;
 		n ) # Block Height info
 			HOPT=1
 			;;
-		s|u ) # Summary  Address info
+		s ) # Summary  Address info
 			SUMMARYOPT=1
 			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
 			;;
-		t|x ) # Transaction info
+		t ) # Transaction info
 			test -z "${TXOPT}" && TXOPT=info || TXOPT=chair
 			;;
 		v ) # Version of Script
