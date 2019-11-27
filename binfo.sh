@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.3  2019/nov/25  by mountaineerbr
+# v0.5.4  2019/nov/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -285,12 +285,13 @@ blkinfof() {
 		"Market",
 		"Price__: \(.market_price_usd) USD",
 		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
-	printf "\nStats for last 100 blocks\n"
-	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
-	sleep 0.4
-	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
-	sleep 0.4
-	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
+	# Some more stats
+	printf "Mempool\n"
+	printf "Unc_Txs___: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
+	printf "Blk_ETA___: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
+	printf "Last 100 blocks\n"
+	printf "Avg_Txs/B_: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
+	printf "Avg_B_Time: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
 }
 
 ## -ii Ticker for the Bitcoin Blockchain from Blockchair (updates every ~5min)
@@ -353,7 +354,7 @@ blkinfochairf() {
 		(.countdowns[]|"Event: \(.event)","TimeLeft: \(.time_left/86400) days")' <<< "${CHAINJSON}"
 }
 
-## -m Memory Pool Unconfirmed Txs ( Mempool )
+## -m -u Memory Pool Unconfirmed Txs ( Mempool )
 ## Uses blockchain.info and blockchair.com
 utxf() {
 	printf "Mempool unconfirmed transactions.\n" 1>&2
@@ -367,17 +368,8 @@ utxf() {
 	fi
 	# Print Addresses and balance delta (in satoshi and BTC)
 	jq -r '.data | keys_unsorted[] as $k | "\($k)  \(.[$k])  \(.[$k]/100000000) BTC"' <<< "${MEMPOOL}"
-	
-	# Some Stats
-	printf "Mempool\n"
 	printf "Addresses_: %s\n" "$(jq -r '.data|keys[]' <<<"${MEMPOOL}"|wc -l)"
-	printf "Unc_Txs___: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
 	#curl -s "https://api.blockchair.com/bitcoin/mempool/transactions" | jq -r '.context.total_rows'
-	printf "Blk_ETA___: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
-	printf "Last 100 blocks\n"
-	printf "Avg_Txs/B_: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
-	printf "Avg_B_Time: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
-
 }
 
 ## -b Raw Block info
