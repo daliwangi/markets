@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.18  2019/nov/27  by mountaineerbr
+# v0.4.19  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -46,9 +46,8 @@ DESCRIPTION
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
 	Decimal separator must be a dot \".\". Number of decimal plates (scale)
-	can be set with option \"-s\" but Bc will only use scale value if there
-	is a division operation in EQUATION. Results with thousands separator 
-	can be printed with option \"-t\" in which case a comma \",\" is used.
+	can be set with option \"-s\". Results with thousands separator can be 
+	printed with option \"-t\" in which case a comma \",\" is used.
 
 
 BC MATH LIBRARY
@@ -305,9 +304,9 @@ fi
 ## Calc expression and format result
 if [[ -n "${TOPT}" ]]; then
 	# Add thousands separator
-	printf "%'.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
+	printf "%'.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}")"
 else
-	bc -l <<<"${EXT};scale=${SCL};${EQ}"
+	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
 fi
 
 exit
