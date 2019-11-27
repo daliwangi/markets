@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.5  2019/nov/25  by mountaineerbr
+# v0.5.6  2019/nov/25  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -368,6 +368,7 @@ utxf() {
 	fi
 	# Print Addresses and balance delta (in satoshi and BTC)
 	jq -r '.data | keys_unsorted[] as $k | "\($k)      \(.[$k])      \(.[$k]/100000000)  BTC"' <<< "${MEMPOOL}"
+	date
 	printf "Results____: %s\n" "$(jq -r '.context.results' <<<"${MEMPOOL}")"
 	#curl -s "https://api.blockchair.com/bitcoin/mempool/transactions" | jq -r '.context.total_rows'
 	{ TOTALDELTA="$(jq -r '.data[]|tostring|match("^[1-9][0-9]+")|.string' <<<"${MEMPOOL}" | paste -sd+ | bc -l)"
