@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.28  27/nov/2019  by mountaineer_br
+# v0.2.29  27/nov/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -153,7 +153,7 @@ while getopts ":hvi:pq" opt; do
 			echo "Invalid Option: -$OPTARG" 1>&2
 			exit 1
 			;;
-	 esac
+	esac
 done
 shift $((OPTIND -1))
 
@@ -216,10 +216,12 @@ statsf () {
 			"Abert._: \(.[3])",
 			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)"'
 }
-#Defaul opt
+# Defaul opt
 statsf
+
 exit
 
+# Dead code
 :<<COMMENT
 [
     {
@@ -236,15 +238,11 @@ exit
     }
 ]
 COMMENT
-
 ## Products
-productsf() {
-
- websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<<'{"m":0,"i":10,"n":"GetProducts","o":"{\"OMSId\":1}"}' | jq -r '.o' | jq -r '.'
-
-}
+#productsf() {
+# websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<<'{"m":0,"i":10,"n":"GetProducts","o":"{\"OMSId\":1}"}' | jq -r '.o' | jq -r '.'
+#}
 #productsf
-
 :<<COMMENT
 Product ID 	Product
 1 		BTC
@@ -254,8 +252,6 @@ Product ID 	Product
 5 		TUSD
 6 		XRP
 COMMENT
-
-
 ## ?
 #websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":12,"n":"GetInstruments","o":"{"OMSId":1}"}' | jq -r '.'
 
