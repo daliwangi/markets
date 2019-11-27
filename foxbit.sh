@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.27  27/nov/2019  by mountaineer_br
+# v0.2.28  27/nov/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -204,10 +204,10 @@ statsf () {
 	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
 			"Foxbit Ticker Rolante",
-			"InstrumentID: \(.[8]) (\($IDNA))",
-			"Hora_Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Hora_Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Intervalo___: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"InstrID: \(.[8]) (\($IDNA))",
+			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
 			"Volume_: \(.[5])",
 			"Demanda: \(.[7])",
 			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
