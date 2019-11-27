@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.25  22/oct/2019  by mountaineer_br
+# v0.2.26  27/nov/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -207,13 +207,13 @@ statsf () {
 			"Hora_Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"Hora_Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"Intervalo___: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Volume_: \(.[5])",
+			"Demanda: \(.[7])",
+			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
 			"Alta___: \(.[1])",
 			"Baixa__: \(.[2])  Var: \((.[1]-.[2])|round)",
 			"Abert._: \(.[3])",
-			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)",
-			"Volume_: \(.[5])",
-			"Demanda: \(.[7])",
-			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)"'
+			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)"'
 }
 #Defaul opt
 statsf
