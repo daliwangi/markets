@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.12  2019/nov/24  by mountaineerbr
+# v0.4.13  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -154,7 +154,7 @@ while getopts ":cehnrs:t" opt; do
 			PEXT=1
 			;;
 		t ) # Group thousands
-			GROUP="'"
+			GROUP=1
 			;;
 		h ) # Show Help
 			echo -e "${HELP_LINES}"
@@ -259,9 +259,9 @@ fi
 ## Calc expression and format result
 if [[ -n "${GROUP}" ]]; then
 	# Add thousands separator
-	printf "%${GROUP}.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
+	printf "%'.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
 else
-	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
+	bc -l <<<"${EXT};scale=${SCL};(${EQ})/1"
 fi
 
 exit
