@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.14  2019/nov/27  by mountaineerbr
+# v0.4.16  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -35,9 +35,13 @@ DESCRIPTION
 	features.
 
 	A record file is created at \"${RECFILE}\".
-	Use of \"ans\" in EXPRESSION is substituted by last result from record 
-	file. If no EXPRESSION is given, wait for Stdin or user input. Press 
-	\"Ctr+D\" to send the EOF signal. If input is empty, prints last answer.
+	To not use or create a record file, use option \"-f\" or set NOREC=1 in
+	the script head, section Deafults. If a record file can be set, use of 
+	\"ans\" in EXPRESSION is swapped by the last result from record	file. 
+	
+	If no EXPRESSION is given, wait for Stdin (from pipe) or user input. 
+	Press \"Ctr+D\" to send the EOF signal. If input is empty, prints last
+	answer from record.
 
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
@@ -108,18 +112,13 @@ USAGE EXAMPLES
 
 			$ bcalc.sh -c \"ln(0.3)\"
 			
-			$ bcalc.sh -n This is my note.
+			$ bcalc.sh -c 0.234*na   #\"na\" is Avogadro's constant
 
-		
-		Define variables for use in the equation (lowercase):
-		
 			$ bcalc.sh \"a=5; -a+20\"
 
-
-		Use of cientific constants option \"-c\"; na = Avogadro's con-
-		stant; how many molecules in 0.234 M of solution? 
+			$ echo \"70000.450000\" | bcalc.sh -t -s2
 			
-			$ bcalc.sh -c 0.234*na
+			$ bcalc.sh -n This is my note.
 
 
 BUGS
