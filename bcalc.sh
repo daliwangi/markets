@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.13  2019/nov/27  by mountaineerbr
+# v0.4.14  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -10,9 +10,12 @@ RECFILE="${HOME}/.bcalc_record"
 EXTFILE="${HOME}/.bcalc_extensions"
 # Number of decimal plates (bc mathlib defaults is 20):
 SCLDEF=20
-# Don't change LC_NUMERIC
-LC_NUMERIC="en_US.UTF-8"
+# Do not use/create a Record file?
+# Do use = 0; Don't use = 1; defaults=0
+NOREC=0
 
+# Don't change this
+LC_NUMERIC="en_US.UTF-8"
 
 ## Manual and help
 HELP_LINES="NAME
@@ -20,13 +23,16 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	bcalc.sh [-ct] [-sNUM] [\"EQUATION\"]
+	bcalc.sh  [-cft]  [-sNUM]  [\"EQUATION\"]
 	
-	bcalc.sh [-ehr] [-n\"SHORT NOTE\"]
+	bcalc.sh  [-n\"SHORT NOTE\"]
+
+	bcalc.sh  [-cchrv]
 
 
 DESCRIPTION
-	Bcalc.sh uses the powerful Bash Calculator and adds some useful features.
+	Bcalc.sh uses the powerful Bash Calculator (Bc) and adds some useful 
+	features.
 
 	A record file is created at \"${RECFILE}\".
 	Use of \"ans\" in EXPRESSION is substituted by last result from record 
@@ -36,8 +42,9 @@ DESCRIPTION
 	Equations containing () with backslashes may need escaping with \"\" or ''.
 
 	Decimal separator must be a dot \".\". Number of decimal plates (scale)
-	can be set with option \"-s\". Results can be printed with thousands 
-	separator with option \"-t\" in which case a comma \",\" is used.
+	can be set with option \"-s\" but Bc will only use scale value if there
+	is a division operation in EQUATION. Results with thousands separator 
+	can be printed with option \"-t\" in which case a comma \",\" is used.
 
 
 BC MATH LIBRARY
@@ -64,10 +71,10 @@ SCIENTIFIC EXTENSION
 	
 	The scientific option will try to download a copy of a table of scien-
 	tific constants and extra math functions such as ln and log to \"${EXTFILE}\"
-	in a format readable by Bash Calculator (bc). Once downloaded, it is 
-	kept for future use. Needs Wget or cURL to download, or make it manually.
+	in a format readable by Bc. Once downloaded, it is kept for future use.
+	Download of extensions requires Wget or cURL.
 
-	Data is downloaded from:
+	Extensions from:
 
 		<http://x-bc.sourceforge.net/scientific_constants.bc>
 		
@@ -101,7 +108,7 @@ USAGE EXAMPLES
 
 			$ bcalc.sh -c \"ln(0.3)\"
 			
-			$ bcalc.sh -c \"log(16)\"
+			$ bcalc.sh -n This is my note.
 
 		
 		Define variables for use in the equation (lowercase):
@@ -126,82 +133,28 @@ BUGS
 
 
 OPTIONS
-		-c 	Use scientific extensions.
+		-c 	Use scientific extensions; pass twice to print exten-
+			sions.
     		
-		-e 	Print cientific extensions.
-    		
-		-t 	Group thousands; if no expression is given, reuse last 
-			answer.
+		-f 	Do not use a record file.
 
     		-h 	Show this help.
 
 		-n 	Add note to last result record; it should be used after 
-			a result is recorded to record file.
+			an answer is recorded to record file.
     		
 		-r 	Print results record.
     		
-		-s 	Set scale (decimal plates); defaults=${SCLDEF}; if no
-			expression is passed, reuse last answer."
+		-s 	Set scale (decimal plates); defaults=${SCLDEF}; Bc only
+			uses this scale setting if there is a division operation.
 
-# Parse options
-while getopts ":cehnrs:t" opt; do
-	case ${opt} in
-		c ) # Run calc with cientific extensions
-			CIENTIFIC=1
-			;;
-		e ) # Print cientific extensions
-			CIENTIFIC=1
-			PEXT=1
-			;;
-		t ) # Group thousands
-			GROUP=1
-			;;
-		h ) # Show Help
-			echo -e "${HELP_LINES}"
-			exit
-			;;
-		n ) # Add comment to Record
-			NOTE=1
-			;;
-		r ) # Print record
-			cat "${RECFILE}"
-			exit
-			;;
-		s ) # Scale ( decimal plates )
-			SCL="${OPTARG}"
-			;;
-		\? )
-	     		printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
-	     		exit 1
-	esac
-done
-shift $((OPTIND -1))
+		-t 	Thousands separator.
 
-# Set scale
-if [[ -z ${SCL} ]]; then
-	SCL="${SCLDEF}"
-fi
+		-v 	Print this script version."
 
-## Check if there is a Record file available
-## Otherwise, create an empty one
-if [[ ! -f "${RECFILE}" ]]; then
-	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
-fi
-## Add Note function
-if [[ -n "${NOTE}" ]]; then
-	if [[ -n "${*}" ]]; then
-		sed -i "$ i\>> NOTE: ${*}" "${RECFILE}"
-		exit
-	else
-		printf "Note is empty.\n" 1>&2
-		exit 1
-	fi
-fi
-# https://superuser.com/questions/781558/sed-insert-file-before-last-line
-# http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
-
-## Scientific Extension Function
-cientificf() {
+## Functions
+# Scientific Extension Function
+setcf() {
 	# Test if extensions file exists, if not download it from the internet
 	if ! [[ -f "${EXTFILE}" ]]; then
 		# Test for cURL or Wget
@@ -215,53 +168,138 @@ cientificf() {
 		fi
 		# Download extensions
 		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
-		  printf "\n"
-		  ${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
-		  printf "\n";} > "${EXTFILE}"
+			printf "\n"
+			${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
+			printf "\n";} > "${EXTFILE}"
 	fi
 	#Print extension file?
-	if [[ -n "${PEXT}" ]]; then
+	if [[ "${CIENTIFIC}" -eq 2 ]]; then
 		cat "${EXTFILE}"
 		exit
 	fi
 	# Set extensions for use with Bc
 	EXT="$(cat "${EXTFILE}")"
 }
-test -n "${CIENTIFIC}" && cientificf
+# Add Note function
+notef() {
+	if [[ -n "${*}" ]]; then
+		sed -i "$ i\>> ${*}" "${RECFILE}"
+		exit
+	else
+		printf "Note is empty.\n" 1>&2
+		exit 1
+	fi
+}
+# https://superuser.com/questions/781558/sed-insert-file-before-last-line
+# http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
+
+# Parse options
+while getopts ":cfhnrs:tv" opt; do
+	case ${opt} in
+		c ) # Run calc with cientific extensions
+		    # Print cientific extensions ?
+			[[ -z "${CIENTIFIC}" ]] && CIENTIFIC=1 || CIENTIFIC=2
+			PEXT=1
+			;;
+		f ) # No record file
+			NOREC=1
+			;;
+		h ) # Show Help
+			echo -e "${HELP_LINES}"
+			exit
+			;;
+		n ) # Add comment to Record
+			NOTEOPT=1
+			;;
+		r ) # Print record
+			if [[ -f "${RECFILE}" ]]; then
+				cat "${RECFILE}"
+				exit 0
+			else
+				printf "No record file.\n" 1>&2
+				exit 1
+			fi
+			;;
+		s ) # Scale ( decimal plates )
+			SCL="${OPTARG}"
+			;;
+		t ) # Thousands separator
+			TOPT=1
+			;;
+		v ) # Show this script version
+			head "${0}" | grep -e "^# v"
+			exit 0
+			;;
+		\? )
+	     		#printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+	     		break
+			;;
+	esac
+done
+shift $((OPTIND -1))
+
+## Add note to record
+if [[ -n "${NOTEOPT}" ]]; then
+	if [[ "${NOREC}" -eq 1 ]] || [[ ! -f "${RECFILE}" ]]; then
+		printf "Note function requires a record file.\n" 1>&2
+		exit 1
+	fi
+	notef "${*}"
+fi
+
+## Load cientific extensions?
+[[ -n "${CIENTIFIC}" ]] && setcf
+
+## Set scale
+[[ -z ${SCL} ]] && SCL="${SCLDEF}"
+
+## Check if there is a Record file available
+## Otherwise, create an empty one
+if [[ "${NOREC}" -eq 0 ]] && [[ ! -f "${RECFILE}" ]]; then
+	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
+fi
 
 ## Process Expression
 EQ="${*:-$(</dev/stdin)}"
 EQ="${EQ//,}"
-if grep -q ans <<< "${EQ}"; then 
-	#Grep last answer result from calc Record
-	ANS=$(tail -1 "${RECFILE}")
-	EQ="${EQ//ans/(${ANS})}"
-elif [[ -z "${EQ}" ]]; then
-	# If no expression, reuses last Ans
-	EQ="$(tail -1 "${RECFILE}")"
-fi
 
-## Check if equation syntax is valid (pre-result)
-PRES="$(bc -l <<< "${EXT};${EQ}")"
-if [[ -z "${PRES}" ]]; then
+# Use record file to get last answer
+if [[ "${NOREC}" -eq 0 ]]; then
+	if grep -q ans <<< "${EQ}"; then 
+		#Grep last answer result from calc Record
+		ANS=$(tail -1 "${RECFILE}")
+		EQ="${EQ//ans/(${ANS})}"
+	elif [[ -z "${EQ}" ]]; then
+		# If no expression, reuses last Ans
+		EQ="$(tail -1 "${RECFILE}")"
+	fi
+elif grep -qi -e "ans" <<<"${EQ}"; then
+	printf "Use of \"ans\" requires a record file.\n" 1>&2
 	exit 1
 fi
 
+## Check if equation syntax is valid (pre-result)
+# Do not redirect 2
+PRES="$(bc -l <<< "${EXT};${EQ}")"
+[[ -z "${PRES}" ]] && exit 1
+
 ## Calculate result
 ## If result is the same as last result, do not print it to Record again
-if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
+if [[ "${NOREC}" -eq 0 ]]; then
+	if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
 	## Print timestamp in Record
 	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
 	## Print original result to Record
 	printf "%s\n" "${PRES}" >> "${RECFILE}"
+	fi
 fi
 
 ## Calc expression and format result
-if [[ -n "${GROUP}" ]]; then
+if [[ -n "${TOPT}" ]]; then
 	# Add thousands separator
 	printf "%'.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
 else
-	bc -l <<<"${EXT};scale=${SCL};(${EQ})/1"
+	bc -l <<<"${EXT};scale=${SCL};${EQ}"
 fi
 
 exit
