@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.16  2019/nov/27  by mountaineerbr
+# v0.4.17  2019/nov/27  by mountaineerbr
 
 #Defaults
 # Record file:
@@ -52,7 +52,7 @@ DESCRIPTION
 
 
 BC MATH LIBRARY
-	Bcalc.sh uses bc with the math library. From Bc man page:       
+	Bcalc.sh uses Bc with the math library. From Bc man page:       
 
 
 		The math  library  defines the following functions:
@@ -68,15 +68,16 @@ BC MATH LIBRARY
 		e (x)  The exponential function of raising e to the value x.
 
 		j (n,x)
-			The Bessel function of integer order n of x.
+		       The Bessel function of integer order n of x.
 
 
 SCIENTIFIC EXTENSION
 	
 	The scientific option will try to download a copy of a table of scien-
-	tific constants and extra math functions such as ln and log to \"${EXTFILE}\"
-	in a format readable by Bc. Once downloaded, it is kept for future use.
-	Download of extensions requires Wget or cURL.
+	tific constants and extra math functions such as ln and log to 
+	\"${EXTFILE}\"
+	Once downloaded, it is kept for future use. Download of extensions re-
+	quires Wget or cURL.
 
 	Extensions from:
 
@@ -86,17 +87,26 @@ SCIENTIFIC EXTENSION
 
 
 BASH ALIAS
-	You may consider creating a bash alias to easier use. A suggestion is to
-	add to your ~/.bashrc:
+	Consider creating a bash alias. Add to your ~/.bashrc:
 	
 
-	  alias c=\"/path/to/bcalc.sh\"
+		alias c=\"/path/to/bcalc.sh\"
 
+	
+	There are two ingenius ways for using native Bc with Bash.
+
+		c() { echo \"\${*}\" | bc -l;}
+		
+		alias c=\"bc -l <<<'\"
+	
+
+	In the latter, user must type a  '  sign to end expression.
+	
 
 USAGE EXAMPLES
 			$ bcalc.sh 50.7+9
 
-			$ bcalc.sh \"(100+100/2)*2\" 
+			$ bcalc.sh '(100+100/2)*2' 
 
 			$ bcalc.sh 2^2+(8-4)
 
@@ -114,7 +124,7 @@ USAGE EXAMPLES
 			
 			$ bcalc.sh -c 0.234*na   #\"na\" is Avogadro's constant
 
-			$ bcalc.sh \"a=5; -a+20\"
+			$ bcalc.sh 'a=5; -a+20'
 
 			$ echo \"70000.450000\" | bcalc.sh -t -s2
 			
