@@ -36,7 +36,7 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>INDEX</b>:
 
-<b>bcalc.sh --</b> Simple Bash calculator that uses bc and keeps a record of results;
+<b>bcalc.sh --</b> Simple wrapper for Bash Bc that keeps a record of results;
 
 <b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt;
 
