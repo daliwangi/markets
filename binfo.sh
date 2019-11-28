@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.7  2019/nov/25  by mountaineerbr
+# v0.5.8  2019/nov/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -17,7 +17,7 @@ SYNOPSIS
 	
 	$ binfo.sh  [-tt\"TransactionHx|ID\"]
 	
-	$ binfo.sh  [-e|-h|-ii|-l|-m|-v]
+	$ binfo.sh  [-ehiilmv]
 
 
 	This programme fetches information of Bitcoin blocks, addresses and 
