@@ -1,17 +1,16 @@
 #!/bin/bash
-#
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.19  2019/nov/27  by mountaineerbr
+# v0.4.20  2019/nov/27  by mountaineerbr
 
-#Defaults
-# Record file:
+## Defaults
+#Record file:
 RECFILE="${HOME}/.bcalc_record"
-# Extensions file:
+#Extensions file:
 EXTFILE="${HOME}/.bcalc_extensions"
-# Number of decimal plates (bc mathlib defaults is 20):
+#Number of decimal plates (bc mathlib defaults is 20):
 SCLDEF=20
-# Do not use/create a Record file?
-# Do use = 0; Don't use = 1; defaults=0
+#Disable Record file?
+#Enable = 0 (defaults); Disable = 1
 NOREC=0
 
 # Don't change this
@@ -35,9 +34,10 @@ DESCRIPTION
 	features.
 
 	A record file is created at \"${RECFILE}\".
-	To not use or create a record file, use option \"-f\" or set NOREC=1 in
-	the script head, section Deafults. If a record file can be set, use of 
-	\"ans\" in EXPRESSION is swapped by the last result from record	file. 
+	To disable using a record file set option \"-f\" or NOREC=1 in the 
+	script head code, section Deafults. If a record file can is available,
+	use of \"ans\" in EXPRESSION is swapped by the last result from record
+	file. 
 	
 	If no EXPRESSION is given, wait for Stdin (from pipe) or user input. 
 	Press \"Ctr+D\" to send the EOF signal. If input is empty, prints last
@@ -162,9 +162,9 @@ OPTIONS
 ## Functions
 # Scientific Extension Function
 setcf() {
-	# Test if extensions file exists, if not download it from the internet
+	#test if extensions file exists, if not download it from the internet
 	if ! [[ -f "${EXTFILE}" ]]; then
-		# Test for cURL or Wget
+		#test for cURL or Wget
 		if command -v curl &>/dev/null; then
 			YOURAPP="curl"
 		elif command -v wget &>/dev/null; then
@@ -173,25 +173,25 @@ setcf() {
 			printf "cURL or Wget is required.\n" 1>&2
 			exit 1
 		fi
-		# Download extensions
+		#download extensions
 		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
 			printf "\n"
 			${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
 			printf "\n";} > "${EXTFILE}"
 	fi
-	#Print extension file?
+	#print extension file?
 	if [[ "${CIENTIFIC}" -eq 2 ]]; then
 		cat "${EXTFILE}"
 		exit
 	fi
-	# Set extensions for use with Bc
+	#set extensions for use with Bc
 	EXT="$(cat "${EXTFILE}")"
 }
 # Add Note function
 notef() {
 	if [[ -n "${*}" ]]; then
 		sed -i "$ i\>> ${*}" "${RECFILE}"
-		exit
+		exit 0
 	else
 		printf "Note is empty.\n" 1>&2
 		exit 1
@@ -203,22 +203,22 @@ notef() {
 # Parse options
 while getopts ":cfhnrs:tv" opt; do
 	case ${opt} in
-		c ) # Run calc with cientific extensions
-		    # Print cientific extensions ?
+		c ) #run calc with cientific extensions
+		    #print cientific extensions ?
 			[[ -z "${CIENTIFIC}" ]] && CIENTIFIC=1 || CIENTIFIC=2
 			PEXT=1
 			;;
-		f ) # No record file
+		f ) #no record file
 			NOREC=1
 			;;
-		h ) # Show Help
+		h ) #show this help
 			echo -e "${HELP_LINES}"
 			exit
 			;;
-		n ) # Add comment to Record
+		n ) #disable record file
 			NOTEOPT=1
 			;;
-		r ) # Print record
+		r ) #print record
 			if [[ -f "${RECFILE}" ]]; then
 				cat "${RECFILE}"
 				exit 0
@@ -227,18 +227,17 @@ while getopts ":cfhnrs:tv" opt; do
 				exit 1
 			fi
 			;;
-		s ) # Scale ( decimal plates )
+		s ) #scale ( decimal plates )
 			SCL="${OPTARG}"
 			;;
-		t ) # Thousands separator
+		t ) #thousands separator
 			TOPT=1
 			;;
-		v ) # Show this script version
+		v ) #show this script version
 			head "${0}" | grep -e "^# v"
 			exit 0
 			;;
 		\? )
-	     		#printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
 	     		break
 			;;
 	esac
@@ -261,7 +260,7 @@ fi
 [[ -z ${SCL} ]] && SCL="${SCLDEF}"
 
 ## Check if there is a Record file available
-## Otherwise, create an empty one
+# otherwise, create an empty one
 if [[ "${NOREC}" -eq 0 ]] && [[ ! -f "${RECFILE}" ]]; then
 	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
 fi
@@ -273,11 +272,11 @@ EQ="${EQ//,}"
 # Use record file to get last answer
 if [[ "${NOREC}" -eq 0 ]]; then
 	if grep -q ans <<< "${EQ}"; then 
-		#Grep last answer result from calc Record
+		#grep last answer result from calc Record
 		ANS=$(tail -1 "${RECFILE}")
 		EQ="${EQ//ans/(${ANS})}"
 	elif [[ -z "${EQ}" ]]; then
-		# If no expression, reuses last Ans
+		#if no expression, reuses last Ans
 		EQ="$(tail -1 "${RECFILE}")"
 	fi
 elif grep -qi -e "ans" <<<"${EQ}"; then
@@ -285,28 +284,32 @@ elif grep -qi -e "ans" <<<"${EQ}"; then
 	exit 1
 fi
 
-## Check if equation syntax is valid (pre-result)
-# Do not redirect 2
-PRES="$(bc -l <<< "${EXT};${EQ}")"
-[[ -z "${PRES}" ]] && exit 1
-
-## Calculate result
-## If result is the same as last result, do not print it to Record again
-if [[ "${NOREC}" -eq 0 ]]; then
-	if [[ "${PRES}" != $(tail -1 "${RECFILE}") ]]; then
-	## Print timestamp in Record
-	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
-	## Print original result to Record
-	printf "%s\n" "${PRES}" >> "${RECFILE}"
+## Calc result and check expression syntax
+RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
+if [[ -z "${RES}" ]]; then
+	RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}")"
+	if [[ -z "${RES}" ]]; then
+	exit 1
 	fi
 fi
 
-## Calc expression and format result
+## Calculate result
+# do not print duplicate 'last result' to record file
+if [[ "${NOREC}" -eq 0 ]]; then
+	if [[ "${RES}" != $(tail -1 "${RECFILE}") ]]; then
+	#print timestamp in Record
+	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
+	#print original result to Record
+	printf "%s\n" "${RES}" >> "${RECFILE}"
+	fi
+fi
+
+## Format result
 if [[ -n "${TOPT}" ]]; then
-	# Add thousands separator
-	printf "%'.${SCL}f\n" "$(bc -l <<<"${EXT};scale=${SCL};${EQ}")"
+	#thousands separator
+	printf "%'.${SCL}f\n" "${RES}"
 else
-	bc -l <<<"${EXT};scale=${SCL};${EQ}/1"
+	printf "%s\n" "${RES}"
 fi
 
 exit
