@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9.10  2019/nov/26  by mountaineerbr
+# v0.9.11  2019/nov/28  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -554,7 +554,7 @@ while getopts ":behljmp:s:tv" opt; do
 			exit 0
 			;;
 		\? )
-			echo "Invalid Option: -$OPTARG" 1>&2
+			printf "Invalid Option: -%s\n" "${OPTARG}" 1>&2
 			exit 1
 			;;
 	esac
@@ -597,7 +597,7 @@ if ! [[ "${1}" =~ [0-9] ]]; then
 	set -- 1 "${@}"
 # if AMOUNT is not a valid expression for Bc
 elif [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
-	printf "Invalid expression in \"AMOUNT\"." 1>&2
+	printf "Invalid expression in \"AMOUNT\".\n" 1>&2
 	exit 1
 fi
 # For use with ticker option
