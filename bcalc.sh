@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.20  2019/nov/27  by mountaineerbr
+# v0.4.21  2019/nov/27  by mountaineerbr
 
 ## Defaults
 #Record file:
@@ -293,8 +293,7 @@ if [[ -z "${RES}" ]]; then
 	fi
 fi
 
-## Calculate result
-# do not print duplicate 'last result' to record file
+# Print equation to record file?
 if [[ "${NOREC}" -eq 0 ]]; then
 	if [[ "${RES}" != $(tail -1 "${RECFILE}") ]]; then
 	#print timestamp in Record
