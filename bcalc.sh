@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.21  2019/nov/27  by mountaineerbr
+# v0.4.22  2019/nov/27  by mountaineerbr
 
 ## Defaults
 #Record file:
@@ -296,9 +296,9 @@ fi
 # Print equation to record file?
 if [[ "${NOREC}" -eq 0 ]]; then
 	if [[ "${RES}" != $(tail -1 "${RECFILE}") ]]; then
-	#print timestamp in Record
+	#print timestamp
 	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
-	#print original result to Record
+	#print original result
 	printf "%s\n" "${RES}" >> "${RECFILE}"
 	fi
 fi
