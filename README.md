@@ -36,44 +36,42 @@ Curl, JQ, Websocat and Lolcat.
 
 <b>INDEX</b>:
 
-<b>bcalc.sh --</b> Simple wrapper for Bash Bc that keeps a record of results;
+<b>bcalc.sh --</b> Simple wrapper for Bash Bc that keeps a record of results.
 
-<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt;
+<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt.
 
-<b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker;
+<b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker.
 
-<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; shows notification on new block found for the Bitcoin blockchain;
+<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; shows notification on new block found for the Bitcoin blockchain.
 
-<b>bitstamp.sh --</b> Bitstamp exchange public API for live trade prices/info;
+<b>bitstamp.sh --</b> Bitstamp exchange public API for live trade prices/info.
 
-<b>bitfinex.sh --</b> Bitfinex exchange public API for live tarde prices;
+<b>bitfinex.sh --</b> Bitfinex exchange public API for live tarde prices.
 
-<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges;
+<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges.
 
 <b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
 This is my favorite everyday-use script for all-currency rates!
 
-<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and (BTC) crypto converter;
+<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and (BTC) crypto converter.
 
-<b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker;
+<b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker.
 
-<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter;
+<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter.
 
-<b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações;
+<b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações.
 
-<b>myc.sh --</b> MyCurrency.net public API, central bank currency converter;
+<b>myc.sh --</b> MyCurrency.net public API, central bank currency converter.
 
-<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter;
+<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
 
-<b>ourominas.sh --</b> Pega taxas da Ag. de Câmbio Ouro Minas (somente de moedas de banco centrais);
+<b>ourominas.sh --</b> Pega taxas da Ag. de Câmbio Ouro Minas.
 
-<b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal
+<b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal.
 
-<b>uol.sh --</b> Puxa dados de páginas do UOL Economia
+<b>uol.sh --</b> Puxa dados de páginas do UOL Economia.
 
 <b>whalealert.sh --</b> Get latest whale transactions from whale-alert.io API.
-
-<b>Other Scripts/Outros Scripts --</b> Experimental
 
 <i>Also check/Também veja:
 
