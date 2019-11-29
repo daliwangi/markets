@@ -26,10 +26,10 @@ clayprata() { ~/_scripts/markets/clay.sh -s6 "1/${OZ}" xag brl; }
 ## USD/BRL Rate & Metais
 {
 date "+%Y-%m-%dT%H:%M:%S(%Z)"
-OPENXBRL=$(~/_scripts/markets/openx.sh usd brl)
-CLAYBRL=$(~/_scripts/markets/clay.sh usd brl)
+OPENXBRL=$(~/_scripts/markets/openx.sh -s4 usd brl)
+CLAYBRL=$(~/_scripts/markets/clay.sh -s4 usd brl)
 echo "       Real BRL"
-echo "ERates:  $(~/_scripts/markets/erates.sh -s6 usd brl)"
+echo "ERates:  $(~/_scripts/markets/erates.sh -s4 usd brl)"
 echo "CLay:    ${CLAYBRL}"
 echo "OpenX:   ${OPENXBRL}"
 CMCBRL=$(~/_scripts/markets/cmc.sh -s4 -b usd brl)

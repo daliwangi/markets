@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.5  2019/nov/26  by mountaineerbr
+# v0.5.1  2019/nov/26  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -473,7 +473,8 @@ if [[ -z "${CCHECK}" ]]; then
 		printf "cURL is required.\n" 1>&2
 		exit 1
 	fi
-	export CCHECK=1
+	CCHECK=1
+	export CCHECK
 fi
 
 # Call opt functions

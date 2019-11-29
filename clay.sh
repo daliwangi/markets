@@ -1,14 +1,13 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3.6  2019/nov/13  by mountaineerbr
+# v0.3.8  2019/nov/29  by mountaineerbr
 
-
-## Some defaults
-# Get your own personal API KEY, please!
+## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
 
-
+## Some defaults
+SCLDEFAULTS=8
 ## You should not change this:
 LC_NUMERIC="en_US.UTF-8"
 
@@ -20,11 +19,10 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	clay.sh [options] [from_currency] [to_currency]
 
-	clay.sh [-s|-t] [amount] [from_currency] [to_currency]
+	clay.sh [-t] [sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
 
-	clay.sh [-h|-j|-l|-v]
+	clay.sh [-hjlv]
 
 
 DESCRIPTION
@@ -33,9 +31,7 @@ DESCRIPTION
 
 	Free plans should get currency updates daily only. It supports very few 
 	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
-	up for a free private API key and change it in the script source code 
-	(look for variable CLAYAPIKEY), as the script default API key may stop wor-
-	king at any moment and without warning!
+	up for a free private API key.
 
 	Gold and other metals are priced in Ounces.
 		
@@ -48,7 +44,7 @@ DESCRIPTION
 		OZ=\"28.349523125\"
 
 	
-	Default precision is 16. Trailing zeroes are trimmed by default.
+	Bc uses a dot as decimal separtor. Default precision is 8.
 
 
 API KEY
@@ -112,13 +108,13 @@ USAGE EXAMPLES
 OPTIONS
 		-h 	Show this help.
 
-		-j 	Print JSON to stdout (useful for debugging).
+		-j 	Debug; print JSON.
 
 		-l 	List supported currencies.
 
-		-s 	Set scale ( decimal plates ).
+		-s 	Set decimal plates; defaults=8.
 
-		-t 	Print JSON timestamp.
+		-t 	Print timestamp.
 		
 		-v 	Show this programme version."
 
@@ -170,7 +166,6 @@ fi
 
 
 ## Set default scale if no custom scale
-SCLDEFAULTS=16
 if [[ -z ${SCL} ]]; then
 	SCL=${SCLDEFAULTS}
 fi
@@ -186,10 +181,7 @@ set -- "${@:1:2}" "USD"
 fi
 
 ## Get JSON once
-cljsonf() {
-	CLJSON=$(curl -s http://www.apilayer.net/api/live?access_key=${CLAYAPIKEY}&callback=CALLBACK_FUNCTION)
-}
-cljsonf
+CLJSON="$(curl -s "http://www.apilayer.net/api/live?access_key=${CLAYAPIKEY}")"
 
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
@@ -225,12 +217,12 @@ if grep -q "e" <<< "${TOCURRENCY}"; then
 	fi
 fi
 
-## Print JSON timestamp ?
+## Print timestamp ?
 if [[ -n ${TIMEST} ]]; then
 	JSONTIME=$(jq ".timestamp" <<< "${CLJSON}")
 	date -d@"$JSONTIME" "+## %FT%T%Z"
 fi
 
 ## Make equation and print result
-bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/${FROMCURRENCY})"
+bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY})/${FROMCURRENCY};"
 

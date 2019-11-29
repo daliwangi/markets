@@ -3,7 +3,8 @@
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
 # v0.1.9  2019/nov/29  by mountaineerbr
 
-SCRIPTBASECUR="USD"
+## Some defaults
+SCRIPTBASECUR="EUR"
 SCLDEFAULTS=8
 
 ## Manual and help
@@ -42,17 +43,15 @@ DESCRIPTION
 	ly  concertation  procedure between central banks across Europe, which 
 	normally takes place at 14:15 CET.
 
-	Even though we get the raw data with rates against the EUR, I prefer
-	to check rates against USD by default (when TO_CURRENCY is not speci-
-	fied). You may change that to EUR or any other currency setting the 
-	\"SCRIPTBASECUR\" variable in the script source code.
+	Raw data is against the Euro and it will be used as defaults if you do 
+	not specify a TO_CURRENCY.
 
 	Bash Calculator uses a dot for decimal separtor.
 
 
 	Usage examples:
 		
-		(1) One US DOllar in Brazilian Real:
+		(1) One US Dollar in Brazilian Real:
 
 		$ erates.sh usd brl
 
