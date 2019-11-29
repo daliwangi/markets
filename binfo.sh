@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.11  2019/nov/28  by mountaineerbr
+# v0.5.12  2019/nov/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -500,7 +500,7 @@ chairaddf() {
 	CHAIRADD="$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${1}")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the chair summary address function.\n" 1>&2
+		printf "JSON from the chair address function.\n" 1>&2
 		printf "%s\n" "${CHAIRADD}"
 		exit 0
 	fi
