@@ -1,9 +1,10 @@
 #!/bin/bash
 #
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
-# v0.1.7  2019/oct/13  by mountaineerbr
+# v0.1.9  2019/nov/29  by mountaineerbr
 
 SCRIPTBASECUR="USD"
+SCLDEFAULTS=8
 
 ## Manual and help
 ## Usage: $ erates.sh [amount] [from currency] [to currency]
@@ -20,9 +21,9 @@ NAME
 
 
 SYNOPSIS
-	erates.sh \e[0;35;40m[-h|-l|-v]\033[00m
-
-	erates.sh \e[0;35;40m[-j|-s]\033[00m \e[0;33;40m[AMOUNT]\033[00m \e[0;32;40m[FROM_CURRENCY]\033[00m \e[0;31;40m[TO_CURRENCY]\033[00m
+	erates.sh [-j] [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	
+	erates.sh [-hlv]
 
 
 DESCRIPTION
@@ -46,17 +47,14 @@ DESCRIPTION
 	fied). You may change that to EUR or any other currency setting the 
 	\"SCRIPTBASECUR\" variable in the script source code.
 
-	Bash  Calculator  uses  dot for floating numbers. Trailing zeroes are
-	trimmed by default.
+	Bash Calculator uses a dot for decimal separtor.
 
 
 	Usage examples:
 		
-		(1) One Brazilian real in US Dollar:
+		(1) One US DOllar in Brazilian Real:
 
-		$ erates.sh brl
-
-		$ erates.sh 1 brl usd
+		$ erates.sh usd brl
 
 		
 		(2) One Euro to Japanese yen (one-EUR-worth of JPY):
@@ -64,7 +62,7 @@ DESCRIPTION
 		$ erates.sh eur jpy
 
 
-		(3) Half a Danish Krone to Chinese Yuan with 3 decimal plates (scale):
+		(3) Half a Danish Krone to Chinese Yuan, 3 decimal plates (scale):
 
 		$ erates.sh -s3 0.5 dkk cny
 
@@ -73,13 +71,23 @@ OPTIONS
 	 	
 		-h 	Show this help.
 
-		-j 	Print JSON file.
+		-j 	Debug; print JSON.
 
 		-l 	List supported currencies and their rates agains EUR.
 
-		-s 	Set scale (defaults=16).
+		-s 	Set scale (defaults=8).
 		
 		-v 	Show this programme version."
+
+## Functions
+# List all suported currencies and EUR rates?
+listf() {
+	printf "Rates against EUR.\n"
+ 	printf "%s\n" "${JSON}" | jq -r '.rates' | tr -d '{}",' | sort | sed -e 's/^[[:space:]]*//g' -e '/^$/d'
+	printf "<https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html>\n"
+	exit 0
+}
+
 
 ## Check for some needed packages
 if ! command -v curl &> /dev/null; then
@@ -90,7 +98,6 @@ elif ! command -v jq &> /dev/null; then
 	printf "%s\n" "Ref: https://stedolan.github.io/jq/download/" 1>&2
 	exit 1
 fi
-
 # Check if there is any argument
 if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
@@ -101,7 +108,6 @@ if grep -qi -e "XAU" -e "XAG" -e "XAP" -e "XPD" -e "gold" -e "silver" <<< "${*}"
 	printf "exchangerates.io does not support precious metals.\n" 1>&2
 	exit 1
 fi
-
 
 # Parse options
 while getopts ":lhjs:tv" opt; do
@@ -134,38 +140,30 @@ while getopts ":lhjs:tv" opt; do
 done
 shift $((OPTIND -1))
 
-
 ## Set default scale if no custom scale
-SCLDEFAULTS=16
 if [[ -z ${SCL} ]]; then
 	SCL=${SCLDEFAULTS}
 fi
-
 # Set equation arquments
 if ! [[ ${1} =~ [0-9] ]]; then
 	set -- 1 ${@:1:2}
 fi
-
 if [[ -z ${3} ]]; then
 	set -- ${@:1:2} "${SCRIPTBASECUR}"
 fi
 
 ## Get JSON once
-JSON="$( curl -s https://api.exchangeratesapi.io/latest)"
+JSON="$(curl -s "https://api.exchangeratesapi.io/latest")"
 ## Print JSON?
 if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${JSON}"
 	exit
 fi
-## List all suported currencies and EUR rates?
-if [[ -n ${LISTOPT} ]]; then
-	printf "\nList of all supported currencies against EUR.\n\n"
-	printf " Code: Rate"
- 	printf "%s\n" "${JSON}" | jq -r '.rates' | tr -d '{}",' | sort
-	printf "\nAlso check:\n\n"
-	printf "<https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html>\n\n"
-	exit
-fi
+
+# Call opt functions
+[[ "${LISTOPT}" ]] && listf
+
+## Default function -- Currency converter
 ## Check if request is a supported currency:
 if ! [[ "${2^^}" = "EUR" ]] && ! jq -r '.rates | keys[]' <<< "${JSON}" | grep -qi "^${2}$"; then
 	printf "Not a supported currency at exchangeratesapi.io: %s\n" "${2}" 1>&2
@@ -189,5 +187,5 @@ else
 fi
 
 ## Make equation and print result
-bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/${FROMCURRENCY})"
+bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY})/${FROMCURRENCY};"
 

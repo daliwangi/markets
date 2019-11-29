@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1  29/nov/2019  by mountaineer_br
+# v0.1.1  29/nov/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -27,7 +27,7 @@ hf() {  sed 's/<[^>]*>//g';}
 
 # Cotação da BOVESPA B3 Hack
 b3f() {
-	printf "UOL - B3\n"
+	printf "UOL B3\n"
 	UOLB3="$(${YOURAPP} "https://cotacoes.economia.uol.com.br/index.html" | hf | tr -d '\t' | sed '/^[[:space:]]*$/d')"
  	grep --color=never -A1 '%' <<<"${UOLB3}"
  	grep --color=never -Eo "[[:digit:]]+:[[:digit:]]+" <<<"${UOLB3}"
@@ -43,7 +43,7 @@ lstocksf() {
 # Cotação dos metais
 metf() {
 	COT="$(${YOURAPP} "https://economia.uol.com.br/cotacoes/" | hf)"
-	printf "UOL - Metais preciosos\n"
+	printf "UOL Metais preciosos\n"
 grep -iEo --color=never 'ouro.{120}' <<<"${COT}" | sed 's/[0-9]\s/&\n/g' | sed -e 's/^[ \t]*//' -e '/^$/d' -e 's/US\$//g' | column -et -N'METAL,VAR,VENDA(USD)'
 	grep -o "Câmbio     Atualizado em..............." <<<"${COT}" | sed 's/    //g'
 	exit
