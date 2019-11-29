@@ -1,13 +1,31 @@
 #!/bin/bash
-# v0.2.4 09/oct/2019  by mountaineer_br
+# v0.3  29/nov/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
+#Não trampam com Prata!
 
 LC_NUMERIC=en_US.UTF-8
 
+AJUDA="Ourominas.sh -- Puxa as cotações das moedas de Ouro Minas
+
+
+SINOPSE
+	O script puxa as cotações de <https://www.ourominas.com/om/page.html>. 
+	O portal observa que os valores são exclusivos para compras no site e 
+	que as cotações não tem IOF incluso.
+
+	Para estimar o valor dia grama de ouro, deve-se multiplicar a cotação do
+	dólar americano da Ouro Minas pela cotação em dólar do ouro internacio-
+	nal. Para puxar a cotação do ouro, utiliza-se cotação do UOL.
+
+	Os pacotes Bashi, cURL e iconv (Glibc) são necessários." 
+# Ajuda
+if [[ "${1}" = '-h' ]]; then
+	printf "%s\n" "${AJUDA}"
+	exit
+fi
+
 ## Taxas da Ouro Minas
-DATA="$(curl -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" |
-	sed -E 's/<[^>]*>//g' |	iconv -c -f utf-8 | tr -d ' ' |
-	grep -iv "pr-pago" | sed -e 's/^[ \t]*//')"
+DATA="$(curl -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" | sed -E 's/<[^>]*>//g' | iconv -c -f utf-8 | tr -d ' ' | grep -iv "pr-pago" | sed -e 's/^[ \t]*//')"
 USD=($(grep -i -A2 "laramericano" <<< "${DATA}" | sed 's/.$/=/g'))
 EUR=($(grep -i -A2 "euro" <<< "${DATA}" | sed 's/.$/=/g'))
 GBP=($(grep -i -A2 "libra" <<< "${DATA}" | sed 's/.$/=/g'))
@@ -34,16 +52,12 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	sed -e 's/Dlar/Dólar/g' -e 's/Suio/Suiço/g' -e 's/Chins/Chinês/g' |
 	column -t -s"=" -N'Moeda,Venda,Compra' -R'Moeda'
 
-# Calcular o preço de venda com o CGK.sh
-# Ourominas não oferece o preço dos lingotes publicamente, até onde eu vi.
-# Se tiver um script para puxar o preço do ouro em dólares:
-if [[ -e "/home/jsn/_Scripts/markets/cgk.sh" ]]; then
-	CGKXAU="$(~/_Scripts/markets/cgk.sh -b xau usd)"
-	USDP="${USD[@]:1:1}"
-	USDP="${USDP%\=}"
-	printf "Venda Ouro Estimada(R$/g): %s\n" "$(bc -l <<< "scale=3; ${CGKXAU}*${USDP/,/.}/28.349523125")"
-fi
+# Estimagem do preço por cotação do UOL
+USDP="${USD[@]:1:1}"
+USDP="${USDP%\=}"
+UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed 's/<[^>]*>//g' | grep -iEo --color=never 'ouro.{25}' | cut -d' ' -f5 | tr ',' '.')"
+{ printf "Ouro USD UOL    %s\n" "$(bc -l <<< "scale=4;${UOLXAU}/1")"
+printf "Ouro Est(R$/g)   %s\n" "$(bc -l <<< "scale=4; ${UOLXAU}*${USDP/,/.}/28.349523125")"; } | tr '.' ','
 
 exit
-#Não trampam com Prata!
 
