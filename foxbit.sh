@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.30  27/nov/2019  by mountaineer_br
+# v0.2.31  29/nov/2019  by mountaineer_br
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
@@ -11,7 +11,9 @@ HELP="GARANTIA
 
 
 SINOPSE
-	foxbit.sh [-hqv] [-iNUM] [CÓDIGO_CRIPTOMOEDA]	
+	foxbit.sh [-pq] [-i \"NUM\"] [CÓDIGO_CRIPTOMOEDA]	
+
+	foxbit.sh [-hv]
 
 
  	O Foxbit.sh pega as cotações de criptomoedas diretamente da API da 
@@ -32,8 +34,8 @@ SINOPSE
 
 	Os tickeres que a FoxBit oferece são:
 	
-		BTC 	LTC
-		ETH	TUSD
+		BTC 		LTC
+		ETH		TUSD
 		XRP
 	
 
@@ -77,13 +79,14 @@ EXEMPLOS DE USO
 
 
 OPÇÕES
-	-i 	Intervalo de tempo do ticker rolante; padrão=24h.
+	-i 	Intervalo de tempo do ticker; válidos:  1m, 30m, 1h,
+		6h, 12h, 24h; padrão=24h.
 
 	-h 	Mostra esta Ajuda.
 	
 	-p 	Preço somente.
 
-	-q 	Puxar dados e sair.
+	-q 	Puxar dados uma vez e sair.
 
 	-v 	Mostra a versão deste script."
 
@@ -110,10 +113,10 @@ statsf () {
 	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
 			"Foxbit Ticker Rolante",
-			"InstrID: \(.[8]) (\($IDNA))",
+			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
 			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"InstrID: \(.[8]) (\($IDNA))",
 			"Volume_: \(.[5])",
 			"Demanda: \(.[7])",
 			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
