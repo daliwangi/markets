@@ -69,6 +69,8 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal
 
+<b>uol.sh --</b> Puxa dados de páginas do UOL Economia
+
 <b>whalealert.sh --</b> Get latest whale transactions from whale-alert.io API.
 
 <b>Other Scripts/Outros Scripts --</b> Experimental
