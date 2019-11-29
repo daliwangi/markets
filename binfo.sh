@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.9  2019/nov/28  by mountaineerbr
+# v0.5.10  2019/nov/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -11,11 +11,11 @@ HELP="NAME
     
 
 SYNOPSIS
-	$ binfo.sh  [-aass\"AddressHx\"]
+	$ binfo.sh  [-aass \"AddressHx\"]
 	
-	$ binfo.sh  [-b\"BlockHx|ID\"] [-n\"BlockHeight\"]
+	$ binfo.sh  [-b \"BlockHx|ID\"] [-n \"BlockHeight\"]
 	
-	$ binfo.sh  [-tt\"TransactionHx|ID\"]
+	$ binfo.sh  [-tt \"TransactionHx|ID\"]
 	
 	$ binfo.sh  [-ehiilmv]
 
