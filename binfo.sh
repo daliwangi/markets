@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.10  2019/nov/28  by mountaineerbr
+# v0.5.11  2019/nov/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -181,6 +181,7 @@ OPTIONS
 sstreamf() {
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the stream function.\n" 1>&2
 		printf "Raw JSON will be printed when received...\n" 1>&2
 		websocat --text --no-close --ping-interval 20 "wss://ws.blockchain.info/inv" <<< '{"op":"blocks_sub"}'
 		exit 0 
@@ -223,6 +224,7 @@ latestf() {
 	LBLOCK="$(${YOURAPP} "https://blockchain.info/latestblock")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the lastest block function.\n" 1>&2
 		printf "%s\n" "${LBLOCK}"
 		exit 0
 	fi
@@ -243,6 +245,7 @@ blkinfof() {
 	CHAINJSON="$(${YOURAPP} "https://api.blockchain.info/stats")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the 24H ticker function.\n" 1>&2
 		printf "%s\n" "${CHAINJSON}"
 		exit 0
 	fi
@@ -301,6 +304,7 @@ blkinfochairf() {
 	CHAINJSON="$(${YOURAPP} "https://api.blockchair.com/bitcoin/stats")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the chair 24H ticker function.\n" 1>&2
 		printf "%s\n" "${CHAINJSON}"
 		exit 0
 	fi
@@ -360,13 +364,10 @@ utxf() {
 	printf "Mempool unconfirmed transactions.\n" 1>&2
 	printf "Addresses and balance deltas.\n" 1>&2
 	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
-	if [[ -n  "${PJSON}" ]]; then
-		printf "%s\n" "${MEMPOOL}"
-		exit 0 
-	fi
 	#MEMPOOL2="$(${YOURAPP} "https://api.blockchair.com/bitcoin-cash/mempool/transactions")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the mempool function.\n" 1>&2
 		printf "%s\n" "${MEMPOOL}"
 		exit 0
 	fi
@@ -392,6 +393,7 @@ rblockf() {
 	fi
 	# print JSON?
 	if [[ -n "${PJSON}" ]]; then
+		printf "JSON from the raw block info function.\n" 1>&2
 		printf "%s\n" "${RAWB}"
 		exit 0
 	fi
@@ -431,6 +433,7 @@ hblockf() {
 	RAWB="$(jq -er '.blocks[]' <<< "${RAWBORIG}" 2>/dev/null)" || unset RAWB
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the heigh/n block info function.\n" 1>&2
 		printf "%s\n" "${RAWB}"
 		exit 0
 	fi
@@ -444,6 +447,7 @@ raddf() {
 		SUMADD=$(${YOURAPP} "https://blockchain.info/balance?active=${1}")
 		# Print JSON?
 		if [[ -n  "${PJSON}" ]]; then
+			printf "JSON from the summary address function.\n" 1>&2
 			printf "%s\n" "${SUMADD}"
 			exit 0
 		fi
@@ -465,6 +469,7 @@ raddf() {
 	RAWADD=$(${YOURAPP} "https://blockchain.info/rawaddr/${1}")
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the address function.\n" 1>&2
 		printf "%s\n" "${RAWADD}"
 		exit 0
 	fi
@@ -495,6 +500,7 @@ chairaddf() {
 	CHAIRADD="$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${1}")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the chair summary address function.\n" 1>&2
 		printf "%s\n" "${CHAIRADD}"
 		exit 0
 	fi
@@ -544,10 +550,17 @@ rtxf() {
 	fi
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		# only if from tx opts explicitly
+		printf "JSON from the tx function.\n" 1>&2
 		printf "%s\n" "${RAWTX}"
 		exit 0
 	fi
 	printf "Transaction Info\n"
+	# Test for no Tx info received, maybe there is no tx done at an address
+	if ! jq -e '.hash' <<<"${RAWTX}" 1>/dev/null 2>&1; then 
+		printf "No transactions\n"
+		return 1
+	fi
 	jq -r '. | "--------",
 		"TxHash: \(.hash)",
 		"Tx ID_: \(.tx_index)\tBlk_ID: \(.block_index)\t\tDSpent: \(.double_spend)",
@@ -566,6 +579,7 @@ txinfobcf() {
 	TXCHAIR=$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/transaction/${1}")
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the chair tx function.\n" 1>&2
 		printf "%s\n" "${TXCHAIR}"
 		exit 0
 	fi
