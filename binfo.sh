@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.8  2019/nov/28  by mountaineerbr
+# v0.5.9  2019/nov/28  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -655,7 +655,7 @@ while getopts ":abehijlmnsutv" opt; do
 			exit 0
 			;;
 		\? )
-			printf "Invalid Option: -%s" "${OPTARG}" 1>&2
+			printf "Invalid Option: -%s\n" "${OPTARG}" 1>&2
 			exit 1
 			;;
 	 esac
