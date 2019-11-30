@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9.11  2019/nov/28  by mountaineerbr
+# v0.9.13  2019/nov/30  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -516,6 +516,24 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 	printf "Run with -h for help.\n"
 	exit 1
 fi
+# Test for must have packages
+if [[ -z "${YOURAPP}" ]]; then
+	if ! command -v jq &>/dev/null; then
+		printf "JQ is required.\n" 1>&2
+		exit 1
+	fi
+	if command -v curl &>/dev/null; then
+		YOURAPP="curl -s"
+		YOURAPP2="curl -s --head"
+	elif command -v wget &>/dev/null; then
+		YOURAPP="wget -qO-"
+		YOURAPP2="wget -qO- --server-response"
+	else
+		printf "cURL or Wget is required.\n" 1>&2
+		exit 1
+	fi
+	export YOURAPP YOURAPP2
+fi
 
 # Parse options
 while getopts ":behljmp:s:tv" opt; do
@@ -560,25 +578,6 @@ while getopts ":behljmp:s:tv" opt; do
 	esac
 done
 shift $((OPTIND -1))
-
-# Test for must have packages
-if [[ -z "${YOURAPP}" ]]; then
-	if ! command -v jq &>/dev/null; then
-		printf "JQ is required.\n" 1>&2
-		exit 1
-	fi
-	if command -v curl &>/dev/null; then
-		YOURAPP="curl -s"
-		YOURAPP2="curl -s --head"
-	elif command -v wget &>/dev/null; then
-		YOURAPP="wget -qO-"
-		YOURAPP2="wget -qO- --server-response"
-	else
-		printf "cURL or Wget is required.\n" 1>&2
-		exit 1
-	fi
-	export YOURAPP YOURAPP2
-fi
 
 # Call opt function
 if [[ -n "${MCAP}" ]]; then
