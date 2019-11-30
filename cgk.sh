@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9.14  2019/nov/30  by mountaineerbr
+# v0.9.15  2019/nov/30  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -425,11 +425,6 @@ tickerf() {
 	# Start print Heading
 	printf "Tickers (%s)\n" "${CODE1^^}" 
 	${YOURAPP2} "https://api.coingecko.com/api/v3/coins/${2,,}/tickers" 2>&1 | grep -ie "total:" -e "per-page:" | sort -r
-	if [[ -z "${CODE2}" ]]; then
-		printf "Results for %s\n" "${CODE1^^}"
-	else
-		printf "Results for only %s/%s\n" "${CODE1^^}" "${CODE2^^}"
-	fi
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		${YOURAPP2} "https://api.coingecko.com/api/v3/coins/${2,,}/tickers"
@@ -445,12 +440,16 @@ tickerf() {
 	while [[ "${i}" -ge "1" ]]; do
 		printf "\rPage %s of %s..." "${i}" "${TPAGES}" 1>&2
 		${YOURAPP} "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" | jq -r '.tickers[]|"\(.base)/\(.target)=\(.last)=\(.market.identifier)=\(.volume)=\(if .bid_ask_spread_percentage ==  null then "??" else .bid_ask_spread_percentage end)=\(.converted_last.btc)=\(.converted_last.usd)=\(.market.name)=\(.last_traded_at)"' >> "${CGKTEMPLIST3}"
-		#TICKERS+="$(${YOURAPP} "https://api.coingecko.com/api/v3/coins/${2,,}/tickers?page=${i}" | jq -r '.tickers[]|"\(.base)/\(.target)=\(.last)=\(.market.identifier)=\(.volume)=\(if .bid_ask_spread_percentage ==  null then "??" else .bid_ask_spread_percentage end)=\(.converted_last.btc)=\(.converted_last.usd)=\(.market.name)=\(.last_traded_at)"')"
 		i=$((i-1))
 	done
 	printf "\n"
 	# Format all table and print
 	grep -i -e "${GREPARG}" "${CGKTEMPLIST3}" | column -s= -et -N"MARKET,PRICE,EX_ID,VOLUME,SPREAD(%),PRICE(BTC),PRICE(USD),EX_NAME,LAST_TRADE" ${COLCONF}
+	if [[ -z "${CODE2}" ]]; then
+		printf "Matches(%s): %s\n" "${CODE1^^}" "$(grep -ci -e "${GREPARG}" "${CGKTEMPLIST3}")"
+	else
+		printf "Matches(%s/%s): %s\n" "${CODE1^^}" "${CODE2^^}" "$(grep -ci -e "${GREPARG}" "${CGKTEMPLIST3}")"
+	fi
 }
 
 ## -l Print currency lists
