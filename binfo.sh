@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.12  2019/nov/28  by mountaineerbr
+# v0.5.13  2019/dez/01  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -241,7 +241,7 @@ latestf() {
 
 ## -i 24-H Ticker for the Bitcoin Blockchain
 blkinfof() {
-	printf "Bitcoin Blockchain General Info\n" 1>&2
+	printf "Bitcoin Blockchain General Info\n"
 	CHAINJSON="$(${YOURAPP} "https://api.blockchain.info/stats")"
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
@@ -253,7 +253,7 @@ blkinfof() {
 	jq -r '"Time___: \((.timestamp/1000)|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		"",
 		"Blockchain",
-		"TMined_: \(.totalbc/100000000) BTC",
+		"T_Mined: \(.totalbc/100000000) BTC",
 		"Height_: \(.n_blocks_total) blocks",
 		"",
 		"Rolling 24H Ticker",
