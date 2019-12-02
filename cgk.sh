@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9.15  2019/nov/30  by mountaineerbr
+# v0.9.16  2019/dec/03  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -408,7 +408,7 @@ tickerf() {
 	# Temp file for tickers
 	CGKTEMPLIST3=$(mktemp /tmp/cgk.tickers.XXXXX) || tmperrf
 	## Trap temp cleaning functions
-	trap "rm1f; rm3f; exit 130" EXIT SIGINT
+	trap "rm1f; rm3f; exit" EXIT SIGINT
 	# Test screen width
 	# if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
@@ -477,7 +477,7 @@ clistf() {
 		CGKTEMPLIST1=$(mktemp /tmp/cgk.list1.XXXXX) || tmperrf
 		export CGKTEMPLIST1
 		## Trap temp cleaning functions
-		trap "rm1f; exit 130" EXIT SIGINT
+		trap "rm1f; exit" EXIT SIGINT
 		# Retrieve list from CGK
 		${YOURAPP} "https://api.coingecko.com/api/v3/coins/list" | jq -r '[.[] | { key: .symbol, value: .id } ] | from_entries' >> "${CGKTEMPLIST1}"
 	fi
@@ -490,7 +490,7 @@ tolistf() {
 		CGKTEMPLIST2=$(mktemp /tmp/cgk.list2.XXXXX) || tmperrf
 		export CGKTEMPLIST2
 		## Trap temp cleaning functions
-		trap "rm1f; rm2f; exit 130" EXIT SIGINT
+		trap "rm1f; rm2f; exit" EXIT SIGINT
 		# Retrieve list from CGK
 		${YOURAPP} "https://api.coingecko.com/api/v3/simple/supported_vs_currencies" | jq -r '.[]' >> "${CGKTEMPLIST2}"
 	fi
