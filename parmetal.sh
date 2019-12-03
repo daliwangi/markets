@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.8  27/set/2019 by mountaineer_br
+# v0.2.9  03/dez/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -7,8 +7,16 @@ LC_NUMERIC=en_US.UTF-8
 ## Taxas da PARMETAL
 # Ajuda "-h"
 if [[ "${1}" = "-h" ]]; then
-	printf "Uso:\n\tparmetal\t#Todas cotações disponíveis\n"
-	printf "\tparmetal -p\t#Somente Barras Parmetal\n"
+	printf "Uso:\n"
+	printf "\tparmetal.sh    #todas cotações disponíveis\n\n"
+	printf "Opções:\n"
+	printf " 	-p    Somente barras parmetal\n"
+	printf " 	-v    Imprime versão do script.\n"
+	exit 0
+fi
+# Imprime versão -v
+if [[ "${1}" = "-v" ]]; then
+	grep -m1 '# v' "${0}"
 	exit 0
 fi
 
@@ -35,48 +43,47 @@ metaisf() {
 	METAIS="$(curl -s "https://www.parmetal.com.br/app/metais/" |
 		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' | sed 's/]]]/[/g' |
 		sed 's/]]/[/g' | sed 's/\[/\n/g')"
-	BPARM=( $(grep -iA2 "barra parmetal" <<< "${METAIS}" | sed 's/$/=/g') )
-	BTRAD=( $(grep -iA2 "barras tradicionais" <<< "${METAIS}" | sed 's/$/=/g') )
-	BOUTR=( $(grep -iA2 "outras barras" <<< "${METAIS}" | sed 's/$/=/g') )
+	BPARM=($(grep -iA2 "barra parmetal" <<< "${METAIS}" | sed -e 's/$/=/g' -e 's/Barra Parmetal\/RBM/Barra Par\/RBM/g'))
+	BTRAD=($(grep -iA2 "barras tradicionais" <<< "${METAIS}" | sed -e 's/$/=/g' -e 's/Barras Tradicionais/Barra Trad/g'))
+	BOUTR=($(grep -iA2 "outras barras" <<< "${METAIS}" | sed -e 's/$/=/g' -e 's/Outras Barras/Outras/g'))
 	UPDATES="$(grep -i -e "../../...." <<< "${METAIS}" | sort | uniq)"
 	UPTIMES="$(grep -i -e "..:..:.." <<< "${METAIS}" | sort | uniq)"
+	BPARM2=($(grep -oe "[0-9]*,[0-9]*" <<< "${BPARM[@]}"))
+	SPREAD="$(tr ',' '.' <<< "((${BPARM2[1]}/${BPARM2[0]})-1)*100" | bc -l)"
+	column -t -s"=" -N'Ativo,Compra,Venda,Spread' -R'Compra,Venda,Spread' <<-EOF
+		${BPARM[@]}$(printf "%.4f" "${SPREAD}")
+		${BTRAD[@]}
+		${BOUTR[@]}
+		EOF
+	printf "%s %s\n" "${UPDATES}" "${UPTIMES}"
 	}
 
 # Moedas de Câmbios
 moedasf() {
+	printf "Puxando índices...\r" 1>&2
 	MOEDAS="$(curl -s "https://www.parmetal.com.br/app/subtop-cotacao/" |
 		htmlfilter | sed 's/&nbsp;//g' | grep -i -e dolar -e libra -e "ouro spot" -e euro |
 		sed -e 's/^[ \t]*//' -e 's/Valor: //g' | tr '.' ',')" 
 	# Preparar para Tebela
-	USD=( $(grep -i "dolar" <<< "${MOEDAS}" | sed 's/cial:/cial=/g') )
-	GBP=( $(grep -i "libra" <<< "${MOEDAS}" | sed 's/cial:/cial=/g') )
-	XAU=( $(grep -i "ouro" <<< "${MOEDAS}" | sed 's/Spot:/Spot=/g') )
-	EUR=( $(grep -i "euro" <<< "${MOEDAS}" | sed 's/cial:/cial=/g') )
+	USD=($(grep -i "dolar" <<< "${MOEDAS}" | sed 's/cial: /cial=/g'))
+	GBP=($(grep -i "libra" <<< "${MOEDAS}" | sed 's/cial: /cial=/g'))
+	XAU=($(grep -i "ouro" <<< "${MOEDAS}" | sed 's/Spot: /Spot=/g'))
+	EUR=($(grep -i "euro" <<< "${MOEDAS}" | sed 's/cial: /cial=/g'))
+	column -t -s"=" -N'Índice,Cotação'  <<-EOF
+		${USD[@]}
+		${GBP[@]}
+		${XAU[@]}
+		${EUR[@]}
+		EOF
 	}
 
 # Imprimir Tabela
-# Metais
-metaisf
-printf "%s\n%s\n%s\n" "${BPARM[*]}" "${BTRAD[*]}" "${BOUTR[*]}" |
-	column -t -s"=" -N'Ativo,Compra,Venda' -R'Ativo,Compra,Venda'
-
-# Spread
-BPARM2=($(grep -oe "[0-9]*,[0-9]*" <<< "${BPARM[@]}"))
-SPREAD="$(tr ',' '.' <<< "((${BPARM2[1]}/${BPARM2[0]})-1)*100" | bc -l)"
-printf " SPD B Parmetal/RBM     %'.3f%%\n" "${SPREAD}"
-# Update timestamps
-printf "Updates: %s %s\n\n" "${UPDATES}" "${UPTIMES}"
-
+printf "PARMETAL\n"
 # Outras moedas
 moedasf
-printf "%s\n%s\n%s\n%s\n" "${USD[*]}" "${GBP[*]}" "${XAU[*]}" "${EUR[*]}" |
-	column -t -s"=" -N'              Índice,Taxa' -R'              Índice'
+printf "\n"
+# Metais
+metaisf
 
 exit
-# Dead Code
-#printf "%s\n" "${BPARM[2]%\=}" 
-#printf "%s\n" "${BPARM[3]%\=}"
-#SPREAD="$(printf "((%s/%s)-1)*100\n" "$(printf "%s\n" "${BPARM[@]}" | tail -n 1)" "$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1)" | tr ',' '.' | tr -d '=' | bc -l)"
-#SPREAD="$(tr ',' '.' <<< "(($(printf "%s\n" "${BPARM[@]}" | tail -n 1)/$(printf "%s\n" "${BPARM[@]}" | tail -n 2 | head -n 1))-1)*100" | tr -d '=' | bc -l)"
-#SPREAD="$(bc -l "(($(tail -n 1 <<< "${PRICE}")/$(tail -n 2 <<< "${PRICE}" | head -n 1)" | tr ',' '.'))-1)*100"
 
