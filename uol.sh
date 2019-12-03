@@ -1,14 +1,18 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.2  29/nov/2019  by mountaineer_br
+# v0.1.3  03/dez/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
 
 SINOPSE
+	uol.sh [-bhlmv]
+
+	
 	O script puxa as cotações de páginas de economia do UOL.
 
 	Os pacotes Bash, cURL ou Wget e iconv (Glibc) são necessários.
+
 
 OPÇÕES
 	-b 	Índice da B3.
@@ -27,7 +31,7 @@ hf() {  sed 's/<[^>]*>//g';}
 
 # Cotação da BOVESPA B3 Hack
 b3f() {
-	printf "UOL B3\n"
+	printf "UOL - B3\n"
 	UOLB3="$(${YOURAPP} "https://cotacoes.economia.uol.com.br/index.html" | hf | tr -d '\t' | sed '/^[[:space:]]*$/d')"
  	grep --color=never -A1 '%' <<<"${UOLB3}"
  	grep --color=never -Eo "[[:digit:]]+:[[:digit:]]+" <<<"${UOLB3}"
@@ -36,16 +40,18 @@ b3f() {
 
 # Lista de ações
 lstocksf() {
-	${YOURAPP} "http://cotacoes.economia.uol.com.br/acoes-bovespa.html?exchangeCode=.BVSP&page=1&size=2000" | hf | sed -n "/Nome Código/,/Páginas/p" | sed -e 's/^[ \t]*//' -e '1,2d' -e '/^[[:space:]]*$/d' -e '$d' | sed '$!N;s/\n/=/' | column -et -s'=' -N'NOME,CÓDIGO'
+	PRELIST="$(${YOURAPP} "http://cotacoes.economia.uol.com.br/acoes-bovespa.html?exchangeCode=.BVSP&page=1&size=2000" | hf | sed -n "/Nome Código/,/Páginas/p" | sed -e 's/^[ \t]*//' -e '1,2d' -e '/^[[:space:]]*$/d' -e '$d' | sed '$!N;s/\n/=/')"
+	column -et -s'=' -N'NOME,CÓDIGO' <<<"${PRELIST}"
+	printf "Items: %s.\n" "$(wc -l <<<"${PRELIST}")"
 	exit
 }
 
 # Cotação dos metais
 metf() {
 	COT="$(${YOURAPP} "https://economia.uol.com.br/cotacoes/" | hf)"
-	printf "UOL Metais preciosos\n"
+	printf "UOL - Metais Preciosos\n"
 grep -iEo --color=never 'ouro.{120}' <<<"${COT}" | sed 's/[0-9]\s/&\n/g' | sed -e 's/^[ \t]*//' -e '/^$/d' -e 's/US\$//g' | column -et -N'METAL,VAR,VENDA(USD/OZ)'
-	grep -o "Câmbio     Atualizado em..............." <<<"${COT}" | sed 's/    //g'
+	grep -o "Câmbio     Atualizado em..............." <<<"${COT}" | sed -Ee 's/\s+/ /g' -e 's/Atualizado/atualizado/'
 	exit
 }
 
@@ -82,7 +88,7 @@ while getopts ":blmhv" opt; do
 	      		exit 0
 	      		;;
 		v ) # Version of Script
-	      		head "${0}" | grep -e '# v'
+	      		grep -m1 '# v' "${0}"
 	      		exit 0
 	      		;;
 		\? )
