@@ -6,7 +6,7 @@
 
 # Ounce in Grams reference
 OZ="28.349523125"
-oz() {
+oz() { # Add to your ~/.bashrc or ~/.zshrc
 	printf "%s\n" "${OZ}" | xclip -selection clipboard
 	printf "%s\n" "${OZ}"
 }
@@ -14,10 +14,10 @@ oz() {
 # https://en.wikipedia.org/wiki/Ounce
 
 ## Funções de metais ( em BRL )
-cmcouro() { ~/_scripts/markets/cmc.sh -bs6 "1/${OZ}" xau brl; }
-cmcprata() { ~/_scripts/markets/cmc.sh -bs6 "1/${OZ}" xag brl; }
-cgkouro() { ~/_scripts/markets/cgk.sh -bs6 "1/${OZ}" xau brl; }
-cgkprata() { ~/_scripts/markets/cgk.sh -bs6 "1/${OZ}" xag brl; }
+cmcouro() { ~/_scripts/markets/cmc.sh -bgs6 xau brl; }
+cmcprata() { ~/_scripts/markets/cmc.sh -bgs6  xag brl; }
+cgkouro() { ~/_scripts/markets/cgk.sh -bgs6 xau brl; }
+cgkprata() { ~/_scripts/markets/cgk.sh -bgs6 xag brl; }
 openxouro() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xau brl; }
 openxprata() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xag brl; }
 clayouro() { ~/_scripts/markets/clay.sh -s6 "1/${OZ}" xau brl; }
