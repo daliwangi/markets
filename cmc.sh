@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.5.1  2019/nov/26  by mountaineerbr
+# v0.5.2  2019/dec/05  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -25,7 +25,7 @@ SYNOPSIS
 
 	cmc.sh [-mt] [NUM] [CURRENCY]
 
-	cmc.sh [-hlv]
+	cmc.sh [-ahlv]
 
 
 DESCRIPTION
@@ -142,6 +142,8 @@ USAGE EXAMPLES:
 			
 
 OPTIONS
+		-a 	  API key status.
+
 		-b 	  Bank currency function: from_ and to_currency can be 
 			  any central bank or crypto currency supported by CMC.
 		
@@ -415,22 +417,34 @@ listsf() {
 	printf "%s\n" "${OTHERCUR}" | column -s'=' -et -N'ID,SYMBOL,NAME'
 }
 
-# Check if there is any argument
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-	printf "Run with -h for help.\n"
-	exit 1
-fi
+## -a API status
+apif() {
+	PAGE="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json"  'https://pro-api.coinmarketcap.com/v1/key/info')"
+	# Print JSON?
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n" "${PAGE}"
+		exit 0
+	fi
+	#print heading and status page
+	printf "API key: %s\n\n" "${CMCAPIKEY}"
+	tr -d '{}",' <<<"${PAGE}"| sed -e 's/^\s*\(.*\)/\1/' -e '1,/data/d' -e 's/_/ /g'| sed -e '/^$/N;/^\n$/D' | sed -e 's/^\([a-z]\)/\u\1/g'
+	#| cat -s    #sed -e '$d'
+}
+
 
 # Parse options
-while getopts ":blmhjs:tp" opt; do
+while getopts ":ablmhjs:tp" opt; do
 	case ${opt} in
-		b ) ## Hack central bank currency rates
+		a ) # API key status
+			APIOPT=1
+			;;
+		b ) # Hack central bank currency rates
 			BANK=1
 			;;
 		j ) # Debug: Print JSON
 			PJSON=1
 			;;
-		l ) ## List available currencies
+		l ) # List available currencies
 			LISTS=1
 			;;
 		m ) # Market Capital Function
@@ -483,6 +497,9 @@ if [[ -n "${MCAP}" ]]; then
 	exit
 elif [[ -n "${TICKEROPT}" ]]; then
 	tickerf "${@}"
+	exit
+elif [[ -n "${APIOPT}" ]]; then
+	apif
 	exit
 fi
 
@@ -565,4 +582,11 @@ RESULT="$(bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scal
 printf "%.${SCL}f\n" "${RESULT}"
 
 exit
+
+##Dead code
+# Check if there is any argument
+#if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+#	printf "Run with -h for help.\n"
+#	exit 1
+#fi
 
