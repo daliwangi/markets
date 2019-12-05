@@ -1,17 +1,17 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.22  2019/nov/27  by mountaineerbr
+# v0.4.30  2019/dec/04  by mountaineerbr
 
 ## Defaults
 #Record file:
 RECFILE="${HOME}/.bcalc_record"
 #Extensions file:
 EXTFILE="${HOME}/.bcalc_extensions"
-#Number of decimal plates (bc mathlib defaults is 20):
+#Number of decimal plates:
+#Bc mathlib defaults is 20 (plus one uncertainty digit)
 SCLDEF=20
-#Disable Record file?
-#Enable = 0 (defaults); Disable = 1
-NOREC=0
+#Enable Record file?
+BCREC=1  #enable=1 (defaults), disable=0
 
 # Don't change this
 LC_NUMERIC="en_US.UTF-8"
@@ -22,9 +22,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	bcalc.sh  [-cft]  [-sNUM]  [\"EQUATION\"]
+	bcalc.sh  [-cft]  [-s'NUM'|-NUM]  ['EQUATION']
 	
-	bcalc.sh  [-n\"SHORT NOTE\"]
+	bcalc.sh  [-n 'SHORT NOTE']
 
 	bcalc.sh  [-cchrv]
 
@@ -34,8 +34,8 @@ DESCRIPTION
 	features.
 
 	A record file is created at \"${RECFILE}\".
-	To disable using a record file set option \"-f\" or NOREC=1 in the 
-	script head code, section Deafults. If a record file can is available,
+	To disable using a record file set option \"-f\" or BCREC=0 in the 
+	script head code, section Defaults. If a record file can is available,
 	use of \"ans\" in EXPRESSION is swapped by the last result from record
 	file. 
 	
@@ -108,24 +108,24 @@ USAGE EXAMPLES
 
 			$ bcalc.sh 2^2+(8-4)
 
-			$ bcalc.sh -s2 100/120
-
-			$ bcalc.sh \\\(100+100\\\\)/1
+			$ bcalc.sh \\\\(100+100\\\\)/1
 
 			$ bcalc.sh -0.2*10
 			
 			$ bcalc.sh ans+33
 			
-			$ bcalc.sh -t -s4 50000*5
+			$ bcalc.sh -s2 100/120
 
-			$ bcalc.sh -c \"ln(0.3)\"
+			$ bcalc.sh -t -2 50000*5
+
+			$ echo '70000.450000' | bcalc.sh -t2
+			
+			$ bcalc.sh -c 'ln(0.3)'
 			
 			$ bcalc.sh -c 0.234*na   #\"na\" is Avogadro's constant
 
 			$ bcalc.sh 'a=5; -a+20'
 
-			$ echo \"70000.450000\" | bcalc.sh -t -s2
-			
 			$ bcalc.sh -n This is my note.
 
 
@@ -140,6 +140,8 @@ BUGS
 
 
 OPTIONS
+		-NUM 	Same as option \"-s\".
+
 		-c 	Use scientific extensions; pass twice to print exten-
 			sions.
     		
@@ -158,6 +160,7 @@ OPTIONS
 		-t 	Thousands separator.
 
 		-v 	Print this script version."
+
 
 ## Functions
 # Scientific Extension Function
@@ -187,6 +190,7 @@ setcf() {
 	#set extensions for use with Bc
 	EXT="$(cat "${EXTFILE}")"
 }
+
 # Add Note function
 notef() {
 	if [[ -n "${*}" ]]; then
@@ -201,7 +205,7 @@ notef() {
 # http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
 
 # Parse options
-while getopts ":cfhnrs:tv" opt; do
+while getopts ":cfhnrs:tv1234567890" opt; do
 	case ${opt} in
 		c ) #run calc with cientific extensions
 		    #print cientific extensions ?
@@ -209,7 +213,7 @@ while getopts ":cfhnrs:tv" opt; do
 			PEXT=1
 			;;
 		f ) #no record file
-			NOREC=1
+			BCREC=0
 			;;
 		h ) #show this help
 			echo -e "${HELP_LINES}"
@@ -227,8 +231,11 @@ while getopts ":cfhnrs:tv" opt; do
 				exit 1
 			fi
 			;;
-		s ) #scale ( decimal plates )
+		s ) #scale (decimal plates)
 			SCL="${OPTARG}"
+			;;
+		[0-9] ) #scale, same as 's'
+			SCL="${SCL}${OPTARG:-${opt}}"
 			;;
 		t ) #thousands separator
 			TOPT=1
@@ -244,13 +251,21 @@ while getopts ":cfhnrs:tv" opt; do
 done
 shift $((OPTIND -1))
 
+## Check if there is a Record file available
+# otherwise, create and initialise one
+if [[ "${BCREC}" -eq 1 ]] && [[ ! -f "${RECFILE}" ]]; then
+	printf "## Bcalc.sh Record\n1\n" >> "${RECFILE}"
+	printf "File initialise: %s\n" "${RECFILE}" 1>&2
+fi
+
 ## Add note to record
 if [[ -n "${NOTEOPT}" ]]; then
-	if [[ "${NOREC}" -eq 1 ]] || [[ ! -f "${RECFILE}" ]]; then
+	if [[ -f "${RECFILE}" ]]; then
+		notef "${*}"
+	else
 		printf "Note function requires a record file.\n" 1>&2
 		exit 1
 	fi
-	notef "${*}"
 fi
 
 ## Load cientific extensions?
@@ -259,42 +274,35 @@ fi
 ## Set scale
 [[ -z ${SCL} ]] && SCL="${SCLDEF}"
 
-## Check if there is a Record file available
-# otherwise, create an empty one
-if [[ "${NOREC}" -eq 0 ]] && [[ ! -f "${RECFILE}" ]]; then
-	printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
-fi
-
 ## Process Expression
 EQ="${*:-$(</dev/stdin)}"
 EQ="${EQ//,}"
 
-# Use record file to get last answer
-if [[ "${NOREC}" -eq 0 ]]; then
-	if grep -q ans <<< "${EQ}"; then 
-		#grep last answer result from calc Record
-		ANS=$(tail -1 "${RECFILE}")
+# If BCREC is true, try to grep last answer
+if [[ -n "${BCREC}" ]]; then
+	#swap 'ans' by last result
+	if [[ "${EQ}" =~ ans ]]; then 
+		ANS=$(tail -n1 "${RECFILE}")
 		EQ="${EQ//ans/(${ANS})}"
+	#if no expression at all, grep last result
 	elif [[ -z "${EQ}" ]]; then
-		#if no expression, reuses last Ans
-		EQ="$(tail -1 "${RECFILE}")"
+		EQ="$(tail -n1 "${RECFILE}")"
 	fi
-elif grep -qi -e "ans" <<<"${EQ}"; then
-	printf "Use of \"ans\" requires a record file.\n" 1>&2
-	exit 1
 fi
 
 ## Calc result and check expression syntax
+#don't display error msgs yet -- is the error because of '${EQ}/1'?
 RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
 if [[ -z "${RES}" ]]; then
+	#next calculation will display error msgs
 	RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}")"
 	if [[ -z "${RES}" ]]; then
-	exit 1
+		exit 1
 	fi
 fi
 
 # Print equation to record file?
-if [[ "${NOREC}" -eq 0 ]]; then
+if [[ "${BCREC}" -eq 1 ]]; then
 	if [[ "${RES}" != $(tail -1 "${RECFILE}") ]]; then
 	#print timestamp
 	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
@@ -303,7 +311,7 @@ if [[ "${NOREC}" -eq 0 ]]; then
 	fi
 fi
 
-## Format result
+## Format result and print
 if [[ -n "${TOPT}" ]]; then
 	#thousands separator
 	printf "%'.${SCL}f\n" "${RES}"
