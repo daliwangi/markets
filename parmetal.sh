@@ -97,12 +97,7 @@ while getopts ":hpv" opt; do
 done
 shift $((OPTIND -1))
 
-
-
 ## Taxas da PARMETAL
-
-
-
 # Imprimir Tabela
 printf "PARMETAL\n"
 # Outras moedas
