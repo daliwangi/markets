@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.32  2019/dec/04  by mountaineerbr
+# v0.4.36  2019/dec/05  by mountaineerbr
 
 ## Defaults
 #Record file:
@@ -22,7 +22,7 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	bcalc.sh  [-cft]  [-s'NUM'|-NUM]  ['EQUATION']
+	bcalc.sh  [-cft] [-s'NUM'|-NUM] ['EQUATION']
 	
 	bcalc.sh  [-n 'SHORT NOTE']
 
@@ -140,7 +140,7 @@ BUGS
 
 
 OPTIONS
-		-NUM 	Same as option \"-s\".
+		-NUM 	Shortcut for scale setting, same as \"-sNUM\".
 
 		-c 	Use scientific extensions; pass twice to print exten-
 			sions.
@@ -212,22 +212,25 @@ res3f() { bc -l <<<"${EXT};scale=${SCL};${EQ}/1;";}
 # Parse options
 while getopts ":cfhnrs:tv1234567890" opt; do
 	case ${opt} in
-		c ) #run calc with cientific extensions
+		( [0-9] ) #scale, same as '-sNUM'
+			SCL="${SCL}${opt}"
+			;;
+		( c ) #run calc with cientific extensions
 		    #print cientific extensions ?
 			[[ -z "${CIENTIFIC}" ]] && CIENTIFIC=1 || CIENTIFIC=2
 			PEXT=1
 			;;
-		f ) #no record file
+		( f ) #no record file
 			BCREC=0
 			;;
-		h ) #show this help
+		( h ) #show this help
 			echo -e "${HELP_LINES}"
 			exit
 			;;
-		n ) #disable record file
+		( n ) #disable record file
 			NOTEOPT=1
 			;;
-		r ) #print record
+		( r ) #print record
 			if [[ -f "${RECFILE}" ]]; then
 				cat "${RECFILE}"
 				exit 0
@@ -236,20 +239,17 @@ while getopts ":cfhnrs:tv1234567890" opt; do
 				exit 1
 			fi
 			;;
-		s ) #scale (decimal plates)
+		( s ) #scale (decimal plates)
 			SCL="${OPTARG}"
 			;;
-		[0-9] ) #scale, same as 's'
-			SCL="${SCL}${OPTARG:-${opt}}"
-			;;
-		t ) #thousands separator
+		( t ) #thousands separator
 			TOPT=1
 			;;
-		v ) #show this script version
+		( v ) #show this script version
 			head "${0}" | grep -e "^# v"
 			exit 0
 			;;
-		\? )
+		( \? )
 	     		break
 			;;
 	esac
@@ -273,11 +273,10 @@ if [[ -n "${NOTEOPT}" ]]; then
 	fi
 fi
 
-## Load cientific extensions?
-[[ -n "${CIENTIFIC}" ]] && setcf
-
 ## Set scale
 [[ -z ${SCL} ]] && SCL="${SCLDEF}"
+## Load cientific extensions?
+[[ -n "${CIENTIFIC}" ]] && setcf
 
 ## Process Expression
 EQ="${*:-$(</dev/stdin)}"
