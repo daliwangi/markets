@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.30  2019/dec/04  by mountaineerbr
+# v0.4.32  2019/dec/04  by mountaineerbr
 
 ## Defaults
 #Record file:
@@ -204,6 +204,11 @@ notef() {
 # https://superuser.com/questions/781558/sed-insert-file-before-last-line
 # http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
 
+# Calc expression funtions
+res0f() { bc -l <<<"${EXT};${EQ}";}
+res3f() { bc -l <<<"${EXT};scale=${SCL};${EQ}/1;";}
+
+
 # Parse options
 while getopts ":cfhnrs:tv1234567890" opt; do
 	case ${opt} in
@@ -291,32 +296,30 @@ if [[ -n "${BCREC}" ]]; then
 fi
 
 ## Calc result and check expression syntax
-#don't display error msgs yet -- is the error because of '${EQ}/1'?
-RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
-if [[ -z "${RES}" ]]; then
-	#next calculation will display error msgs
-	RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}")"
-	if [[ -z "${RES}" ]]; then
-		exit 1
-	fi
+RES="$(res0f 2>/dev/null)"; RES1="$(res0f 2>&1 1>/dev/null)"
+if [[ -n "${RES1}" ]]; then
+	printf "%s\n" "${RES1}"
+	exit 1
+else
+	RES3="$(res3f 2>/dev/null)"
 fi
 
 # Print equation to record file?
 if [[ "${BCREC}" -eq 1 ]]; then
 	if [[ "${RES}" != $(tail -1 "${RECFILE}") ]]; then
-	#print timestamp
-	printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
-	#print original result
-	printf "%s\n" "${RES}" >> "${RECFILE}"
+		#print timestamp
+		printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}" 1>> "${RECFILE}"
+		#print original result
+		printf "%s\n" "${RES}" >> "${RECFILE}"
 	fi
 fi
 
 ## Format result and print
 if [[ -n "${TOPT}" ]]; then
 	#thousands separator
-	printf "%'.${SCL}f\n" "${RES}"
+	printf "%'.${SCL}f\n" "${RES3:-${RES}}"
 else
-	printf "%s\n" "${RES}"
+	printf "%s\n" "${RES3:-${RES}}"
 fi
 
 exit
