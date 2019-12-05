@@ -1,10 +1,12 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.9.16  2019/dec/03  by mountaineerbr
+# v0.10.1  2019/dec/05  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
 LC_NUMERIC="en_US.UTF-8"
+## Oz to gram ratio
+OZ='28.349523125'
 
 ## Manual and help
 HELP_LINES="NAME
@@ -15,7 +17,7 @@ HELP_LINES="NAME
 SYNOPSIS
 	cgk.sh [AMOUNT] [FROM_CURRENCY] [VS_CURRENCY]
 
-	cgk.sh [-bs] [AMOUNT] [FROM_CURRENCY] [VS_CURRENCY] 
+	cgk.sh [-bgs] [AMOUNT] [FROM_CURRENCY] [VS_CURRENCY] 
 	
 	cgk.sh [-pt] [CURRENCY] [optional:VS_SYMBOL]
 
@@ -47,25 +49,24 @@ DESCRIPTION
 	accepts  IDs  in the  \"from_currrency\" field. However, if input is a 
 	symbol, it will be swapped to its corresponding ID automatically.
 	
-	It  is  _not_ advisable to depend solely on CoinGecko rates for serious 
-	trading.
-	
 	You can get a List of supported currencies running the script with the
 	option \"-l\".
 
-	Gold and other metals are priced in Ounces.
+	Gold and other metals are priced in Ounces. It means that in each ounce
+	there are aproximately 28.35 grams, such as represented by the following
+	constant:
 		
-		\"Gram/Ounce\" rate: 28.349523125
+		\"GRAM/OUNCE\" rate = 28.349523125
 
 
 	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage examples 12-15).
+	with precious metals (see usage example 10). I suggest a variable called
+	OZ that will contain the GRAM/OZ constant.
 
 		OZ=\"28.349523125\"
 
 
-	Default precision is 16 and can be adjusted with option \"-s\". Trailing
-	noughts are trimmed by default.
+	Default precision is 16 and can be adjusted with option \"-s\" (scale).
 	
 
 ABBREVIATIONS
@@ -102,11 +103,13 @@ FUNCTION \"-t\" 24H ROLLING TICKER
 
 
 WARRANTY
-	Licensed under the GNU Public License v3 or better.
- 	This programme is distributed without support or bug corrections.
-
-   	This programme needs Bash, cURL or Wget, JQ , Xargs and Coreutils.
-
+	Licensed under the GNU Public License v3 or better. It is distributed 
+	without support or bug corrections. This programme needs Bash, cURL or 
+	Wget, JQ and Coreutils to work properly.
+	
+	It  is  _not_ advisable to depend solely on CoinGecko rates for serious 
+	trading.
+	
 	Give me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
@@ -151,53 +154,74 @@ USAGE EXAMPLES:
 			$ cgk.sh 1 btc xau 
 
 
-		(7)    \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
-					
-			$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
-
-			    Just multiply amount by the \"gram/ounce\" rate.
-
-
-		(8)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
-					
-			$ cgk.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
-
-
-		(9)    \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
-					
-			$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
-			
-			    Just divide amount by the \"gram/ounce\" rate.
-
-		
-		(10)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
-					
-			$ cgk.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
-
-
-		(11)    Tickers of any Ethereum pair from all exchanges;
+		(7)    Tickers of any Ethereum pair from all exchanges;
 					
 			$ cgk.sh -t eth 
 
 
-		(12)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
+		(8)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
 			of results:
 					
 			$ cgk.sh -t -p10 eth btc 
 
 
-		(13) 	Market cap function, show data for Chinese CNY:
+		(9) 	Market cap function, show data for Chinese CNY:
 
 			$ cgk.sh -m cny
 
 
+		(10)    Using grams for precious metals instead of ounces.
+
+			To use grams instead of ounces for calculation precious 
+			metals rates, use option \"-g\". The following section
+			explains about the GRAM/OZ constant used in this program.
+
+			The rate of conversion (constant) of grams by ounce may 
+			be represented as below:
+			 
+				GRAM/OUNCE = \"28.349523125/1\"
+			
+
+			
+			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
+			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
+
+				$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*28.3495\" eur xau 
+
+
+				One EUR in grams of Gold:
+
+				$ cmc.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+
+			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
+			just divide AMOUNT by the \"GRAM/OUNCE\" costant.
+
+				$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			
+
+				One gram of Gold in EUR:
+					
+				$ cmc.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+
+
+			To convert (a) from gold to crypto currencies, (b) from 
+			bank currencies to gold or (c) from gold to bank curren-
+			cies, do not forget to use the option \"-b\"!
+
+
 OPTIONS
+	-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
+
 	-b 	  Activate Bank Currency function; it extends support for con-
 		  verting any central bank or crypto currency to any other.
 
 	-e 	  Exchange information; number of pages to fetch with option \"-p\";
 		  pass \"-ee\" to print a list of exchange names and IDs only.
 
+	-g 	  Use grams instead of ounces; only for precious metals.
+		
 	-h 	  Show this help.
 
 	-j 	  Debug; print JSON.
@@ -365,7 +389,7 @@ exf() { # -ee Show Exchange list
 
 ## Bank currency rate function
 bankf() {
-	unset BANK
+	unset BANK FMET TMET
 	# Grep possible currency ids
 	if jq -r '.[],keys[]' <"${CGKTEMPLIST1}" | grep -qi "^${2}$"; then
 		changevscf "${2}" 2>/dev/null
@@ -400,7 +424,10 @@ bankf() {
 	fi
 	# Timestamp? No timestamp for this API
 	# Calculate result
-	bc -l <<< "(${1}*${BTCBANK})/${BTCTOCUR}" | xargs printf "%.${SCL}f\n"
+	# Precious metals in grams?
+	ozgramf "${2}" "${3}"
+	RESULT="$(bc -l <<< "((${1}*${BTCBANK})/${BTCTOCUR})${GRAM}${OZ}")"
+	printf "%.${SCL}f\n" "${RESULT}"
 }
 
 ## -t Ticker Function
@@ -510,54 +537,87 @@ rm2f() { rm -f "${CGKTEMPLIST2}"; }
 rm3f() { rm -f "${CGKTEMPLIST3}"; }
 tmperrf() { printf "Cannot create temp file at /tmp.\n" 1>&2; exit 1;}
 
-# Check if there is any argument or option
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-	printf "Run with -h for help.\n"
-	exit 1
-fi
+
+# Precious metals in grams?
+ozgramf() {	
+	# Precious metals - ounce to gram
+	#CGK does not support Platinum(xpt) and Palladium(xpd), let's leave them anyways..
+	if [[ -n "${GRAMOPT}" ]]; then
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
+			FMET=1
+		fi
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
+			TMET=1
+		fi
+		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
+			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			unset OZ
+			unset GRAM
+		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			GRAM='/'
+		elif [[ -z "${FMET}" ]] && [[ -n "${TMET}" ]]; then
+			GRAM='*'
+		fi
+	else
+		unset OZ
+		unset GRAM
+	fi
+}
+
 
 # Parse options
-while getopts ":behljmp:s:tv" opt; do
+while getopts ":0123456789beghljmp:s:tv" opt; do
 	case ${opt} in
-		b ) ## Activate the Bank currency function
+		( [0-9] ) #scale, same as '-sNUM'
+			SCL="${SCL}${opt}"
+			;;
+		( b ) ## Activate the Bank currency function
 			BANK=1
 			;;
-		e ) ## List supported Exchanges
+		( e ) ## List supported Exchanges
 			[[ -z "${EXOPT}" ]] && EXOPT=1 || EXOPT=2
 			;;
-		h ) # Show Help
+		( g ) # Gram opt
+			GRAMOPT=1
+			;;
+		( h ) # Show Help
 			echo -e "${HELP_LINES}"
 			exit 0
 			;;
-		l ) ## List available currencies
+		( l ) ## List available currencies
 			LOPT=1
 			;;
-		j ) # Print JSON
+		( j ) # Print JSON
 			PJSON=1
 			;;
-		m ) ## Make Market Cap Table
+		( m ) ## Make Market Cap Table
 			MCAP=1
 			;;
-		p ) # Number of pages to retrieve with the Ticker Function
+		( p ) # Number of pages to retrieve with the Ticker Function
 			TPAGES=${OPTARG}
 			;;
-		s ) # Scale, Decimal plates
+		( s ) # Scale, Decimal plates
 			SCL=${OPTARG}
 			;;
-		t ) # Tickers
+		( t ) # Tickers
 			TOPT=1
 			;;
-		v ) # Version of Script
+		( v ) # Version of Script
 			head "${0}" | grep -e '# v'
 			exit 0
 			;;
-		\? )
-			printf "Invalid Option: -%s\n" "${OPTARG}" 1>&2
+		( \? )
+			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
 			exit 1
 			;;
 	esac
 done
 shift $((OPTIND -1))
+
+## Set default scale if no custom scale
+if [[ -z ${SCL} ]]; then
+	SCL="${SCLDEFAULTS}"
+fi
 
 # Test for must have packages
 if [[ -z "${YOURAPP}" ]]; then
@@ -588,11 +648,6 @@ elif [[ -n "${EXOPT}" ]]; then
 elif [[ -n "${LOPT}" ]]; then
 	listsf
 	exit
-fi
-
-## Set default scale if no custom scale
-if [[ -z ${SCL} ]]; then
-	SCL="${SCLDEFAULTS}"
 fi
 
 # Set equation arguments
@@ -657,13 +712,23 @@ elif [[ -n "${BANK}" ]]; then
 fi
 
 ## Default option - Cryptocurrency converter
+# Precious metals in grams?
+ozgramf "${2}" "${3}"
 if [[ -n "${CGKRATERAW}" ]]; then
 	# Result for Bank function
-	bc -l <<< "scale=${SCL};(${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g'))/1"
+	bc -l <<< "${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g')"
 else
 	# Make equation and print result
-	bc -l <<< "scale=${SCL};(${1}*$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g'))/1"
+	RATE="$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g')"
+	RESULT="$(bc -l <<< "(${1}*${RATE})${GRAM}${OZ}")"
+	printf "%.${SCL}f\n" "${RESULT}"
 fi
 
 exit
 
+#Dead code
+## Check if there is any argument or option
+#if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+#	printf "Run with -h for help.\n"
+#	exit 1
+#fi

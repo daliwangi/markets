@@ -1,42 +1,39 @@
 #!/bin/bash
-# v0.2.9  03/dez/2019  by mountaineer_br
+# v0.2.11  03/dez/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
 
-## Taxas da PARMETAL
 # Ajuda "-h"
-if [[ "${1}" = "-h" ]]; then
-	printf "Uso:\n"
-	printf "\tparmetal.sh    #todas cotações disponíveis\n\n"
-	printf "Opções:\n"
-	printf " 	-p    Somente barras parmetal\n"
-	printf " 	-v    Imprime versão do script.\n"
-	exit 0
-fi
-# Imprime versão -v
-if [[ "${1}" = "-v" ]]; then
-	grep -m1 '# v' "${0}"
-	exit 0
-fi
+HELP="SINOPSE
+	parmetal.sh    
+
+	parmetal.sh [-hpv]
+
+
+OPÇÕES
+	-h 	Imprime esta ajuda.
+
+ 	-p 	Somente cotações da barra parmetal.
+
+ 	-v 	Imprime versão do script."
 
 # Removing all HTML tags from a webpage (for use with curl)
 htmlfilter() { sed -E 's/<[^>]*>//g';}
 
 # Pegar taxas somente das Barras da Parmetal "-p"
-if [[ "${1}" = "-p" ]]; then
-	# Can also use to parse XML files   grep -oPm1 -e "(?<=<descr>)[^<]+"
+parmf() {
+	# Can also be used to parse XML files   grep -oPm1 -e "(?<=<descr>)[^<]+"
 	# From:https://unix.stackexchange.com/questions/277861/parse-xml-returned-from-curl-within-a-bash-script
 	PRICE="$(curl -s "https://www.parmetal.com.br/app/metais/" |
 		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' |
 		sed 's/]]]/[/g' | sed 's/]]/[/g' | sed 's/\[/\n/g' |
 		grep --color=never -A2 -e "Barra Parmetal/RBM")"
-	printf "%s\n" "${PRICE}"
 	PRICE2=($(grep -oe "[0-9]*,[0-9]*" <<< "${PRICE}"))
 	SPREAD="$(tr ',' '.' <<< "((${PRICE2[1]}/${PRICE2[0]})-1)*100" | bc -l)"
-	printf "SPD: %'.3f %%\n" "${SPREAD}"
-	exit
-fi
+	printf "%s\n" "${PRICE}"
+	printf "%'.3f %%\n" "${SPREAD}"
+}
 
 # Função Cotações Metais
 metaisf() {
@@ -76,6 +73,35 @@ moedasf() {
 		${EUR[@]}
 		EOF
 	}
+
+# Parse options
+while getopts ":hpv" opt; do
+	case ${opt} in
+		h ) # Help
+	      		echo -e "${HELP}"
+	      		exit 0
+	      		;;
+		p ) # Somente o preço
+			parmf
+			exit
+			;;
+		v ) # Version of Script
+	      		grep -m1 '# v' "${0}"
+	      		exit 0
+	      		;;
+		\? )
+	     		printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+	     		exit 1
+	     		;;
+  	esac
+done
+shift $((OPTIND -1))
+
+
+
+## Taxas da PARMETAL
+
+
 
 # Imprimir Tabela
 printf "PARMETAL\n"

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.5.2  2019/dec/05  by mountaineerbr
+# v0.6.1  2019/dec/05  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -12,6 +12,8 @@
 LC_NUMERIC="en_US.UTF-8"
 ## Set default scale if no custom scale
 SCLDEFAULTS=16
+## Oz to gram ratio
+OZ='28.349523125'
 
 ## Manual and help
 ## Usage: $ cmc.sh [amount] [from currency] [to currency]
@@ -21,12 +23,14 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cmc.sh [-bp] [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
-
-	cmc.sh [-mt] [NUM] [CURRENCY]
-
 	cmc.sh [-ahlv]
 
+	cmc.sh [-bgp] [-sNUM|-NUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+
+	cmc.sh [-m] [TO_CURRENCY]
+
+	cmc.sh [-t] [NUM] [CURRENCY]
+	
 
 DESCRIPTION
 	This programme fetches updated currency rates from CoinMarketCap.com
@@ -34,33 +38,29 @@ DESCRIPTION
 	crypto currency into another. CMC also converts crypto to ~93 central 
 	bank currencies.
 
-	Only central bank currency conversions are not supported directly, but 
-	we can derive bank currency rates undirectly, for e.g. USD vs CNY. As 
-	CoinMarketCap updates frequently, it is one of the best APIs for bank 
-	currency rates, too.
-
-	The  Bank  Currency  Function \"-b\" can calculate central bank currency
-	rates, such  as USD/BRL.
-
-	It  is  _not_  advisable  to depend  solely on CoinMarketCap rates for 
-	serious	trading.
-	
 	You can see a List of supported currencies running the script with the
 	argument \"-l\".
 
-	Gold and other metals are priced in Ounces.
+	Only central bank currency conversions are not supported directly, but 
+	we can derive bank currency rates undirectly, for e.g. USD vs CNY.The 
+	Bank Currency option \"-b\" can also calculate bank currencies vs. pre-
+	cious metals.
+
+	Gold and other metals are priced in Ounces. It means that in each ounce
+	there are aproximately 28.35 grams, such as represented by the following
+	constant:
 		
-		\"Gram/Ounce\" rate: 28.349523125
+		\"GRAM/OUNCE\" rate = 28.349523125
 
 
 	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage examples 10-13).
+	with precious metals (see usage example 10). I suggest a variable called
+	OZ that will contain the GRAM/OZ constant.
 
 		OZ=\"28.349523125\"
 
 
-	Default precision is 16 and can be adjusted with \"-s\". Trailing noughts
-	are trimmed by default.
+	Default precision is 16 and can be adjusted with \"-s\".
 
 
 IMPORTANT NOTICE
@@ -70,9 +70,13 @@ IMPORTANT NOTICE
 
 
 WARRANTY
-	Licensed under the GNU Public License v3 or better.
- 	This programme is distributed without support or bug corrections.
+	Licensed under the GNU Public License v3 or better. It is distributed 
+	without support or bug corrections. This programme needs Bash, cURL, JQ
+	and Coreutils to work properly.
 
+	It  is  _not_  advisable  to depend  solely on CoinMarketCap rates for 
+	serious	trading.
+	
 	Give me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
@@ -117,35 +121,56 @@ USAGE EXAMPLES:
 			$ cmc.sh 1 btc xau 
 
 
-		(8)    \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
-					
-			$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
+		(8)    Using grams for precious metals instead of ounces.
 
-			    Just multiply amount by the \"gram/ounce\" rate.
+			To use grams instead of ounces for calculation precious 
+			metals rates, use option \"-g\". The following section
+			explains about the GRAM/OZ constant used in this program.
 
-
-		(9)    \e[1;33;40mOne\033[00m EUR in grams of Gold:
-					
-			$ cmc.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
-
-
-		(10)    \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
-					
-			$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			The rate of conversion (constant) of grams by ounce may 
+			be represented as below:
+			 
+				GRAM/OUNCE = \"28.349523125/1\"
 			
-			    Just divide amount by the \"gram/ounce\" rate.
 
-		
-		(11)    \e[1;33;40mOne\033[00m gram of Gold in EUR:
-					
-			$ cmc.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 			
+			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
+			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
+
+				$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*28.3495\" eur xau 
+
+
+				One EUR in grams of Gold:
+
+				$ cmc.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+
+			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
+			just divide AMOUNT by the \"GRAM/OUNCE\" costant.
+
+				$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			
+
+				One gram of Gold in EUR:
+					
+				$ cmc.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+
+
+			To convert (a) from gold to crypto currencies, (b) from 
+			bank currencies to gold or (c) from gold to bank curren-
+			cies, do not forget to use the option \"-b\"!
+
 
 OPTIONS
+		-NUM 	Shortcut for scale setting, same as \"-sNUM\".
+
 		-a 	  API key status.
 
 		-b 	  Bank currency function: from_ and to_currency can be 
 			  any central bank or crypto currency supported by CMC.
+
+		-g 	  Use grams instead of ounces; only for precious metals.
 		
 		-h 	  Show this help.
 
@@ -266,7 +291,7 @@ OTHERCUR="2781=USD=United States Dollar ($)
 
 TOCURLIST=( USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD ) 
 
-## Bank currency rate function
+## -b Bank currency rate function
 bankf() {
 	unset BANK
 	if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
@@ -275,7 +300,6 @@ bankf() {
 		exit 1
 	fi
 	# Rerun script, get rates and process data	
-	(
 	BTCBANK="$("${0}" -p BTC "${2^^}")"
 	BTCBANKHEAD=$(head -n1 <<< "${BTCBANK}") # Timestamp
 	BTCBANKTAIL=$(tail -n1 <<< "${BTCBANK}") # Rate
@@ -286,15 +310,17 @@ bankf() {
 		printf "%s (from currency)\n" "${BTCBANKHEAD}"
 		printf "%s ( to  currency)\n" "${BTCTOCURHEAD}"
 	fi
+
 	# Calculate result & print result 
-	RESULT="$(bc -l <<< "(${1}*${BTCTOCURTAIL})/${BTCBANKTAIL}")"
-	printf "%.${SCL}f\n" "${RESULT}"
+	# Precious metals in grams?
+	ozgramf "${2}" "${3}"
+	RESULT="$(bc -l <<< "((${1}*${BTCTOCURTAIL})/${BTCBANKTAIL})${GRAM}${OZ}")"
 	# Check for errors
-	if ! grep -q "[1-9]" <<< "${RESULT}"; then
-		printf "Check currency codes for typos.\n" 1>&2
+	if [[ -z "${RESULT}" ]]; then
+		printf "Error: check currency codes.\n" 1>&2
 		exit 1
 	fi
-	) 2>/dev/null
+	printf "%.${SCL}f\n" "${RESULT}"
 }
 
 ## Market Capital Function
@@ -431,45 +457,81 @@ apif() {
 	#| cat -s    #sed -e '$d'
 }
 
+# Precious metals in grams?
+ozgramf() {	
+	# Precious metals - ounce to gram
+	if [[ -n "${GRAMOPT}" ]]; then
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
+			FMET=1
+		fi
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
+			TMET=1
+		fi
+		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
+			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			unset OZ
+			unset GRAM
+		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			GRAM='/'
+		elif [[ -z "${FMET}" ]] && [[ -n "${TMET}" ]]; then
+			GRAM='*'
+		fi
+	else
+		unset OZ
+		unset GRAM
+	fi
+}
+
 
 # Parse options
-while getopts ":ablmhjs:tp" opt; do
+while getopts ":0123456789ablmghjs:tp" opt; do
 	case ${opt} in
-		a ) # API key status
+		( [0-9] ) #scale, same as '-sNUM'
+			SCL="${SCL}${opt}"
+			;;
+		( a ) # API key status
 			APIOPT=1
 			;;
-		b ) # Hack central bank currency rates
+		( b ) # Hack central bank currency rates
 			BANK=1
 			;;
-		j ) # Debug: Print JSON
+		( g ) # Gram opt
+			GRAMOPT=1
+			;;
+		( j ) # Debug: Print JSON
 			PJSON=1
 			;;
-		l ) # List available currencies
+		( l ) # List available currencies
 			LISTS=1
 			;;
-		m ) # Market Capital Function
+		( m ) # Market Capital Function
 			MCAP=1
 			;;
-		h ) # Show Help
+		( h ) # Show Help
 			echo -e "${HELP_LINES}"
 			exit 0
 			;;
-		p ) # Print Timestamp with result
+		( p ) # Print Timestamp with result
 			TIMEST=1
 			;;
-		s ) # Decimal plates
+		( s ) # Decimal plates
 			SCL="${OPTARG}"
 			;;
-		t ) ## Tickers for crypto currencies
+		( t ) ## Tickers for crypto currencies
 			TICKEROPT=1
 			;;
-		\? )
+		( \? )
 			echo "Invalid Option: -$OPTARG" 1>&2
 			exit 1
 			;;
 	esac
 done
 shift $((OPTIND -1))
+
+## Set custom scale
+if [[ -z ${SCL} ]]; then
+	SCL="${SCLDEFAULTS}"
+fi
 
 #Check for API KEY
 if [[ -z "${CMCAPIKEY}" ]]; then
@@ -501,11 +563,6 @@ elif [[ -n "${TICKEROPT}" ]]; then
 elif [[ -n "${APIOPT}" ]]; then
 	apif
 	exit
-fi
-
-## Set custom scale
-if [[ -z ${SCL} ]]; then
-	SCL="${SCLDEFAULTS}"
 fi
 
 # Set equation arguments
@@ -561,7 +618,7 @@ fi
 
 ## Currency converter -- Default function
 ## Get Rate JSON
-CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest)
+CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest")
 # Print JSON?
 if [[ -n ${PJSON} ]]; then
 	printf "%s\n" "${CMCJSON}"
@@ -578,7 +635,9 @@ JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
 fi
 
 ## Make equation and calculate result
-RESULT="$(bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${1}*${CMCRATE})")"
+# Precious metals in grams?
+ozgramf "${2}" "${3}"
+RESULT="$(bc -l <<< "(${1}*${CMCRATE})${GRAM}${OZ}")"
 printf "%.${SCL}f\n" "${RESULT}"
 
 exit

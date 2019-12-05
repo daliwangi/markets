@@ -2,9 +2,9 @@
 
 uxterm -T 'BNB Binance' -geometry 6x25+0+340 -e '/home/jsn/_scripts/markets/binance.sh -f3 -w bnbusdt' &
 
-uxterm -T 'LTC Binance' -geometry 6x25+54+340 -e '/home/jsn/_scripts/markets/binance.sh -s ltcusdt' &
+uxterm -T 'LTC Binance' -geometry 6x25+54+340 -e '/home/jsn/_scripts/markets/binance.sh -s2 ltcusdt' &
 
-uxterm -T 'BTC Binance US' -geometry 7x6+108+340 -e "/home/jsn/_scripts/markets/binance.sh -us btc usd" &
+uxterm -T 'BTC Binance US' -geometry 7x6+108+340 -e "/home/jsn/_scripts/markets/binance.sh -2us btc usd" &
 
 uxterm -T 'BTC Bitstamp' -geometry 7x8+108+615 -e "/home/jsn/_scripts/markets/bitstamp.sh -c" &
 
@@ -12,9 +12,9 @@ uxterm -T 'BTC Bitfinex' -geometry 7x8+108+455 -e "/home/jsn/_scripts/markets/bi
 
 uxterm -T 'XRP Binance' -geometry 7x20+0+0 -e "/home/jsn/_scripts/markets/binance.sh -f5 -s xrpusdt" &
 
-uxterm -T 'BCHABC Binance' -geometry 6x20+62+0 -e "/home/jsn/_scripts/markets/binance.sh -w bchabcusdt" &
+uxterm -T 'BCHABC Binance' -geometry 6x20+62+0 -e "/home/jsn/_scripts/markets/binance.sh -w2 bchusdt" &
 
-uxterm -T 'ETH Binance' -geometry 6x20+115+0 -e "/home/jsn/_scripts/markets/binance.sh -w ethusdt" &
+uxterm -T 'ETH Binance' -geometry 6x20+115+0 -e "/home/jsn/_scripts/markets/binance.sh -w2 ethusdt" &
 
 uxterm -T 'BTC Detailed' -geometry 77x53+172+0 -e '/home/jsn/_scripts/markets/binance.sh -i' &
 

@@ -1,10 +1,12 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.6.21  23/nov/2019  by mountaineerbr
+# v0.7  05/dec/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
-FSTR="%.2f" 
+#Decimal plates and printf-format; defaults=%s.
+FSTRDEF="%s"      #print raw results 
+#FSTRDEF="%.2f"   #set to 2 decimal plates
 WHICHB="com"
 
 HELP="NAME
@@ -13,9 +15,9 @@ HELP="NAME
 
 
 SYNOPSIS
-	binance.sh [-fNUM|STR] [-u] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-u] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
 
-	binance.sh [-fNUM|STR] [-cirsuw] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-cirsuw] [FROM_CRYPTO] [TO_CRYPTO]
 	
 	binance.sh [-bbbtu] [FROM_CRYPTO] [TO_CRYPTO]
 	
@@ -48,13 +50,14 @@ SYNOPSIS
 	socket streams leave an open connection so there is more frequent data
 	flow.
 
-	Default precision is unspecified for currency conversion, and defaults 
-	to  two  decimal plates in price roll functions. A different number of 
-	decimal plates can be supplied with the option \"-f\". See example (3).
-	This  option  also  accepts printf-like	formatting. This option is spe-
-	cially useful if exchange rates or amount of a crypto for conversion is 
-	very large or very small. It is also possible to add \"thousands\" sepa-
-	rator. See usage example (4).
+	The number of decimal plates is by defaults the raw value. A different 
+	number of decimal plates can be supplied with the option \"-f\", see ex-
+	ample (4). Option \"-NUM\" is a shortcut for \"-fNUM\", where NUM must 
+	be a natural number (1,2,3..).
+
+	It is also possible to add a \"thousands\" separator, just pass \"-ff\",
+	see usage example (5). Finally, the \"-f\" option also accepts a printf-
+	like formatting string (defaults=\"%s\").
 
   
 LIMITS ON WEBSOCKET MARKET STREAMS
@@ -105,10 +108,14 @@ USAGE EXAMPLES
 		(4)     Price of one XRP in USDC, four decimal plates:
 			
 			$ binance.sh -f4 xrp usdc 
+
+			$ binance.sh -4 xrp usdc 
 			
 		
 		(5)     Price stream of BTCUSDT, group thousands; print only 
 			one decimal plate:
+			
+			$ binance.sh -s -ff1 btc usdt
 			
 			$ binance.sh -s -f\"%'.1f\" btc usdt
 
@@ -133,6 +140,8 @@ USAGE EXAMPLES
 			     use \"BTC$\" to get markets that  end  with xxxBTC.
 
 OPTIONS
+	-NUM 	Shortcut for simple decimal setting, same as \"-fNUM\".
+
 	-b 	Order book depth streams; depth=10; pass twice to depth=20; pass
 		three times to get some book order stats.
 
@@ -140,8 +149,10 @@ OPTIONS
 		each update; prices update from bottom right to top left; uses
 		cURL/Wget.
 
-	-f 	Formatting of prices (printf-like); number of decimal plates; 
-		for use with options \"-c\", \"-s\" and \"-w\".
+	-f  [NUM]
+	-ff [STR]
+		Number of decimal plates and printf-like formatting; for use 
+		with options \"-c\", \"-s\" and \"-w\"; defaults=%s.
 
 	-h 	Show this Help.
 
@@ -360,79 +371,87 @@ lcoinsf() {
 	exit
 }
 
-# Check for no arguments or options in input
-if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
-	printf "Run with -h for help.\n"
-	exit 1
-fi
 
 # Parse options
-while getopts ":bdecf:hjlistuwvr" opt; do
+while getopts ":0123456789bdecf:hjlistuwvr" opt; do
 	case ${opt} in
-		j ) # Print JSON
+		( [0-9] ) #decimal setting, same as '-fNUM'
+			FSTR="${FSTR}${opt}"
+			;;
+		( c ) # Price in columns
+			COPT=1
+			LIMIT=250
+			;;
+		( [bde] ) # Order book depth view
+			if [[ -z "${BOPT}" ]]; then
+				BOPT=1
+			elif [[ "${BOPT}" -eq 1 ]]; then
+				BOPT=2
+			elif [[ "${BOPT}" -eq 2 ]]; then
+				BOPT=3
+			fi
+			;;
+		( f ) # Scale (decimal plates) and printf-like format numbers
+			[[ "${OPTARG}" =~ f ]] && FSTRSEP=1 
+			FSTR="${OPTARG#f}"
+			[[ "${OPTARG}" = f ]] && FSTR=0
+			;;
+		( h ) # Help
+			echo -e "${HELP}"
+			exit 0
+			;;
+		( i ) # Detailed latest trade information
+			IOPT=1
+			;;
+		( j ) # Print JSON
 			printf "Check below script lines that fetch raw JSON data:\n"
 			grep -e "YOURAPP" -e "WEBSOCATC" <"${0}" | sed -e 's/^[ \t]*//' | sort
 			exit 0
-	      		;;
-		l ) # List markets (coins and respective rates)
+			;;
+		( l ) # List markets (coins and respective rates)
 			LOPT=1
-	      		;;
-		c ) # Price in columns
-	      		COPT=1
-	      		LIMIT=250
-	      		;;
-		[bde] ) # Order book depth view
-	      		if [[ -z "${BOPT}" ]]; then
-				BOPT=1
-	      		elif [[ "${BOPT}" -eq 1 ]]; then
-				BOPT=2
-	      		elif [[ "${BOPT}" -eq 2 ]]; then
-				BOPT=3
-			fi
-	      		;;
-		f ) # Printf-like format numbers
-	 	     	FCONVERTER=1
-	      		if [[ "${OPTARG}" =~ ^[0-9]+ ]]; then
-		   		FSTR="%.${OPTARG}f"
-		   		else
-		   		FSTR="${OPTARG}"
-	      		fi
-	      		;;
-		i ) # Detailed latest trade information
-	      		IOPT=1
-	      		;;
-		s ) # Stream of trade prices
+			;;
+		( r ) # cURL opt instead of Websocat
+			CURLOPT=1
+			;;
+		( s ) # Stream of trade prices
 			COLORC="cat"
-	      		SOPT=1
-	      		;;
-		w ) # Coloured stream of trade prices
-	      		SOPT=1
-	      		COLORC="lolcat -p 2000 -F 5"
-	      		;;
-		t ) # Rolling Ticker 
-	      		TOPT=1
-	      		;;
-		r ) # cURL opt instead of Websocat
-	      		CURLOPT=1
-	      		;;
-		h ) # Help
-	      		echo -e "${HELP}"
-	      		exit 0
-	      		;;
-		v ) # Version of Script
-	      		head "${0}" | grep -e '# v'
-	      		exit 0
-	      		;;
-		u ) # Binance US
+			SOPT=1
+			;;
+		( t ) # Rolling Ticker 
+			TOPT=1
+			;;
+		( u ) # Binance US
 			WHICHB="us"
 			;;
-		\? )
-	     		echo "Invalid Option: -$OPTARG" 1>&2
-	     		exit 1
-	     		;;
-  	esac
+		( v ) # Version of Script
+			grep -m1 '# v' "${0}"
+			exit 0
+			;;
+		( w ) # Coloured stream of trade prices
+			SOPT=1
+			COLORC="lolcat -p 2000 -F 5"
+			;;
+		( \? )
+			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			exit 1
+			;;
+	esac
 done
 shift $((OPTIND -1))
+
+## Set default scale if no custom scale
+if [[ -z ${FSTR} ]]; then
+	FSTR="${FSTRDEF}"
+elif [[ "${FSTR}" = [0-9]* ]]; then
+	if [[ -n "${FSTRSEP}" ]]; then
+		FSTR="%'.${FSTR}f"
+	else
+		FSTR="%.${FSTR}f"
+	fi
+else
+	FSTR="${FSTR}"
+fi
 
 # Test for must have packages
 if ! command -v jq &>/dev/null; then
@@ -463,7 +482,6 @@ if ! [[ "${1}" =~ [0-9] ]] || [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
 fi
 
 # Sets btc as "from_currency" for market code formation
-# Will not set when calling the script without any option
 if [[ -z ${2} ]]; then
 	set -- "${1}" "BTC"
 fi
@@ -512,11 +530,14 @@ test -n "${COPT}" && colf "${@}"
 ## Crypto conversion/market rate -- DEFAULT OPT
 # Get rate
 BRATE=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price?symbol=${2^^}${3^^}" | jq -r ".price")
-# Check for floating point specs (decimal plates) and print result
-if [[ -n "${FCONVERTER}" ]]; then
-	bc -l <<< "${1}*${BRATE}" | xargs printf "${FSTR}\n"
-else
-	bc -l <<< "${1}*${BRATE}"
-fi
+# Calc and printf results
+bc -l <<< "${1}*${BRATE}" | xargs printf "${FSTR}\n"
+
 exit 
 
+##Dead code
+# Check for no arguments or options in input
+#if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
+#	printf "Run with -h for help.\n"
+#	exit 1
+#fi

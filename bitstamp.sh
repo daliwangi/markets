@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Bitstamp.sh  -- Websocket access to Bitstamp.com
-# v0.3.4  12/nov/2019  by mountainner_br
+# v0.3.4.1  14/nov/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -9,9 +9,9 @@ COLOROPT="cat"
 DECIMAL=2
 
 HELP="SYNOPSIS
-	Bitstamp.sh [-c] [-fNUM] [-i|-s] [MARKET]
+	bitstamp.sh [-c] [-fNUM] [-i|-s] [MARKET]
 
-	Bitstamp.sh [-h|-l|-v]
+	bitstamp.sh [-h|-l|-v]
 
 
 DESCRIPTION:
