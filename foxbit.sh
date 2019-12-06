@@ -1,13 +1,25 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.31  29/nov/2019  by mountaineer_br
+# v0.2.40  06/dez/2019  by mountaineer_br
+
+## Defaults
+#Mercado padrão 
+ID=1; IDNAME=BTC
+#Intervalo de estatísticas do ticker
+INTV=86400  #equivalente a 24h
+#INTV=21600 #equivalente a 6h
+#Largura máxima do ticker
+CUTAT=30  #caracteres
+#Manter-se conectado? Comente para puxar 
+#somente uma vez e parar (igual opção -q) 
+ROLAR='-n'
 
 HELP="GARANTIA
 	Este programa/script é software livre e está licenciado sob a Licença 
 	Geral Pública v3 ou superior do GNU. Sua distribuição não oferece supor-
 	te nem correção de bugs.
 
-	O script precisa do Bash, JQ e Websocat.
+	O script precisa do Bash ou Z-shell, JQ e Websocat.
 
 
 SINOPSE
@@ -49,6 +61,16 @@ SINOPSE
 	 	 6h  		21600 	
 		12h  		43200 	
 		24h  		86400 	
+
+	
+	O spread (Spd) e a variação (Var) são calculados a partir das seguintes
+	fórmulas:
+
+		[ ( Alta - Baixa ) / Alta ]
+	
+		[ ( Venda - Compra ) / Venda ]
+	
+		[ ( Fechamento - Abertura ) / Fechamento ]
 
 
 LIMITES
@@ -93,42 +115,39 @@ OPÇÕES
 
 
 # Test if JQ and Websocat are available
-if ! command -v jq &>/dev/null; then
-	printf "JQ is required.\n" 1>&2
+if ! command -v websocat &>/dev/null; then
+	printf "Websocat é requerido.\n" 1>&2
 	exit 1
-elif ! command -v websocat &>/dev/null; then
-	printf "Websocat is required.\n" 1>&2
+elif ! command -v jq &>/dev/null; then
+	printf "JQ é requerido.\n" 1>&2
 	exit 1
 fi
-
-# Defaults
-ID=1;IDNAME=BTC
-INTV=86400
-#INTV=21600
-KEEPCONN="-n"
 
 # Functions
 ## Price of Instrument
 statsf () {
-	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
+	websocat ${ROLAR} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
-			"Foxbit Ticker Rolante",
-			"Interv_: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"## Foxbit Ticker Rolante",
+			"Intervl : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Inicial : \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Final__ : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"InstrID: \(.[8]) (\($IDNA))",
 			"Volume_: \(.[5])",
-			"Demanda: \(.[7])",
-			"Oferta_: \(.[6])  Spd: \((.[7]-.[6])|round)",
-			"Alta___: \(.[1])",
-			"Baixa__: \(.[2])  Var: \((.[1]-.[2])|round)",
-			"Abert._: \(.[3])",
-			"*Fecham: \(.[4])  Var: \((.[3]-.[4])|round)"'
+			"Alta___: \(.[1])   \tVar \((.[1]-.[2])|round)",
+			"Baixa__: \(.[2])   \t %\(((.[1]-.[2])/.[1])*100)",
+			"Venda__: \(.[7])   \tSpd \((.[7]-.[6])|round)",
+			"Compra_: \(.[6])   \t %\(((.[7]-.[6])/.[7])*100)",
+			"*Abert_: \(.[3])   \tVar \((.[4]-.[3])|round)",
+			"#Fecham: \(.[4])   \t %\(((.[4]-.[3])/.[3])*100)"'
 }
+#https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
+#https://www.fool.com/knowledge-center/how-to-calculate-spread.aspx
+#https://www.calculatorsoup.com/calculators/financial/bid-ask-calculator.php
 
 ## Only Price of Instrument
 pricef () {
-	websocat ${KEEPCONN} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
+	websocat ${ROLAR} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":60,\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' | jq --unbuffered -r '.[]|.[4]'
 }
 
 # Parse options
@@ -137,22 +156,22 @@ while getopts ":hvi:pq" opt; do
 		i ) # Interval
 			INTV="${OPTARG}"
 			case ${OPTARG} in
-				1m|1min)
+				( 1m|1min )
 					INTV=60
 					;;
-				30m|30min)
+				( 30m|30min )
 					INTV=1800
 					;;
-				1h|1hora)
+				( 1h|1hora )
 					INTV=3600
 					;;
-				6h|6horas)
+				( 6h|6horas )
 					INTV=21600
 					;;
-				12h|12horas)
+				( 12h|12horas )
 					INTV=43200
 					;;
-				24h|24horas)
+				( 24h|24horas )
 					INTV=86400
 					;;
 			esac
@@ -161,23 +180,23 @@ while getopts ":hvi:pq" opt; do
 				INTV=86400
 			fi
 			;;
-		h ) # Help
+		( h ) # Help
 			head "${0}" | grep -e '# v'
 			echo -e "${HELP}"
 			exit 0
 			;;
-		q ) # Puxar dados uma vez e sair
-			unset KEEPCONN
+		( q ) # Puxar dados uma vez e sair
+			unset ROLAR
 			;;
-		p ) # Preço somente
+		( p ) # Preço somente
 			POPT=1
 			;;
-		v ) # Version of Script
+		( v ) # Version of Script
 			head "${0}" | grep -e '# v'
 			exit 0
 			;;
-		\? )
-			echo "Invalid Option: -$OPTARG" 1>&2
+		( \? )
+			printf "Invalid option: -%s\n" "$OPTARG" 1>&2
 			exit 1
 			;;
 	esac
@@ -187,27 +206,27 @@ shift $((OPTIND -1))
 # Get Product ID
 if [[ -n "${1}" ]]; then
 	case "${1^^}" in
-		BTC|BITCOIN)
+		( BTC|BITCOIN )
 			ID=1
 			IDNAME=BTC
 			;;
-		LTC|LITECOIN)
+		( LTC|LITECOIN )
 			ID=2
 			IDNAME=LTC
 			;;
-		ETH|ETHER|ETHEREUM)
+		( ETH|ETHER|ETHEREUM )
 			ID=4
 			IDNAME=ETH
 			;;
-		TUSD|TRUEUSD)
+		( TUSD|TRUEUSD )
 			ID=6
 			IDNAME=TUSD
 			;;
-		XRP|RIPPLE)
+		( XRP|RIPPLE )
 			ID=10
 			IDNAME=XRP
 			;;
-		*)
+		( * )
 			printf "Shitcoin indisponível: %s.\n" "${1^^}" 1>&2
 			exit 1
 			;;
@@ -224,13 +243,13 @@ if [[ -n "${POPT}" ]]; then
 fi
 
 # Defaul opt
-statsf
+# Ticker rolante, cortar colunas
+statsf | cut -c-${CUTAT}
 
 exit
 
-
 # Dead code
-:<<COMMENT
+:<<!
 [
     {
         "EndDateTime": 0, // POSIX format
@@ -245,13 +264,13 @@ exit
         "BeginDateTime": 0 // POSIX format
     }
 ]
-COMMENT
+
 ## Products
-#productsf() {
-# websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<<'{"m":0,"i":10,"n":"GetProducts","o":"{\"OMSId\":1}"}' | jq -r '.o' | jq -r '.'
-#}
+productsf() {
+websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<<'{"m":0,"i":10,"n":"GetProducts","o":"{\"OMSId\":1}"}' | jq -r '.o' | jq -r '.'
+}
 #productsf
-:<<COMMENT
+
 Product ID 	Product
 1 		BTC
 2 		BRL
@@ -259,7 +278,7 @@ Product ID 	Product
 4 		ETH
 5 		TUSD
 6 		XRP
-COMMENT
 ## ?
 #websocat "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":12,"n":"GetInstruments","o":"{"OMSId":1}"}' | jq -r '.'
+!
 
