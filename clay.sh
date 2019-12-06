@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.2  2019/dec/06  by mountaineerbr
+# v0.4.3  2019/dec/06  by mountaineerbr
 
 ## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
@@ -276,5 +276,5 @@ fi
 # Precious metals in grams?
 ozgramf "${2}" "${3}"
 ## Make equation and print result
-bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${OZ};"
+bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${OZ})/1;"
 
