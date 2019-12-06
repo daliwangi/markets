@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.1  2019/dec/05  by mountaineerbr
+# v0.10.2  2019/dec/06  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -59,9 +59,13 @@ DESCRIPTION
 		\"GRAM/OUNCE\" rate = 28.349523125
 
 
-	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage example 10). I suggest a variable called
-	OZ that will contain the GRAM/OZ constant.
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals. 
+
+	Nonetheless, it is useful to learn how to do this convertion manually.
+	It is useful to define a variable OZ in your \".bashrc\" to work with 
+	precious metals (see usage example 10). I suggest a variable called OZ 
+	that will contain the GRAM/OZ constant.
 
 		OZ=\"28.349523125\"
 

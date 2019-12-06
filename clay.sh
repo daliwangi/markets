@@ -1,15 +1,17 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.3.8  2019/nov/29  by mountaineerbr
+# v0.4  2019/dec/06  by mountaineerbr
 
 ## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
 
 ## Some defaults
-SCLDEFAULTS=8
+SCLDEFAULTS=20   #Bash Calculator defaults is 20 (plus one uncertainty digit)
 ## You should not change this:
 LC_NUMERIC="en_US.UTF-8"
+## Oz to gram ratio
+OZ='28.349523125'
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -20,7 +22,7 @@ HELP_LINES="NAME
 
 SYNOPSIS
 
-	clay.sh [-t] [sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	clay.sh [-tg] [sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
 
 	clay.sh [-hjlv]
 
@@ -33,18 +35,26 @@ DESCRIPTION
 	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
 	up for a free private API key.
 
-	Gold and other metals are priced in Ounces.
+	Gold and other metals are priced in Ounces. It means that in each ounce
+	there are aproximately 28.35 grams, such as represented by the following
+	constant:
 		
-		\"Gram/Ounce\" rate: 28.349523125
+		\"GRAM/OUNCE\" rate = 28.349523125
 
 
-	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage examples 4-7).
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals. 
+
+	Nonetheless, it is useful to learn how to do this convertion manually.
+	It is useful to define a variable OZ in your \".bashrc\" to work with 
+	precious metals (see usage example 10). I suggest a variable called OZ 
+	that will contain the GRAM/OZ constant.
 
 		OZ=\"28.349523125\"
 
-	
-	Bc uses a dot as decimal separtor. Default precision is 8.
+
+	Bash Calculator uses a dot \".\" as decimal separtor. Default precision
+	is ${SCLDEFAULTS}.
 
 
 API KEY
@@ -79,88 +89,135 @@ USAGE EXAMPLES
 		    plates (scale):
 
 			$ clay.sh -s3 50 djf cny
-		
-
-		(4) \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
-					
-			$ clay.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
-
-			    Just multiply amount by the \"gram/ounce\" rate.
 
 
-		(5) \e[1;33;40mOne\033[00m EUR in grams of Gold:
-					
-			$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+		(4)    Using grams for precious metals instead of ounces.
 
+			To use grams instead of ounces for calculation precious 
+			metals rates, use option \"-g\". The following section
+			explains about the GRAM/OZ constant used in this program.
 
-		(6) \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
-					
-			$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			The rate of conversion (constant) of grams by ounce may 
+			be represented as below:
+			 
+				GRAM/OUNCE = \"28.349523125/1\"
 			
-			    Just divide amount by the \"gram/ounce\" rate.
 
-		
-		(7) \e[1;33;40mOne\033[00m gram of Gold in EUR:
+			
+			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
+			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
+
+				$ clay.sh \"\e[0;33;40mAMOUNT\033[00m*28.3495\" eur xau 
+
+
+				One EUR in grams of Gold:
+
+				$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+
+
+
+			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
+			just divide AMOUNT by the \"GRAM/OUNCE\" costant.
+
+				$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+			
+
+				One gram of Gold in EUR:
 					
-			$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+				$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
 
 
 OPTIONS
-		-h 	Show this help.
+	-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
 
-		-j 	Debug; print JSON.
-
-		-l 	List supported currencies.
-
-		-s 	Set decimal plates; defaults=8.
-
-		-t 	Print timestamp.
+	-g 	  Use grams instead of ounces; only for precious metals.
 		
-		-v 	Show this programme version."
+	-h 	  Show this help.
 
-# Check if there is any argument
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-	printf "Run with -h for help.\n"
-	exit
-fi
+	-j 	  Debug; print JSON.
+
+	-l 	  List supported currencies.
+
+	-s [NUM]  Set decimal plates; defaults=8.
+
+	-t 	  Print timestamp.
+	
+	-v 	  Show this programme version."
+
+# Precious metals in grams?
+ozgramf() {	
+	# Precious metals - ounce to gram
+	#CGK does not support Platinum(xpt) and Palladium(xpd), let's leave them anyways..
+	if [[ -n "${GRAMOPT}" ]]; then
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
+			FMET=1
+		fi
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
+			TMET=1
+		fi
+		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
+			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			unset OZ
+			unset GRAM
+		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			GRAM='/'
+		elif [[ -z "${FMET}" ]] && [[ -n "${TMET}" ]]; then
+			GRAM='*'
+		fi
+	else
+		unset OZ
+		unset GRAM
+	fi
+}
+
+
 # Parse options
-while getopts ":lhjs:tv" opt; do
-  case ${opt} in
-  	l ) ## List available currencies
-		curl -s "https://currencylayer.com/site_downloads/cl-currencies-table.txt" | 
-			sed -e 's/<[^>]*>//g' |
-			sed '1d'| sed -e 's/^[ \t]*//' |
-			sed '$!N;s/\n/ /' | awk 'NF'
-		exit 0
-		;;
-	h ) # Show Help
-		echo -e "${HELP_LINES}"
-		exit 0
-		;;
-	j ) # Print JSON
-		PJSON=1
-		;;
-	s ) # Decimal plates
-		SCL=${OPTARG}
-		;;
-	t ) # Print Timestamp with result
-		TIMEST=1
-		;;
-	v ) # Version of Script
-		head "${0}" | grep -e '# v'
-		exit
-		;;
-	\? )
-		printf "%s\n" "Invalid Option: -$OPTARG" 1>&2
-		exit 1
-		;;
-  esac
+while getopts ":1234567890lghjs:tv" opt; do
+	case ${opt} in
+		( [0-9] ) #scale, same as '-sNUM'
+			SCL="${SCL}${opt}"
+			;;
+		( l ) ## List available currencies
+			curl -s "https://currencylayer.com/site_downloads/cl-currencies-table.txt" | sed -e 's/<[^>]*>//g' | sed '1d'| sed -e 's/^[ \t]*//' | sed '$!N;s/\n/ /' | awk 'NF'
+			exit 0
+			;;
+		( g ) # Gram opt
+			GRAMOPT=1
+			;;
+		( h ) # Show Help
+			echo -e "${HELP_LINES}"
+			exit 0
+			;;
+		( j ) # Print JSON
+			PJSON=1
+			;;
+		( s ) # Decimal plates
+			SCL=${OPTARG}
+			;;
+		( t ) # Print Timestamp with result
+			TIMEST=1
+			;;
+		( v ) # Version of Script
+			grep -m1 '# v' "${0}"
+			exit
+			;;
+		( \? )
+			printf "Invalid option: -%s\n" "$OPTARG" 1>&2
+			exit 1
+			;;
+	esac
 done
 shift $((OPTIND -1))
 
+# Check if there is any argument
+if [[ -z "${*}" ]]; then
+	printf "Run with -h for help.\n" 1>&2
+	exit 1
+fi
+
 #Check for API KEY
 if [[ -z "${CLAYAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
+	printf "Please create a free API key and set it in the script source-code or as an environment variable.\n" 1>&2
 	exit 1
 fi
 
@@ -169,7 +226,6 @@ fi
 if [[ -z ${SCL} ]]; then
 	SCL=${SCLDEFAULTS}
 fi
-
 
 # Set equation arquments
 if ! [[ ${1} =~ [0-9] ]]; then
@@ -202,19 +258,11 @@ elif [[ ${3^^} = USD ]]; then
 fi
 
 ## Transform "e" to "*10^" in rates
-if grep -q "e" <<< "${FROMCURRENCY}"; then
+if [[ "${FROMCURRENCY}" =~ e ]]; then
 	FROMCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${FROMCURRENCY}")
-	if [[ ${SCL} < 6 ]]; then
-		SCL=10
-		printf "%s\n" "Scale changed to 10." 1>&2
-	fi
 fi
-if grep -q "e" <<< "${TOCURRENCY}"; then
+if [[ "${TOCURRENCY}" =~ e ]]; then
 	TOCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${TOCURRENCY}") 
-	if [[ ${SCL} < 6 ]]; then
-		SCL=10
-		printf "%s\n" "Scale changed to 10." 1>&2
-	fi
 fi
 
 ## Print timestamp ?
@@ -223,6 +271,8 @@ if [[ -n ${TIMEST} ]]; then
 	date -d@"$JSONTIME" "+## %FT%T%Z"
 fi
 
+# Precious metals in grams?
+ozgramf "${2}" "${3}"
 ## Make equation and print result
-bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY})/${FROMCURRENCY};"
+bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${OZ};"
 

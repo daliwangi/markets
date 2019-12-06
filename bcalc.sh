@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Easy Calculator for Bash
-# v0.4.36  2019/dec/05  by mountaineerbr
+# v0.4.37  2019/dec/06  by mountaineerbr
 
 ## Defaults
 #Record file:
@@ -260,7 +260,7 @@ shift $((OPTIND -1))
 # otherwise, create and initialise one
 if [[ "${BCREC}" -eq 1 ]] && [[ ! -f "${RECFILE}" ]]; then
 	printf "## Bcalc.sh Record\n1\n" >> "${RECFILE}"
-	printf "File initialise: %s\n" "${RECFILE}" 1>&2
+	printf "File initialised: %s\n" "${RECFILE}" 1>&2
 fi
 
 ## Add note to record
