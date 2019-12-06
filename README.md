@@ -124,7 +124,7 @@ Então, caminhe até a pasta onde script se encontra.
 <i>$ cd ~/Downloads</i>
 
 
-Para executá-lo, não se esqueça de adeicionar ./ antes do nome do script:
+Para executá-lo, não se esqueça de adicionar ./ antes do nome do script:
 
 <i>$ ./binance.sh</i>
 
