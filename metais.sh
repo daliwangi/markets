@@ -1,6 +1,6 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
-# v0.2.3  29/nov/2019  by mountaineer_br
+# v0.2.4  06/dec/2019  by mountaineer_br
 ## Este script somente pega cotações através de outros
 ## scripts e imprime os resultados em formato de tabelas.
 
@@ -14,26 +14,26 @@ oz() { # Add to your ~/.bashrc or ~/.zshrc
 # https://en.wikipedia.org/wiki/Ounce
 
 ## Funções de metais ( em BRL )
-cmcouro() { ~/_scripts/markets/cmc.sh -bgs6 xau brl; }
-cmcprata() { ~/_scripts/markets/cmc.sh -bgs6  xag brl; }
-cgkouro() { ~/_scripts/markets/cgk.sh -bgs6 xau brl; }
-cgkprata() { ~/_scripts/markets/cgk.sh -bgs6 xag brl; }
+cmcouro() { ~/_scripts/markets/cmc.sh -bg6 xau brl; }
+cmcprata() { ~/_scripts/markets/cmc.sh -bg6  xag brl; }
+cgkouro() { ~/_scripts/markets/cgk.sh -bg6 xau brl; }
+cgkprata() { ~/_scripts/markets/cgk.sh -bg6 xag brl; }
 openxouro() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xau brl; }
 openxprata() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xag brl; }
-clayouro() { ~/_scripts/markets/clay.sh -s6 "1/${OZ}" xau brl; }
-clayprata() { ~/_scripts/markets/clay.sh -s6 "1/${OZ}" xag brl; }
+clayouro() { ~/_scripts/markets/clay.sh -g6 xau brl; }
+clayprata() { ~/_scripts/markets/clay.sh -g6 xag brl; }
 
 ## USD/BRL Rate & Metais
 {
 date "+%Y-%m-%dT%H:%M:%S(%Z)"
 OPENXBRL=$(~/_scripts/markets/openx.sh -s4 usd brl)
-CLAYBRL=$(~/_scripts/markets/clay.sh -s4 usd brl)
+CLAYBRL=$(~/_scripts/markets/clay.sh -4 usd brl)
 echo "       Real BRL"
 echo "ERates:  $(~/_scripts/markets/erates.sh -s4 usd brl)"
 echo "CLay:    ${CLAYBRL}"
 echo "OpenX:   ${OPENXBRL}"
-CMCBRL=$(~/_scripts/markets/cmc.sh -s4 -b usd brl)
-CGKBRL=$(~/_scripts/markets/cgk.sh -s4 -b usd brl)
+CMCBRL=$(~/_scripts/markets/cmc.sh -4 -b usd brl)
+CGKBRL=$(~/_scripts/markets/cgk.sh -4 -b usd brl)
 echo "CMC:     ${CMCBRL}"
 echo "CGK:     ${CGKBRL}"
 MYCBRL=$(~/_scripts/markets/myc.sh -s4 usd brl)
