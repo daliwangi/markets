@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4  2019/dec/06  by mountaineerbr
+# v0.4.1  2019/dec/06  by mountaineerbr
 
 ## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
@@ -178,7 +178,9 @@ while getopts ":1234567890lghjs:tv" opt; do
 			SCL="${SCL}${opt}"
 			;;
 		( l ) ## List available currencies
-			curl -s "https://currencylayer.com/site_downloads/cl-currencies-table.txt" | sed -e 's/<[^>]*>//g' | sed '1d'| sed -e 's/^[ \t]*//' | sed '$!N;s/\n/ /' | awk 'NF'
+			LIST="$(curl -s "https://currencylayer.com/site_downloads/cl-currencies-table.txt" | sed -e 's/<[^>]*>//g' -e 's/^[ \t]*//' -e '/^$/d'| sed -e '$!N;s/\n/ /')"
+			printf "%s\n" "${LIST}"
+			printf "Currencies: %s\n" "$(($(wc -l <<<"${LIST}")-1))" 
 			exit 0
 			;;
 		( g ) # Gram opt
