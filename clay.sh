@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.1  2019/dec/06  by mountaineerbr
+# v0.4.2  2019/dec/06  by mountaineerbr
 
 ## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
@@ -54,7 +54,7 @@ DESCRIPTION
 
 
 	Bash Calculator uses a dot \".\" as decimal separtor. Default precision
-	is ${SCLDEFAULTS}.
+	is ${SCLDEFAULTS}, plus an uncertainty digit.
 
 
 API KEY
@@ -138,7 +138,7 @@ OPTIONS
 
 	-l 	  List supported currencies.
 
-	-s [NUM]  Set decimal plates; defaults=8.
+	-s [NUM]  Set decimal plates; defaults=${SCLDEFAULTS}.
 
 	-t 	  Print timestamp.
 	
