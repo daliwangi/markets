@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.40  06/dez/2019  by mountaineer_br
+# v0.2.41  06/dez/2019  by mountaineer_br
 
 ## Defaults
 #Mercado padrão 
@@ -8,8 +8,6 @@ ID=1; IDNAME=BTC
 #Intervalo de estatísticas do ticker
 INTV=86400  #equivalente a 24h
 #INTV=21600 #equivalente a 6h
-#Largura máxima do ticker
-CUTAT=30  #caracteres
 #Manter-se conectado? Comente para puxar 
 #somente uma vez e parar (igual opção -q) 
 ROLAR='-n'
@@ -134,12 +132,12 @@ statsf () {
 			"Final__ : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"InstrID: \(.[8]) (\($IDNA))",
 			"Volume_: \(.[5])",
-			"Alta___: \(.[1])   \tVar \((.[1]-.[2])|round)",
-			"Baixa__: \(.[2])   \t %\(((.[1]-.[2])/.[1])*100)",
-			"Venda__: \(.[7])   \tSpd \((.[7]-.[6])|round)",
-			"Compra_: \(.[6])   \t %\(((.[7]-.[6])/.[7])*100)",
-			"*Abert_: \(.[3])   \tVar \((.[4]-.[3])|round)",
-			"#Fecham: \(.[4])   \t %\(((.[4]-.[3])/.[3])*100)"'
+			"Alta___: \(.[1])",
+			"Baixa__: \(.[2])   \tVar \((.[1]-.[2])|round)",
+			"Venda__: \(.[7])",
+			"Compra_: \(.[6])   \tSpd \((.[7]-.[6])|round)",
+			"*Abert_: \(.[3])",
+			"#Fecham: \(.[4])   \tVar \((.[4]-.[3])|round)"'
 }
 #https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
 #https://www.fool.com/knowledge-center/how-to-calculate-spread.aspx
@@ -244,12 +242,16 @@ fi
 
 # Defaul opt
 # Ticker rolante, cortar colunas
-statsf | cut -c-${CUTAT}
+statsf
 
 exit
 
 # Dead code
 :<<!
+\t %\(((.[1]-.[2])/.[1])*100)",
+\t %\(((.[7]-.[6])/.[7])*100)",
+\t %\(((.[4]-.[3])/.[3])*100)"'
+| cut -c-${CUTAT}
 [
     {
         "EndDateTime": 0, // POSIX format
