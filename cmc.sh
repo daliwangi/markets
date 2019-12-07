@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.12  2019/dec  by mountaineerbr
+# v0.6.18  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -420,10 +420,6 @@ tickerf() {
 			fi
 		fi
 	fi
-
-
-
-
 	# Prepare retrive query to server
 	# Get JSON
 	TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
@@ -451,7 +447,8 @@ tickerf() {
 		BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
 		BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
 		BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\((.percent_change_1h|tonumber)-'"${BTC1H}"')%=\((.percent_change_24h|tonumber)-'"${BTC24H}"')%=\((.percent_change_7d|tonumber)-'"${BTC7D}"')%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(BTC),D1h(BTC),D24h(BTC),D7D(BTC),VOL24h(BTC),MCAP(BTC),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+		#XXXXXXXXXXXXXXXXXXXXXXXX
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(BTC),D1h(BTC),D24h(BTC),D7D(BTC),VOL24h(BTC),MCAP(BTC),SUPPLY/TOTAL,UPDATE" ${COLCONF}
 	else
 		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${2^^}),D1h(USD),D24h(USD),D7D(USD),VOL24h(${2^^}),MCAP(${2^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
 	fi
