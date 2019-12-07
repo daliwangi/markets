@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.41  06/dez/2019  by mountaineer_br
+# v0.2.42  06/dez/2019  by mountaineer_br
 
 ## Defaults
 #Mercado padrão 
@@ -64,11 +64,11 @@ SINOPSE
 	O spread (Spd) e a variação (Var) são calculados a partir das seguintes
 	fórmulas:
 
-		[ ( Alta - Baixa ) / Alta ]
+		[ Alta - Baixa ]
 	
-		[ ( Venda - Compra ) / Venda ]
+		[ Venda - Compra ]
 	
-		[ ( Fechamento - Abertura ) / Fechamento ]
+		[ Fechamento - Abertura ]
 
 
 LIMITES
