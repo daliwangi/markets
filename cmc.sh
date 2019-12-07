@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.10  2019/dec  by mountaineerbr
+# v0.6.12  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -395,8 +395,21 @@ mcapf() {
 
 ## -t Top Tickers Function
 tickerf() {
+	# How many top cryptos should be printed? Defaults=10
+	# If number of tickers is in ARG2
+	if [[ ! ${1} =~ ^[0-9]+$ ]]; then
+		if [[ -n "${SCL}" ]]; then
+			set -- "${SCL}" ${@}
+		else
+			set -- 10 ${@}
+		fi
+	fi
+	if [[ -z "${2}" ]]; then
+		set -- "${1}" USD
+	fi
+
 	# Check input to_currency
-	if [[ -n "${2}" ]]; then
+	if [[ "${2^^}" != USD ]]; then
 		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 		if  ! grep -qi "${2}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
 			if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
@@ -406,19 +419,10 @@ tickerf() {
 				exit 1
 			fi
 		fi
-	else
-		set -- "${1}" USD
 	fi
 
-	# How many top cryptos should be printed? Defaults=10
-	# If number of tickers is in ARG2
-	if [[ ${1} != [0-9]+ ]]; then
-		if [[ -n "${SCL}" ]]; then
-			set -- "${SCL}" ${@}
-		else
-			set -- 10 ${@}
-		fi
-	fi
+
+
 
 	# Prepare retrive query to server
 	# Get JSON
