@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.2  2019/dec/06  by mountaineerbr
+# v0.6.4  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -185,7 +185,7 @@ OPTIONS
 		-m [TO_CURRENCY]
 			  Market ticker.
 
-		-s [NUM]  Set scale (decimal plates).
+		-s [NUM]  Set scale (decimal plates); defaults=${SCLDEFAULTS}.
 
 		-p 	  Print timestamp, if available.
 		
@@ -395,7 +395,11 @@ mcapf() {
 
 ## -t Top Tickers Function
 tickerf() {
-	# Check inupt to_currency
+	# Check where is the number of top coins given by the user
+	if [[ "${1}" != ^[0-9]+ ]] && [[ -n "${SCL}" ]]; then
+		set -- "${SCL}" ${@}
+	fi
+	# Check input to_currency
 	if [[ -n "${2}" ]]; then
 		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 		if  ! grep -qi "${2}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
@@ -409,10 +413,15 @@ tickerf() {
 	else
 		set -- "${1}" USD
 	fi
+
 	# How many top cryptos should be printed? Defaults=10
 	# If number of tickers is in ARG2
-	if [[ "${1}" -le 1 ]]; then
-		set -- 10 "${2}"
+	if [[ "${1}" != [0-9]* ]]; then
+		if [[ -n "${SCL}" ]]; then
+			set -- "${SCL}" "${2}"
+		else
+			set -- 10 "${2}"
+		fi
 	fi
 	# Prepare retrive query to server
 	# Get JSON
@@ -427,7 +436,7 @@ tickerf() {
 	if ! [[ -t 1 ]]; then
 		true
 	elif test "$(tput cols)" -lt "100"; then
-		COLCONF="-HMCAP(${2^^}),SUPPLY/TOTAL,UPDATE -TPRICE(${2^^}),VOL(24H;${2^^})"
+		COLCONF="-HMCAP(${2^^}),SUPPLY/TOTAL,UPDATE -TPRICE(${2^^}),VOL24h(${2^^})"
 		printf "OBS: More columns are needed to print more info.\n" 1>&2
 	elif test "$(tput cols)" -lt "120"; then
 		COLCONF="-HSUPPLY/TOTAL,UPDATE"
@@ -435,8 +444,16 @@ tickerf() {
 	else
 		COLCONF="-TSUPPLY/TOTAL,UPDATE"
 	fi
-	jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" |
-		column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${2^^}),D1h,D24h,D7D,VOL(24H;${2^^}),MCAP(${2^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	# Bitcoin table is special from others
+	if [[ "${2^^}" = BTC ]]; then
+
+		BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
+		BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
+		BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\((.percent_change_1h|tonumber)-'"${BTC1H}"')%=\((.percent_change_24h|tonumber)-'"${BTC24H}"')%=\((.percent_change_7d|tonumber)-'"${BTC7D}"')%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(BTC),D1h(BTC),D24h(BTC),D7D(BTC),VOL24h(BTC),MCAP(BTC),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	else
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${2^^}),D1h(USD),D24h(USD),D7D(USD),VOL24h(${2^^}),MCAP(${2^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	fi
 }
 
 ## -l Print currency lists
@@ -532,11 +549,6 @@ while getopts ":0123456789ablmghjs:tp" opt; do
 done
 shift $((OPTIND -1))
 
-## Set custom scale
-if [[ -z ${SCL} ]]; then
-	SCL="${SCLDEFAULTS}"
-fi
-
 #Check for API KEY
 if [[ -z "${CMCAPIKEY}" ]]; then
 	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
@@ -557,12 +569,20 @@ if [[ -z "${CCHECK}" ]]; then
 	export CCHECK
 fi
 
+# Call opt functions 
+if [[ -n "${TICKEROPT}" ]]; then
+	tickerf "${@}"
+	exit
+fi
+
+## Set custom scale
+if [[ -z ${SCL} ]]; then
+	SCL="${SCLDEFAULTS}"
+fi
+
 # Call opt functions
 if [[ -n "${MCAP}" ]]; then
 	mcapf "${@}"
-	exit
-elif [[ -n "${TICKEROPT}" ]]; then
-	tickerf "${@}"
 	exit
 elif [[ -n "${APIOPT}" ]]; then
 	apif
