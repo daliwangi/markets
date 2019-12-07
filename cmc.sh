@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.18  2019/dec  by mountaineerbr
+# v0.6.20  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -118,6 +118,11 @@ USAGE EXAMPLES:
 		(6) 	Top 20 crypto currency tickers in EUR; defaults: 10,BTC:
 
 			$ cmc.sh -t 20 eur
+			
+			
+			TIP: use \"Most\" pager for viewing long lines:
+
+			$ cmc.sh -t 100 btc | most
 
 
 		(7)    One Bitcoin in ounces of Gold:
