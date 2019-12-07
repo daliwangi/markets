@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.4  2019/dec  by mountaineerbr
+# v0.6.10  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -395,10 +395,6 @@ mcapf() {
 
 ## -t Top Tickers Function
 tickerf() {
-	# Check where is the number of top coins given by the user
-	if [[ "${1}" != ^[0-9]+ ]] && [[ -n "${SCL}" ]]; then
-		set -- "${SCL}" ${@}
-	fi
 	# Check input to_currency
 	if [[ -n "${2}" ]]; then
 		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
@@ -416,13 +412,14 @@ tickerf() {
 
 	# How many top cryptos should be printed? Defaults=10
 	# If number of tickers is in ARG2
-	if [[ "${1}" != [0-9]* ]]; then
+	if [[ ${1} != [0-9]+ ]]; then
 		if [[ -n "${SCL}" ]]; then
-			set -- "${SCL}" "${2}"
+			set -- "${SCL}" ${@}
 		else
-			set -- 10 "${2}"
+			set -- 10 ${@}
 		fi
 	fi
+
 	# Prepare retrive query to server
 	# Get JSON
 	TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
@@ -571,7 +568,7 @@ fi
 
 # Call opt functions 
 if [[ -n "${TICKEROPT}" ]]; then
-	tickerf "${@}"
+	tickerf ${@}
 	exit
 fi
 
@@ -672,4 +669,4 @@ exit
 #	printf "Run with -h for help.\n"
 #	exit 1
 #fi
- 
+
