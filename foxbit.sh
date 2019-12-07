@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.43  06/dez/2019  by mountaineer_br
+# v0.2.44  06/dez/2019  by mountaineer_br
 
 ## Defaults
 #Mercado padrão 
@@ -127,17 +127,17 @@ statsf () {
 	websocat ${ROLAR} -t --ping-interval 20 "wss://apifoxbitprodlb.alphapoint.com/WSGateway" <<< '{"m":0,"i":4,"n":"SubscribeTicker","o":"{\"OMSId\":1,\"InstrumentId\":'${ID}',\"Interval\":'${INTV}',\"IncludeLastCount\":1}"}' | jq --unbuffered -r '.o' |
 		jq --unbuffered -r --arg IDNA "${IDNAME}" '.[] |"",
 			"## Foxbit Ticker Rolante",
-			"Intervl : \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
-			"Inicial : \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"Final__ : \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Intervl: \((.[0]-.[9])/1000) secs (\((.[0]-.[9])/3600000) h)",
+			"Inicial: \((.[9]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"Final__: \((.[0]/1000) | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 			"InstrID: \(.[8]) (\($IDNA))",
 			"Volume_: \(.[5])",
 			"Alta___: \(.[1])",
 			"Baixa__: \(.[2])   \tVar: \((.[1]-.[2])|round)",
 			"Venda__: \(.[7])",
 			"Compra_: \(.[6])   \tSpd: \((.[7]-.[6])|round)",
-			"*Abert_: \(.[3])",
-			"#Fecham: \(.[4])   \tVar: \((.[4]-.[3])|round)"'
+			"#Abert_: \(.[3])",
+			"*Fecham: \(.[4])   \tVar: \((.[4]-.[3])|round)"'
 }
 #https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
 #https://www.fool.com/knowledge-center/how-to-calculate-spread.aspx
