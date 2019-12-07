@@ -1,6 +1,6 @@
 #!/bin/bash
 # Foxbit.sh -- Pegar taxas de criptos pelo API da FoxBit
-# v0.2.42  06/dez/2019  by mountaineer_br
+# v0.2.43  06/dez/2019  by mountaineer_br
 
 ## Defaults
 #Mercado padrão 
@@ -133,11 +133,11 @@ statsf () {
 			"InstrID: \(.[8]) (\($IDNA))",
 			"Volume_: \(.[5])",
 			"Alta___: \(.[1])",
-			"Baixa__: \(.[2])   \tVar \((.[1]-.[2])|round)",
+			"Baixa__: \(.[2])   \tVar: \((.[1]-.[2])|round)",
 			"Venda__: \(.[7])",
-			"Compra_: \(.[6])   \tSpd \((.[7]-.[6])|round)",
+			"Compra_: \(.[6])   \tSpd: \((.[7]-.[6])|round)",
 			"*Abert_: \(.[3])",
-			"#Fecham: \(.[4])   \tVar \((.[4]-.[3])|round)"'
+			"#Fecham: \(.[4])   \tVar: \((.[4]-.[3])|round)"'
 }
 #https://www.fool.com/knowledge-center/how-to-calculate-the-bid-ask-spread-percentage.aspx
 #https://www.fool.com/knowledge-center/how-to-calculate-spread.aspx
