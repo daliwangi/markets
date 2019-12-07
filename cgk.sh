@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.2  2019/dec/06  by mountaineerbr
+# v0.10.3  2019/dec  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -161,6 +161,11 @@ USAGE EXAMPLES:
 		(7)    Tickers of any Ethereum pair from all exchanges;
 					
 			$ cgk.sh -t eth 
+			
+			TIP: use Less with opion -S (--chop-long-lines) or the 
+			\"Most\" pager for scrolling horizontally:
+
+			$ cgk.sh -t eth | less -S
 
 
 		(8)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages

@@ -120,9 +120,10 @@ USAGE EXAMPLES:
 			$ cmc.sh -t 20 eur
 			
 			
-			TIP: use \"Most\" pager for viewing long lines:
+			TIP: use Less with opion -S (--chop-long-lines) or the 
+			\"Most\" pager for scrolling horizontally:
 
-			$ cmc.sh -t 100 btc | most
+			$ cmc.sh -t 100 btc | less -S
 
 
 		(7)    One Bitcoin in ounces of Gold:
@@ -508,7 +509,7 @@ ozgramf() {
 
 
 # Parse options
-while getopts ":0123456789ablmghjs:tp" opt; do
+while getopts ":0123456789ablmghjs:tvp" opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
@@ -544,8 +545,12 @@ while getopts ":0123456789ablmghjs:tp" opt; do
 		( t ) ## Tickers for crypto currencies
 			TICKEROPT=1
 			;;
+		( v ) ## Script version
+			grep -m1 '# v' "${0}"
+			exit 0
+			;;
 		( \? )
-			echo "Invalid Option: -$OPTARG" 1>&2
+			printf "Invalid option: -%s\n" "$OPTARG" 1>&2
 			exit 1
 			;;
 	esac
