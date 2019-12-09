@@ -1,7 +1,7 @@
 #!/bin/bash
 # v0.3.3  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
-#Não trampam com Prata!
+# Ourominas não trabalha com Prata!
 
 LC_NUMERIC=en_US.UTF-8
 
@@ -61,5 +61,4 @@ UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -E -e 's/<[^>]*>
 printf "Ouro Est(R$/g)   %s\n" "$(bc -l <<< "scale=4; ${UOLXAU}*${USDP/,/.}/28.349523125")"; } | tr '.' ','
 
 exit
-
 
