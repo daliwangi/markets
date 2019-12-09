@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.2  dec/2019  by mountaineer_br
+# v0.3.3  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 #Não trampam com Prata!
 
@@ -45,6 +45,7 @@ RUB=($(grep -i -A2 "ruble" <<< "${DATA}" | sed 's/.$/=/g'))
 ILS=($(grep -i -A2 "shekel" <<< "${DATA}" | sed 's/.$/=/g'))
 
 # Make Table
+printf "OUROMINAS Cotações\n"
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	"${USD[*]}" "${EUR[*]}" "${GBP[*]}" "${AUD[*]}" "${CAD[*]}" "${NZD[*]}" \
 	"${CHF[*]}" "${JPY[*]}" "${CNY[*]}" "${ARS[*]}" "${CLP[*]}" "${MXN[*]}" \
