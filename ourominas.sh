@@ -45,7 +45,7 @@ RUB=($(grep -i -A2 "ruble" <<< "${DATA}" | sed 's/.$/=/g'))
 ILS=($(grep -i -A2 "shekel" <<< "${DATA}" | sed 's/.$/=/g'))
 
 # Make Table
-printf "OUROMINAS CotaçõesX\n"
+printf "OUROMINAS Cotações\n"
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	"${USD[*]}" "${EUR[*]}" "${GBP[*]}" "${AUD[*]}" "${CAD[*]}" "${NZD[*]}" \
 	"${CHF[*]}" "${JPY[*]}" "${CNY[*]}" "${ARS[*]}" "${CLP[*]}" "${MXN[*]}" \
@@ -61,4 +61,5 @@ UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -E -e 's/<[^>]*>
 printf "Ouro Est(R$/g)   %s\n" "$(bc -l <<< "scale=4; ${UOLXAU}*${USDP/,/.}/28.349523125")"; } | tr '.' ','
 
 exit
+
 
