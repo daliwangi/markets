@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.1  dec/2019  by mountaineer_br
+# v0.3.2  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 #Não trampam com Prata!
 
@@ -55,7 +55,7 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 # Estimagem do preço por cotação do UOL
 USDP="${USD[@]:1:1}"
 USDP="${USDP%\=}"
-UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed 's/<[^>]*>//g' | grep -iEo --color=never 'ouro.{25}' | cut -d' ' -f6 | tr ',' '.')"
+UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -E -e 's/<[^>]*>//g' -e 's/\s+/ /g' | grep -iEo --color=never 'ouro.{25}' | cut -d' ' -f4 | tr ',' '.')"
 { printf "Ouro USD UOL    %s\n" "$(bc -l <<< "scale=4;${UOLXAU}/1")"
 printf "Ouro Est(R$/g)   %s\n" "$(bc -l <<< "scale=4; ${UOLXAU}*${USDP/,/.}/28.349523125")"; } | tr '.' ','
 
