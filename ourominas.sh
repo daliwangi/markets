@@ -45,7 +45,7 @@ RUB=($(grep -i -A2 "ruble" <<< "${DATA}" | sed 's/.$/=/g'))
 ILS=($(grep -i -A2 "shekel" <<< "${DATA}" | sed 's/.$/=/g'))
 
 # Make Table
-printf "OUROMINAS Cotações\n"
+printf "OUROMINAS CotaçõesX\n"
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	"${USD[*]}" "${EUR[*]}" "${GBP[*]}" "${AUD[*]}" "${CAD[*]}" "${NZD[*]}" \
 	"${CHF[*]}" "${JPY[*]}" "${CNY[*]}" "${ARS[*]}" "${CLP[*]}" "${MXN[*]}" \
