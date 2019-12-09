@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.13  2019/dez/01  by mountaineerbr
+# v0.5.14  2019/dez  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -105,7 +105,7 @@ ABBREVIATIONS
 	TTxFees          Total transaction fees
 	TxPSec           Transactions per second
 	Tx               Transaction
-	Unc              Unconfirmed
+	Unconf           Unconfirmed
 	Ver              Version
 	Vol              Volume
 
@@ -290,8 +290,8 @@ blkinfof() {
 		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
 	# Some more stats
 	printf "\nMempool\n"
-	printf "Unc_Txs___: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
-	printf "Blk_ETA___: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
+	printf "Unconf_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
+	printf "Block_ETA_: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
 	printf "Last 100 blocks\n"
 	printf "Avg_Txs/B_: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
 	printf "Avg_B_Time: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
@@ -356,6 +356,16 @@ blkinfochairf() {
 		"",
 		"Other Events/Countdowns",
 		(.countdowns[]|"Event: \(.event)","TimeLeft: \(.time_left/86400) days")' <<< "${CHAINJSON}"
+		## SPECIAL function for the Halving!!
+		HTIME="$(jq -r '.data.countdowns[]|select(.event=="Reward halving").time_left' <<<"${CHAINJSON}")"
+		if [[ -n "${HTIME}" ]]; then
+			printf '\n'
+			cat <<- !
+			Bitcoin Reward Halving
+			Est local time @ block 630000
+			$(date --date="${HTIME} sec")
+			!
+		fi
 }
 
 ## -m -u Memory Pool Unconfirmed Txs ( Mempool )
