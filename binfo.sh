@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.14  2019/dez  by mountaineerbr
+# v0.5.15  2019/dez  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -102,8 +102,9 @@ ABBREVIATIONS
 	ToTxID           To transaction ID number
 	TPS              Transactions per second
 	T                Total, Time
+	T_Left           Time left
 	TTxFees          Total transaction fees
-	TxPSec           Transactions per second
+	Tx/sec           Transactions per second
 	Tx               Transaction
 	Unconf           Unconfirmed
 	Ver              Version
@@ -335,7 +336,7 @@ blkinfochairf() {
 		"Mempool",
 		"Tx_Num: \(.mempool_transactions)",
 		"Size__: \(.mempool_size)",
-		"TxPSec: \(.mempool_tps) txs/sec",
+		"Tx/sec: \(.mempool_tps)",
 		"T_Fee_: \(.mempool_total_fee_usd) USD",
 		"",
 		"Latest",
@@ -355,14 +356,14 @@ blkinfochairf() {
 		"Diff__: \(.next_difficulty_estimate)",
 		"",
 		"Other Events/Countdowns",
-		(.countdowns[]|"Event: \(.event)","TimeLeft: \(.time_left/86400) days")' <<< "${CHAINJSON}"
+		(.countdowns[]|"Event_: \(.event)","T_Left: \(.time_left/86400) days")' <<< "${CHAINJSON}"
 		## SPECIAL function for the Halving!!
 		HTIME="$(jq -r '.data.countdowns[]|select(.event=="Reward halving").time_left' <<<"${CHAINJSON}")"
 		if [[ -n "${HTIME}" ]]; then
 			printf '\n'
-			cat <<- !
+			cat <<-!
 			Bitcoin Reward Halving
-			Est local time @ block 630000
+			Est. LTime @ block 630000
 			$(date --date="${HTIME} sec")
 			!
 		fi
