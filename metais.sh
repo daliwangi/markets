@@ -14,29 +14,29 @@ oz() { # Add to your ~/.bashrc or ~/.zshrc
 # https://en.wikipedia.org/wiki/Ounce
 
 ## Funções de metais ( em BRL )
-cmcouro() { ~/_scripts/markets/cmc.sh -bg6 xau brl; }
-cmcprata() { ~/_scripts/markets/cmc.sh -bg6  xag brl; }
-cgkouro() { ~/_scripts/markets/cgk.sh -bg6 xau brl; }
-cgkprata() { ~/_scripts/markets/cgk.sh -bg6 xag brl; }
-openxouro() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xau brl; }
-openxprata() { ~/_scripts/markets/openx.sh -s6 "1/${OZ}" xag brl; }
-clayouro() { ~/_scripts/markets/clay.sh -g6 xau brl; }
-clayprata() { ~/_scripts/markets/clay.sh -g6 xag brl; }
+cmcouro() { ~/bin/markets/cmc.sh -bg6 xau brl; }
+cmcprata() { ~/bin/markets/cmc.sh -bg6  xag brl; }
+cgkouro() { ~/bin/markets/cgk.sh -bg6 xau brl; }
+cgkprata() { ~/bin/markets/cgk.sh -bg6 xag brl; }
+openxouro() { ~/bin/markets/openx.sh -s6 "1/${OZ}" xau brl; }
+openxprata() { ~/bin/markets/openx.sh -s6 "1/${OZ}" xag brl; }
+clayouro() { ~/bin/markets/clay.sh -g6 xau brl; }
+clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 
 ## USD/BRL Rate & Metais
 {
 	date "+%Y-%m-%dT%H:%M:%S(%Z)"
-	OPENXBRL=$(~/_scripts/markets/openx.sh -s4 usd brl)
-	CLAYBRL=$(~/_scripts/markets/clay.sh -4 usd brl)
+	OPENXBRL=$(~/bin/markets/openx.sh -s4 usd brl)
+	CLAYBRL=$(~/bin/markets/clay.sh -4 usd brl)
 	echo "       Real BRL"
-	echo "ERates:  $(~/_scripts/markets/erates.sh -s4 usd brl)"
+	echo "ERates:  $(~/bin/markets/erates.sh -s4 usd brl)"
 	echo "CLay:    ${CLAYBRL}"
 	echo "OpenX:   ${OPENXBRL}"
-	CMCBRL=$(~/_scripts/markets/cmc.sh -4 -b usd brl)
-	CGKBRL=$(~/_scripts/markets/cgk.sh -4 -b usd brl)
+	CMCBRL=$(~/bin/markets/cmc.sh -4 -b usd brl)
+	CGKBRL=$(~/bin/markets/cgk.sh -4 -b usd brl)
 	echo "CMC:     ${CMCBRL}"
 	echo "CGK:     ${CGKBRL}"
-	MYCBRL=$(~/_scripts/markets/myc.sh -s4 usd brl)
+	MYCBRL=$(~/bin/markets/myc.sh -s4 usd brl)
 	echo "MyC:     ${MYCBRL}"
 	echo "Média:   $(echo "scale=4; (${OPENXBRL}+${CMCBRL}+${CGKBRL}+${MYCBRL})/4" | bc -l)"
 	echo ""
