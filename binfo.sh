@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.15  2019/dez  by mountaineerbr
+# v0.5.16  2019/dez  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -363,7 +363,7 @@ blkinfochairf() {
 			printf '\n'
 			cat <<-!
 			Bitcoin Reward Halving
-			Est. LTime @ block 630000
+			Est. local time @ block 630000
 			$(date --date="${HTIME} sec")
 			!
 		fi
