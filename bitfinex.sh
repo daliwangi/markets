@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.7  12/nov/2019  by mountainner_br
+# v0.2.8  dec/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -12,9 +12,9 @@ DECIMAL=2
 
 HELP="
 SYNOPSIS
-	Bitfinex.sh [-c] [MARKET]
+	Bitfinex.sh [-c] [-sNUM] [MARKET]
 	
-	Bitfinex.sh [-h|-l|-v]
+	Bitfinex.sh [-hlv]
 
 
 DESCRIPTION
@@ -32,15 +32,17 @@ WARRANTY
 	
 
 OPTIONS
-		-f [NUM] 	Set number of decimal plates; defaults=2.
+		-NUM 		Shortcut for \"-s\".
 
+		-c 		Coloured live stream price.
+		
 		-h 		Show this help.
 
 		-l 		List available markets.
 		
-		-c 		Coloured live stream price.
-		
-		-v 		Show this programme version."
+		-s [NUM] 	Set number of decimal plates (scale); defaults=2.
+
+		-v 		Show version."
 
 
 ## Bitfinex Websocket for Price Rolling -- Default opt
@@ -48,8 +50,8 @@ streamf() {
 	while true; do
 		websocat -nt --ping-interval 5 "wss://api-pub.bitfinex.com/ws/2 " <<< "{ \"event\": \"subscribe\",  \"channel\": \"trades\",  \"symbol\": \"t${1^^}\" }" |  jq --unbuffered -r '..|select(type == "array" and length == 4)|.[3]' | xargs -n1 printf "\n%.${DECIMAL}f" | ${COLOROPT}
 		printf "\nPress Ctrl+C twice to exit.\n"
-		N=$((N+1))	
-		printf "Recconection #${N}\n"
+		N=$((++N))	
+		printf "Recconection #%s\n" "${N}" 1>&2
 		sleep 4
 	done
 	exit
@@ -59,35 +61,38 @@ streamf() {
 # If the very first character of the option string is a colon (:)
 # then getopts will not report errors and instead will provide a means of
 # handling the errors yourself.
-while getopts ":f:lhcv" opt; do
-  case ${opt} in
-  	l ) # List Currency pairs
-		printf "Currency pairs:\n"
-		curl -s "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL" | jq -r '.[][0]' | grep -v "^f[A-Z][A-Z][A-Z]$" | tr -d 't' | sort | column -c80
-		exit
-		;;
-	f ) # Decimal plates
-		DECIMAL="${OPTARG}"
-		;;
-	h ) # Show Help
-		printf "%s\n" "${HELP}"
-		exit 0
-		;;
-	s ) # Price stream -- Default opt
-		STREAMOPT=1
-		;;
-	c ) # Coloured price stream
-		COLOROPT="lolcat -p 2000 -F 5"
-		;;
-	v ) # Version of Script
-		head "${0}" | grep -e '# v'
-		exit 0
-		;;
-	\? )
-		echo "Invalid Option: -$OPTARG" 1>&2
-		exit 1
-		;;
-  esac
+while getopts ":s:lhcv1234567890" opt; do
+	case ${opt} in
+		[0-9] ) #decimal setting, same as '-fNUM'                
+			DECIMAL="${FSTR}${opt}"                               
+			;;
+			l ) # List Currency pairs
+			printf "Currency pairs:\n"
+			curl -s "https://api-pub.bitfinex.com/v2/tickers?symbols=ALL" | jq -r '.[][0]' | grep -v "^f[A-Z][A-Z][A-Z]$" | tr -d 't' | sort | column -c80
+			exit
+			;;
+		s ) # Decimal plates (scale)
+			DECIMAL="${OPTARG}"
+			;;
+		h ) # Show Help
+			printf "%s\n" "${HELP}"
+			exit 0
+			;;
+		s ) # Price stream -- Default opt
+			STREAMOPT=1
+			;;
+		c ) # Coloured price stream
+			COLOROPT="lolcat -p 2000 -F 5"
+			;;
+		v ) # Version of Script
+			grep -m1 '# v' "${0}"
+			exit 0
+			;;
+		\? )
+			echo "Invalid Option: -$OPTARG" 1>&2
+			exit 1
+			;;
+	esac
 done
 shift $((OPTIND -1))
 
