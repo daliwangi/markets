@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.8  dec/2019  by mountainner_br
+# v0.2.9  dec/2019  by mountainner_br
 
 ## Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -25,11 +25,11 @@ DESCRIPTION
 	
 
 WARRANTY
-	This programme needs latest version of Bash, JQ, Websocat, Xargs and
-	Lolcat.
+	This programme is free software and is licensed under the GPLv3 or later.
 
-	This is free software and is licensed under the GPLv3 or later.
-	
+	It needs the latest version of Bash, JQ, Websocat, Xargs and Lolcat to
+	work properly.
+
 
 OPTIONS
 		-NUM 		Shortcut for \"-s\".
