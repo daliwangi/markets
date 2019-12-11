@@ -1,12 +1,12 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.3  2019/dec  by mountaineerbr
+# v0.10.5  2019/dec  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
 LC_NUMERIC="en_US.UTF-8"
-## Oz to gram ratio
-OZ='28.349523125'
+## Troy ounce to gram ratio
+TOZ='31.1034768'
 
 ## Manual and help
 HELP_LINES="NAME
@@ -52,25 +52,26 @@ DESCRIPTION
 	You can get a List of supported currencies running the script with the
 	option \"-l\".
 
-	Gold and other metals are priced in Ounces. It means that in each ounce
-	there are aproximately 28.35 grams, such as represented by the following
-	constant:
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the 
+	following constant:
 		
-		\"GRAM/OUNCE\" rate = 28.349523125
+		\"GRAM/OUNCE\" rate = 31.1034768
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals. 
+	precious metals (as a side note, platinum and palladium would be priced
+	in regular ounces).
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
-	It is useful to define a variable OZ in your \".bashrc\" to work with 
-	precious metals (see usage example 10). I suggest a variable called OZ 
-	that will contain the GRAM/OZ constant.
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant.
 
-		OZ=\"28.349523125\"
+		TOZ=\"31.1034768\"
 
 
-	Default precision is 16 and can be adjusted with option \"-s\" (scale).
+	Default precision is ${SCLDEFAULTS} and can be adjusted with option \"-s\" (scale).
 	
 
 ABBREVIATIONS
@@ -146,14 +147,14 @@ USAGE EXAMPLES:
 			$ cgk.sh -b -s4 1000 brl usd 
 
 
-		(5)     One ounce of Gold in U.S.A. Dollar:
+		(5)     One troy ounce of Gold in U.S.A. Dollar:
 			
 			$ cgk.sh -b xau 
 			
 			$ cgk.sh -b 1 xau usd 
 
 
-		(6)    One Bitcoin in ounces of Gold:
+		(6)    One Bitcoin in troy ounces of Gold:
 					
 			$ cgk.sh 1 btc xau 
 
@@ -179,40 +180,46 @@ USAGE EXAMPLES:
 			$ cgk.sh -m cny
 
 
-		(10)    Using grams for precious metals instead of ounces.
+		(10)    Using grams for precious metals instead of troy ounces.
 
 			To use grams instead of ounces for calculation precious 
-			metals rates, use option \"-g\". The following section
-			explains about the GRAM/OZ constant used in this program.
+			metals rates, use option \"-g\". E.g., one gram of gold 
+			in USD:
 
-			The rate of conversion (constant) of grams by ounce may 
-			be represented as below:
+				$ cgk.sh -bg xau usd 
+
+
+			The following section explains about the GRAM/OZ cons-
+			tant used in this program.
+
+			The rate of conversion (constant) of grams by troy ounce
+			may be represented as below:
 			 
-				GRAM/OUNCE = \"28.349523125/1\"
+				GRAM/OUNCE = \"31.1034768\"
 			
 
 			
 			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
 			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
 
-				$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*28.3495\" eur xau 
+				$ cgk.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
 
 
 				One EUR in grams of Gold:
 
-				$ cmc.sh -b \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+				$ cgk.sh -b \"\e[1;33;40m1\033[00m*31.1\" eur xau 
 
 
 
 			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the \"GRAM/OUNCE\" costant.
+			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
 
-				$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+				$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
 			
 
 				One gram of Gold in EUR:
 					
-				$ cmc.sh -b \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+				$ cgk.sh -b \"\e[1;33;40m1\033[00m/31.1\" xau eur 
 
 
 			To convert (a) from gold to crypto currencies, (b) from 
@@ -229,7 +236,7 @@ OPTIONS
 	-e 	  Exchange information; number of pages to fetch with option \"-p\";
 		  pass \"-ee\" to print a list of exchange names and IDs only.
 
-	-g 	  Use grams instead of ounces; only for precious metals.
+	-g 	  Use grams instead of troy ounces; only for precious metals.
 		
 	-h 	  Show this help.
 
@@ -244,7 +251,7 @@ OPTIONS
 		  Number of pages retrieved from the server; each page may con-
 		  tain 100 results; use with option \"-e\" and \"-t\"; defaults=4.
 	 	
-	-s [NUM]  Scale setting (decimal plates).
+	-s [NUM]  Scale setting (decimal plates); defaults=${SCLDEFAULTS}.
 	
 	-t 	  Tickers of a single cryptocurrency from all suported exchanges
 		  and all its pairs; a second crypto can also be set to form a 
@@ -435,7 +442,7 @@ bankf() {
 	# Calculate result
 	# Precious metals in grams?
 	ozgramf "${2}" "${3}"
-	RESULT="$(bc -l <<< "((${1}*${BTCBANK})/${BTCTOCUR})${GRAM}${OZ}")"
+	RESULT="$(bc -l <<< "((${1}*${BTCBANK})/${BTCTOCUR})${GRAM}${TOZ}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 }
 
@@ -549,18 +556,18 @@ tmperrf() { printf "Cannot create temp file at /tmp.\n" 1>&2; exit 1;}
 
 # Precious metals in grams?
 ozgramf() {	
-	# Precious metals - ounce to gram
-	#CGK does not support Platinum(xpt) and Palladium(xpd), let's leave them anyways..
+	# Precious metals - troy ounce to gram
+	#CGK does not support Platinum(xpt) and Palladium(xpd), and they would be in regular ounces
 	if [[ -n "${GRAMOPT}" ]]; then
-		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
 			FMET=1
 		fi
-		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
 			TMET=1
 		fi
 		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
 			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
-			unset OZ
+			unset TOZ
 			unset GRAM
 		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
 			GRAM='/'
@@ -568,7 +575,7 @@ ozgramf() {
 			GRAM='*'
 		fi
 	else
-		unset OZ
+		unset TOZ
 		unset GRAM
 	fi
 }
@@ -729,7 +736,7 @@ if [[ -n "${CGKRATERAW}" ]]; then
 else
 	# Make equation and print result
 	RATE="$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g')"
-	RESULT="$(bc -l <<< "(${1}*${RATE})${GRAM}${OZ}")"
+	RESULT="$(bc -l <<< "(${1}*${RATE})${GRAM}${TOZ}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 fi
 

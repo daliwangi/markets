@@ -1,17 +1,21 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.3  2019/dec/06  by mountaineerbr
+# v0.4.4  dec/2019  by mountaineerbr
+
 
 ## Get your own personal API KEY, please!
 #CLAYAPIKEY=""
 
+
 ## Some defaults
+# Number of decimal plates (scale):
 SCLDEFAULTS=20   #Bash Calculator defaults is 20 (plus one uncertainty digit)
-## You should not change this:
+
+## You should not change these:
 LC_NUMERIC="en_US.UTF-8"
-## Oz to gram ratio
-OZ='28.349523125'
+## Troy ounce to gram ratio
+TOZ='31.1034768'
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -22,7 +26,7 @@ HELP_LINES="NAME
 
 SYNOPSIS
 
-	clay.sh [-tg] [sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	clay.sh [-tg] [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
 
 	clay.sh [-hjlv]
 
@@ -35,22 +39,23 @@ DESCRIPTION
 	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
 	up for a free private API key.
 
-	Gold and other metals are priced in Ounces. It means that in each ounce
-	there are aproximately 28.35 grams, such as represented by the following
-	constant:
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the
+	following constant:
 		
-		\"GRAM/OUNCE\" rate = 28.349523125
+		\"GRAM/OUNCE\" rate = 31.1034768
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals. 
+	precious metals (as a side note, platinum and palladium would be priced
+	in regular ounces).
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
-	It is useful to define a variable OZ in your \".bashrc\" to work with 
-	precious metals (see usage example 10). I suggest a variable called OZ 
-	that will contain the GRAM/OZ constant.
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant.
 
-		OZ=\"28.349523125\"
+		TOZ=\"31.1034768\"
 
 
 	Bash Calculator uses a dot \".\" as decimal separtor. Default precision
@@ -73,64 +78,65 @@ WARRANTY
 
 USAGE EXAMPLES
 		
-		(1) One Brazilian real in US Dollar:
+		(1) One Canadian Dollar in US Dollar, two decimal plates:
 
-			$ clay.sh brl
+			$ clay.sh -s2 1 cad usd
 
-			$ clay.sh 1 brl usd
-
-
-		(2) One US Dollar in Brazilian Real:
-
-			$ clay.sh usd brl
+			$ clay.sh -2 cad usd
 
 
-		(3) 50 Djiboutian Franc in Chinese Yuan with three decimal 
+		(2) 50 Djiboutian Franc in Chinese Yuan with three decimal 
 		    plates (scale):
 
 			$ clay.sh -s3 50 djf cny
 
 
-		(4)    Using grams for precious metals instead of ounces.
+		(3)    Using grams for precious metals instead of troy ounces.
 
 			To use grams instead of ounces for calculation precious 
-			metals rates, use option \"-g\". The following section
-			explains about the GRAM/OZ constant used in this program.
+			metals rates, use option \"-g\". E.g., one gram of gold 
+			in USD:
 
-			The rate of conversion (constant) of grams by ounce may 
-			be represented as below:
+				$ clay.sh -g xau usd 
+
+
+			The following section explains about the GRAM/OZ cons-
+			tant used in this program.
+
+			The rate of conversion (constant) of grams by troy ounce
+			may be represented as below:
 			 
-				GRAM/OUNCE = \"28.349523125/1\"
+				GRAM/OUNCE = \"31.1034768\"
 			
 
 			
 			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
 			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
 
-				$ clay.sh \"\e[0;33;40mAMOUNT\033[00m*28.3495\" eur xau 
+				$ clay.sh \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
 
 
 				One EUR in grams of Gold:
 
-				$ clay.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
+				$ clay.sh \"\e[1;33;40m1\033[00m*31.1\" eur xau 
 
 
 
 			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the \"GRAM/OUNCE\" costant.
+			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
 
-				$ clay.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
+				$ clay.sh \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
 			
 
 				One gram of Gold in EUR:
 					
-				$ clay.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+				$ clay.sh \"\e[1;33;40m1\033[00m/31.1\" xau eur 
 
 
 OPTIONS
 	-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
 
-	-g 	  Use grams instead of ounces; only for precious metals.
+	-g 	  Use grams instead of troy ounces; only for precious metals.
 		
 	-h 	  Show this help.
 
@@ -147,17 +153,17 @@ OPTIONS
 # Precious metals in grams?
 ozgramf() {	
 	# Precious metals - ounce to gram
-	#CGK does not support Platinum(xpt) and Palladium(xpd), let's leave them anyways..
+	#CGK does not support Platinum(xpt) and Palladium(xpd) yet,a nd thos eowuld be in regular ounces
 	if [[ -n "${GRAMOPT}" ]]; then
-		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
 			FMET=1
 		fi
-		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
 			TMET=1
 		fi
 		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
 			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
-			unset OZ
+			unset TOZ
 			unset GRAM
 		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
 			GRAM='/'
@@ -165,7 +171,7 @@ ozgramf() {
 			GRAM='*'
 		fi
 	else
-		unset OZ
+		unset TOZ
 		unset GRAM
 	fi
 }
@@ -276,5 +282,5 @@ fi
 # Precious metals in grams?
 ozgramf "${2}" "${3}"
 ## Make equation and print result
-bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${OZ})/1;"
+bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1;"
 
