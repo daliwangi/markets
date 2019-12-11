@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.1 - 2019/nov/14  by mountaineerbr
+# v0.6.2 - 2019/dec  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -9,10 +9,14 @@
 #OPENXAPPID=""
 
 
-## Some defaults
-## You should not change this:
-LC_NUMERIC="en_US.UTF-8"
+## Defaults
+# Number of decimal plates (scale):
 SCLDEFAULTS=16
+
+## You should not change these:
+LC_NUMERIC="en_US.UTF-8"
+## Troy ounce to gram ratio
+TOZ='31.1034768'
 
 ## Help
 ## Usage: $ openx.sh [amount] [from currency] [to currency]
@@ -22,9 +26,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	openx.sh [-j|-t] [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY] 
+	openx.sh [-tg] [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY] 
 
-	openx.sh [-h|-j|-l|-v]
+	openx.sh [-hlv]
 
 
 DESCRIPTION
@@ -42,20 +46,27 @@ DESCRIPTION
 	should not be used to perform precise forex trades, as the free plan
 	updates hourly only and has a limit of 1000 accesses per month.
 
-	OpenX.sh uses the power of Bash Calculator and its standard mathlib for 
-	floating point calculations. A value of 16 decimal plates is defaults, 
-	but that precision value is easily configurable with flag \"-s\". Round-
-	ing and removal of trailing noughts is active.
-
-	Gold and other metals are priced in Ounces.
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the
+	following constant:
 		
-		\"Gram/Ounce\" rate: 28.349523125
+		\"GRAM/OUNCE\" rate = 31.1034768
 
 
-	It is also useful to define a variable OZ in your \".bashrc\" to work 
-	with precious metals (see usage examples 4-7).
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals (as a side note, platinum and palladium would be priced
+	in regular ounces).
 
-		OZ=\"28.349523125\"
+	Nonetheless, it is useful to learn how to do this convertion manually.
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant.
+
+		TOZ=\"31.1034768\"
+
+
+	Bash Calculator uses a dot \".\" as decimal separtor. Default precision
+	is ${SCLDEFAULTS}, plus an uncertainty digit.
 
 	
 WARRANTY
@@ -95,53 +106,101 @@ USAGE EXAMPLES
 			$ openx.sh 1 cad usd
 	
 
-		(2) 100 Brazilian Real to Japanese Yen
-
-			$ openx.sh 100 BRL JPY
-
-
-		(3) Half  a Danish  Krone  to Chinese Yuan with three decimal
+		(2) Half  a Danish  Krone  to Chinese Yuan with three decimal
 		    plates (scale):
 
 			$ openx.sh -s3 0.5 dkk cny
-
-		
-		(4) \e[0;33;40m[Amount]\033[00m of EUR in grams of Gold:
-					
-			$ openx.sh \"\e[0;33;40m[amount]\033[00m*28.3495\" eur xau 
-
-			    Just multiply amount by the \"gram/ounce\" rate.
-
-
-		(5) \e[1;33;40mOne\033[00m EUR in grams of Gold:
-					
-			$ openx.sh \"\e[1;33;40m1\033[00m*28.3495\" eur xau 
-
-
-		(6) \e[0;33;40m[Amount]\033[00m (grams) of Gold in USD:
-					
-			$ openx.sh \"\e[0;33;40m[amount]\033[00m/28.3495\" xau usd 
 			
-			    Just divide amount by the \"gram/ounce\" rate.
+			$ openx.sh -3 0.5 dkk cny
 
 		
-		(7) \e[1;33;40mOne\033[00m gram of Gold in EUR:
+		(3)    Using grams for precious metals instead of troy ounces.
+
+			To use grams instead of ounces for calculation precious 
+			metals rates, use option \"-g\". E.g., one gram of gold 
+			in USD:
+
+				$ openx.sh -g xau usd 
+
+
+			The following section explains about the GRAM/OZ cons-
+			tant used in this program.
+
+			The rate of conversion (constant) of grams by troy ounce
+			may be represented as below:
+			 
+				GRAM/OUNCE = \"31.1034768\"
+			
+
+			
+			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
+			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
+
+				$ openx.sh \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
+
+
+				One EUR in grams of Gold:
+
+				$ openx.sh \"\e[1;33;40m1\033[00m*31.1\" eur xau 
+
+
+
+			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
+			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
+
+				$ openx.sh \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
+			
+
+				One gram of Gold in EUR:
 					
-			$ openx.sh \"\e[1;33;40m1\033[00m/28.3495\" xau eur 
+				$ openx.sh \"\e[1;33;40m1\033[00m/31.1\" xau eur 
 
 
 OPTIONS
+		-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
+
+		-g 	 Use grams instead of troy ounces; only for precious
+			 metals.
+		
 	 	-h	 Show this help.
 
 		-j	 Debug; print JSON.
 
 		-l	 List available currency codes.
 
-		-s [NUM] Set number of decimal plates. Defaults=16.
+		-s [NUM] Set number of decimal plates. Defaults=${SCLDEFAULTS}.
 
 		-t 	 Print JSON timestamp.
 
 		-v 	 Show this programme version."
+
+
+## Functions
+ozgramf() {	
+	# Precious metals - ounce to gram
+	#CGK does not support Platinum(xpt) and Palladium(xpd) yet,a nd thos eowuld be in regular ounces
+	if [[ -n "${GRAMOPT}" ]]; then
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
+			FMET=1
+		fi
+		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
+			TMET=1
+		fi
+		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
+			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			unset TOZ
+			unset GRAM
+		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+			GRAM='/'
+		elif [[ -z "${FMET}" ]] && [[ -n "${TMET}" ]]; then
+			GRAM='*'
+		fi
+	else
+		unset TOZ
+		unset GRAM
+	fi
+}
+
 
 ## Check for some needed packages
 if ! command -v curl &> /dev/null; then
@@ -160,10 +219,16 @@ if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
 fi
 
 # Parse options
-while getopts ":lhjs:tv" opt; do
+while getopts ":glhjs:tv1234567890" opt; do
 	case ${opt} in
+		[0-9] ) #scale, same as '-sNUM'
+			SCL="${SCL}${opt}"
+			;;
 		l ) ## List available currencies
 			LISTOPT=1
+			;;
+		g ) # Gram opt
+			GRAMOPT=1
 			;;
 		h ) # Show Help
 			echo -e "${HELP_LINES}"
@@ -248,9 +313,11 @@ fi
 FROMCURRENCY=$(jq ".rates.${2^^}" <<< "${JSON}" | sed 's/e/*10^/g')
 TOCURRENCY=$(jq ".rates.${3^^}" <<< "${JSON}" | sed 's/e/*10^/g')
 
+# Precious metals in grams?
+ozgramf "${2}" "${3}"
 # Make currency exchange rate equation 
 # and send to Bash Calculator to get results
-bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/(${FROMCURRENCY}))"
+bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1"
 
 exit
 
@@ -263,11 +330,4 @@ exit
 # █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░
 #  █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░
 #   █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░ █▓▒░
-
-## Check for internet connection
-#if ! ping -q -w7 -c1 8.8.4.4 &> /dev/null ||
-#	! ping -q -w7 -c1 8.8.8.8 &> /dev/null; then
-#	printf "No internet connection.\n"
-#	exit
-#fi
 
