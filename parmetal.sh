@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.11  03/dez/2019  by mountaineer_br
+# v0.2.12  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 
 LC_NUMERIC=en_US.UTF-8
@@ -32,7 +32,7 @@ parmf() {
 	PRICE2=($(grep -oe "[0-9]*,[0-9]*" <<< "${PRICE}"))
 	SPREAD="$(tr ',' '.' <<< "((${PRICE2[1]}/${PRICE2[0]})-1)*100" | bc -l)"
 	printf "%s\n" "${PRICE}"
-	printf "%'.3f %%\n" "${SPREAD}"
+	printf "%'.4f %%\n" "${SPREAD}"
 }
 
 # Função Cotações Metais
@@ -47,11 +47,11 @@ metaisf() {
 	UPTIMES="$(grep -i -e "..:..:.." <<< "${METAIS}" | sort | uniq)"
 	BPARM2=($(grep -oe "[0-9]*,[0-9]*" <<< "${BPARM[@]}"))
 	SPREAD="$(tr ',' '.' <<< "((${BPARM2[1]}/${BPARM2[0]})-1)*100" | bc -l)"
-	column -t -s"=" -N'Ativo,Compra,Venda,Spread' -R'Compra,Venda,Spread' <<-EOF
-		${BPARM[@]}$(printf "%.4f" "${SPREAD}")
-		${BTRAD[@]}
-		${BOUTR[@]}
-		EOF
+	column -t -s"=" -N'Ativo,Compra,Venda,SPD(%)' -R'Compra,Venda,SPD(%)' <<-!
+			${BPARM[@]}$(printf "%.4f" "${SPREAD}")
+			${BTRAD[@]}
+			${BOUTR[@]}
+			!
 	printf "%s %s\n" "${UPDATES}" "${UPTIMES}"
 	}
 
