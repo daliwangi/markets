@@ -17,7 +17,7 @@ HELP="NAME
 SYNOPSIS
 	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-u] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
 
-	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-cirsuw] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-acirsuw] [FROM_CRYPTO] [TO_CRYPTO]
 	
 	binance.sh [-bbbtu] [FROM_CRYPTO] [TO_CRYPTO]
 	
@@ -41,6 +41,10 @@ SYNOPSIS
 	from REST APIs and some use Websocat to fetch data from websockets. If 
 	no market/currency pair is given, uses BTCUSDT by defaults. If option 
 	\"-u\" is used, defaults to BTCUSD.
+
+	If your connection is unstable or intermitent, use option \"-a\" so that
+	Websocat will try to recconect on erro or EOF. Beware that this option 
+	may cause high CPU spinning until reconnection is complete!
 
 	It is accepted to write each currency that forms a market separately or
 	together. Example: \"ZEC USDT\" or \"ZECUSDT\". Case is insensitive.
@@ -141,6 +145,8 @@ USAGE EXAMPLES
 
 OPTIONS
 	-NUM 	Shortcut for simple decimal setting, same as \"-fNUM\".
+
+	-a 	Autoreconnect for Websocat options; defaults=off.
 
 	-b 	Order book depth streams; depth=10; pass twice to depth=20; pass
 		three times to get some book order stats.
@@ -373,10 +379,14 @@ lcoinsf() {
 
 
 # Parse options
-while getopts ":0123456789bdecf:hjlistuwvr" opt; do
+while getopts ":1234567890abdecf:hjlistuwvr" opt; do
 	case ${opt} in
 		( [0-9] ) #decimal setting, same as '-fNUM'
 			FSTR="${FSTR}${opt}"
+			;;
+		( a ) 	#autoreconnect
+			AUTOR0='-'
+			AUTOR1='autoreconnect:'
 			;;
 		( c ) # Price in columns
 			COPT=1
@@ -425,7 +435,7 @@ while getopts ":0123456789bdecf:hjlistuwvr" opt; do
 			WHICHB="us"
 			;;
 		( v ) # Version of Script
-			grep -m1 '# v' "${0}"
+			grep -m1 '\# v' "${0}"
 			exit 0
 			;;
 		( w ) # Coloured stream of trade prices
@@ -472,8 +482,8 @@ if [[ -n "${IOPT}${SOPT}${BOPT}${BEOPT}${TOPT}" ]] && [[ -z "${CURLOPT}" ]] && !
 fi
 
 # More defaults
-WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42"
-WSSADD="wss://stream.binance.${WHICHB}:9443/ws/"
+WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42 ${AUTOR0}"
+WSSADD="${AUTOR1}wss://stream.binance.${WHICHB}:9443/ws/"
 
 # Arrange arguments
 # If first argument does not have numbers OR isn't a  valid expression
