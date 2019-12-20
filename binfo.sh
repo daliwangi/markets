@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.16  2019/dez  by mountaineerbr
+# v0.5.17  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -95,7 +95,7 @@ ABBREVIATIONS
 	PrevB            Previous block
 	PrevId           Previous (block|transaction) ID
 	Recv             Received
-	RecvT            Receive time
+	Recv_T           Received local time
 	sat              satoshi
 	S                Size
 	Suggest.         Suggested
@@ -182,14 +182,15 @@ OPTIONS
 sstreamf() {
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the stream function.\n" 1>&2
-		printf "Raw JSON will be printed when received...\n" 1>&2
-		websocat --text --no-close --ping-interval 20 "wss://ws.blockchain.info/inv" <<< '{"op":"blocks_sub"}'
+		printf "JSON from last block.\n" 1>&2
+		websocat --text "wss://ws.blockchain.info/inv" <<< "{'op':'ping_block'}"
 		exit 0 
 	fi
+	#trap sigint ctrl+c
+	trap 'exit' SIGINT
 	# Start websocket connection and loop for recconeccting
 	while true; do
-		printf "New Bitcoin block websocket\n" 1>&2
+		printf "New-block-found notification stream\n" 1>&2
 		websocat --text --no-close --ping-interval 18 "wss://ws.blockchain.info/inv" <<< '{"op":"blocks_sub"}' |
 			jq -r '.x | "--------",
 			"New block found!",
@@ -197,25 +198,28 @@ sstreamf() {
 			"  \(.hash)",
 			"MrklRt:",
 			"  \(.mrklRoot)",
-			"Bits__: \(.bits)\tNonce_: \(.nonce)",
-			"Blk_ID: \(.blockIndex)\t\tPrevId: \(.prevBlockIndex)",
-			"Height: \(.height)\t\tVer___: \(.version)\tReward:\t\(if .reward == 0 then "??" else .reward end)",
-			"Size__: \(.size/1000) KB\tTxs___: \(.nTx)",
+			"Bits__: \(.bits)\t\tNonce_: \(.nonce)",
+			"Height: \(.height)\t\t\tDiff__: \(.difficulty)",
+			"Weight: \(.weight)\t\t\tVer___: \(.version)",
+			
+			"Blk_ID: \(if .blockIndex == 0 then empty else .blockIndex end)\t\tPrevId: \(.prevBlockIndex)",
+			"Reward:\t\(if .reward == 0 then empty else .reward end)",
+			
+			"Txs___: \(.nTx)\t\t\tSize__: \(.size/1000) KB",
 			"Output: \(.totalBTCSent/100000000) BTC\tETxVol: \(.estimatedBTCSent/100000000) BTC",
-			"Time__: \(.foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ"))\tLocalT: \(.foundBy.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"\t\t\t\tRecvT_: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-			"IP____: \(.foundBy.ip)  \tDesc__: \(.foundBy.description)",
-			"Link__: \(.foundBy.link)"'
+			"Time__: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
+			"LocalT: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tRecv_T: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+
+			"FoundByTime: \(if .foundBy.time == 0 then empty else .foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ") end)",
+			"IP____: \(if .foundBy.ip == empty then empty else .foundBy.ip end)  Desc__: \(.foundBy.description)",
+			"Link__: \(if .foundBy.link == empty then empty else .foundBy.link end)"'
 		#{"op":"blocks_sub"}
 		#{"op":"unconfirmed_sub"}
 		#{"op":"ping"}
-		printf "\n\nPress Ctrl+C twice to exit.\n\n" 1>&2
-		sleep 2
-		N=$(( N + 1 ))
-		printf "This is reconnection number %s at %s.\n" "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
-		printf "Log file: /tmp/binfo.sh_connect_retries.log\n" 1>&2
-		printf "Let's try reconnecting after some seconds.\n\n" 1>&2
-		sleep 8
+		N=$((++N))
+		printf 'Log: /tmp/binfo.sh.reconnects.log\n' 1>&2
+		printf 'Reconnection #%s at %s.\n' "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
+		sleep 4
 	done
 }
 
@@ -644,9 +648,7 @@ while getopts ":abehijlmnsutv" opt; do
 			RAWOPT=1
 			;;
 		e ) # Soket mode for new BTC blocks
-			sstreamf
-			# Exits automatically as err
-			exit 1
+			STREAMOPT=1
 			;;
 		h ) # Help
 			echo -e "${HELP}"
@@ -694,8 +696,12 @@ if { [[ -n "${ADDOPT}" ]] || [[ -n "${TXOPT}" ]];} && [[ -z "${1}" ]]; then
 fi
 
 # Call opts
+# New block stream
+if [[ -n "${STREAMOPT}" ]]; then
+	sstreamf
+	exit
 # Blockchain information / stats
-if [[ "${BLKCHAINOPT}" = info ]]; then
+elif [[ "${BLKCHAINOPT}" = info ]]; then
 	blkinfof
 	exit
 elif [[ "${BLKCHAINOPT}" = chair ]]; then
