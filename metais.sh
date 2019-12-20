@@ -47,10 +47,14 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	AVGP=$(echo "scale=6; (($CMCP+$CGKP+$OPENXP)/3)" | bc -l)
 	echo "Média: $AVGO    $AVGP"
 	echo ""
-	parmetal.sh -p
+	OPAR="$(parmetal.sh)"
+	grep RBM <<< "${OPAR}"
+	grep Dolar <<< "${OPAR}"
 	echo ""
 	printf "Ourominas XAU\n"
-	ourominas.sh | grep "Venda estimada"
+	OMINAS="$(ourominas.sh)"
+	grep "Venda estimada" <<<"${OMINAS}"
+	grep 'rAmericano' <<<"${OMINAS}" | sed -e 's/\s\s*/  /g' -e 's/^\s\s*//g'
 	echo ""
 } | tee -a ~/.metais_record
 
