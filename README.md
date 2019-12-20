@@ -103,7 +103,7 @@ Alternativeamente, você pode clonar este repo inteiro.
 
 $ git clone https://github.com/mountaineerbr/markets.git
 
-$ chmod +x ~/Downloads/*.sh</i>
+$ chmod +x ~/Downloads/markets/*.sh</i>
 
 Você pode fazer bash aliases individuais para os scripts ou colocar os scripts sob seu PATH.
 
@@ -133,7 +133,7 @@ Alternatively, you can clone this entire repo.
 
 $ git clone https://github.com/mountaineerbr/markets.git
 
-$ chmod +x ~/Downloads/*.sh</i>
+$ chmod +x ~/Downloads/markets/*.sh</i>
 
 You can use bash aliases to individual scripts or place them under your PATH.
 
