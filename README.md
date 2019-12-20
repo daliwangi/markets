@@ -139,8 +139,8 @@ You can use bash aliases to individual scripts or place them under your PATH.
 
 -------------------------------------------------------------------------------------------------
 
-<b>Give me a nickle! =)
+<b>If useful, consider giving me a nickle! =)
   
-Me lance um trocado!</b>
+Se foi útil, considere me lançar um trocado!</b>
 
 bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
