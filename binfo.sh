@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.17  2019/dec  by mountaineerbr
+# v0.5.18  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -200,12 +200,13 @@ sstreamf() {
 			"  \(.mrklRoot)",
 			"Bits__: \(.bits)\t\tNonce_: \(.nonce)",
 			"Height: \(.height)\t\t\tDiff__: \(.difficulty)",
-			"Weight: \(.weight)\t\t\tVer___: \(.version)",
+			"Txs___: \(.nTx)\t\t\tVer___: \(.version)",
+			"Size__: \(.size/1000) KB\t\tWeight: \(.weight)",
 			
 			"Blk_ID: \(if .blockIndex == 0 then empty else .blockIndex end)\t\tPrevId: \(.prevBlockIndex)",
 			"Reward:\t\(if .reward == 0 then empty else .reward end)",
 			
-			"Txs___: \(.nTx)\t\t\tSize__: \(.size/1000) KB",
+			
 			"Output: \(.totalBTCSent/100000000) BTC\tETxVol: \(.estimatedBTCSent/100000000) BTC",
 			"Time__: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
 			"LocalT: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tRecv_T: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
