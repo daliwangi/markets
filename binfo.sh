@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.18  2019/dec  by mountaineerbr
+# v0.5.20  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -202,26 +202,22 @@ sstreamf() {
 			"Height: \(.height)\t\t\tDiff__: \(.difficulty)",
 			"Txs___: \(.nTx)\t\t\tVer___: \(.version)",
 			"Size__: \(.size/1000) KB\t\tWeight: \(.weight)",
-			
-			"Blk_ID: \(if .blockIndex == 0 then empty else .blockIndex end)\t\tPrevId: \(.prevBlockIndex)",
-			"Reward:\t\(if .reward == 0 then empty else .reward end)",
-			
-			
 			"Output: \(.totalBTCSent/100000000) BTC\tETxVol: \(.estimatedBTCSent/100000000) BTC",
 			"Time__: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
-			"LocalT: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tRecv_T: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-
-			"FoundByTime: \(if .foundBy.time == 0 then empty else .foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ") end)",
-			"IP____: \(if .foundBy.ip == empty then empty else .foundBy.ip end)  Desc__: \(.foundBy.description)",
-			"Link__: \(if .foundBy.link == empty then empty else .foundBy.link end)"'
-		#{"op":"blocks_sub"}
-		#{"op":"unconfirmed_sub"}
-		#{"op":"ping"}
+			"LocalT: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tRecv_T: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"'
 		N=$((++N))
 		printf 'Log: /tmp/binfo.sh.reconnects.log\n' 1>&2
 		printf 'Reconnection #%s at %s.\n' "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
 		sleep 4
 	done
+	#"Blk_ID: \(if .blockIndex == 0 then empty else .blockIndex end)\t\tPrevId: \(.prevBlockIndex)",
+	#"Reward:\t\(if .reward == 0 then empty else .reward end)",
+	#"FoundByTime: \(if .foundBy.time == 0 then empty else .foundBy.time|strftime("%Y-%m-%dT%H:%M:%SZ") end)",
+	#"IP____: \(if .foundBy.ip == empty then empty else .foundBy.ip end)  Desc__: \(.foundBy.description)",
+	#"Link__: \(if .foundBy.link == empty then empty else .foundBy.link end)"'
+	#{"op":"blocks_sub"}
+	#{"op":"unconfirmed_sub"}
+	#{"op":"ping"}
 }
 
 ## -l Latest block (Similar to socket stream data )
