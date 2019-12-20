@@ -48,7 +48,7 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	echo "Média: $AVGO    $AVGP"
 	echo ""
 	OPAR="$(parmetal.sh)"
-	grep RBM <<< "${OPAR}"
+	grep RBM <<< "${OPAR}" | cut -c-32
 	grep Dolar <<< "${OPAR}"
 	echo ""
 	printf "Ourominas XAU\n"
