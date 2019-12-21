@@ -26,8 +26,6 @@ Esses scripts usam a última versão do Bash. Outros pacotes que precisam estar 
 
 <b>INDEX</b>:
 
-<b>bcalc.sh --</b> Simple wrapper for Bash Bc that keeps a record of results.
-
 <b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt.
 
 <b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker.
@@ -64,6 +62,8 @@ This is my favorite everyday-use script for all-currency rates!
 <b>whalealert.sh --</b> Get latest whale transactions from whale-alert.io API.
 
 <i>Also check/Também veja:
+
+Check my Bash Calculator wrapper that keeps a record of results "bcalc.sh" at: https://github.com/mountaineerbr/scripts/blob/master/bcalc.sh
 
 Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
