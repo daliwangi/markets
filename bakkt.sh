@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.9  14/nov/2019  by castaway
+# v0.1.10  dec/2019  by castaway
 
 HELP="SINOPSIS
 	bakkt.sh [-hV]
@@ -84,13 +84,13 @@ fi
 
 printf "Bakkt Contract List\n"
 jq -r 'reverse[]|"",
-	"Market ID: \(.marketId // empty)",
-	"Last time: \(.lastTime // empty)",
-	"End date : \(.endDate // empty)",
-	"Date     : \(.marketStrip // empty)",
+	"Market_ID: \(.marketId // empty)",
+	"Strip____: \(.marketStrip // empty)",
+	"Last_time: \(.lastTime // empty)",
+	"End_date_: \(.endDate // empty)",
+	"LastPrice: \(.lastPrice // empty)",
 	"Change(%): \(.change // empty)",
-	"Volume   : \(.volume // empty)",
-	"L price  : \(.lastPrice // empty)"' <<< "${DATA0}"
+	"Volume___: \(.volume // empty)"' <<< "${DATA0}"
 
 exit
 
