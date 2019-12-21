@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
-# v0.1.9  2019/nov/29  by mountaineerbr
+# v0.1.11  2019/dec  by mountaineerbr
 
 ## Some defaults
 SCRIPTBASECUR="EUR"
@@ -56,9 +56,10 @@ DESCRIPTION
 		$ erates.sh usd brl
 
 		
-		(2) One Euro to Japanese yen (one-EUR-worth of JPY):
+		(2) One thousand Euro to Japanese yen using math expression
+		    in AMOUNT:
 		
-		$ erates.sh eur jpy
+		$ erates.sh '(3*245.75)+262+.75' eur jpy
 
 
 		(3) Half a Danish Krone to Chinese Yuan, 3 decimal plates (scale):
@@ -186,5 +187,5 @@ else
 fi
 
 ## Make equation and print result
-bc -l <<< "scale=${SCL};(${1}*${TOCURRENCY})/${FROMCURRENCY};"
+bc -l <<< "scale=${SCL};((${1})*${TOCURRENCY})/${FROMCURRENCY};"
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.5  2019/dec  by mountaineerbr
+# v0.10.7  2019/dec  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -121,45 +121,40 @@ WARRANTY
 
 
 USAGE EXAMPLES:		
-		(1)     One Bitcoin in U.S.A. Dollar:
+		(1)     One Bitcoin in US Dollar:
 			
 			$ cgk.sh btc
 			
 			$ cgk.sh 1 btc usd
 
 
-		(2)     One Bitcoin in DigiBytes (unofficial market; use \"-b\"):
-			
-			$ cgk.sh -b btc dgb 
-
-
-		(3)     100 ZCash in Digibyte (unofficial market) 
+		(2)     100 ZCash in Digibyte (unofficial market, use opt \"-b\") 
 			with 8 decimal plates:
 			
 			$ cgk.sh -b -s8 100 zcash digibyte 
 			
-			$ cgk.sh -b -s8 100 zec dgb 
+			$ cgk.sh -8b 100 zec dgb 
 
 		
-		(4)     One thousand Brazilian Real in U.S.A. Dollars with 4
-			decimal plates:
+		(3)     One thousand Brazilian Real in US Dollar with 3 decimal
+			plates and using math expression in AMOUNT:
 			
-			$ cgk.sh -b -s4 1000 brl usd 
+			$ cgk.sh -3b '101+(2*24.5)+850' brl usd 
 
 
-		(5)     One troy ounce of Gold in U.S.A. Dollar:
+		(4)     One troy ounce of Gold in U.S.A. Dollar:
 			
 			$ cgk.sh -b xau 
 			
 			$ cgk.sh -b 1 xau usd 
 
 
-		(6)    One Bitcoin in troy ounces of Gold:
+		(5)    One Bitcoin in troy ounces of Gold:
 					
 			$ cgk.sh 1 btc xau 
 
 
-		(7)    Tickers of any Ethereum pair from all exchanges;
+		(6)    Tickers of any Ethereum pair from all exchanges;
 					
 			$ cgk.sh -t eth 
 			
@@ -169,24 +164,24 @@ USAGE EXAMPLES:
 			$ cgk.sh -t eth | less -S
 
 
-		(8)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
+		(7)    Only Tickers of Ethereum/Bitcoin, and retrieve 10 pages
 			of results:
 					
 			$ cgk.sh -t -p10 eth btc 
 
 
-		(9) 	Market cap function, show data for Chinese CNY:
+		(8) 	Market cap function, show data for Chinese CNY:
 
 			$ cgk.sh -m cny
 
 
-		(10)    Using grams for precious metals instead of troy ounces.
+		(9)    Using grams for precious metals instead of troy ounces.
 
 			To use grams instead of ounces for calculation precious 
 			metals rates, use option \"-g\". E.g., one gram of gold 
-			in USD:
+			in USD, with two decimal plates:
 
-				$ cgk.sh -bg xau usd 
+				$ cgk.sh -2bg 1 xau usd 
 
 
 			The following section explains about the GRAM/OZ cons-
@@ -195,7 +190,7 @@ USAGE EXAMPLES:
 			The rate of conversion (constant) of grams by troy ounce
 			may be represented as below:
 			 
-				GRAM/OUNCE = \"31.1034768\"
+				GRAM/OUNCE = \"${TOZ}\"
 			
 
 			
@@ -442,7 +437,7 @@ bankf() {
 	# Calculate result
 	# Precious metals in grams?
 	ozgramf "${2}" "${3}"
-	RESULT="$(bc -l <<< "((${1}*${BTCBANK})/${BTCTOCUR})${GRAM}${TOZ}")"
+	RESULT="$(bc -l <<< "(((${1})*${BTCBANK})/${BTCTOCUR})${GRAM}${TOZ}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 }
 
@@ -736,7 +731,7 @@ if [[ -n "${CGKRATERAW}" ]]; then
 else
 	# Make equation and print result
 	RATE="$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g')"
-	RESULT="$(bc -l <<< "(${1}*${RATE})${GRAM}${TOZ}")"
+	RESULT="$(bc -l <<< "((${1})*${RATE})${GRAM}${TOZ}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 fi
 

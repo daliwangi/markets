@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.21  2019/dec  by mountaineerbr
+# v0.6.22  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -97,9 +97,11 @@ USAGE EXAMPLES:
 			$ cmc.sh 1 btc usd
 
 
-		(2)     One Dash in ZCash:
+		(2)     One Dash in ZCash, with 4 decimal plates:
 			
-			$ cmc.sh dash zec 
+			$ cmc.sh -4 dash zec 
+			
+			$ cmc.sh -s4 dash zec 
 
 
 		(3)     One Canadian Dollar in Japanese Yen (must use the Bank
@@ -108,9 +110,10 @@ USAGE EXAMPLES:
 			$ cmc.sh -b cad jpy 
 
 
-		(4)     One thousand Brazilian Real in U.S.A. Dollars with 4 decimal plates:
+		(4)     One thousand Brazilian Real in US Dollar with 3 decimal
+			plates:
 			
-			$ cmc.sh -b -s4 1000 brl usd 
+			$ cmc.sh -3b '101+(2*24.5)+850' brl usd
 
 
 		(5) 	Market Ticker in JPY
@@ -138,9 +141,9 @@ USAGE EXAMPLES:
 
 			To use grams instead of ounces for calculation precious 
 			metals rates, use option \"-g\". E.g., one gram of gold 
-			in USD:
+			in USD, with two decimal plates:
 
-				$ cmc.sh -bg xau usd 
+				$ cmc.sh -2bg xau usd 
 
 
 			The following section explains about the GRAM/OZ cons-
@@ -334,7 +337,7 @@ bankf() {
 	# Calculate result & print result 
 	# Precious metals in grams?
 	ozgramf "${2}" "${3}"
-	RESULT="$(bc -l <<< "((${1}*${BTCTOCURTAIL})/${BTCBANKTAIL})${GRAM}${TOZ}")"
+	RESULT="$(bc -l <<< "(((${1})*${BTCTOCURTAIL})/${BTCBANKTAIL})${GRAM}${TOZ}")"
 	# Check for errors
 	if [[ -z "${RESULT}" ]]; then
 		printf "Error: check currency codes.\n" 1>&2
@@ -687,7 +690,7 @@ fi
 ## Make equation and calculate result
 # Metals in grams?
 ozgramf "${2}" "${3}"
-RESULT="$(bc -l <<< "(${1}*${CMCRATE})${GRAM}${TOZ}")"
+RESULT="$(bc -l <<< "((${1})*${CMCRATE})${GRAM}${TOZ}")"
 printf "%.${SCL}f\n" "${RESULT}"
 
 exit

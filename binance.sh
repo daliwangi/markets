@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.7  05/dec/2019  by mountaineerbr
+# v0.7.2  dec/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -99,24 +99,20 @@ USAGE EXAMPLES
 			$ binance.sh -u btc usdt
 
 
-		(2)     Half a Dash in Binance Coin:
+		(2)     Half a Dash in Binance Coin, using a math expression
+			in AMOUNT:
 			
-			$ binance.sh 0.5 dash bnb 
+			$ binance.sh '(3*0.15)+.05' dash bnb 
 
 
-		(3)     1000 Z-Cash in Paxos Standard:
-			
-			$ binance.sh 100 zec pax 
-
-
-		(4)     Price of one XRP in USDC, four decimal plates:
+		(3)     Price of one XRP in USDC, four decimal plates:
 			
 			$ binance.sh -f4 xrp usdc 
 
 			$ binance.sh -4 xrp usdc 
 			
 		
-		(5)     Price stream of BTCUSDT, group thousands; print only 
+		(4)     Price stream of BTCUSDT, group thousands; print only 
 			one decimal plate:
 			
 			$ binance.sh -s -ff1 btc usdt
@@ -124,13 +120,13 @@ USAGE EXAMPLES
 			$ binance.sh -s -f\"%'.1f\" btc usdt
 
 
-		(6) 	Order book depth view of ETHUSDT (20 levels on each 
+		(5) 	Order book depth view of ETHUSDT (20 levels on each 
 			side), data from Binance US:
 
 			$ binance.sh -bbu eth usdt
 
 
-		(7)     Grep rates for all Bitcoin markets:
+		(6)     Grep rates for all Bitcoin markets:
 
 			$ binance.sh -l
 
@@ -541,7 +537,7 @@ test -n "${COPT}" && colf "${@}"
 # Get rate
 BRATE=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price?symbol=${2^^}${3^^}" | jq -r ".price")
 # Calc and printf results
-bc -l <<< "${1}*${BRATE}" | xargs printf "${FSTR}\n"
+bc -l <<< "(${1})*${BRATE}" | xargs printf "${FSTR}\n"
 
 exit 
 

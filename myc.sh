@@ -1,6 +1,10 @@
 #!/bin/bash
 # openx.sh - bash (crypto)currency converter
-# v0.2.21  2019/nov/13  by mountaineerbr
+# v0.2.22  2019/dec  by mountaineerbr
+
+## Defaults
+# Scale (decimal plates):
+SCLDEFAULTS=16
 
 ## Manual and help
 ## Usage: $ clay.sh [amount] [from currency] [to currency]
@@ -9,9 +13,9 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	myc.sh [-h|-j|-l|-v]
+	myc.sh [-hlv]
 
-	myc.sh [-s NUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	myc.sh [-sNUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
 
 
 DESCRIPTION
@@ -19,8 +23,8 @@ DESCRIPTION
 	can convert any amount of one supported currency into another. It sup-
 	ports 153 currency rates, not including precious metals.	
 	
-	Default precision is 16. Trailing zeroes are trimmed by default.
-	No timestamp for this API. Rates update every hour.
+	Default precision is 16. No timestamp for this API, but rates update 
+	every hour.
 
 
 WARRANTY
@@ -36,9 +40,14 @@ USAGE EXAMPLES
 		$ myc.sh 1 brl usd
 
 		
-	(2) One US Dollar in Japanese Yen:
+	(2) One thousand US Dollars in Japanese Yen:
 		
-		$ myc.sh usd jpy
+		$ myc.sh 100 usd jpy
+		
+
+		Using math expression in AMOUNT:
+		
+		$ myc.sh '101+(2*24.5)+850' usd jpy
 
 
 	(3) Half a Danish Krone in Chinese Yuan with 3 decimal 
@@ -49,9 +58,13 @@ USAGE EXAMPLES
 
 OPTIONS
 	-h 	Show this help.
-	-j 	Print JSON (for debugging).
+
+	-j 	Debug, print JSON.
+	
 	-l 	List supported currencies.
-	-s 	Scale (decimal plates).
+	
+	-s NUM 	Scale (decimal plates).
+	
 	-v 	Show this programme version."
 
 # Check if there is any argument
@@ -97,7 +110,6 @@ done
 shift $((OPTIND -1))
 
 ## Set default scale if no custom scale
-SCLDEFAULTS=16
 test -z "${SCL}" && SCL="${SCLDEFAULTS}"
 
 # Set equation arquments
@@ -138,7 +150,7 @@ FROMCURRENCY=$(jq ".${2^^}" <<< "${CJSON}")
 TOCURRENCY=$(jq ".${3^^}" <<< "${CJSON}")
 
 ## Make equation and print result
-bc -l <<< "define trunc(x){auto os;os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; scale=${SCL}; trunc((${1}*${TOCURRENCY})/${FROMCURRENCY})"
+bc -l <<< "scale=${SCL};((${1})*${TOCURRENCY})/${FROMCURRENCY}"
 
 exit
 

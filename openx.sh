@@ -106,12 +106,15 @@ USAGE EXAMPLES
 			$ openx.sh 1 cad usd
 	
 
-		(2) Half  a Danish  Krone  to Chinese Yuan with three decimal
-		    plates (scale):
+		(2) One thousand Danish Krones to Chinese Yuans with three dec-
+		    imal plates (scale):
 
-			$ openx.sh -s3 0.5 dkk cny
+			$ openx.sh -s3  dkk cny
 			
-			$ openx.sh -3 0.5 dkk cny
+
+			Using a math expression in AMOUNT:
+
+			$ openx.sh -3 '(3*245.75)+262+.75' dkk cny
 
 		
 		(3)    Using grams for precious metals instead of troy ounces.
@@ -120,7 +123,7 @@ USAGE EXAMPLES
 			metals rates, use option \"-g\". E.g., one gram of gold 
 			in USD:
 
-				$ openx.sh -g xau usd 
+			$ openx.sh -g xau usd 
 
 
 			The following section explains about the GRAM/OZ cons-
@@ -317,7 +320,7 @@ TOCURRENCY=$(jq ".rates.${3^^}" <<< "${JSON}" | sed 's/e/*10^/g')
 ozgramf "${2}" "${3}"
 # Make currency exchange rate equation 
 # and send to Bash Calculator to get results
-bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1"
+bc -l <<< "scale=${SCL};(((${1})*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1"
 
 exit
 

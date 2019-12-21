@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.4  dec/2019  by mountaineerbr
+# v0.4.5  dec/2019  by mountaineerbr
 
 
 ## Get your own personal API KEY, please!
@@ -89,6 +89,10 @@ USAGE EXAMPLES
 		    plates (scale):
 
 			$ clay.sh -s3 50 djf cny
+
+			Using math expression in AMOUNT:
+			
+			$ clay.sh -3 '(3*15.5)+40.55' djf cny
 
 
 		(3)    Using grams for precious metals instead of troy ounces.
@@ -282,5 +286,5 @@ fi
 # Precious metals in grams?
 ozgramf "${2}" "${3}"
 ## Make equation and print result
-bc -l <<< "scale=${SCL};((${1}*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1;"
+bc -l <<< "scale=${SCL};(((${1})*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1;"
 
