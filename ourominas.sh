@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.7  dec/2019  by mountaineer_br
+# v0.3.8  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 # Ourominas não trabalha com Prata!
 
@@ -56,10 +56,10 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 # Estimagem do preço por cotação do UOL
 USDP="${USD[@]:1:1}"
 USDP="${USDP%\=}"
-UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -e 's/<[^>]*>//g' -e 's/\s\s*/ /g' | grep -m1 -Eo --color=never 'Ouro.{25}' | grep -Eo '[^- ][0-9]+,[0-9]+' | tr ',' '.')"
+UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -e 's/<[^>]*>//g' -e 's/\s\s*/ /g' | grep -m1 -Eo --color=never 'Ouro.{25}' | grep -Eo '[^- ][0-9][0-9][0-9]+,[0-9]+')"
 
-{ printf "XAU(troyoz)/USD UOL  %s\n" "$(bc -l <<< "scale=4;${UOLXAU}/1")"
-printf "Venda estimada(R$/g)  %s\n" "$(bc -l <<< "scale=4; ${UOLXAU}*${USDP/,/.}/31.1034768")"; } | tr '.' ','
+{ printf "XAU(troyoz)/USD UOL  %s\n" "$(bc -l <<< "scale=4;${UOLXAU/,/.}/1")"
+printf "Venda estimada(R$/g)  %s\n" "$(bc -l <<< "scale=4; ${UOLXAU/,/.}*${USDP/,/.}/31.1034768")"; } | tr '.' ','
 
 exit
 
