@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.23  2019/dec  by mountaineerbr
+# v0.5.24  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -159,17 +159,17 @@ Note: 	First block with transaction, genesis block, Binance cold wallet and
 OPTIONS
     Blockhain
       -i 	Bitcoin blockchain info (24H rolling ticker); pass twice to use
-      		Blockhair.
+      		Blockchair.com.
     Block
       -b 	Block information by hash or ID.
       -e 	Socket stream for new blocks.
       -l 	Latest block summary information.
       -n 	Block information by height.
     Address
-      -a 	Address information; twice to use Blockhair.
-      -s 	Summary address information; twice to use Blockhair.
+      -a 	Address information; twice to use Blockchair.
+      -s 	Summary address information; twice to use Blockchair.
     Transaction
-      -t 	Transaction information by hash or ID; twice to use Blockhair.
+      -t 	Transaction information by hash or ID; twice to use Blockchair.
     Other
       -h 	Show this help.
       -j 	Debug; print JSON.
