@@ -1,8 +1,9 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
 # v0.2.6  dec/2019  by mountaineer_br
-## Este script somente pega cotações através de outros
+## Este script pega cotações através de outros
 ## scripts e imprime os resultados em formato de tabelas.
+## Porém, cotação do Ouro e USD do Banco Central somente neste script.
 
 ## Funções de metais ( em BRL )
 cmcouro() { ~/bin/markets/cmc.sh -bg6 xau brl; }
@@ -46,6 +47,19 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	AVGO=$(echo "scale=6; ($CMCO+$CGKO+$OPENXO)/3" | bc -l)
 	AVGP=$(echo "scale=6; (($CMCP+$CGKP+$OPENXP)/3)" | bc -l)
 	echo "Média: $AVGO    $AVGP"
+	echo ""
+	echo "Banco central"
+	#Get last weekday data
+	day_of_week=`date +%w`
+	if [ $day_of_week == 1 ] ; then
+		look_back=3
+	elif [ $day_of_week == 0 ] ; then
+		look_back=2
+	else
+		look_back=1
+	fi
+	TS="$(date --date "${look_back} day ago" "+%Y%m%d")"
+	curl -sLb non-existing "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv"| grep -e XAU -e USD
 	echo ""
 	OPAR="$(parmetal.sh)"
 	grep RBM <<< "${OPAR}" | cut -c-32
