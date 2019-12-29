@@ -1,12 +1,12 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.24  2019/dec  by mountaineerbr
+# v0.5.25  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
 
 HELP="NAME
-    binfo.sh  -- Bitcoin Explorer for Bash
+    binfo.sh  -- Bitcoin Blockchain Explorer for Bash
     		 Bash Interface for Blockchain.info & Blockchair.com APIs
     
 
