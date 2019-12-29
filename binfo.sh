@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.28  2019/dec  by mountaineerbr
+# v0.5.29  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -336,7 +336,7 @@ blkinfochairf() {
 		"",
 		"Mempool",
 		"Tx_Num: \(.mempool_transactions)",
-		"Size__: \(.mempool_size)",
+		"Size__: \(.mempool_size)  (\(.mempool_size/1000) KB)",
 		"Tx/sec: \(.mempool_tps)",
 		"T_Fee_: \(.mempool_total_fee_usd) USD",
 		"",
