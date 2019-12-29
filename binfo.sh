@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.29  2019/dec  by mountaineerbr
+# v0.5.30  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -262,12 +262,12 @@ blkinfof() {
 		"BlkTime: \(.minutes_between_blocks) min",
 		"T_Mined: \(.n_btc_mined/100000000) BTC \(.n_blocks_mined) blocks",
 		"Reward_: \((.n_btc_mined/100000000)/.n_blocks_mined) BTC/block",
-		"T_Size_: \(.blocks_size/1000000) MB",
+		"24HSize: \(.blocks_size/1000000) MB",
 		"AvgBlkS: \((.blocks_size/1000)/.n_blocks_mined) KB/block",
 		"",
 		"Difficulty and Hash Rate",
 		"Diff___: \(.difficulty)",
-		"HxRate_: \(.hash_rate) hashes/s",
+		"HxRate_: \(.hash_rate) GH/s  (\(.hash_rate/1000000000) ExaH/s)",
 		"Diff/HR: \(.difficulty/.hash_rate)",
 		"",
 		"Next Retarget",
@@ -282,9 +282,9 @@ blkinfof() {
 		"Mining Costs",
 		"TTxFees: \(.total_fees_btc/100000000) BTC",
 		"Revenue: \(.miners_revenue_btc) BTC (\(.miners_revenue_usd|round) USD)",
-		"FeeVol% [(TTxFees/Revenue)x100]:",
+		"FeeVol% (TTxFees/Revenue):",
 		"  \(((.total_fees_btc/100000000)/.miners_revenue_btc)*100) %",
-		"RevenueVol% [(Revenue/TotalBtcSent)x100]:",
+		"RevenueVol% (Revenue/TotalBtcSent):",
 		"  \((.miners_revenue_btc/(.estimated_btc_sent/100000000))*100) %",
 		"",
 		"Market",
