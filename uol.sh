@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.5  dez/2019  by mountaineer_br
+# v0.1.6  dez/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -16,6 +16,8 @@ SINOPSE
 
 OPÇÕES
 	-b 	Índice da B3.
+
+	-d 	Cotação do dólar comercial.
 	
 	-h 	Mostra esta ajuda.
 
@@ -36,6 +38,25 @@ b3f() {
  	grep --color=never -A1 '%' <<<"${UOLB3}"
  	grep --color=never -Eo "[[:digit:]]+:[[:digit:]]+" <<<"${UOLB3}"
 	exit
+}
+
+#Cotação dólar comercial
+dolarf() {
+	COT="$(${YOURAPP} 'http://cotacoes.economia.uol.com.br/cambioJSONChart.html')"
+	jq -r '.[2]|
+		"UOL - \(.name)",
+		"Abertura: \(if .open == "0" then empty else .open end)",
+		"Alta    : \(.high)",
+		"Baixa   : \(.low)",
+		"Var(%)  : \(.pctChange)",
+		"Venda   : \(.ask)",
+		"Compra  : \(.bid)",
+		"VarComp.: \(.varBid)"' <<< "${COT}"
+		TS="$(jq -r '.[2].timestamp' <<<"${COT}")"
+		printf "Hora    :%s" "$(date -d@"${TS:0:10}")"
+		
+	exit
+
 }
 
 # Lista de ações
@@ -72,10 +93,13 @@ else
 fi
 
 # Parse options
-while getopts ":blmhv" opt; do
+while getopts ":bdlmhv" opt; do
 	case ${opt} in
 		b ) #b3 
 			b3f
+	      		;;
+		d ) #dolarcomercial 
+			dolarf
 	      		;;
 		l ) #lista de ações
 			lstocksf
