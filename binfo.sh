@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.27  2019/dec  by mountaineerbr
+# v0.5.28  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -354,7 +354,7 @@ blkinfochairf() {
 		"",
 		"Next Retarget",
 		"Date__: \(.next_retarget_time_estimate)UTC",
-		"Diff__: \(.next_difficulty_estimate)",
+		"EstDif: \(.next_difficulty_estimate)",
 		"VarDif: \(((.next_difficulty_estimate-.difficulty)/.difficulty)*100) %",
 		"",
 		"Other Events/Countdowns",
