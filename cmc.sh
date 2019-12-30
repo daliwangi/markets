@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.22  2019/dec  by mountaineerbr
+# v0.6.23  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -56,8 +56,7 @@ DESCRIPTION
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals. Note that Platinum and Palladium are priced in regular
-	ouces, but option \"-g\" will use the appropriate constant.
+	precious metals. 
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
 	It is useful to define a variable with the gram to troy oz ratio in your
@@ -499,18 +498,10 @@ apif() {
 ozgramf() {	
 	# Precious metals - ounce to gram
 	if [[ -n "${GRAMOPT}" ]]; then
-		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
-			FMET=1
-		elif grep -qi -e 'XPT' -e 'XPD' <<<"${1}"; then
-			## Set regular ounce to gram ratio
-			TOZ='28.349523125'
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
 			FMET=1
 		fi
-		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
-			TMET=1
-		elif grep -qi -e 'XPT' -e 'XPD' <<<"${2}"; then
-			## Set regular ounce to gram ratio
-			TOZ='28.349523125'
+		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
 			TMET=1
 		fi
 		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
