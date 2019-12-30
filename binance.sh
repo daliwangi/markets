@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.7.3  dec/2019  by mountaineerbr
+# v0.7.5  dec/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -66,10 +66,17 @@ SYNOPSIS
   
 LIMITS ON WEBSOCKET MARKET STREAMS
 
-	\"A single connection to stream.binance.com is only valid for 24 hours; 
-	expect to be disconnected at the 24 hour mark.\"
+	From Binance API website:
+
+		\"A single connection to stream.binance.com is only valid for 24
+		hours; expect to be disconnected at the 24 hour mark.\"
 
 	<https://binance-docs.github.io/apidocs/spot/en/#symbol-order-book-ticker>
+
+	
+	However, Websocat has an option to reconnect automatically \"-a\" that
+	will try reconnecting upon error or EOF. Websocat may spin the CPU very 
+	highly until connection is accomplished.
 
 
 WARRANTY
@@ -151,8 +158,8 @@ OPTIONS
 		each update; prices update from bottom right to top left; uses
 		cURL/Wget.
 
-	-f  [NUM]
-	-ff [STR]
+	-f  [NUM|STR]
+	-ff [NUM]
 		Number of decimal plates and printf-like formatting; for use 
 		with options \"-c\", \"-s\" and \"-w\"; defaults=%s.
 
