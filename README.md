@@ -63,9 +63,9 @@ This is my favorite everyday-use script for all-currency rates!
 
 <i>Also check/Também veja:
 
-Check my Bash Calculator wrapper that keeps a record of results "bcalc.sh" at: https://github.com/mountaineerbr/scripts/blob/master/bcalc.sh
+My Bash Calculator Wrapper that keeps a record of results "bcalc.sh" at: https://github.com/mountaineerbr/scripts/blob/master/bcalc.sh
 
-Alexander Epstein script "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
+Alexander Epstein's "currency_bash-snipet.sh" at <https://github.com/alexanderepstein>; uses the same API as Erates.sh
 
 MiguelMota's "Cointop" at <https://github.com/miguelmota/cointop> for crypto currency tickers;
 
