@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.6  dec/2019  by mountaineerbr
+# v0.4.7  dec/2019  by mountaineerbr
 
 
 ## Get your own personal API KEY, please!
@@ -164,8 +164,8 @@ ozgramf() {
 		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
 			TMET=1
 		fi
-		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
-			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+		if { [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]];} ||
+			{ [[ -z "${FMET}" ]] && [[ -z "${TMET}" ]];}; then
 			unset TOZ
 			unset GRAM
 		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.23  2019/dec  by mountaineerbr
+# v0.6.24  2019/dec  by mountaineerbr
 
 
 ## CMC API Personal KEY
@@ -495,7 +495,7 @@ apif() {
 }
 
 # Precious metals in grams?
-ozgramf() {	
+ozgramf() {
 	# Precious metals - ounce to gram
 	if [[ -n "${GRAMOPT}" ]]; then
 		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
@@ -504,8 +504,8 @@ ozgramf() {
 		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${2}"; then
 			TMET=1
 		fi
-		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
-			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+		if { [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]];} ||
+			{ [[ -z "${FMET}" ]] && [[ -z "${TMET}" ]];}; then
 			unset TOZ
 			unset GRAM
 		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then

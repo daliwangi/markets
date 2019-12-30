@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.3 - 2019/dec  by mountaineerbr
+# v0.6.4 - 2019/dec  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -188,8 +188,8 @@ ozgramf() {
 		if grep -qi -e 'XAU' -e 'XAG' <<<"${2}"; then
 			TMET=1
 		fi
-		if [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]] ||
-			[[ -z "${FMET}" ]] && [[ -z "${TMET}" ]]; then
+		if { [[ -n "${FMET}" ]] && [[ -n "${TMET}" ]];} ||
+			{ [[ -z "${FMET}" ]] && [[ -z "${TMET}" ]];}; then
 			unset TOZ
 			unset GRAM
 		elif [[ -n "${FMET}" ]] && [[ -z "${TMET}" ]]; then
