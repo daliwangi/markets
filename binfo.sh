@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.30  2019/dec  by mountaineerbr
+# v0.5.31  2019/dec  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -284,7 +284,7 @@ blkinfof() {
 		"Revenue: \(.miners_revenue_btc) BTC (\(.miners_revenue_usd|round) USD)",
 		"FeeVol% (TTxFees/Revenue):",
 		"  \(((.total_fees_btc/100000000)/.miners_revenue_btc)*100) %",
-		"RevenueVol% (Revenue/TotalBtcSent):",
+		"RevenueVol% (Revenue/ETxVol):",
 		"  \((.miners_revenue_btc/(.estimated_btc_sent/100000000))*100) %",
 		"",
 		"Market",
