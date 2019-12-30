@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.7.2  dec/2019  by mountaineerbr
+# v0.7.3  dec/2019  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -222,7 +222,7 @@ infof() {  # Price and trade info
 	# Websocat Mode
 	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
 	printf -- "Price, Quantity and Time.\n"
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tPQ: \((.p|tonumber)*(.q|tonumber)|round)    \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|round | strflocaltime("%H:%M:%S%Z"))"'
+	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tPQ: \((.p|tonumber)*(.q|tonumber)|round)    \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|strflocaltime("%H:%M:%S%Z"))"'
 	exit 0
 }
 
@@ -341,7 +341,7 @@ booktf() {
 
 tickerf() { # 24-H Ticker
 	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@ticker" |
-		jq -r '"",.s,.e,(.E/1000|round | strflocaltime("%H:%M:%S%Z")),
+		jq -r '"",.s,.e,(.E/1000|strflocaltime("%H:%M:%S%Z")),
 			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
 			"Price",
