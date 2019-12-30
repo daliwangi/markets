@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.6  dez/2019  by mountaineer_br
+# v0.1.7  dez/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -21,6 +21,8 @@ OPÇÕES
 	
 	-h 	Mostra esta ajuda.
 
+	-j 	Debug, imprime json.
+
 	-l 	Lista de ações
 
 	-m 	Cotação dos metais preciosos.
@@ -35,6 +37,11 @@ hf() {  sed 's/<[^>]*>//g';}
 b3f() {
 	printf "UOL - B3\n"
 	UOLB3="$(${YOURAPP} "https://cotacoes.economia.uol.com.br/index.html" | hf | tr -d '\t' | sed '/^[[:space:]]*$/d')"
+	#Debug?
+	if [[ -n "${PJSON}" ]]; then
+		printf "%s\n" "${UOLB3}"
+		exit
+	fi
  	grep --color=never -A1 '%' <<<"${UOLB3}"
  	grep --color=never -Eo "[[:digit:]]+:[[:digit:]]+" <<<"${UOLB3}"
 	exit
@@ -43,8 +50,15 @@ b3f() {
 #Cotação dólar comercial
 dolarf() {
 	COT="$(${YOURAPP} 'http://cotacoes.economia.uol.com.br/cambioJSONChart.html')"
+	#Debug?
+	if [[ -n "${PJSON}" ]]; then
+		printf "%s\n" "${COT}"
+		exit
+	fi
 	jq -r '.[2]|
 		"UOL - \(.name)",
+		(.timestamp/1000|strflocaltime("%Y-%m-%dT%H:%M:%S%Z")),
+		"Fresco  : \(if .notFresh == "true" then "não" else "sim" end)",
 		"Abertura: \(if .open == "0" then empty else .open end)",
 		"Alta    : \(.high)",
 		"Baixa   : \(.low)",
@@ -52,8 +66,8 @@ dolarf() {
 		"Venda   : \(.ask)",
 		"Compra  : \(.bid)",
 		"VarComp.: \(.varBid)"' <<< "${COT}"
-		TS="$(jq -r '.[2].timestamp' <<<"${COT}")"
-		printf "Hora    :%s" "$(date -d@"${TS:0:10}")"
+		#TS="$(jq -r '.[2].timestamp' <<<"${COT}")"
+		#printf "Hora    :%s" "$(date -d@"${TS:0:10}")"
 		
 	exit
 
@@ -62,6 +76,11 @@ dolarf() {
 # Lista de ações
 lstocksf() {
 	PRELIST="$(${YOURAPP} "http://cotacoes.economia.uol.com.br/acoes-bovespa.html?exchangeCode=.BVSP&page=1&size=2000" | hf | sed -n "/Nome Código/,/Páginas/p" | sed -e 's/^[ \t]*//' -e '1,2d' -e '/^[[:space:]]*$/d' -e '$d' | sed '$!N;s/\n/=/')"
+	#Debug?
+	if [[ -n "${PJSON}" ]]; then
+		printf "%s\n" "${PRELIST}"
+		exit
+	fi
 	column -et -s'=' -N'NOME,CÓDIGO' <<<"${PRELIST}"
 	printf "Items: %s.\n" "$(wc -l <<<"${PRELIST}")"
 	exit
@@ -70,6 +89,11 @@ lstocksf() {
 # Cotação dos metais
 metf() {
 	COT="$(${YOURAPP} "https://economia.uol.com.br/cotacoes/" | hf)"
+	#Debug?
+	if [[ -n "${PJSON}" ]]; then
+		printf "%s\n" "${COT}"
+		exit
+	fi
 	printf "UOL - Metais Preciosos\n"
 	grep -iEo --color=never 'ouro.{117}' <<<"${COT}" | grep -e 'US$' -e '%' |sed -e 's/[0-9]\s/&\n/g' -e 's/^\s\s*//' -e 's/US\$//g' | column -et -N'METAL,VAR,VENDA(US$/OZ)'
 	grep -o "Câmbio     Atualizado em..............." <<<"${COT}" | sed -e 's/\s\s*/ /g' -e 's/Atualizado/atualizado/'
@@ -93,19 +117,22 @@ else
 fi
 
 # Parse options
-while getopts ":bdlmhv" opt; do
+while getopts ":bdjlmhv" opt; do
 	case ${opt} in
 		b ) #b3 
-			b3f
+			B3OPT=1
 	      		;;
 		d ) #dolarcomercial 
-			dolarf
+			DOLAROPT=1
 	      		;;
+		j ) #debug, print json
+			PJSON=1
+			;;
 		l ) #lista de ações
-			lstocksf
+			LSTOCKSOPT=1
 	      		;;
 		m ) #cotações metais
-			metf
+			METAISOPT=1
 	      		;;
 		h ) # Help
 	      		echo -e "${AJUDA}"
@@ -123,3 +150,8 @@ while getopts ":bdlmhv" opt; do
 done
 shift $((OPTIND -1))
 
+#Call opts
+test -n "${B3OPT}" && b3f 
+test -n "${LSTOCKSOPT}" && lstocksf 
+test -n "${DOLAROPT}" && dolarf 
+test -n "${METAISOPT}" && metf 
