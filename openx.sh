@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.2 - 2019/dec  by mountaineerbr
+# v0.6.3 - 2019/dec  by mountaineerbr
 
 
 ## Please make a free account and update this script
@@ -54,8 +54,7 @@ DESCRIPTION
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals (as a side note, platinum and palladium would be priced
-	in regular ounces).
+	precious metals.
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
 	It is useful to define a variable with the gram to troy oz ratio in your
@@ -181,7 +180,7 @@ OPTIONS
 ## Functions
 ozgramf() {	
 	# Precious metals - ounce to gram
-	#CGK does not support Platinum(xpt) and Palladium(xpd) yet,a nd thos eowuld be in regular ounces
+	#CGK does not support Platinum(xpt) and Palladium(xpd) yet
 	if [[ -n "${GRAMOPT}" ]]; then
 		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
 			FMET=1

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Clay.sh -- Currencylayer.com API Access
-# v0.4.5  dec/2019  by mountaineerbr
+# v0.4.6  dec/2019  by mountaineerbr
 
 
 ## Get your own personal API KEY, please!
@@ -47,8 +47,7 @@ DESCRIPTION
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals (as a side note, platinum and palladium would be priced
-	in regular ounces).
+	precious metals.
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
 	It is useful to define a variable with the gram to troy oz ratio in your
@@ -157,7 +156,7 @@ OPTIONS
 # Precious metals in grams?
 ozgramf() {	
 	# Precious metals - ounce to gram
-	#CGK does not support Platinum(xpt) and Palladium(xpd) yet,a nd thos eowuld be in regular ounces
+	#CGK does not support Platinum(xpt) and Palladium(xpd) yet
 	if [[ -n "${GRAMOPT}" ]]; then
 		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
 			FMET=1

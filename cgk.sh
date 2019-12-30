@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.7  2019/dec  by mountaineerbr
+# v0.10.8  2019/dec  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -60,8 +60,7 @@ DESCRIPTION
 
 
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals (as a side note, platinum and palladium would be priced
-	in regular ounces).
+	precious metals.
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
 	It is useful to define a variable with the gram to troy oz ratio in your
@@ -552,7 +551,7 @@ tmperrf() { printf "Cannot create temp file at /tmp.\n" 1>&2; exit 1;}
 # Precious metals in grams?
 ozgramf() {	
 	# Precious metals - troy ounce to gram
-	#CGK does not support Platinum(xpt) and Palladium(xpd), and they would be in regular ounces
+	#CGK does not support Platinum(xpt) and Palladium(xpd)
 	if [[ -n "${GRAMOPT}" ]]; then
 		if grep -qi -e 'XAU' -e 'XAG' <<<"${1}"; then
 			FMET=1
