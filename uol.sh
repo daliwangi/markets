@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.7  dez/2019  by mountaineer_br
+# v0.1.8  dez/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -58,7 +58,7 @@ dolarf() {
 	jq -r '.[2]|
 		"UOL - \(.name)",
 		(.timestamp/1000|strflocaltime("%Y-%m-%dT%H:%M:%S%Z")),
-		"Fresco  : \(if .notFresh == "true" then "não" else "sim" end)",
+		"Fresco  : \(if .notFresh == true then "não" else "sim" end)",
 		"Abertura: \(if .open == "0" then empty else .open end)",
 		"Alta    : \(.high)",
 		"Baixa   : \(.low)",
