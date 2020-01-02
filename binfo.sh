@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.31  2019/dec  by mountaineerbr
+# v0.5.33  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -67,9 +67,9 @@ ABBREVIATIONS
 	Addr             Address
 	A,Avg            Average
 	AvgBlkS          Average block size
-	Bal              Balance
 	B,Blk            Block
-	BTime,BlkTime    Block time (time between blocks)
+	Bal              Balance
+	BlkT,BlkTime     Block time (time between blocks)
 	BTC              Bitcoin
 	Cap              Capital
 	CDD              Coin days destroyed
@@ -86,8 +86,10 @@ ABBREVIATIONS
 	H,Hx             Hash, hashes
 	HR               Hash rate
 	ID               Identity
+	Infla 		 Inflation
 	LocalT           Local time
 	LockT            Lock time
+	Med 		 Median
 	MrklRt           Merkle Root
 	NDiff            Next difficulty
 	NextB            Next block
@@ -98,7 +100,7 @@ ABBREVIATIONS
 	Recv_T           Received local time
 	sat              satoshi
 	S                Size
-	Suggest.         Suggested
+	Sug,Suggest      Suggested
 	ToTxID           To transaction ID number
 	TPS              Transactions per second
 	T                Total, Time
@@ -106,7 +108,7 @@ ABBREVIATIONS
 	TTxFees          Total transaction fees
 	Tx/sec           Transactions per second
 	Tx               Transaction
-	Unconf           Unconfirmed
+	Unc,Unconf       Unconfirmed
 	Ver              Version
 	Vol              Volume
 
@@ -257,6 +259,10 @@ blkinfof() {
 		"Blockchain",
 		"T_Mined: \(.totalbc/100000000) BTC",
 		"Height_: \(.n_blocks_total) blocks",
+		"Difficulty and Hash Rate",
+		"Diff___: \(.difficulty)",
+		"HxRate_: \(.hash_rate) GH/s  (\(.hash_rate/1000000000) ExaH/s)",
+		"Diff/HR: \(.difficulty/.hash_rate)",
 		"",
 		"Rolling 24H Ticker",
 		"BlkTime: \(.minutes_between_blocks) min",
@@ -265,17 +271,7 @@ blkinfof() {
 		"24HSize: \(.blocks_size/1000000) MB",
 		"AvgBlkS: \((.blocks_size/1000)/.n_blocks_mined) KB/block",
 		"",
-		"Difficulty and Hash Rate",
-		"Diff___: \(.difficulty)",
-		"HxRate_: \(.hash_rate) GH/s  (\(.hash_rate/1000000000) ExaH/s)",
-		"Diff/HR: \(.difficulty/.hash_rate)",
-		"",
-		"Next Retarget",
-		"@Height: \(.nextretarget)",
-		"Blocks_: -\(.nextretarget-.n_blocks_total)",
-		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))",
-		"",
-		"Transactions",
+		"Transactions (last 24H)",
 		"ETxVol_: \(.estimated_btc_sent/100000000) BTC",
 		"ETxVol_: \(.estimated_transaction_volume_usd|round) USD",
 		"",
@@ -287,16 +283,21 @@ blkinfof() {
 		"RevenueVol% (Revenue/ETxVol):",
 		"  \((.miners_revenue_btc/(.estimated_btc_sent/100000000))*100) %",
 		"",
+		"Next Retarget",
+		"@Height: \(.nextretarget)",
+		"Blocks_: -\(.nextretarget-.n_blocks_total)",
+		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))",
+		"",
 		"Market",
 		"Price__: \(.market_price_usd) USD",
 		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
 	# Some more stats
 	printf "\nMempool\n"
-	printf "Unconf_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
-	printf "Block_ETA_: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
+	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
+	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
 	printf "Last 100 blocks\n"
-	printf "Avg_Txs/B_: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
-	printf "Avg_B_Time: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
+	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
+	printf "AvgBlkT: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
 }
 
 ## -ii Ticker for the Bitcoin Blockchain from Blockchair (updates every ~5min)
@@ -310,35 +311,16 @@ blkinfochairf() {
 		printf "%s\n" "${CHAINJSON}"
 		exit 0
 	fi
-	# Print the 24-H ticker
-	jq -r '.data | "Nodes_: \(.nodes)\tBlocks: \(.blocks)",
+	# Print the 24H ticker
+	jq -r '.data |
+		"Blockchain",
+		"BlkC_S: \(.blockchain_size/1000000000) GB  (\(.blockchain_size) bytes)",
+		"H_Rate: \(.hashrate_24h) H/s  (\(.hashrate_24h|tonumber/1000000000000000000) ExaH/s)",
+		"Nodes_: \(.nodes)\tBlocks: \(.blocks)",
 		"Diff__: \(.difficulty)",
 		"T_Txs_: \(.transactions)",
 		"OutTxs: \(.outputs)",
 		"Supply: \(.circulation/100000000) BTC  (\(.circulation) sat)",
-		"",
-		"Rolling stats of last 24-H",
-		"Block Chain Size: \(.blockchain_size/1000000000) GB  (\(.blockchain_size) bytes)",
-		"Blocks___: \(.blocks_24h)  Txs: \(.transactions_24h)",
-		"Hash_Rate: \(.hashrate_24h) H/s  (\(.hashrate_24h|tonumber/1000000000000000000) ExaH/s)",
-		"Volume___: \(.volume_24h/100000000) BTC  (\(.volume_24h) sat)",
-		"Inflation: \(.inflation_24h/100000000) BTC  (\(.inflation_usd_24h) USD)",
-		"CoinDaysDestroyed: \(.cdd_24h) BTC/24H",
-		"",
-		"Largest Transaction",
-		"Transaction Hash:",
-		"  \(.largest_transaction_24h.hash)",
-		"Value_: \(.largest_transaction_24h.value_usd) USD",
-		"",
-		"Average_Tx_Fee__: \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
-		"Median_Tx_Fee___: \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
-		"Suggested_Tx_Fee: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
-		"",
-		"Mempool",
-		"Tx_Num: \(.mempool_transactions)",
-		"Size__: \(.mempool_size)  (\(.mempool_size/1000) KB)",
-		"Tx/sec: \(.mempool_tps)",
-		"T_Fee_: \(.mempool_total_fee_usd) USD",
 		"",
 		"Latest",
 		"Blk_Hx:",
@@ -346,11 +328,31 @@ blkinfochairf() {
 		"Block_: \(.best_block_height)",
 		"Time__: \(.best_block_time)",
 		"",
+		"Rolling stats of the last 24H",
+		"Blocks: \(.blocks_24h)  Txs: \(.transactions_24h)",
+		"Volume: \(.volume_24h/100000000) BTC  (\(.volume_24h) sat)",
+		"Infla_: \(.inflation_24h/100000000) BTC  (\(.inflation_usd_24h) USD)",
+		"CDC___: \(.cdd_24h) BTC/24H",
+		"AvgTxF: \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
+		"MedTxF: \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
+		"SugTxF: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
+		"",
+		"Largest Transaction (last 24H)",
+		"Tx_Hx_:",
+		"  \(.largest_transaction_24h.hash)",
+		"Value_: \(.largest_transaction_24h.value_usd) USD",
+		"",
 		"Market",
 		"Price_: \(.market_price_usd) USD  (\(.market_price_btc) BTC)",
 		"Change: \(.market_price_usd_change_24h_percentage) %",
 		"Cap___: \(.market_cap_usd) USD",
 		"Domin_: \(.market_dominance_percentage) %",
+		"",
+		"Mempool",
+		"Tx_Num: \(.mempool_transactions)",
+		"Size__: \(.mempool_size)  (\(.mempool_size/1000) KB)",
+		"Tx/sec: \(.mempool_tps)",
+		"T_Fee_: \(.mempool_total_fee_usd) USD",
 		"",
 		"Next Retarget",
 		"Date__: \(.next_retarget_time_estimate)UTC",
