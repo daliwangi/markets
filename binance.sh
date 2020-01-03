@@ -1,27 +1,27 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.7.5  dec/2019  by mountaineerbr
+# v0.8  jan/2020  by mountaineerbr
 
 # Some defaults
-LC_NUMERIC=en_US.UTF-8
 #Decimal plates and printf-format; defaults=%s.
-FSTRDEF="%s"      #print raw results 
-#FSTRDEF="%.2f"   #set to 2 decimal plates
-WHICHB="com"
+FSTRDEF="%s"      #price formatting 
+#FSTRDEF="%.2f"   #set floating number with 2 decimal plates
+WHICHB="com"      #binance.com, binance.us or binance.je
+#Don't change this:
+LC_NUMERIC="en_US.UTF-8"
 
 HELP="NAME
-	\033[012;36mBinance.sh - Bash Cryptocurrency Converter\033[00m
-	\033[012;36m             Binance API Access\033[00m
+	Binance.sh - Binance API Access and Cryptocurrency Converter
 
 
 SYNOPSIS
-	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-u] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff\"NUM\"] [-ju] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
 
-	binance.sh [-NUM|-ff\"NUM\"|-f\"STR\"] [-acirsuw] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff\"NUM\"] [-acijrsuw] [FROM_CRYPTO] [TO_CRYPTO]
 	
-	binance.sh [-bbbtu] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-bbbjtu] [FROM_CRYPTO] [TO_CRYPTO]
 	
-	binance.sh [-hjlv]
+	binance.sh [-dhlv]
 
 
 	This script gets rate of any cryptocurrency pair that Binance supports
@@ -29,22 +29,25 @@ SYNOPSIS
 	from Binance public APIs.
 
 	Take  notice  that Binance supports  specific markets, so for example, 
-	there is a market for XRPBTC but not for BTCXRP. You can get a List of 
+	there is a market for XRPBTC but not for BTCXRP. You can get a list of 
 	all supported markets running the script with the option \"-l\".
 
-	You can get data from Binance US with the flag option \"-u\", otherwise
-	defaults to Binance Exchange from Malta.
+	You can get data from Binance.us with the flag option \"-u\" or from
+	Binance.je with option \"-j\", otherwise defaults to Binance.com from
+	Malta. Beware that Biannce.je and Binance.us options will only work as 
+	long as they use the same API code scheme as Binance.com.
 
 	There are a few functions/modes for watching price rolling of the latest
 	trades, as well as trade quantity. You can also watch book depth of any
 	supported  Binance market.  Some functions use cURL/Wget to fetch data 
 	from REST APIs and some use Websocat to fetch data from websockets. If 
 	no market/currency pair is given, uses BTCUSDT by defaults. If option 
-	\"-u\" is used, defaults to BTCUSD.
+	\"-j\" is used, defaults to BTCEUR and if \"-u\" is used, defaults to 
+	BTCUSD.
 
 	If your connection is unstable or intermitent, use option \"-a\" so that
-	Websocat will try to recconect on erro or EOF. Beware that this option 
-	may cause high CPU spinning until reconnection is complete!
+	Websocat will try to reconnect on error or EOF. Beware that this option 
+	may cause high CPU spinning until reconnection is achieved!
 
 	It is accepted to write each currency that forms a market separately or
 	together. Example: \"ZEC USDT\" or \"ZECUSDT\". Case is insensitive.
@@ -54,10 +57,10 @@ SYNOPSIS
 	socket streams leave an open connection so there is more frequent data
 	flow.
 
-	The number of decimal plates is by defaults the raw value. A different 
-	number of decimal plates can be supplied with the option \"-f\", see ex-
-	ample (4). Option \"-NUM\" is a shortcut for \"-fNUM\", where NUM must 
-	be a natural number (1,2,3..).
+	The number of decimal plates is the raw value received by defaults. A 
+	different number of decimal plates can be supplied with the option \"-f\",
+	see example (4). Option \"-NUM\" is a shortcut for \"-fNUM\", where NUM
+	must be a natural number (1,2,3..).
 
 	It is also possible to add a \"thousands\" separator, just pass \"-ff\",
 	see usage example (5). Finally, the \"-f\" option also accepts a printf-
@@ -74,7 +77,7 @@ LIMITS ON WEBSOCKET MARKET STREAMS
 	<https://binance-docs.github.io/apidocs/spot/en/#symbol-order-book-ticker>
 
 	
-	However, Websocat has an option to reconnect automatically \"-a\" that
+	However, Websocat has an option to reconnect automatically (\"-a\") that
 	will try reconnecting upon error or EOF. Websocat may spin the CPU very 
 	highly until connection is accomplished.
 
@@ -128,7 +131,7 @@ USAGE EXAMPLES
 
 
 		(5) 	Order book depth view of ETHUSDT (20 levels on each 
-			side), data from Binance US:
+			side), data from Binance.us:
 
 			$ binance.sh -bbu eth usdt
 
@@ -158,6 +161,8 @@ OPTIONS
 		each update; prices update from bottom right to top left; uses
 		cURL/Wget.
 
+	-d  	For debugging; print lines that fetch Binance raw JSON data.
+
 	-f  [NUM|STR]
 	-ff [NUM]
 		Number of decimal plates and printf-like formatting; for use 
@@ -167,7 +172,7 @@ OPTIONS
 
 	-i 	Detailed Information of the trade stream; uses websocket.
 	
-	-j  	For debugging; print lines that fetch Binance raw JSON data.
+	-j 	Use Binance.je (Jersey) server; defaults=binance.com (Malta).
 
 	-l 	List supported markets (coin pairs and rates).
 	
@@ -178,8 +183,7 @@ OPTIONS
 	
 	-t 	Rolling 24H Ticker for a currency pair/market; uses websocket.
 
-	-u 	Use Binance.us server instead of Binance.com; Binance US has 
-		lower volume (currently approx. 0.5%).
+	-u 	Use Binance.us (US) server; defaults=binance.com (Malta).
 		
 	-v 	Show this script version.
 	
@@ -377,12 +381,13 @@ lcoinsf() {
 	LDATA="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price")"
 	jq -r '.[] | "\(.symbol)=\(.price)"' <<< "${LDATA}"| sort | column -s '=' -et -N 'Market,Rate'
 	printf "Markets: %s\n" "$(jq -r '.[].symbol' <<< "${LDATA}"| wc -l)"
+	printf "<https://api.binance.%s/api/v3/ticker/price>" "${WHICHB}"
 	exit
 }
 
 
 # Parse options
-while getopts ":1234567890abdecf:hjlistuwvr" opt; do
+while getopts ":1234567890abcdf:hjlistuwvr" opt; do
 	case ${opt} in
 		( [0-9] ) #decimal setting, same as '-fNUM'
 			FSTR="${FSTR}${opt}"
@@ -395,7 +400,7 @@ while getopts ":1234567890abdecf:hjlistuwvr" opt; do
 			COPT=1
 			LIMIT=250
 			;;
-		( [bde] ) # Order book depth view
+		( b ) # Order book depth view
 			if [[ -z "${BOPT}" ]]; then
 				BOPT=1
 			elif [[ "${BOPT}" -eq 1 ]]; then
@@ -403,6 +408,11 @@ while getopts ":1234567890abdecf:hjlistuwvr" opt; do
 			elif [[ "${BOPT}" -eq 2 ]]; then
 				BOPT=3
 			fi
+			;;
+		( d ) # Print lines that fetch data
+			printf "Check below script lines that fetch raw JSON data:\n"
+			grep -e "YOURAPP" -e "WEBSOCATC" <"${0}" | sed -e 's/^[ \t]*//' | sort
+			exit 0
 			;;
 		( f ) # Scale (decimal plates) and printf-like format numbers
 			[[ "${OPTARG}" =~ f ]] && FSTRSEP=1 
@@ -416,10 +426,8 @@ while getopts ":1234567890abdecf:hjlistuwvr" opt; do
 		( i ) # Detailed latest trade information
 			IOPT=1
 			;;
-		( j ) # Print JSON
-			printf "Check below script lines that fetch raw JSON data:\n"
-			grep -e "YOURAPP" -e "WEBSOCATC" <"${0}" | sed -e 's/^[ \t]*//' | sort
-			exit 0
+		( j ) # Binance Jersey
+			WHICHB="je"
 			;;
 		( l ) # List markets (coins and respective rates)
 			LOPT=1
@@ -484,6 +492,10 @@ if [[ -n "${IOPT}${SOPT}${BOPT}${BEOPT}${TOPT}" ]] && [[ -z "${CURLOPT}" ]] && !
 	exit 1
 fi
 
+## Call opt functions
+# get a list of markets/coins
+test -n "${LOPT}" && lcoinsf
+
 # More defaults
 WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42 ${AUTOR0}"
 WSSADD="${AUTOR1}wss://stream.binance.${WHICHB}:9443/ws/"
@@ -504,6 +516,8 @@ MARKETS="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price" | jq -
 if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
 	if [[ "${WHICHB}" = "com" ]]; then
 		set -- ${@:1:2} "USDT"
+	elif [[ "${WHICHB}" = "je" ]]; then
+		set -- ${@:1:2} "EUR"
 	else
 		set -- ${@:1:2} "USD"
 	fi
@@ -516,9 +530,7 @@ if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
 	exit 1
 fi
 
-# get a list of markets/coins
-test -n "${LOPT}" && lcoinsf
-# Viewing/Watching Modes opts
+## Call opt functions
 # Detailed Trade info
 test -n "${IOPT}" && infof "${@}"
 # Socket Stream
@@ -549,8 +561,4 @@ bc -l <<< "(${1})*${BRATE}" | xargs printf "${FSTR}\n"
 exit 
 
 ##Dead code
-# Check for no arguments or options in input
-#if ! [[ "${@}" =~ [a-zA-Z]+ ]]; then
-#	printf "Run with -h for help.\n"
-#	exit 1
-#fi
+
