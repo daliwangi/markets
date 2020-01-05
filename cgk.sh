@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.9  2019/dec  by mountaineerbr
+# v0.10.10  jan/2020  by mountaineerbr
 
 # Some defaults
 SCLDEFAULTS=16
@@ -729,7 +729,12 @@ if [[ -n "${CGKRATERAW}" ]]; then
 	bc -l <<< "${1}*$(jq -r '."'${2,,}'"."'${3,,}'"' <<< "${CGKRATERAW}" | sed 's/e/*10^/g')"
 else
 	# Make equation and print result
-	RATE="$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}" | jq -r '."'${2,,}'"."'${3,,}'"' | sed 's/e/*10^/g')"
+	RATE="$(${YOURAPP} "https://api.coingecko.com/api/v3/simple/price?ids=${2,,}&vs_currencies=${3,,}")"
+	if [[ -n ${PJSON} ]]; then
+		printf "%s\n" "${RATE}"
+		exit
+	fi
+	RATE="$(jq -r '."'${2,,}'"."'${3,,}'"' <<<"${RATE}" | sed 's/e/*10^/g')"
 	RESULT="$(bc -l <<< "((${1})*${RATE})${GRAM}${TOZ}")"
 	printf "%.${SCL}f\n" "${RESULT}"
 fi
@@ -737,8 +742,4 @@ fi
 exit
 
 #Dead code
-## Check if there is any argument or option
-#if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-#	printf "Run with -h for help.\n"
-#	exit 1
-#fi
+
