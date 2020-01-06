@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Bash Interface for Blockchain.info API & Websocket Access
-# v0.5.33  jan/2020  by mountaineerbr
+# v0.5.34  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -86,7 +86,7 @@ ABBREVIATIONS
 	H,Hx             Hash, hashes
 	HR               Hash rate
 	ID               Identity
-	Infla 		 Inflation
+	Inflat 		 Inflation
 	LocalT           Local time
 	LockT            Lock time
 	Med 		 Median
@@ -259,9 +259,9 @@ blkinfof() {
 		"Blockchain",
 		"T_Mined: \(.totalbc/100000000) BTC",
 		"Height_: \(.n_blocks_total) blocks",
-		"Difficulty and Hash Rate",
 		"Diff___: \(.difficulty)",
-		"HxRate_: \(.hash_rate) GH/s  (\(.hash_rate/1000000000) ExaH/s)",
+		"HxRate_: \(.hash_rate) GH/s",
+		"         \(.hash_rate/1000000000) EH/s",
 		"Diff/HR: \(.difficulty/.hash_rate)",
 		"",
 		"Rolling 24H Ticker",
@@ -277,20 +277,21 @@ blkinfof() {
 		"",
 		"Mining Costs",
 		"TTxFees: \(.total_fees_btc/100000000) BTC",
-		"Revenue: \(.miners_revenue_btc) BTC (\(.miners_revenue_usd|round) USD)",
+		"Revenue: \(.miners_revenue_btc) BTC",
+		"         \(.miners_revenue_usd|round) USD",
 		"FeeVol% (TTxFees/Revenue):",
 		"  \(((.total_fees_btc/100000000)/.miners_revenue_btc)*100) %",
 		"RevenueVol% (Revenue/ETxVol):",
 		"  \((.miners_revenue_btc/(.estimated_btc_sent/100000000))*100) %",
 		"",
+		"Market",
+		"Price__: \(.market_price_usd) USD",
+		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)",
+		"",
 		"Next Retarget",
 		"@Height: \(.nextretarget)",
 		"Blocks_: -\(.nextretarget-.n_blocks_total)",
-		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))",
-		"",
-		"Market",
-		"Price__: \(.market_price_usd) USD",
-		"TxVol__: \(.trade_volume_btc) BTC (\(.trade_volume_usd|round) USD)"' <<< "${CHAINJSON}"
+		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))"' <<< "${CHAINJSON}"
 	# Some more stats
 	printf "\nMempool\n"
 	printf "Unc_Txs: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
@@ -314,13 +315,16 @@ blkinfochairf() {
 	# Print the 24H ticker
 	jq -r '.data |
 		"Blockchain",
-		"BlkC_S: \(.blockchain_size/1000000000) GB  (\(.blockchain_size) bytes)",
-		"H_Rate: \(.hashrate_24h) H/s  (\(.hashrate_24h|tonumber/1000000000000000000) ExaH/s)",
+		"BlkC_S: \(.blockchain_size) bytes",
+		"        \(.blockchain_size/1000000000) GB",
+		"H_Rate: \(.hashrate_24h) H/s",
+		"        \(.hashrate_24h|tonumber/1000000000000000000) EH/s",
 		"Nodes_: \(.nodes)\tBlocks: \(.blocks)",
 		"Diff__: \(.difficulty)",
 		"T_Txs_: \(.transactions)",
 		"OutTxs: \(.outputs)",
-		"Supply: \(.circulation/100000000) BTC  (\(.circulation) sat)",
+		"Supply: \(.circulation) sat",
+		"        \(.circulation/100000000) BTC",
 		"",
 		"Latest",
 		"Blk_Hx:",
@@ -330,11 +334,15 @@ blkinfochairf() {
 		"",
 		"Rolling stats of the last 24H",
 		"Blocks: \(.blocks_24h)  Txs: \(.transactions_24h)",
-		"Volume: \(.volume_24h/100000000) BTC  (\(.volume_24h) sat)",
-		"Infla_: \(.inflation_24h/100000000) BTC  (\(.inflation_usd_24h) USD)",
+		"Volume: \(.volume_24h) sat",
+		"        \(.volume_24h/100000000) BTC",
+		"Inflat: \(.inflation_usd_24h) USD",
+		"        \(.inflation_24h/100000000) BTC",
 		"CDC___: \(.cdd_24h) BTC/24H",
-		"AvgTxF: \(.average_transaction_fee_24h) sat  (\(.average_transaction_fee_usd_24h) USD)",
-		"MedTxF: \(.median_transaction_fee_24h) sat  (\(.median_transaction_fee_usd_24h) USD)",
+		"AvgTxF: \(.average_transaction_fee_24h) sat",
+		"        \(.average_transaction_fee_usd_24h) USD",
+		"MedTxF: \(.median_transaction_fee_24h) sat",
+		"        \(.median_transaction_fee_usd_24h) USD",
 		"SugTxF: \(.suggested_transaction_fee_per_byte_sat) sat/byte",
 		"",
 		"Largest Transaction (last 24H)",
