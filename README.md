@@ -25,7 +25,7 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker.
 
-<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter.
+<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
 <b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações.
 
