@@ -1,6 +1,6 @@
 #!/bin/bash
 # HG Brasil -- Cotação de ações
-# v0.3.3  jan/2020  by mountaineer_br
+# v0.3.4  jan/2020  by mountaineer_br
 
 
 # *Sua* chave privada (grátis) do HG Brasil
@@ -22,8 +22,8 @@ hgb() {
 	printf "Visão Geral -- HG Brasil\n"
 	{ jq -r '.results.currencies[]' <<<"${HQRES}"| tail -n +2 |
 		jq -r '"\(.name)=\(.variation//"??")=\(.sell//"??")=\(.buy//"??")"';
-		jq -r '.results.stocks[] | "\(.name)=\(.variation//"??")=\(.points//"??")"'<<<"${HQRES}";} |
-		column -et -s= -N'NOME,VAR%,VENDA/PTS,COMPRA' 
+		jq -r '"INDEX=VAR%=PONTOS",(.results.stocks[] | "\(.name)=\(.variation//"??")=\(.points//"??")")'<<<"${HQRES}";} |
+		column -et -s= -N'NOME,VAR%,VENDA,COMPRA' 
 	printf "\nTaxas\n"
 		curl -s "https://api.hgbrasil.com/finance/taxes?key=${HGBAPIKEY}" |
 			jq -r '(.results[]|"\(.cdi)=\(.selic)=\(.daily_factor)=\(.date)")' |
