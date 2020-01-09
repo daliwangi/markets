@@ -29,6 +29,8 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações.
 
+<b>hgb.sh --</b> Cotações de ações da Bovespa e índices gerais (CDI, SELIC, etc) do API da HG Brasil.
+
 <b>myc.sh --</b> MyCurrency.net public API, central bank currency converter.
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
