@@ -1,6 +1,6 @@
 #!/bin/bash
 # HG Brasil -- Cotação de ações
-# v0.3  jan/2020  by mountaineer_br
+# v0.3.1  jan/2020  by mountaineer_br
 
 
 # *Sua* chave privada (grátis) do HG Brasil
@@ -55,6 +55,7 @@ hga() {
 listf() {
 	curl -s "https://console.hgbrasil.com/documentation/finance/symbols" |
  		 sed 's/<[^>]*>//g' | grep --color=auto '^.*\s-\s'
+	printf "<https://console.hgbrasil.com/documentation/finance/symbols>"
  }
 
 # Parse Options
