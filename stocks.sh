@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1  jan/2020  by mountaineerbr
+# v0.1.1  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -21,7 +21,8 @@ SYNOPSIS
 
 
  	Fetch rates of stocks and indexes from <https://financialmodelingprep.com/>
-	public APIs. If no symbol is given, defaults to ${DEFSTOCK}.
+	public APIs. If no symbol is given, defaults to ${DEFSTOCK}. Stock and
+	index symbols are case-insensitive.
 
 
 LIMITS
