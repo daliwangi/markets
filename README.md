@@ -4,29 +4,9 @@ Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh,
 
 -------------------------------------------------------------------------------------------------
 
-<b>IMPORTANT: Please create free accounts and API keys to use with scripts that require them! You can add your API key to the script source code as per help pages or set them as environment variables.
-  
-IMPORTANTE: Crie contas e chaves de API gratuitas para usar com os scripts que as exijam! Você pode adicionar sua chave de API ao código-fonte do script de acordo com as páginas de ajuda ou configurá-las como variáveis de ambiente.</b>
-
-<b>SUMMARY:</b>
-
-Related to crypto and bank currency markets. Run them with "-h" for a Help Page. Check below for script descriptions, download and run basic instructions.
-
-These scripts use the latest version of Bash. Other packages that may be required to run some functions are Curl, JQ, Websocat and Lolcat.
-
--------------------------------------------------------------------------------------------------
-
-<b>SUMÁRIO:</b>
-
-ESTE REPOSITÓRIO é relacionado com mercados de cripto e de moedas de banco centrais. Rode os scripts com "-h" para ver uma página de Ajuda (em Inglês).
-
-Esses scripts usam a última versão do Bash. Outros pacotes que precisam estar presentes no sistema para que todas as funções trabalhem corretamente são Curl, JQ, Websocat and Lolcat.
-
--------------------------------------------------------------------------------------------------
-
 <b>INDEX</b>:
 
-<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt.
+<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt public API.
 
 <b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker.
 
@@ -36,7 +16,7 @@ Esses scripts usam a última versão do Bash. Outros pacotes que precisam estar 
 
 <b>bitfinex.sh --</b> Bitfinex exchange public API for live tarde prices.
 
-<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras; fetches Bitcoin rates from Brazilian Exchanges.
+<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras de APIs públicas; fetches Bitcoin rates from Brazilian Exchanges public APIs.
 
 <b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
 This is my favorite everyday-use script for all-currency rates!
@@ -53,13 +33,15 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
 
-<b>ourominas.sh --</b> Pega taxas da Ag. de Câmbio Ouro Minas.
+<b>ourominas.sh --</b> Pega taxas da API pública da Ouro Minas.
 
-<b>parmetal.sh --</b> Pega taxas da Ag. de Câmbio Parmetal.
+<b>parmetal.sh --</b> Pega taxas da API pública da Parmetal.
 
-<b>uol.sh --</b> Puxa dados de páginas do UOL Economia.
+<b>stocks.sh --</b> Financialmodelingprep.com public API latest and historical stock rates (same API as Alexander Epstein's "currency_bash-snipet.sh").
 
-<b>whalealert.sh --</b> Get latest whale transactions from whale-alert.io API.
+<b>uol.sh --</b> Puxa dados de páginas da API pública do UOL Economia.
+
+<b>whalealert.sh --</b> Latest whale transactions from whale-alert.io API.
 
 <i>Also check/Também veja:
 
@@ -76,6 +58,26 @@ Brandleesee's "Mop: track stocks the hacker way" at https://github.com/mop-track
 <b>IMPORTANT: None of these scripts are supposed to be used under truly professional constraints. Do your own research!
 
 IMPORTANTE: Nenhum desses scripts deve ser usado em meio profissional sem análise prévia. Faça sua própria pesquisa!</b>
+
+-------------------------------------------------------------------------------------------------
+
+<b>IMPORTANT: Please create free accounts and API keys to use with scripts that require them! You can add your API key to the script source code as per help pages or set them as environment variables.</b>
+  
+<b>SUMMARY:</b>
+
+Related to crypto and bank currency markets. Run them with "-h" for a Help Page. Check below for script descriptions, download and run basic instructions.
+
+These scripts use the latest version of Bash. Other packages that may be required to run some functions are Curl, JQ, Websocat and Lolcat.
+
+-------------------------------------------------------------------------------------------------
+
+<b>SUMÁRIO:</b>
+
+<b>IMPORTANTE: Crie contas e chaves de API gratuitas para usar com os scripts que as exijam! Você pode adicionar sua chave de API ao código-fonte do script de acordo com as páginas de ajuda ou configurá-las como variáveis de ambiente.</b>
+
+ESTE REPOSITÓRIO é relacionado com mercados de cripto e de moedas de banco centrais. Rode os scripts com "-h" para ver uma página de Ajuda (em Inglês).
+
+Esses scripts usam a última versão do Bash. Outros pacotes que precisam estar presentes no sistema para que todas as funções trabalhem corretamente são Curl, JQ, Websocat and Lolcat.
 
 -------------------------------------------------------------------------------------------------
 
