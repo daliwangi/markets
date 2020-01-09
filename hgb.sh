@@ -1,6 +1,6 @@
 #!/bin/bash
 # HG Brasil -- Cotação de ações
-# v0.3.2  jan/2020  by mountaineer_br
+# v0.3.3  jan/2020  by mountaineer_br
 
 
 # *Sua* chave privada (grátis) do HG Brasil
@@ -53,8 +53,10 @@ hga() {
 
 #lista de títulos
 listf() {
-	curl -s "https://console.hgbrasil.com/documentation/finance/symbols" |
- 		 sed 's/<[^>]*>//g' | grep --color=auto '^.*\s-\s'
+	procf() { sed 's/<[^>]*>//g' <<<"${DATA}" | grep --color=auto -- '-\s[A-Z0-9][A-Z0-9]*$';}  #'^.*\s-\s'
+	DATA="$(curl -s "https://console.hgbrasil.com/documentation/finance/symbols")"
+	procf
+	printf "Títulos: %s\n" "$(procf | wc -l)"
 	printf "<https://console.hgbrasil.com/documentation/finance/symbols>"
  }
 
