@@ -21,7 +21,7 @@ Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh,
 <b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
 This is my favorite everyday-use script for all-currency rates!
 
-<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and (BTC) crypto converter.
+<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and cryptocurrency converter.
 
 <b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker.
 
