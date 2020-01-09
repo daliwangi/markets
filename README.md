@@ -39,7 +39,7 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>parmetal.sh --</b> Pega taxas da API pública da Parmetal.
 
-<b>stocks.sh --</b> Financialmodelingprep.com public API latest and historical stock rates (same API as Alexander Epstein's "currency_bash-snipet.sh").
+<b>stocks.sh --</b> Financialmodelingprep.com public API latest and historical stock rates (same API as Alexander Epstein's "stocks").
 
 <b>uol.sh --</b> Puxa dados de páginas da API pública do UOL Economia.
 
