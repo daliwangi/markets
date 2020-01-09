@@ -1,37 +1,33 @@
 #!/bin/bash
-# HG Brasil -- Cotações
-# v0.2.4  13/nov/2019  by mountaineer_br
+# HG Brasil -- Cotação de ações
+# v0.3  jan/2020  by mountaineer_br
 
 
 # *Sua* chave privada (grátis) do HG Brasil
 #HGBAPIKEY=""
 
 
-HELP="Visão Geral :  $ hgb
-Cotação Ação:  $ hgb -a [código_ação]
-Procurar por símbolo de ação em <https://hgbrasil.com/status/finance>.
-Variável para sua chave de API 'HGBAPIKEY=\"\"'"
+HELP="Visão Geral    : $ hgb
+Cotação de ação: $ hgb [ação]
+Lista de ações : $ hgb.sh -l
+Esta ajuda     : $ hgb.sh -h
+Variável para chave de API: HGBAPIKEY=\"\""
 
 # Cotações do HG Brasil Finança - Visão Geral do Mercado
 hgb() {
 	## API Público
 	# Puxar JSON
-	local HQRES="$(curl -s https://api.hgbrasil.com/finance)"
+	local HQRES="$(curl -s "https://api.hgbrasil.com/finance")"
 	# Moedas
-	printf "HG Brasil\nVisão Geral do Mercado\n"
-	printf "\nMoedas:\n"
-	printf "%s\n" "${HQRES}" |
-		jq -r '.results.currencies[]' | tail -n +2 |
-		jq -r '"\(.name)  [\(.variation)%]","  ==> C: \(.buy)  V: \(.sell//" ")"'
-	# Bolsas
-	printf "\nBolsas:\n"
-	printf "%s\n" "${HQRES}" |
-		jq -r '.results.stocks[] | "\(.name)  [\(.variation)%]","  ==> \(.points//empty)"'
-	printf "\nTaxas:\n"
-		wget -qO- "https://api.hgbrasil.com/finance/taxes?key=${HGBAPIKEY}" |
-			jq -r '.|"\(.by)  \(.results[].date)",
-				"CDI: \(.results[].cdi)  SELIC: \(.results[].selic)",
-				"Daily factor: \(.results[].daily_factor)"'
+	printf "Visão Geral -- HG Brasil\n"
+	{ jq -r '.results.currencies[]' <<<"${HQRES}"| tail -n +2 |
+		jq -r '"\(.name)=\(.variation//"??")=\(.sell//"??")=\(.buy//"??")"';
+		jq -r '.results.stocks[] | "\(.name)=\(.variation//"??")=\(.points//"??")"'<<<"${HQRES}";} |
+		column -et -s= -N'NOME,VAR,VENDA/PTS,COMPRA' 
+	printf "\nTaxas\n"
+		curl -s "https://api.hgbrasil.com/finance/taxes?key=${HGBAPIKEY}" |
+			jq -r '(.results[]|"\(.cdi)=\(.selic)=\(.daily_factor)=\(.date)")' |
+			column -et -s= -N'CDI,SELIC,FATOR/DIA,DATA'
 }
 
 # -a Cotações do HQ Brasil Finança - Uma Ação/Ativo específico
@@ -44,32 +40,42 @@ hga() {
 		exit 1
 	fi
 	# Imprime resultado
-	printf "%s\n" "${HQRES}" |
-		jq -r '.results."'${1^^}'" | "\(.symbol)  \(.name)",
-		"Preço: \(.price)  Delta: \(.change_percent)",
-		"MCap: \(.market_cap)",
-		"Abertura: \(.market_time.open)  Fechamento: \(.market_time.close)",
-		"Update: \(.updated_at)"'
+		jq -r '.results."'${1^^}'" |
+		"\(.name)",
+		"\(.symbol)",
+		"Update: \(.updated_at)",
+		"MktCap: \(.market_cap)",
+		"Abertu: \(.market_time.open)",
+		"Fecham: \(.market_time.close)",
+		"Var___: \(.change_percent)",
+		"Preço_: \(.price)"'<<<"${HQRES}"
 }
 
+#lista de títulos
+listf() {
+	curl -s "https://console.hgbrasil.com/documentation/finance/symbols" |
+ 		 sed 's/<[^>]*>//g' | grep --color=auto '^.*\s-\s'
+ }
 
 # Parse Options
 # Check for no arguments or options in input
 if [[ "${1}" = "-h" ]]; then
 	echo "${HELP}"
 	exit 0
+elif [[ "${1}" = "-l" ]]; then
+	listf
+	exit 0
+elif [[ "${1}" = "-v" ]]; then
+	head "${0}" | grep -e '# v'
+	exit 0
 elif [[ -z "${HGBAPIKEY}" ]]; then
 	printf "Por favor, crie uma chave de API grátis e adicione no código-fonte do script.\n" 1>&2
 	exit 1
-elif ! [[ "${*}" =~ [a-zA-Z]+ ]]; then
+elif [[ -n "${1}" ]]; then
+	hga "${1}"
+	exit
+else
 	hgb
 	exit
-elif [[ "${1}" = "-a" ]]; then
-	test -z "${2}" && echo "Need a stock name." && exit 1
-	hga "${2}"
-	exit
-elif [[ "${1}" = "-v" ]]; then
-      head "${0}" | grep -e '# v'
-      exit
 fi
 
