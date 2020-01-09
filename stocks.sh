@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.1  jan/2020  by mountaineerbr
+# v0.1.2  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -33,7 +33,7 @@ LIMITS
 	<https://financialmodelingprep.com/developer/docs/>. 
 
 	According to discussion at
-	<https://github.com/antoinevulcain/Financial-Modeling-Prep-API/issues/1>
+	<https://github.com/antoinevulcain/Financial-Modeling-Prep-API/issues/1>:
 
 		\"[..] there are no limit on the number of API requests per day.\"
 
