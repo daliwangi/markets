@@ -1,6 +1,6 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
-# v0.2.6  dec/2019  by mountaineer_br
+# v0.2.8  jan/2020  by mountaineer_br
 ## Este script pega cotações através de outros
 ## scripts e imprime os resultados em formato de tabelas.
 ## Porém, cotação do Ouro e USD do Banco Central somente neste script.
@@ -17,11 +17,20 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 
 ## USD/BRL Rate & Metais
 {
-	date "+%Y-%m-%dT%H:%M:%S(%Z)"
-	OPENXBRL=$(~/bin/markets/openx.sh -4 usd brl)
-	CLAYBRL=$(~/bin/markets/clay.sh -4 usd brl)
+
+	echo ""
+	printf '\e[8;30;43m                        \e[m\n'
+	date '+%Y-%m-%dT%H:%M:%S(%Z)'
+	
+	echo ""
+	~/bin/markets/uol.sh -d
+	
+
+	echo ""
 	echo "       Real BRL"
 	echo "ERates:  $(~/bin/markets/erates.sh -s4 usd brl)"
+	OPENXBRL=$(~/bin/markets/openx.sh -4 usd brl)
+	CLAYBRL=$(~/bin/markets/clay.sh -4 usd brl)
 	echo "CLay:    ${CLAYBRL}"
 	echo "OpenX:   ${OPENXBRL}"
 	CMCBRL=$(~/bin/markets/cmc.sh -4 -b usd brl)
@@ -31,6 +40,8 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	MYCBRL=$(~/bin/markets/myc.sh -s4 usd brl)
 	echo "MyC:     ${MYCBRL}"
 	echo "Média:   $(echo "scale=4; (${OPENXBRL}+${CMCBRL}+${CGKBRL}+${MYCBRL})/4" | bc -l)"
+	
+
 	echo ""
 	## Não irá fazer média com CLay por enquanto
 	echo "       Ouro XAU      Prata XAG"
@@ -47,6 +58,16 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	AVGO=$(echo "scale=6; ($CMCO+$CGKO+$OPENXO)/3" | bc -l)
 	AVGP=$(echo "scale=6; (($CMCP+$CGKP+$OPENXP)/3)" | bc -l)
 	echo "Média: $AVGO    $AVGP"
+	
+
+	echo ""
+	printf "CGK XAU: %s\n" "$(~/bin/markets/cgk.sh -b2 xau)"
+
+
+	echo ""
+	~/bin/markets/uol.sh -m
+	
+
 	echo ""
 	echo "Banco central"
 	#Get last weekday data
@@ -59,17 +80,24 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 		look_back=1
 	fi
 	TS="$(date --date "${look_back} day ago" "+%Y%m%d")"
-	curl -sLb non-existing "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv"| grep -e XAU -e USD
+	curl -sL "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv" |
+		grep -e XAU -e USD -e EUR |
+		column -et -s\; -NDATA\ ,A,B,COD,COMPRA,VENDA,C,D -TDATA\ ,COMPRA,VENDA -HA,B,C,D
+	
+
 	echo ""
-	OPAR="$(parmetal.sh)"
+	echo "Parmetal XAU"
+	OPAR="$(~/bin/markets/parmetal.sh)"
 	grep RBM <<< "${OPAR}" | cut -c-32
 	grep Dolar <<< "${OPAR}"
+	
+
 	echo ""
 	printf "Ourominas XAU\n"
-	OMINAS="$(ourominas.sh)"
+	OMINAS="$(~/bin/markets/ourominas.sh)"
 	grep "Venda estimada" <<<"${OMINAS}"
 	grep 'rAmericano' <<<"${OMINAS}" | sed -e 's/\s\s*/  /g' -e 's/^\s\s*//g'
-	echo ""
+
 } | tee -a ~/.metais_record
 
 
