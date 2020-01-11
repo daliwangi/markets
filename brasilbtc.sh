@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.3.6  14/nov/2019  by mountaineerbr
+# v0.3.7  jan/2020  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -244,21 +244,26 @@ bitvalorf() {
 
 # Pegar somente média
 getmediaf() {
-	# Get numbers/cotações
+	#função de limpeza dos dados
 	getnf() { sed -E -e "s/^([0-9]+.[0-9]+.[0-9]+)\s.+/\1/" -e '/^[a-zA-Z].+/d';}
+	
 	# Get API rates
 	RESULTS="$(apiratesf "${1}" 2>/dev/null | tr -d ',')"
 	N="$(grep -cE "^[0-9]+" <<< "${RESULTS}")"
-	printf "Menores:  \n"
-	grep -E "^[0-9]+" <<< "${RESULTS}" | sort -n | head -n3
+	
+	printf "Maiores:    \n"
+	grep -E "^[0-9]+" <<< "${RESULTS}" | sort -nr | head -n3
+	
 	printf "Média(n=%s):\n" "${N}"
 	printf "%.2f\n" "$(bc -l <<< "($(getnf <<< "${RESULTS}" | paste -sd+))/${N}")"
+	
 	printf "Delta(máx/mín):\n"
 	MIN="$(getnf <<< "${RESULTS}" | sort -n | head -1)" 
 	MAX="$(getnf <<< "${RESULTS}" | sort -n | tail -1)" 
 	printf "%.2f %%\n" "$(bc -l <<< "((${MAX}/${MIN})-1)*100")"
-	printf "Maiores:\n"
-	grep -E "^[0-9]+" <<< "${RESULTS}" | sort -n | tail -n3
+
+	printf "Menores:\n"
+	grep -E "^[0-9]+" <<< "${RESULTS}" | sort -nr | tail -n3
 }
 
 # Parse options
@@ -312,7 +317,7 @@ fi
 
 # Média opt
 if test "${MOPT}" = "1"; then
-	printf "Aguarde...\r"
+	printf "Aguarde..\r"
 	getmediaf "${1}" | sed -Ee 's/\s+/  /' -e 's/^[0-9]/ &/' -e 's/\./,/'
 	exit
 # Teste se foram passados -mm
