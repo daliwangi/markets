@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.1  jan/2020  by mountaineerbr
+# v0.6.2  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -214,7 +214,7 @@ sstreamf() {
 					"BlkSize: \(.size) (\(.size/1000)_KB)\tWeight_: \(.weight)",
 					"Output_: \(.totalBTCSent/100000000) BTC\tEstVol_: \(.estimatedBTCSent/100000000) BTC",
 					"Time___: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
-					"LocalT_: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tRecvT: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
+					"LocalT_: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tReceivd: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
 				)'
 		N=$((++N))
 		printf 'Log: /tmp/binfo.sh.reconnects.log\n' 1>&2
