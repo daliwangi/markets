@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.5  jan/2020  by mountaineerbr
+# v0.6.6  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -480,7 +480,7 @@ raddf() {
 
 		# Check for error, then try Blockchair
 		if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${SUMADD}"; then
-			printf "Err: <blockchain.com> -- %s\n" "${SUMADD}" 1>&2
+			printf "Err: <blockchain.com> -- %s\n" "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
 			printf "Trying with Blockchair..\n" 1>&2
 			chairaddf "${1}"
 			exit
