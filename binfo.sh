@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.2  jan/2020  by mountaineerbr
+# v0.6.3  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -90,7 +90,7 @@ ABBREVIATIONS
 	Med              Median
 	MerklRt          Merkle Root
 	Prev             Previous
-	Rc,Receivd       Received
+	Rc,Rcv,Receivd   Received
 	sat              satoshi
 	S                Size
 	Suggest          Suggested
