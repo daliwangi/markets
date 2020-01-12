@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.6  jan/2020  by mountaineerbr
+# v0.6.7  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -429,10 +429,10 @@ rblockf() {
 		"NextBlk: \(.next_block[])",
 		"Time___: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
 		"LocalT_: \(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-		"Bits___: \(.bits)  Nonce: \(.nonce)",
-		"Version: \(.ver)  Chain: \(if .main_chain == "true" then "Main" else "Secondary" end)",
-		"Height_: \(.height)  Weight: \(.weight)",
-		"BlkSize: \(.size/1000) KB  TxCount: \(.n_tx)",
+		"Bits___: \(.bits)\tNonce__: \(.nonce)",
+		"Version: \(.ver)\tChain__: \(if .main_chain == "true" then "Main" else "Secondary" end)",
+		"Height_: \(.height)\t\tWeight_: \(.weight)",
+		"BlkSize: \(.size/1000) KB\tTxCount: \(.n_tx)",
 		"TotlFee: \(.fee/100000000) BTC",
 		"Avg_Fee: \(.fee/.size) sat/byte",
 		"Relayed: \(.relayed_by // empty)"' <<< "${RAWB}"
@@ -622,9 +622,9 @@ rtxf() {
 	jq -r '"",
 		"--------",
 		"TxHash_: \(.hash)",
-		"BlkHgt_: \(.block_height)  Weight: \(.weight)",
-		"Tx_Size: \(.size) bytes  Version: \(.ver)",
-		"Time___: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))  LockTime: \(.lock_time)",
+		"BlkHgt_: \(.block_height)\t\t\tVersion: \(.ver)",
+		"Tx_Size: \(.size) bytes\t\tWeight_: \(.weight)",
+		"Time___: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))\tLockTime: \(.lock_time)",
 		"LocalT_: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		"Relayed: \(if .relayed_by == "0.0.0.0" then empty else .relayed_by end)",
 		"  From_:",
@@ -652,15 +652,15 @@ chairrtxf() {
 			"",
 			"--------",
 			"Hash____: \(.hash)",
-			"TxIndex_: \(.id)  CDD: \(.cdd_total)  Version: \(.version)",
-			"Block_ID: \(.block_id)  \(if .is_coinbase == true then "(Coinbase)" else "" end)",
-			"Size____: \(.size) bytes  Weight: \(.weight)",
-			"Inputs__: \(.input_count)  Outputs: \(.output_count)",
+			"TxIndex_: \(.id)\tVersion: \(.version)",
+			"Block_ID: \(.block_id)\tCDD____: \(.cdd_total) \(if .is_coinbase == true then "(Coinbase)" else "" end)",
+			"Size____: \(.size) bytes\tWeight_: \(.weight)",
+			"Inputs__: \(.input_count)\t\tOutputs: \(.output_count)",
 			"TotalIn_: \(.input_total)  \(.input_total_usd) USD",
 			"TotalOut: \(.output_total)  \(.output_total_usd) USD",
 			"Fee_Rate: \(.fee // "??") sat  \(.fee_per_kb // "??") sat/KB",
 			"          \(.fee_usd // "??") USD  \(.fee_per_kb_usd // "??") USD/KB",
-			"Time____: \(.time)Z  LockTime: \(.lock_time)",
+			"Time____: \(.time)Z\tLockTime: \(.lock_time)",
 			"LocalT__: \(.time | strptime("%Y-%m-%d %H:%M:%S")|mktime|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
 		),
 		"  From:",
