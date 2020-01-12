@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.3  jan/2020  by mountaineerbr
+# v0.6.5  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -65,41 +65,41 @@ BLOCKCHAIN STRUCTURE
 
 
 ABBREVIATIONS
-	Addrs            Addresses
-	Avg              Average
-	AvgBlkS          Average block size
-	B,Blk            Block
-	BlkHgt           Block height
-	BlkS,BlkSize     Block size
-	BlkT,BlkTime     Block time (time between blocks)
-	BTC              Bitcoin
-	Cap              Capital
-	CDD              Coin days destroyed
-	Desc             Description
-	Diff             Difficulty
-	Dominan          Dominance
-	DSpent           Double spent
-	Est              Estimated
-	ETA              Estimated Time of arrival
-	Exa              10^18
-	FrTxID           From-transaction index number
-	H,Hx             Hash, hashes
-	ID               Identity, index
-	Inflat           Inflation
-	LocalT           Local time
-	Med              Median
-	MerklRt          Merkle Root
-	Prev             Previous
-	Rc,Rcv,Receivd   Received
-	sat              satoshi
-	S                Size
-	Suggest          Suggested
-	ToTxID           To-transaction index number
-	T,Tt,Tot         Total
-	TimLeft          Time left
-	TStamp           Timestamp
-	Tx               Transaction
-	Vol              Volume
+	Addrs 			Addresses
+	Avg 			Average
+	AvgBlkS 		Average block size
+	B,Blk 			Block
+	BlkHgt 			Block height
+	BlkS,BlkSize 		Block size
+	BlkT,BlkTime 		Block time (time between blocks)
+	BTC 			Bitcoin
+	Cap 			Capital
+	CDD 			Coin days destroyed
+	Desc 			Description
+	Diff 			Difficulty
+	Dominan 		Dominance
+	DSpent 			Double spent
+	Est 			Estimated
+	ETA 			Estimated Time of arrival
+	Exa 			10^18
+	FrTxID 			From-transaction index number
+	H,Hx 			Hash, hashes
+	ID 			Identity, index
+	Inflat 			Inflation
+	LocalT 			Local time
+	Med 			Median
+	MerklRt 		Merkle Root
+	Prev 			Previous
+	Rc,Rcv,Receivd 		Received
+	sat 			satoshi
+	S 			Size
+	Suggest 		Suggested
+	ToTxID 			To-transaction index number
+	T,Tt,Tot 		Total
+	TimLeft 		Time left
+	TStamp 			Timestamp
+	Tx 			Transaction
+	Vol 			Volume
 
 
 USAGE EXAMPLES
