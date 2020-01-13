@@ -1,6 +1,6 @@
 #!/bin/bash
 # Metal prices in BRL/Grams
-# v0.2.8  jan/2020  by mountaineer_br
+# v0.2.9  jan/2020  by mountaineer_br
 ## Este script pega cotações através de outros
 ## scripts e imprime os resultados em formato de tabelas.
 ## Porém, cotação do Ouro e USD do Banco Central somente neste script.
@@ -82,7 +82,7 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 	TS="$(date --date "${look_back} day ago" "+%Y%m%d")"
 	curl -sL "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv" |
 		grep -e XAU -e USD -e EUR |
-		column -et -s\; -NDATA\ ,A,B,COD,COMPRA,VENDA,C,D -TDATA\ ,COMPRA,VENDA -HA,B,C,D
+		column -et -s\; -NDATA\ ,A,B,COD,COMPRA,VENDA,C,D -TDATA\ ,COMPRA,VENDA -TCOMPRA,VENDA -HA,B,C,D
 	
 
 	echo ""
