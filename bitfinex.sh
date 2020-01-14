@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.10  dec/2019  by mountainner_br
+# v0.2.11  dec/2019  by mountainner_br
 
 ## Some defaults
 #if no stock is given, use this:
@@ -15,8 +15,7 @@ COLOROPT="cat"
 # BITFINIEX API DOCS
 #https://docs.bitfinex.com/reference#ws-public-ticker
 
-HELP="
-SYNOPSIS
+HELP="SYNOPSIS
 	Bitfinex.sh [-c] [-sNUM|NUM] [SYMBOL]
 	
 	Bitfinex.sh [-hlv]
@@ -26,7 +25,8 @@ DESCRIPTION
 	This script accesses the Bitfinex Exchange public API and fetches
 	market data.
 
-	Currently, only the trade live stream is implemented.
+	Currently, only the trade live stream is implemented. If no market is 
+	given, uses ${DEFMARKET}.
 	
 
 WARRANTY
@@ -39,7 +39,7 @@ WARRANTY
 OPTIONS
 		-NUM 		Shortcut for \"-s\".
 
-		-c 		Coloured live stream price (requires Lolcat)..
+		-c 		Coloured live stream price (requires Lolcat).
 		
 		-h 		Show this help.
 
@@ -142,6 +142,6 @@ if ! grep -qi "^t${1}$" <<< "$(${YOURAPP} "https://api-pub.bitfinex.com/v2/ticke
 	exit 1
 fi
 
-# Use default option -- Get last trade prices
+#default option -- latest trade prices
 streamf "${1}"
 
