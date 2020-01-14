@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.8  dec/2019  by mountaineer_br
+# v0.3.9  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 # Ourominas não trabalha com Prata!
 
@@ -15,9 +15,11 @@ SINOPSE
 
 	Para estimar o valor dia grama de ouro, deve-se multiplicar a cotação do
 	dólar americano da Ouro Minas pela cotação em dólar do ouro internacio-
-	nal. Para puxar a cotação do ouro, utiliza-se cotação do UOL.
+	nal. Para puxar a cotação do ouro em dólares/onça troy, utiliza-se co-
+	tação do UOL.
 
-	Os pacotes Bashi, cURL e iconv (Glibc) são necessários." 
+	Os pacotes Bash, cURL e iconv (Glibc) são necessários.
+	" 
 # Ajuda
 if [[ "${1}" = '-h' ]]; then
 	printf "%s\n" "${AJUDA}"
@@ -26,6 +28,7 @@ fi
 
 ## Taxas da Ouro Minas
 DATA="$(curl -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" | sed -E 's/<[^>]*>//g' | iconv -c -f utf-8 | tr -d ' ' | grep -iv "pr-pago" | sed -e 's/^[ \t]*//')"
+
 USD=($(grep -i -A2 "laramericano" <<< "${DATA}" | sed 's/.$/=/g'))
 EUR=($(grep -i -A2 "euro" <<< "${DATA}" | sed 's/.$/=/g'))
 GBP=($(grep -i -A2 "libra" <<< "${DATA}" | sed 's/.$/=/g'))
@@ -44,7 +47,7 @@ ZAR=($(grep -i -A2 "rande" <<< "${DATA}" | sed 's/.$/=/g'))
 RUB=($(grep -i -A2 "ruble" <<< "${DATA}" | sed 's/.$/=/g'))
 ILS=($(grep -i -A2 "shekel" <<< "${DATA}" | sed 's/.$/=/g'))
 
-# Make Table
+# Fazer tabela
 printf "OUROMINAS Cotações\n"
 printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 	"${USD[*]}" "${EUR[*]}" "${GBP[*]}" "${AUD[*]}" "${CAD[*]}" "${NZD[*]}" \
