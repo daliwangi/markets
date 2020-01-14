@@ -1,8 +1,17 @@
 #!/bin/bash
 #
-# v0.1.10  dec/2019  by castaway
+# v0.1.11  jan/2020  by castaway
 
-HELP="SINOPSIS
+HELP="WARRANTY
+	Licensed under the GNU Public License v3 or better and is distributed 
+	without support or bug corrections.
+
+	If you found this script useful, consider giving me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
+
+SINOPSIS
 	bakkt.sh [-hV]
 
 
@@ -10,19 +19,9 @@ HELP="SINOPSIS
 	at the terminal. The default option is to get intraday/last weekday 
 	prices and volume.
 
-	Market data delayed minimum of 15 minutes. 
+	Market data delayed a minimum of 15 minutes. 
 
 	Required software: Bash, JQ and cURL or Wget.
-
-
-WARRANTY
-	Licensed under the GNU Public License v3 or better.
- 	
-	This programme is distributed without support or bug corrections.
-
-	Give me a nickle! =)
-
-		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPTIONS
@@ -30,10 +29,11 @@ OPTIONS
 
 	-h 	Show this help.
 
-	-V 	Print this script version."
+	-v 	Print this script version.
+	"
 
 # Parse options
-while getopts ":jhV" opt; do
+while getopts ":jhv" opt; do
 	case ${opt} in
 		j ) # Print JSON
 			PJSON=1
@@ -42,12 +42,12 @@ while getopts ":jhV" opt; do
 	      		echo -e "${HELP}"
 	      		exit 0
 	      		;;
-		V ) # Version of Script
-	      		head "${0}" | grep -e '# v'
+		v ) # Version of Script
+	      		grep -m1 '# v' "${0}"
 	      		exit 0
 	      		;;
 		\? )
-	     		echo "Invalid Option: -$OPTARG" 1>&2
+	     		printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
 	     		exit 1
 	     		;;
   	esac
@@ -62,7 +62,7 @@ fi
 
 # Test if cURL or Wget is available
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -s"
+	YOURAPP="curl -sL"
 elif command -v wget &>/dev/null; then
 	YOURAPP="wget -qO-"
 else
