@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.4  jan/2020  by mountaineerbr
+# v0.1.5  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -154,8 +154,7 @@ listf() {
 #simple profile ticker
 profilef() {
 	#get data
-	#DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
-	DATA="$(cat ~/test)"
+	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
 
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
