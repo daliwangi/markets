@@ -14,7 +14,7 @@ Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh,
 
 <b>bitstamp.sh --</b> Bitstamp exchange public API for live trade prices/info.
 
-<b>bitfinex.sh --</b> Bitfinex exchange public API for live tarde prices.
+<b>bitfinex.sh --</b> Bitfinex exchange public API for live trade prices.
 
 <b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras de APIs públicas; fetches Bitcoin rates from Brazilian Exchanges public APIs.
 
