@@ -13,9 +13,9 @@ HELP="NAME
 
 
 SYNOPSIS
-	stocks.sh [SYMBOL]
+	stocks.sh [STOCK]
 
-	stocks.sh -H [SYMBOL]
+	stocks.sh -H [STOCK]
 
 	stocks.sh -ip [INDEX]
 
@@ -27,21 +27,22 @@ SYNOPSIS
 	
 	By default, the script will try to fetch real-time data (as stated by
 	financialmodelingprep.com), otherwise it will show the same price data 
-	as the profile \"-p\" option.
+	as the profile \"-p\" ticker option.
 
-	If no symbol is given, defaults to ${DEFSTOCK}. Stock and index symbols 
-	are case-insensitive.
+	Check various world indexes with option \"-i\". 
+
+	If no stock symbol is given, defaults to ${DEFSTOCK}. Stock and index 
+	symbols	are case-insensitive.
 
 
 LIMITS
 	Cryptocurrency rates will not be implemented.
 
-	Stock prices should be updated in realtime, company profiles hourly, 
-	historial prices and others daily. See 
-	<https://financialmodelingprep.com/developer/docs/>. 
+	Stock prices should be updated in real-time, company profiles hourly, 
+	historial prices and others daily. See <financialmodelingprep.com/developer/docs/>. 
 
 	According to discussion at
-	<https://github.com/antoinevulcain/Financial-Modeling-Prep-API/issues/1>:
+	<github.com/antoinevulcain/Financial-Modeling-Prep-API/issues/1>:
 
 		\"[..] there are no limit on the number of API requests per day.\"
 
@@ -85,15 +86,15 @@ USAGE EXAMPLES
 OPTIONS
 	-h           Show this Help.
 	
-	-H [SYMBOL]  Historical prices.
+	-H [STOCK]   Historical prices.
 
-	-i [INDEX]   List all major indexes or only a single one, if given.
+	-i [INDEX]   List major indexes or only a single one, if given.
 	
 	-j           Debug, prints json.
 
-	-l           List supported stocks and their rates.
+	-l           List stock symbols and their rates.
 
-	-p [SYMBOL]  Profile ticker.
+	-p [STOCK]   Profile ticker.
 
 	-v           Show this script version."
 
