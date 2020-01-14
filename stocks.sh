@@ -1,10 +1,10 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.3  jan/2020  by mountaineerbr
+# v0.1.4  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
-DEFSTOCK="AAPL"
+DEFSTOCK="TSLA"
 #don't change the following:
 LC_NUMERIC="en_US.UTF-8"
 
@@ -153,14 +153,33 @@ listf() {
 
 #simple profile ticker
 profilef() {
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
+	#get data
+	#DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
+	DATA="$(cat ~/test)"
+
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${DATA}"
 		exit 0
 	fi
 	
-	tr -d '}{",' <<<"${DATA}" | sed -e 's/^\s\s*//g' -e 's/\s:\s/:=/g' -e 's/changesPercentage/changes%/g' | column -et -s=
+	#process tocker data
+	jq -r '"Profile ticker for \(.symbol)",
+	(.profile|
+		"CorpName: \(.companyName)",
+		"CEO_____: \(.ceo//empty)",
+		"Industry: \(.industry)",
+		"Sector__: \(.sector)",
+		"Exchange: \(.exchange)",
+		"Cap_____: \(.mktCap)",
+		"LastDiv_: \(.lastDiv)",
+		"Beta____: \(.beta)",
+		"Price___: \(.price)",
+		"VolAvg__: \(.volAvg)",
+		"Range___: \(.range)",
+		"Change__: \(.changes)",
+		"Change%_: \(.changesPercentage)"
+	)' <<<"${DATA}"
 
 	exit
 }
