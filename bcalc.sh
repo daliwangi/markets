@@ -1,11 +1,12 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5 jan/2020  by mountaineerbr
+# v0.5.1 jan/2020  by mountaineerbr
 
 ## Defaults
 
 #Enable Record file?
-BCREC=1  #comment out to disable
+#comment out to disable
+BCREC=1
 
 #Record file:
 RECFILE="${HOME}/.bcalc_record"
@@ -59,7 +60,8 @@ DESCRIPTION
 
 	Remember that the decimal separator must be a dot '.'. Results with a
 	thousands separator can be obtained with option '-t', in which case a
-	comma ',' is used.
+	comma ',' is used as thousands delimiter, and precision is limited to 
+	16 plates (that is a 'printf' limit).
 
 
 BC MATH LIBRARY
