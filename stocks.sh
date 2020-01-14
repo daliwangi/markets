@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.5  jan/2020  by mountaineerbr
+# v0.1.7  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -13,7 +13,9 @@ HELP="NAME
 
 
 SYNOPSIS
-	stocks.sh [-H] [SYMBOL]
+	stocks.sh [SYMBOL]
+
+	stocks.sh -H [SYMBOL]
 
 	stocks.sh -ip [INDEX]
 
@@ -21,8 +23,12 @@ SYNOPSIS
 
 
  	Fetch rates of stocks and indexes from <https://financialmodelingprep.com/>
-	public APIs. If no symbol is given, defaults to ${DEFSTOCK}. Stock and
-	index symbols are case-insensitive.
+	public APIs.
+	
+	By default, the script will try to fetch real-time data, otherwise, it 
+	will show the same price data as the profile \"-p\" option. If no symbol
+	is given, defaults to ${DEFSTOCK}. Stock and index symbols are case-
+	insensitive.
 
 
 LIMITS
@@ -77,15 +83,15 @@ USAGE EXAMPLES
 OPTIONS
 	-h           Show this Help.
 	
-	-H [SYMBOL]  Historical prices
+	-H [SYMBOL]  Historical prices.
 
 	-i [INDEX]   List all major indexes or only a single one, if given.
 	
 	-j           Debug, prints json.
 
-	-l           List supported symbols and their rates.
+	-l           List supported stocks and their rates.
 
-	-p [SYMBOL]  Profile ticker.  
+	-p [SYMBOL]  Profile ticker.
 
 	-v           Show this script version."
 
@@ -134,7 +140,9 @@ indexf() {
 
 #list stock/index symbols
 listf() {
+	#get data
 	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/stock/list")"
+	
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${DATA}"
@@ -186,7 +194,7 @@ profilef() {
 #test if stock symbol is valid
 testsf() {
 	if ${YOURAPP} "https://financialmodelingprep.com/api/v3/company/stock/list" |
-		jq -r '.symbolsList[].symbol' | grep -q "${1^^}"; then
+		jq -r '.symbolsList[].symbol' | grep -q "^\\${1^^}$"; then
 		return 0
 	else
 		printf "Unsupported symbol -- %s\n" "${1^^}" 1>&2
@@ -257,13 +265,31 @@ else
 fi
 
 ##call opt functions
-#simple company profile ticker
+#company profile ticker
 test -n "${POPT}" && profilef "${1}"
 #historical prices
 test -n "${HOPT}" && histf "${1}"
 
-#default function, get stock/index rate
-${YOURAPP} "https://financialmodelingprep.com/api/v3/stock/real-time-price/${1^^}" | jq -r '.price'
+#default function, get stock/index real-time rate
+DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/stock/real-time-price/${1^^}")"
+
+#print json? (debug)
+if [[ -n  "${PJSON}" ]]; then
+	printf "%s\n" "${DATA}"
+	exit 0
+fi
+
+#test if there is real-time data available,
+#otherwise get static data
+if [[ "${DATA}" = '{ }' ]]; then
+	printf "No real-time data.\r" 1>&2
+	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
+	jq -r '.profile.price' <<<"${DATA}"
+	exit 
+fi
+
+#process real-time data
+jq -r '.price' <<<"${DATA}"
 
 exit 
 
