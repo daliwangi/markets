@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.11  dec/2019  by mountainner_br
+# v0.2.13  dec/2019  by mountainner_br
 
 ## Some defaults
 #if no stock is given, use this:
@@ -80,8 +80,8 @@ streamf() {
 # Parse options
 while getopts ":s:lhcv1234567890" opt; do
 	case ${opt} in
-		[0-9] ) #decimal setting, same as '-fNUM'                
-			DECIMAL="${FSTR}${opt}"                               
+		[0-9] ) #decimal setting, same as '-sNUM'                
+			DECIMAL="${DECIMAL}${opt}"                               
 			;;
 			l ) # List Currency pairs
 			LOPT=1
