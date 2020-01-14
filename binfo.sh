@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binfo.sh -- Blockchain Explorer for Bash
-# v0.6.7  jan/2020  by mountaineerbr
+# v0.6.8  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -113,8 +113,7 @@ USAGE EXAMPLES
 		binfo.sh -b
 
 
-		(3) Information for block by hash (first block with a peer-to-
-		    peer tx):
+	(3) Information for block by hash (first block with a peer-to-peer tx):
 
 		binfo.sh -b 00000000d1145790a8694403d4063f323d499e655c83426834d4ce2f8dd4a2ee
 
@@ -151,7 +150,7 @@ OPTIONS
       -i | -ii 	Bitcoin blockchain info (24H rolling ticker).
 
     Block
-      -b 	Block information by hash or ID, if empty fecthes last block.
+      -b 	Block information by hash or ID, if empty fetches latest block.
 
       -l 	Latest block summary information.
 
@@ -190,7 +189,7 @@ chairerrf() {
 sstreamf() {
 	# Print JSON?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from last block.\n" 1>&2
+		printf "JSON from latest block.\n" 1>&2
 		websocat --text "wss://ws.blockchain.info/inv" <<< "{'op':'ping_block'}"
 		exit 0
 	fi
@@ -224,26 +223,6 @@ sstreamf() {
 	#{"op":"blocks_sub"}
 	#{"op":"unconfirmed_sub"}
 	#{"op":"ping"}
-}
-
-## -l Latest block summary info
-latestf() {
-	# Get JSON ( only has hash, time, block_index, height and txIndexes )
-	LBLOCK="$(${YOURAPP} "https://blockchain.info/latestblock")"
-
-	# Print JSON?
-	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the lastest block function.\n" 1>&2
-		printf "%s\n" "${LBLOCK}"
-		exit 0
-	fi
-
-	# Print the other info
-	jq -r '"Latest block",
-		"Blk_Hx: \(.hash)",
-		"Height: \(.height)",
-		"Time__: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))",
-		"LocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${LBLOCK}"
 }
 
 ## -i 24-H Ticker for the Bitcoin Blockchain
@@ -324,7 +303,7 @@ chairblkinfof() {
 
 	# Print the 24H ticker
 	jq -r '"Bitcoin Blockchain Stats (Blockchair)",
-		(.context.cache|"TStamp_: \(.since)"),
+		"TStamp_: \(.context.cache.since)",
 		"",
 		"Blockchain",
 		(.data|
@@ -396,12 +375,49 @@ chairblkinfof() {
 		fi
 }
 
+## -n Block info by height
+hblockf() {
+	#fetch data
+	RAWBORIG="$(${YOURAPP} "https://blockchain.info/block-height/${1}?format=json")"
+	RAWB="$(jq -er '.blocks[]' <<< "${RAWBORIG}" 2>/dev/null)" || unset RAWB
+
+	# Print JSON?
+	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the heigh/n block info function.\n" 1>&2
+		printf "%s\n" "${RAWB}"
+		exit 0
+	fi
+
+	#call raw block function
+	rblockf
+}
+
+## -l Latest block summary info
+latestf() {
+	# Get JSON ( only has hash, time, block_index, height and txIndexes )
+	LBLOCK="$(${YOURAPP} "https://blockchain.info/latestblock")"
+
+	# Print JSON?
+	if [[ -n  "${PJSON}" ]]; then
+		printf "JSON from the lastest block function.\n" 1>&2
+		printf "%s\n" "${LBLOCK}"
+		exit 0
+	fi
+
+	# Print the other info
+	jq -r '"Latest block",
+		"Blk_Hx: \(.hash)",
+		"Height: \(.height)",
+		"Time__: \(.time | strftime("%Y-%m-%dT%H:%M:%SZ"))",
+		"LocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${LBLOCK}"
+}
+
 ## -b Raw Block info
 rblockf() {
 	# Check whether input has block hash or
 	# whether RAWB is from the hblockf function
 	if [[ -z "${RAWB}" ]] && [[ -z "${1}" ]]; then
-		printf "Fetching last block data..\r" 1>&2
+		printf "Fetching latest block data..\r" 1>&2
 		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/$(${YOURAPP} "https://blockchain.info/latestblock" | jq -r '.hash')")"
 	elif [[ -z "${RAWB}" ]]; then
 		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/${1}")"
@@ -449,23 +465,6 @@ rblockf() {
 	printf "Output_: %'.8f BTC\n" "${VOUT}"
 }
 
-## -n Block info by height
-hblockf() {
-	#fetch data
-	RAWBORIG="$(${YOURAPP} "https://blockchain.info/block-height/${1}?format=json")"
-	RAWB="$(jq -er '.blocks[]' <<< "${RAWBORIG}" 2>/dev/null)" || unset RAWB
-
-	# Print JSON?
-	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the heigh/n block info function.\n" 1>&2
-		printf "%s\n" "${RAWB}"
-		exit 0
-	fi
-
-	#call raw block function
-	rblockf
-}
-
 ## -a Address info
 raddf() {
 	# -s Address Sumary?
@@ -480,7 +479,7 @@ raddf() {
 
 		# Check for error, then try Blockchair
 		if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${SUMADD}"; then
-			printf "Err: <blockchain.com> -- %s\n" "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
+			printf "Error: (Blockchain.com) -- %s\n" "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
 			printf "Trying with Blockchair..\n" 1>&2
 			chairaddf "${1}"
 			exit
@@ -511,7 +510,7 @@ raddf() {
 
 	# Check for error, try Blockchair
 	if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${RAWADD}"; then
-		printf "Err: <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
+		printf "Error (Blockchain.com) -- %s\n" "${RAWADD}" 1>&2
 		printf "Trying with Blockchair...\n" 1>&2
 		chairaddf "${1}"
 		exit
@@ -566,7 +565,7 @@ chairaddf() {
 		exit
 	fi
 
-	# Print Tx Hashes (only last 100)
+	# Print Tx Hashes (only last 10000)
 	printf "\nTx Hashes (max 10000):\n"
 	jq -r '.data[] | "\t\(.transactions[])"' <<< "${CHAIRADD}"
 
@@ -796,40 +795,29 @@ fi
 # New block stream
 if [[ -n "${STREAMOPT}" ]]; then
 	sstreamf
-	exit
 # Blockchain information / stats
 elif [[ "${BLKCHAINOPT}" = info ]]; then
 	blkinfof
-	exit
 elif [[ "${BLKCHAINOPT}" = chair ]]; then
 	chairblkinfof
-	exit
 # Blocks
 elif [[ -n "${LATESTOPT}" ]]; then
 	latestf
-	exit
 elif [[ -n "${HOPT}" ]]; then
 	hblockf "${1}"
-	exit
 elif [[ -n "${RAWOPT}" ]]; then
 	rblockf "${1}"
-	exit
 # Addresses
 elif [[ "${ADDOPT}" = info ]]; then
 	raddf "${1}"
-	exit
 elif [[ "${ADDOPT}" = chair ]]; then
 	chairaddf "${1}"
-	exit
 # Transactions
 elif [[ "${TXOPT}" = info ]]; then
 	rtxf "${1}"
-	exit
 elif [[ "${TXOPT}" = chair ]]; then
 	chairrtxf "${@}"
-	exit
 elif [[ -n "${MEMOPT}" ]]; then
 	utxf
-	exit
 fi
 
