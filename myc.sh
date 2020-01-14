@@ -1,15 +1,20 @@
 #!/bin/bash
-# openx.sh - bash (crypto)currency converter
-# v0.2.22  2019/dec  by mountaineerbr
+# myc.sh - Currency converter, API access to MyCurrency.com
+# v0.2.3  jan/2020  by mountaineerbr
 
 ## Defaults
 # Scale (decimal plates):
-SCLDEFAULTS=16
+SCLDEFAULTS=8
+
+#Don't change this:
+LC_NUMERIC="en_US.UTF-8"
 
 ## Manual and help
-## Usage: $ clay.sh [amount] [from currency] [to currency]
+## Usage: $ myc.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
- 	Mycurrency.sh -- MyCurrency.com API Access
+	Myc.sh -- Currency converter
+	       -- Bash interface for <MyCurrency.com> free API
+	       -- 免費版匯率API接口
 
 
 SYNOPSIS
@@ -19,17 +24,26 @@ SYNOPSIS
 
 
 DESCRIPTION
-	This programme fetches updated currency rates from mucurrency.net and 
-	can convert any amount of one supported currency into another. It sup-
-	ports 153 currency rates, not including precious metals.	
+	Myc.sh fetches central bank currency rates from <mycurrency.net> and can
+	convert any amount of one supported currency into another. It supports 
+	163 currency rates at the moment. Precious metals and cryptocurrency 
+	rates are not supported.	
 	
-	Default precision is 16. No timestamp for this API, but rates update 
-	every hour.
+	AMOUNT can be a floating point number or a math expression that is read
+	by Bash Bc. Default precision is ${SCLDEFAULTS}.
+
+	Rates should be updated every hour, according to the website.
 
 
 WARRANTY
- 	This programme is distributed without support or bug corrections.
-	Licensed under GPLv3 and above.
+	Licensed under the GNU Public License v3 or better and is distributed 
+	without support or bug corrections.
+
+	Required packages:
+
+	If you found this script useful, consider giving me a nickle! =)
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 USAGE EXAMPLES
@@ -68,18 +82,18 @@ OPTIONS
 	-v 	Show this programme version."
 
 # Check if there is any argument
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+if [[ -z "${@}" ]]; then
 	printf "Run with -h for help.\n"
-	exit
+	exit 1
 fi
 # Check if you are requesting any precious metals.
 if grep -qi -e "XAU" -e "XAG" -e "XAP" -e "XPD" <<< "${*}"; then
-	printf "mycurrency.com does not support precious metals.\n" 1>&2
+	printf "Mycurrency.com does not support precious metals.\n" 1>&2
 	exit 1
 fi
 
 # Parse options
-while getopts ":lhjs:tv" opt; do
+while getopts ":lhjs:v" opt; do
   case ${opt} in
   	l ) ## List available currencies
 		LISTOPT=1
@@ -94,20 +108,33 @@ while getopts ":lhjs:tv" opt; do
 	s ) # Decimal plates
 		SCL=${OPTARG}
 		;;
-	t ) # Print Timestamp with result
-		printf "No timestamp for this API. Rates update every hour.\n" 1>&2
-		;;
 	v ) # Version of Script
 		head "${0}" | grep -e '# v'
 		exit
 		;;
 	\? )
-		printf "Invalid Option: -%s.\n" "$OPTARG" 1>&2
+		printf "Invalid option: -%s.\n" "$OPTARG" 1>&2
 		exit 1
 		;;
   esac
 done
 shift $((OPTIND -1))
+
+#Check for JQ
+if ! command -v jq &>/dev/null; then
+	printf "JQ is required.\n" 1>&2
+	exit 1
+fi
+
+# Test if cURL or Wget is available
+if command -v curl &>/dev/null; then
+	YOURAPP="curl -sL"
+elif command -v wget &>/dev/null; then
+	YOURAPP="wget -qO-"
+else
+	printf "Package cURL or Wget is needed.\n" 1>&2
+	exit 1
+fi
 
 ## Set default scale if no custom scale
 test -z "${SCL}" && SCL="${SCLDEFAULTS}"
@@ -118,11 +145,12 @@ if ! [[ ${1} =~ [0-9] ]]; then
 fi
 
 if [[ -z ${3} ]]; then
-set -- ${@:1:2} "USD"
+	set -- ${@:1:2} "USD"
 fi
 
 ## Get JSON once
-JSON="$(curl -s https://www.mycurrency.net/US.json)"
+JSON="$(${YOURAPP} "https://www.mycurrency.net/US.json")"
+
 ## Print JSON?
 if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${JSON}"
@@ -130,19 +158,21 @@ if [[ -n "${PJSON}" ]]; then
 fi
 ## List all suported currencies and USD rates?
 if [[ -n ${LISTOPT} ]]; then
+
 	# Test screen width
 	# If stdout is redirected; skip this
-	if ! [[ -t 1 ]]; then
-		true
-	else
+	if [[ -t 1 ]]; then
 		COLCONF="-TCOUNTRY,CURRENCY"
 	fi
-	printf "Rates are against USD.\n"
-	jq -r '.rates[]|"\(.currency_code)/USD=\(.rate)=\(.name) (\(.code|ascii_downcase))=\(.currency_name)=\(.hits)"' <<< "${JSON}" | column -et -s'=' -N'MARKET,RATE,COUNTRY,CURRENCY,WEBHITS' ${COLCONF}
-	printf "Currencies: %s.\n" "$(jq -r '.rates[].currency_code' <<< "${JSON}" | wc -l)"
+
+	printf "Supported currencies against USD.\n"
+	jq -r '.rates[]|"\(.currency_code)=\(.rate)=\(.name) (\(.code|ascii_downcase))=\(.currency_name)=\(.hits)"' <<< "${JSON}" |
+		column -et -s'=' -N'SYMBOL,RATE,COUNTRY,CURRENCY,WEBHITS' ${COLCONF}
+	printf "Currencies: %s\n" "$(jq -r '.rates[].currency_code' <<< "${JSON}" | wc -l)"
 	exit
 fi
-## Grep currency list and rates
+
+## Grep currency data and rates
 CJSON=$(jq '[.rates[] | { key: .currency_code, value: .rate } ] | from_entries' <<< "${JSON}")
 
 ## Get currency rates
