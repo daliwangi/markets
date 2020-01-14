@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.11  jan/2020  by castaway
+# v0.1.12  jan/2020  by castaway
 
 HELP="WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed 
@@ -12,7 +12,8 @@ HELP="WARRANTY
 
 
 SINOPSIS
-	bakkt.sh [-hV]
+	bakkt.sh 
+	bakkt.sh [-hv]
 
 
 	Bakkt price ticker and contract volume from <https://www.bakkt.com/> 
