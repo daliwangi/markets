@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.7  jan/2020  by mountaineerbr
+# v0.1.8  jan/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -22,13 +22,15 @@ SYNOPSIS
 	stocks.sh -hlv
 
 
- 	Fetch rates of stocks and indexes from <https://financialmodelingprep.com/>
+ 	Fetch rates of stocks and indexes from <financialmodelingprep.com/> 
 	public APIs.
 	
-	By default, the script will try to fetch real-time data, otherwise, it 
-	will show the same price data as the profile \"-p\" option. If no symbol
-	is given, defaults to ${DEFSTOCK}. Stock and index symbols are case-
-	insensitive.
+	By default, the script will try to fetch real-time data (as stated by
+	financialmodelingprep.com), otherwise it will show the same price data 
+	as the profile \"-p\" option.
+
+	If no symbol is given, defaults to ${DEFSTOCK}. Stock and index symbols 
+	are case-insensitive.
 
 
 LIMITS
@@ -60,7 +62,7 @@ WARRANTY
 
 USAGE EXAMPLES
 
-	( 1 ) 	Price of Tesla:
+	( 1 ) 	Real-time price of Tesla:
 		
 		$ stocks.sh TSLA 
 
@@ -197,7 +199,7 @@ testsf() {
 		jq -r '.symbolsList[].symbol' | grep -q "^\\${1^^}$"; then
 		return 0
 	else
-		printf "Unsupported symbol -- %s\n" "${1^^}" 1>&2
+		printf "Unsupported stock symbol -- %s\n" "${1^^}" 1>&2
 		exit 1
 	fi
 }
