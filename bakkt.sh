@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.12  jan/2020  by castaway
+# v0.1.13  jan/2020  by castaway
 
 HELP="WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed 
@@ -13,6 +13,7 @@ HELP="WARRANTY
 
 SINOPSIS
 	bakkt.sh 
+
 	bakkt.sh [-hv]
 
 
