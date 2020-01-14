@@ -1,10 +1,10 @@
 #!/bin/bash
 # myc.sh - Currency converter, API access to MyCurrency.com
-# v0.2.3  jan/2020  by mountaineerbr
+# v0.3  jan/2020  by mountaineerbr
 
 ## Defaults
 # Scale (decimal plates):
-SCLDEFAULTS=8
+SCLDEFAULTS=6
 
 #Don't change this:
 LC_NUMERIC="en_US.UTF-8"
@@ -29,10 +29,10 @@ DESCRIPTION
 	163 currency rates at the moment. Precious metals and cryptocurrency 
 	rates are not supported.	
 	
-	AMOUNT can be a floating point number or a math expression that is read
-	by Bash Bc. Default precision is ${SCLDEFAULTS}.
+	AMOUNT can be a floating point number or a math expression that is un-
+	derstandable by Bash Bc.
 
-	Rates should be updated every hour, according to the website.
+	Rates are updated every hour.
 
 
 WARRANTY
@@ -75,11 +75,13 @@ OPTIONS
 
 	-j 	Debug, print JSON.
 	
-	-l 	List supported currencies.
+	-l 	List supported currencies, if no symbol is given, rates
+	   	against USD.
 	
-	-s NUM 	Scale (decimal plates).
+	-s NUM 	Scale (decimal plates), defaults=${SCLDEFAULTS}.
 	
-	-v 	Show this programme version."
+	-v 	Print this script version.
+	"
 
 # Check if there is any argument
 if [[ -z "${@}" ]]; then
@@ -160,7 +162,7 @@ fi
 if [[ -n ${LISTOPT} ]]; then
 
 	# Test screen width
-	# If stdout is redirected; skip this
+	# If stdout is open, trim some wide columns
 	if [[ -t 1 ]]; then
 		COLCONF="-TCOUNTRY,CURRENCY"
 	fi
@@ -170,6 +172,15 @@ if [[ -n ${LISTOPT} ]]; then
 		column -et -s'=' -N'SYMBOL,RATE,COUNTRY,CURRENCY,WEBHITS' ${COLCONF}
 	printf "Currencies: %s\n" "$(jq -r '.rates[].currency_code' <<< "${JSON}" | wc -l)"
 	exit
+fi
+
+#check that symbols are supported
+if ! jq -r '.rates[].currency_code'<<<"${JSON}" | grep -q "^${2^^}$"; then 
+	printf 'Error: unsupported symbol -- %s\n' "${2^^}" 
+	exit 1
+elif ! jq -r '.rates[].currency_code'<<<"${JSON}" | grep -q "^${3^^}$"; then 
+	printf 'Error: unsupported symbol -- %s\n' "${3^^}" 
+	exit 1
 fi
 
 ## Grep currency data and rates
