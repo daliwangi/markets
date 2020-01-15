@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.8 jan/2020  by mountaineerbr
+# v0.5.9 jan/2020  by mountaineerbr
 
 ## Defaults
 
@@ -270,9 +270,10 @@ shift $((OPTIND -1))
 #retest record file option
 [[ "${BCREC}" != "1" ]] && unset BREC
 
-## Process Expression
+#process expression
 EQ="${*:-$(</dev/stdin)}"
 EQ="${EQ//,}"
+EQ="${EQ%;}"
 
 ## Check if there is a Record file available
 # otherwise, create and initialise one
