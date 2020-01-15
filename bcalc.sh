@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.4 jan/2020  by mountaineerbr
+# v0.5.5 jan/2020  by mountaineerbr
 
 ## Defaults
 
@@ -128,7 +128,7 @@ WARRANTY
 USAGE EXAMPLES
 		$ bcalc.sh 50.7+9
 
-		$ bcalc.sh '(100+100/2)*2'
+		$ bcalc.sh '-(100+100/2)*2'
 
 		$ bcalc.sh 2^2+(8-4)
 
@@ -220,7 +220,7 @@ setcf() {
 
 
 # Parse options
-while getopts ":cfhnrs:tv1234567890" opt; do
+while getopts ":0123456789cfhnrs:tv" opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
@@ -259,7 +259,8 @@ while getopts ":cfhnrs:tv1234567890" opt; do
 			exit 0
 			;;
 		( \? )
-	     		break
+			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			exit 1
 			;;
 	esac
 done
