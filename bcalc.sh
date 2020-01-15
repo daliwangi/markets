@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.5 jan/2020  by mountaineerbr
+# v0.5.8 jan/2020  by mountaineerbr
 
 ## Defaults
 
@@ -308,6 +308,7 @@ fi
 #calc result and check expression syntax
 if RES="$(bc -l <<<"${EXT};${EQ}")"; then
 	[[ -z "${RES}" ]] && exit 1
+	RES0="${RES}"
 else
 	exit 1
 fi
@@ -332,20 +333,22 @@ fi
 #format result
 #scale
 if [[ -n "${SCL}" ]]; then
-	RES="$(bc -l <<<"${EXT};scale=${SCL};(${EQ})/1")"
+	RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
 fi
 
 #thousands separator
 if [[ -n "${TOPT}" ]]; then
 	printf "%'.${SCL:-2}f\n" "${RES}"
 	exit
-#no formatting
 else
 	#trim whitespaces
-	bc -l <<< "define trunc(x){auto os;scale=${SCL:-100};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})"
 	#set a big enough scale for the function, if none given
 	#scientific extensions defaults scale=100
 	#bc mathlib defaults scale=20
+	RES="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-100};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})" 2>/dev/null)"
+
+	#print result
+	printf '%s\n' "${RES:-${RES0}}"
 fi
 
 exit
