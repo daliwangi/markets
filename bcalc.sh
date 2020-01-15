@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.3 jan/2020  by mountaineerbr
+# v0.5.4 jan/2020  by mountaineerbr
 
 ## Defaults
 
@@ -336,23 +336,15 @@ fi
 
 #thousands separator
 if [[ -n "${TOPT}" ]]; then
-	#set scale for printf
-	if [[ -z "${SCL}" ]]; then
-		SCL=2
-	fi
-	
-	#print result
-	printf "%'.${SCL}f\n" "${RES}"
+	printf "%'.${SCL:-2}f\n" "${RES}"
 	exit
 #no formatting
 else
+	#trim whitespaces
+	bc -l <<< "define trunc(x){auto os;scale=${SCL:-100};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})"
 	#set a big enough scale for the function, if none given
 	#scientific extensions defaults scale=100
-	#bc mathlib defaults scale=100
-	[[ -z "${SCL}" ]] && SCL=100
-	
-	#trim whitespaces
-	bc -l <<< "define trunc(x){auto os;scale=${SCL};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})"
+	#bc mathlib defaults scale=20
 fi
 
 exit
