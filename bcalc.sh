@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.1 jan/2020  by mountaineerbr
+# v0.5.2 jan/2020  by mountaineerbr
 
 ## Defaults
 
@@ -60,8 +60,8 @@ DESCRIPTION
 
 	Remember that the decimal separator must be a dot '.'. Results with a
 	thousands separator can be obtained with option '-t', in which case a
-	comma ',' is used as thousands delimiter, and precision is limited to 
-	16 plates (that is a 'printf' limit).
+	comma ',' is used as thousands delimiter but decimal precision may be-
+	come limited if the result number is longer than 20 digits.
 
 
 BC MATH LIBRARY
@@ -335,6 +335,12 @@ fi
 
 #thousands separator
 if [[ -n "${TOPT}" ]]; then
+	#set scale for printf
+	if [[ -z "${SCL}" ]]; then
+		SCL=2
+	fi
+	
+	#print result
 	printf "%'.${SCL}f\n" "${RES}"
 	exit
 #no formatting
