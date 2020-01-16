@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.9  jan/2020  by mountaineerbr
+# v0.6.10  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -480,7 +480,7 @@ raddf() {
 		# Check for error, then try Blockchair
 		if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${SUMADD}"; then
 			printf "Err: <blockchain.com> -- %s\n" "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
-			printf "Trying with Blockchair..\n" 1>&2
+			printf "Trying with <blockchair.com>..\r" 1>&2
 			chairaddf "${1}"
 			exit
 		fi
@@ -511,7 +511,7 @@ raddf() {
 	# Check for error, try Blockchair
 	if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${RAWADD}"; then
 		printf "Err <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
-		printf "Trying with Blockchair...\n" 1>&2
+		printf "Trying with <blockchair.com>..\r" 1>&2
 		chairaddf "${1}"
 		exit
 	fi
@@ -548,7 +548,7 @@ chairaddf() {
 
 	#check for no results
 	if [[ "$(jq -r '.context.results' <<<"${CHAIRADD}")" = "0" ]]; then
-		printf "Err: <blockchair.com> -- invalid or unfounded address\n" 1>&2
+		printf "Warning: <blockchair.com> -- no results for this address\n" 1>&2
 		exit 1
 	fi
 
@@ -643,7 +643,7 @@ chairrtxf() {
 	fi
 	# Test response from server
 	if grep -iq "DOCTYPE html" <<< "${TXCHAIR}"; then
-		printf "Err: <blockchair.com> -- transaction not found.\n" 1>&2
+		printf "Err: <blockchair.com> -- transaction not found\n" 1>&2
 		exit 1
 	fi
 	printf "Transaction Info (Blockchair)\n"
@@ -787,7 +787,7 @@ shift $((OPTIND -1))
 
 # Check function args
 if { [[ -n "${ADDOPT}" ]] || [[ -n "${TXOPT}" ]];} && [[ -z "${1}" ]]; then
-	printf "Err: -- hash is needed.\n" 1>&2
+	printf "Err: -- hash is needed\n" 1>&2
 	exit 1
 fi
 
