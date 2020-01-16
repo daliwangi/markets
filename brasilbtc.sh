@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.4  jan/2020  by mountaineerbr
+# v0.4.3  jan/2020  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -69,7 +69,7 @@ apiratesf() {
 	printf "APIs das agências:\n"
 
 	## 3xBIT
-	RATE="$(${YOURAPP} "https://api.exchange.3xbit.com.br/ticker/" | jq -r ".CREDIT_${1^^} | ((.last|tonumber)*(.exchange_rate|tonumber))")"
+	RATE="$(${YOURAPP} "https://api.exchange.3xbit.com.br/ticker/" | jq -r ".BRL_${1^^}.ask")"
 	((${RATE//.}>0)) && printf "%'.2f\t3xBIT\n" "${RATE}"
 	#https://github.com/3xbit/docs/blob/master/exchange/public-rest-api-en_us.md
 	
@@ -91,7 +91,7 @@ apiratesf() {
 	## BitcoinToYou
 	[[ "${1,,}" = "ltc" ]] && BTYN="_litecoin"
 	[[ "${1,,}" = "btc" ]] || [[ "${1,,}" = "ltc" ]] &&
-		RATE="$(${YOURAPP} "https://api_v1.bitcointoyou.com/ticker${BTYN}.aspx" | jq -r '.ticker.last')"
+		RATE="$(${YOURAPP} "https://api_v1.bitcointoyou.com/ticker${BTYN}.aspx" | jq -r '.last')"
 	((${RATE//.}>0)) && printf "%'.2f\tBitcoinToYou\n" "${RATE}"
 	#https://www.bitcointoyou.com/blog/api-b2u/
 	
@@ -139,11 +139,11 @@ apiratesf() {
 	((${RATE//.}>0)) && printf "%'.2f\tCoinNext\n" "${RATE}"
 	#https://coinext.com.br/api.html
 	
-	## FlowBTC
-	RATE="$(${YOURAPP} "https://publicapi.flowbtc.com.br/v1/ticker/${1^^}BRL" | jq -r '.data.LastTradedPx')"
-	[[ -n "${RATE}" ]] && [[ "${RATE}" != "0" ]] &&
-		[[ "${RATE}" != "null" ]] &&
-		printf "%'.2f\tFlowBTC\n" "${RATE}"
+	## FlowBTC -- ONLY WEBSOCKET SEEMS TO BE WORKING! jan/2020
+	#RATE="$(${YOURAPP} "https://publicapi.flowbtc.com.br/v1/ticker/${1^^}BRL" | jq -r '.data.LastTradedPx')"
+	#[[ -n "${RATE}" ]] && [[ "${RATE}" != "0" ]] &&
+	#	[[ "${RATE}" != "null" ]] &&
+	#	printf "%'.2f\tFlowBTC\n" "${RATE}"
 	#https://www.flowbtc.com.br/api.html
 	
 	## Foxbit
