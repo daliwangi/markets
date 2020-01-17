@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.4.3  jan/2020  by mountaineerbr
+# v0.4.4  jan/2020  by mountaineerbr
 
 # Some defaults
 LC_NUMERIC=en_US.UTF-8
@@ -47,8 +47,15 @@ GARANTIA
 
 IMPORTANTE
 	Cuidado com agências de câmbio golpistas! Faça seus estudos! Não reco-
-	mendamos nenhuma em particular. São suspeitas no momento de meu conhe-
-	cimento: 3xBIT, AltasQuantum, NegocieCoins e TemBTC.
+	mendamos nenhuma em particular. São suspeitas no momento e de meu conhe-
+	cimento: 3xBit, AltasQuantum, NanuExchange, NegocieCoins, NoxBitcoin e 
+	TemBTC.
+
+	Nas estatísticas do <coingecko.com>, somente as agências 3xBit, Brasili-
+	ex, NanuExchange, Mercado Bitcoin e Novadax estão listadas. Porém, so-
+	mente três delas receberam uma nota (score): Braziliex recebeu '1' e Mer-
+	cado Bitcoin e Novadax ambas receberam '6'. É uma pista sobre quais 
+	agências de câmbio brasileiras devem ser as mais confiáveis..
 
 
 OPÇÕES
