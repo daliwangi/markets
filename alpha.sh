@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3  jan/2020  by mountaineer_br
+# v0.3.1  jan/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -93,7 +93,7 @@ OPTIONS
 
 	-l 	List supported currencies.
 
-	Other
+	Misc
 	-D 	Demo mode (demo API Key), only MSFT.
 	
 	-h	Show this help.
@@ -275,7 +275,7 @@ lforexf() {
 	printf 'Physical currencies:\n'
 	column -et -s',' -NCODE,NAME <<<"${DATA}"
 
-	printf 'Digital_: %s\n' "${ND}"
+	printf '\nDigital_: %s\n' "${ND}"
 	printf 'Physical: %s\n' "${NP}"
 }
 
