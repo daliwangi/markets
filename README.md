@@ -6,6 +6,8 @@ Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh,
 
 <b>INDEX</b>:
 
+<b>alpha.sh</b> -- Stocks and Currency Rates from <AlphaAvantage.co> (Most popular Yahoo Finance API alternative), get your free API key.
+
 <b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt public API.
 
 <b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker.
