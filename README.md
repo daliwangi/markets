@@ -45,6 +45,8 @@ This is my favorite everyday-use script for all-currency rates!
 
 <b>uol.sh --</b> Puxa dados de páginas da API pública do UOL Economia.
 
+<b>yahooFinanceSymbols.txt</b> -- Some Yahoo! Finance stock symbols. Alguns símbolos do yahoo! Finance.
+
 <b>whalealert.sh --</b> Latest whale transactions from whale-alert.io API.
 
 <i>Also check/Também veja:
