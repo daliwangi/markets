@@ -820,7 +820,7 @@ elif [[ "${TXOPT}" = chair ]]; then
 elif [[ -n "${MEMOPT}" ]]; then
 	utxf
 else
-	printf 'No option selected.\n' 1>&2
+	printf 'No option given. Stop.\n' 1>&2
 	exit 1
 fi
 
