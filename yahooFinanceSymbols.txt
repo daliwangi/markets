@@ -72,7 +72,7 @@ ACRTX	AMG Managers Silvercrest Small Cap Fund Class I
 ACSLX	American Century Select Fund C Class
 ACTEX	American Century Zero Coupon 2020 Fund Advisor Class
 ACV	AllianzGI Diversified Income & Convertible Fund
-ADA-USD
+ADA-USD	Crypto
 ADBE	Adobe Inc.
 ADC	Agree Realty Corporation
 ADCCX	American Century Disciplined Growth Fund Class C
@@ -325,7 +325,7 @@ ARCH	Arch Coal, Inc.
 ARCO	Arcos Dorados Holdings Inc.
 ARD	Ardagh Group S.A.
 ARDC	Ares Dynamic Credit Allocation Fund, Inc.
-ARDR-USD
+ARDR-USD	Crypto
 ARE	Alexandria Real Estate Equities, Inc.
 ARES	Ares Management Corporation
 ARES-PA	Ares Management Corporation
@@ -382,7 +382,7 @@ ASX	ASE Technology Holding Co., Ltd.
 ASYS	Amtech Systems, Inc.
 ATACX	ATAC Rotation Fund Investor Class
 ATAX	America First Multifamily Investors, L.P.
-ATB-USD
+ATB-USD	Crypto
 ATDRY	Auto Trader Group plc
 ATEC	Alphatec Holdings, Inc.
 ATEN	A10 Networks, Inc.
@@ -500,7 +500,7 @@ BARUX	Baron Asset Fund Class R6
 BA	The Boeing Company
 BATRA	The Liberty Braves Group
 BATRK	The Liberty Braves Group
-BAT-USD
+BAT-USD	Crypto
 BAX	Baxter International Inc.
 BBAR	Banco BBVA Argentina S.A.
 B	Barnes Group Inc.
@@ -527,9 +527,9 @@ BCE	BCE Inc.
 BCEI	Bonanza Creek Energy, Inc.
 BCEL	Atreca, Inc.
 BCH	Banco de Chile
-BCH-USD
+BCH-USD	Crypto
 BCML	BayCom Corp
-BCN-USD
+BCN-USD	Crypto
 BCOR	Blucora, Inc.
 BCO	The Brink's Company
 BCOV	Brightcove Inc.
@@ -681,7 +681,7 @@ BMRN	BioMarin Pharmaceutical Inc.
 BMRRX	BlackRock Mid-Cap Growth Equity Portfolio Class R
 BMTC	Bryn Mawr Bank Corporation
 BMY	Bristol-Myers Squibb Company
-BNB-USD
+BNB-USD	Crypto
 BNDX	Vanguard Total International Bond Index Fund ETF Shares
 BNS	The Bank of Nova Scotia
 BNTX	BioNTech SE
@@ -763,17 +763,17 @@ BSVN	Bank7 Corp.
 BSX	Boston Scientific Corporation
 BTA	BlackRock Long-Term Municipal Advantage Trust
 BTBFX	Boston Trust Asset Management Fund
-BTC-USD
+BTC-USD	Crypto
 BTC-USD	Bitcoin USD
 BTCUSD=X	BTC/USD
 BTG	B2Gold Corp.
-BTG-USD
+BTG-USD	Crypto
 BTI	British American Tobacco p.l.c.
 BTIEX	DWS Equity 500 Index Fund - Class S
 BTIIX	DWS Equity 500 Index Fund - Class Inst
 BTMFX	Boston Trust Midcap Fund
 BTO	John Hancock Financial Opportunities Fund
-BTS-USD
+BTS-USD	Crypto
 BTT	Blackrock Municipal 2030 Target Term Trust
 BTTRX	American Century Zero Coupon 2025 Fund Investor Class
 BTTTX	American Century Zero Coupon 2020 Fund Investor Class
@@ -1303,7 +1303,7 @@ CUZ	Cousins Properties Incorporated
 CVA	Covanta Holding Corporation
 CVBF	CVB Financial Corp.
 CVCO	Cavco Industries, Inc.
-CVC-USD
+CVC-USD	Crypto
 CVE	Cenovus Energy Inc.
 CVET	Covetrus, Inc.
 CVGI	Commercial Vehicle Group, Inc.
@@ -1355,7 +1355,7 @@ DAMDX	Dunham Monthly Distribution Fund Class A
 DAN	Dana Incorporated
 DAO	Youdao, Inc.
 DAR	Darling Ingredients Inc.
-DASH-USD
+DASH-USD	Crypto
 DAVA	Endava plc
 DBAW	Xtrackers MSCI All World ex U.S. Hedged Equity ETF
 DBD	Diebold Nixdorf, Incorporated
@@ -1374,14 +1374,14 @@ DCGTX	Jackson Square SMID-Cap Growth Fund IS Class
 DCI	Donaldson Company, Inc.
 DCINX	Dunham International Stock Fund Class C
 DCMDX	Dunham Monthly Distribution Fund Class C
-DCN-USD
+DCN-USD	Crypto
 DCO	Ducommun Incorporated
 DCOM	Dime Community Bancshares, Inc.
 DCP	DCP Midstream, LP
 DCPH	Deciphera Pharmaceuticals, Inc.
 DCP-PB	DCP Midstream, LP 7.875 CUM RED B
 DCP-PC	DCP Midstream, LP
-DCR-USD
+DCR-USD	Crypto
 DCUE	Dominion Energy, Inc.
 DDD	3D Systems Corporation
 DDDAX	13D Activist Fund Class A
@@ -1413,7 +1413,7 @@ DFJ	WisdomTree Japan SmallCap Dividend Fund
 DFND	Reality Shares Divcon Dividend Defender ETF
 DFP	Flaherty & Crumrine Dynamic Preferred and Income Fund Inc.
 DFS	Discover Financial Services
-DGB-USD
+DGB-USD	Crypto
 DG	Dollar General Corporation
 DGICA	Donegal Group Inc.
 DGICB	Donegal Group Inc.
@@ -1496,14 +1496,14 @@ DNLI	Denali Therapeutics Inc.
 DNMDX	Dunham Monthly Distribution Fund Class N
 DNOW	NOW Inc.
 DNP	DNP Select Income Fund Inc.
-DNT-USD
+DNT-USD	Crypto
 DOC	Physicians Realty Trust
 DOCU	DocuSign, Inc.
 DODBX	Dodge & Cox Balanced Fund
 DODFX	Dodge & Cox International Stock Fund
 DODGX	Dodge & Cox Stock Fund
 DO	Diamond Offshore Drilling, Inc.
-DOGE-USD
+DOGE-USD	Crypto
 DOL	WisdomTree International LargeCap Dividend Fund
 DON	WisdomTree U.S. MidCap Dividend Fund
 DOOO	BRP Inc.
@@ -1612,7 +1612,7 @@ ECPG	Encore Capital Group, Inc.
 ED	Consolidated Edison, Inc.
 EDD	Morgan Stanley Emerging Markets Domestic Debt Fund, Inc.
 EDF	Stone Harbor Emerging Markets Income Fund
-EDG-USD
+EDG-USD	Crypto
 EDI	Stone Harbor Emerging Markets Total Income Fund
 EDIT	Editas Medicine, Inc.
 EDN	Empresa Distribuidora y Comercializadora Norte Sociedad Anonima
@@ -1702,7 +1702,7 @@ EOD	Wells Fargo Advantage Funds - Wells Fargo Global Dividend Opportunity Fund
 EOG	EOG Resources, Inc.
 EOI	Eaton Vance Enhanced Equity Income Fund
 EOS	Eaton Vance Enhanced Equity Income Fund II
-EOS-USD
+EOS-USD	Crypto
 EOT	Eaton Vance National Municipal Opportunities Trust
 EPAC	Actuant Corporation
 EPAM	EPAM Systems, Inc.
@@ -1756,12 +1756,12 @@ ESS	Essex Property Trust, Inc.
 ESTC	Elastic N.V.
 ESTE	Earthstone Energy, Inc.
 ETB	Eaton Vance Tax-Managed Buy-Write Income Fund
-ETC-USD
+ETC-USD	Crypto
 ET	Energy Transfer LP
 ETFC	E*TRADE Financial Corporation
 ETG	Eaton Vance Tax-Advantaged Global Dividend Income Fund
 ETH	Ethan Allen Interiors Inc.
-ETH-USD
+ETH-USD	Crypto
 ETHUSD=X	ETH/USD
 ETI-P	Entergy Texas, Inc.
 ETJ	Eaton Vance Risk-Managed Diversified Equity Income Fund
@@ -2184,7 +2184,7 @@ FRO	Frontline Ltd.
 FRPH	FRP Holdings, Inc.
 FRQIX	Fidelity Advisor Managed Retirement 2010 Fund Class I
 FRSSX	Nuveen Real Estate Securities Fund Class R3
-FRST-USD
+FRST-USD	Crypto
 FRTA	Forterra, Inc.
 FRT	Federal Realty Investment Trust
 FRT-PC	Federal Realty Investment Trust
@@ -2274,7 +2274,7 @@ FULT	Fulton Financial Corporation
 FUN	Cedar Fair, L.P.
 FUNC	First United Corporation
 FUND	Sprott Focus Trust, Inc.
-FUN-USD
+FUN-USD	Crypto
 FURAX	Fidelity Advisor Simplicity RMD 2015 Fund Class A
 FURCX	Fidelity Advisor Simplicity RMD 2015 Fund Class C
 FURIX	Fidelity Advisor Simplicity RMD 2015 Fund Class I
@@ -2480,7 +2480,7 @@ GNMA	iShares GNMA Bond ETF
 GNRC	Generac Holdings Inc.
 GNT	GAMCO Natural Resources, Gold & Income Trust
 GNT-PA	GAMCO Natural Resources, Gold &
-GNT-USD
+GNT-USD	Crypto
 GNTX	Gentex Corporation
 GNTY	Guaranty Bancshares, Inc.
 GOEX	Global X Gold Explorers ETF
@@ -3282,7 +3282,7 @@ KIFCX	Salient Select Income Fund Class C
 KIM	Kimco Realty Corporation
 KIM-PL	Kimco Realty Corporation
 KIM-PM	Kimco Realty Corporation
-KIN-USD
+KIN-USD	Crypto
 KIO	KKR Income Opportunities Fund
 K	Kellogg Company
 KKR	KKR & Co. Inc.
@@ -3413,7 +3413,7 @@ LHX	L3Harris Technologies, Inc.
 LII	Lennox International Inc.
 LILAK	Liberty Latin America Ltd.
 LILA	Liberty Latin America Ltd.
-LINK-USD
+LINK-USD	Crypto
 LIN	Linde plc
 LINX	Linx S.A.
 LISIX	Lazard International Strategic Equity Portfolio Institutional Shares
@@ -3422,7 +3422,7 @@ LIT	Global X Lithium & Battery Tech ETF
 LIVN	LivaNova PLC
 LKBAX	LKCM Balanced Fund
 LKFN	Lakeland Financial Corporation
-LKK-USD
+LKK-USD	Crypto
 LK	Luckin Coffee Inc.
 LKOR	FlexShares Credit-Scored US Long Corporate Bond Index Fund
 LKQ	LKQ Corporation
@@ -3459,7 +3459,7 @@ LPSN	LivePerson, Inc.
 LPT	Liberty Property Trust
 LPX	Louisiana-Pacific Corporation
 LQDT	Liquidity Services, Inc.
-LRC-USD
+LRC-USD	Crypto
 LRCX	Lam Research Corporation
 LRGF	iShares Edge MSCI Multifactor USA ETF
 LRN	K12 Inc.
@@ -3476,7 +3476,7 @@ LSWWX	Loomis Sayles Global Allocation Fund Class Y
 LSXMA	The Liberty SiriusXM Group
 LSXMK	The Liberty SiriusXM Group
 LTC	LTC Properties, Inc.
-LTC-USD
+LTC-USD	Crypto
 LTHM	Livent Corporation
 LTM	LATAM Airlines Group S.A.
 LTPZ	PIMCO 15+ Year U.S. TIPS Index Exchange-Traded Fund
@@ -3530,7 +3530,7 @@ MBI	MBIA Inc.
 MBT	Mobile TeleSystems Public Joint Stock Company
 MBWM	Mercantile Bank Corporation
 MCA	BlackRock MuniYield California Quality Fund, Inc.
-MCAP-USD
+MCAP-USD	Crypto
 MCBC	Macatawa Bank Corporation
 MCB	Metropolitan Bank Holding Corp.
 MCBS	MetroCity Bankshares, Inc.
@@ -3545,7 +3545,7 @@ MCMVX	Monongahela All Cap Value Fund
 MCN	Madison Covered Call & Equity Strategy Fund
 MCNVX	MainStay MacKay Convertible Fund Class I
 MCO	Moody's Corporation
-MCO-USD
+MCO-USD	Crypto
 MCRI	Monarch Casino & Resort, Inc.
 MCR	MFS Charter Income Trust
 MCS	The Marcus Corporation
@@ -3608,7 +3608,7 @@ MGLN	Magellan Health, Inc.
 MG	Mistras Group, Inc.
 MGM	MGM Resorts International
 MGNX	MacroGenics, Inc.
-MGO-USD
+MGO-USD	Crypto
 MGPI	MGP Ingredients, Inc.
 MGPIX	ProFunds Mid Cap Growth Fund Investor Class
 MGP	MGM Growth Properties LLC
@@ -3648,7 +3648,7 @@ MINDX	Matthews India Fund Investor Class
 MINI	Mobile Mini, Inc.
 MINT	PIMCO Enhanced Short Maturity Active Exchange-Traded Fund
 MIOPX	Morgan Stanley Institutional Fund, Inc. International Opportunity Portfolio Class A
-MIOTA-USD
+MIOTA-USD	Crypto
 MIPIX	Matthews Asia Dividend Fund Institutional Class
 MIPTX	Matthews Pacific Tiger Fund Institutional Class
 MIST	Milestone Pharmaceuticals Inc.
@@ -3906,7 +3906,7 @@ NELCX	Nuveen Equity Long/Short Fund Class C
 NELIX	Nuveen Equity Long/Short Fund Class I
 NEM	Newmont Corporation
 NEOG	Neogen Corporation
-NEO-USD
+NEO-USD	Crypto
 NEP	NextEra Energy Partners, LP
 NESIX	Needham Small Cap Growth Fund Institutional Class
 NESYX	Natixis Funds Trust I U.S. Equity Opportunities Fund Class Y
@@ -4142,7 +4142,7 @@ NXRT	NexPoint Residential Trust, Inc.
 NXST	Nexstar Media Group, Inc.
 NXTC	NextCure, Inc.
 NXTTF	Namaste Technologies Inc.
-NXT-USD
+NXT-USD	Crypto
 ^NYA	NYSE COMPOSITE (DJ)
 NYCB	New York Community Bancorp, Inc.
 NYCB-PA	New York Community Bancorp, Inc.
@@ -4201,7 +4201,7 @@ OMCL	Omnicell, Inc.
 OMC	Omnicom Group Inc.
 OMF	OneMain Holdings, Inc.
 OMGNX	Invesco Oppenheimer Main Street Fund Class R
-OMG-USD
+OMG-USD	Crypto
 OMI	Owens & Minor, Inc.
 OMN	OMNOVA Solutions Inc.
 OMOAX	Vivaldi Multi-Strategy Fund Class A
@@ -4693,7 +4693,7 @@ QTS-PA	QTS Realty Trust, Inc.
 QTS-PB	QTS Realty Trust, Inc.
 QTS	QTS Realty Trust, Inc.
 QTSRX	AQR TM Small Cap Momentum Style Fund Class R6
-QTUM-USD
+QTUM-USD	Crypto
 QTWO	Q2 Holdings, Inc.
 QUAL	iShares Edge MSCI USA Quality Factor ETF
 QUAYX	AB Small Cap Growth Portfolio Advisor Class
@@ -4748,7 +4748,7 @@ REICX	West Loop Realty Fund Class C Shares
 RELL	Richardson Electronics, Ltd.
 RELX	RELX PLC
 REPL	Replimune Group, Inc.
-REP-USD
+REP-USD	Crypto
 RESI	Front Yard Residential Corporation
 RES	RPC, Inc.
 REVG	REV Group, Inc.
@@ -5185,7 +5185,7 @@ SLYG	SPDR S&P 600 Small Cap Growth ETF
 SLY	SPDR S&P 600 Small Cap ETF
 SLYV	SPDR S&P 600 Small Cap Value ETF
 SMAR	Smartsheet Inc.
-SMART-USD
+SMART-USD	Crypto
 SMCI	Super Micro Computer, Inc.
 SMDIX	Hartford Schroders US MidCap Opportunities Fund Class I
 SMDRX	Hartford Schroders US MidCap Opportunities Fund Class SDR
@@ -5221,14 +5221,14 @@ SNCR	Synchronoss Technologies, Inc.
 SNDR	Schneider National, Inc.
 SNDX	Syndax Pharmaceuticals, Inc.
 SNE	Sony Corporation
-SNGLS-USD
-SNM-USD
+SNGLS-USD	Crypto
+SNM-USD	Crypto
 SNN	Smith & Nephew plc
 SNP	China Petroleum & Chemical Corporation
 SNPMF	China Petroleum & Chemical Corporation
 SNPS	Synopsys, Inc.
 SNR	New Senior Investment Group Inc.
-SNT-USD
+SNT-USD	Crypto
 SNV-PD	Synovus Financial Corp.
 SNV-PE	Synovus Financial Corp.
 SNV	Synovus Financial Corp.
@@ -5394,7 +5394,7 @@ STXB	Spirit of Texas Bancshares, Inc.
 STX	Seagate Technology plc
 STZ-B	Constellation Brands, Inc.
 STZ	Constellation Brands, Inc.
-SUB-USD
+SUB-USD	Crypto
 SUI	Sun Communities, Inc.
 SUM	Summit Materials, Inc.
 SUNS	Solar Senior Capital Ltd.
@@ -5443,7 +5443,7 @@ SYLD	Cambria Shareholder Yield ETF
 SYNA	Synaptics Incorporated
 SYNH	Syneos Health, Inc.
 SYRS	Syros Pharmaceuticals, Inc.
-SYS-USD
+SYS-USD	Crypto
 SYV	SPDR MFS Systematic Value Equity ETF
 SYX	Systemax Inc.
 SYY	Sysco Corporation
@@ -5712,7 +5712,7 @@ TRU	TransUnion
 TRVLX	T. Rowe Price Value Fund
 TRV	The Travelers Companies, Inc.
 TRWH	Twin River Worldwide Holdings, Inc.
-TRX-USD
+TRX-USD	Crypto
 TSAGX	Touchstone Large Company Growth Fund Class A
 TSCAP	TriState Capital Holdings, Inc.
 TSCBP	TriState Capital Holdings, Inc.
@@ -5863,7 +5863,7 @@ USB-PP	U.S. Bancorp
 USB	U.S. Bancorp
 USCR	U.S. Concrete, Inc.
 USDP	USD Partners LP
-USDT-USD
+USDT-USD	Crypto
 USFD	US Foods Holding Corp.
 USLM	United States Lime & Minerals, Inc.
 USMAX	Natixis ASG Tactical U.S. Market Fund Class A
@@ -5938,7 +5938,7 @@ VEL	Velocity Financial, Inc.
 VEON	VEON Ltd.
 VER-PF	VEREIT, Inc.
 VER	VEREIT, Inc.
-VET-USD
+VET-USD	Crypto
 VET	Vermilion Energy Inc.
 VEVCX	Victory Sycamore Established Value Fund Class C
 VEVIX	Victory Sycamore Established Value Fund Class I
@@ -6110,7 +6110,7 @@ WAIR	Wesco Aircraft Holdings, Inc.
 WAL	Western Alliance Bancorporation
 WASH	Washington Trust Bancorp, Inc.
 WAT	Waters Corporation
-WAVES-USD
+WAVES-USD	Crypto
 WBAI	500.com Limited
 WBA	Walgreens Boots Alliance, Inc.
 WBC	WABCO Holdings Inc.
@@ -6263,7 +6263,7 @@ XBIT	XBiotech Inc.
 XCEM	Columbia EM Core ex-China ETF
 XEC	Cimarex Energy Co.
 XEL	Xcel Energy Inc.
-XEM-USD
+XEM-USD	Crypto
 XERS	Xeris Pharmaceuticals, Inc.
 XFLT	XAI Octagon Floating Rate & Alternative Income Term Trust
 XHE	SPDR S&P Health Care Equipment ETF
@@ -6275,14 +6275,14 @@ XLB	Materials Select Sector SPDR Fund
 XLE	Energy Select Sector SPDR Fund
 XLF	XLF Feb 2020 30.000 put
 XLG	Invesco S&P 500 Top 50 ETF
-XLM-USD
+XLM-USD	Crypto
 XLNX	Xilinx, Inc.
 XLRE	The Real Estate Select Sector SPDR Fund
 XLY	Consumer Discretionary Select Sector SPDR Fund
 XMLV	Invesco S&P MidCap Low Volatility ETF
 XMMO	Invesco S&P MidCap Momentum ETF
 XMPT	VanEck Vectors CEF Municipal Income ETF
-XMR-USD
+XMR-USD	Crypto
 XNET	Xunlei Limited
 XOM	Exxon Mobil Corporation
 XONE	The ExOne Company
@@ -6292,14 +6292,14 @@ XPO	XPO Logistics, Inc.
 XP	XP Inc.
 XRAY	DENTSPLY SIRONA Inc.
 XRLV	Invesco S&P 500 ex-Rate Sensitive Low Volatility ETF
-XRP-USD
+XRP-USD	Crypto
 XRX	Xerox Holdings Corporation
 XSD	SPDR S&P Semiconductor ETF
 XSLV	Invesco S&P SmallCap Low Volatility ETF
 XSOE	WisdomTree Emerging Markets ex-State-Owned Enterprises Fund
 XSVM	Invesco S&P SmallCap Value with Momentum ETF
 X	United States Steel Corporation
-XVG-USD
+XVG-USD	Crypto
 XYL	Xylem Inc.
 Y	Alleghany Corporation
 YELP	Yelp Inc.
@@ -6538,7 +6538,7 @@ ZAYO	Zayo Group Holdings, Inc.
 ZBH	Zimmer Biomet Holdings, Inc.
 ZBRA	Zebra Technologies Corporation
 ZEAL	Zealand Pharma A/S
-ZEC-USD
+ZEC-USD	Crypto
 ZEN	Zendesk, Inc.
 ZEUS	Olympic Steel, Inc.
 ZG=F	Gold 100 oz. Feb 20
@@ -6551,7 +6551,7 @@ ZM	Zoom Video Communications, Inc.
 ZNGA	Zynga Inc.
 ZNH	China Southern Airlines Company Limited
 ZROZ	PIMCO 25+ Year Zero Coupon U.S. Treasury Index Exchange-Traded Fund
-ZRX-USD
+ZRX-USD	Crypto
 ZSCCX	Zacks Small-Cap Core Fund Investor Class
 ZSCIX	Zacks Small-Cap Core Fund Institutional Class
 ZS	Zscaler, Inc.
