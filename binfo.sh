@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.11  jan/2020  by mountaineerbr
+# v0.6.12  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -819,5 +819,8 @@ elif [[ "${TXOPT}" = chair ]]; then
 	chairrtxf "${@}"
 elif [[ -n "${MEMOPT}" ]]; then
 	utxf
+else
+	printf 'No option selected.\n' 1>&2
+	exit 1
 fi
 
