@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.10  jan/2020  by mountaineerbr
+# v0.6.11  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -510,7 +510,7 @@ raddf() {
 
 	# Check for error, try Blockchair
 	if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${RAWADD}"; then
-		printf "Err <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
+		printf "Err: <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
 		printf "Trying with <blockchair.com>..\r" 1>&2
 		chairaddf "${1}"
 		exit
@@ -787,7 +787,7 @@ shift $((OPTIND -1))
 
 # Check function args
 if { [[ -n "${ADDOPT}" ]] || [[ -n "${TXOPT}" ]];} && [[ -z "${1}" ]]; then
-	printf "Err: -- hash is needed\n" 1>&2
+	printf "Err -- hash is needed\n" 1>&2
 	exit 1
 fi
 
