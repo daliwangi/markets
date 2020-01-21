@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3.2  jan/2020  by mountaineer_br
+# v0.3.4  jan/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -116,9 +116,9 @@ stockf() {
 
 	#test for error esponse
 	if jq -e '."Error Message"' <<<"${DATA}" &>/dev/null; then
-		printf 'Error: check symbol(s).\n' 1>&2
+		printf 'Error: check symbol.\n' 1>&2
 		exit 1
-	elif grep -qi 'standard API call frequency is 5 calls per minute and 500 calls per day' <<<"${DATA}"; then
+	elif grep -qi 'standard API call frequency is .* calls per minute and .* calls per day' <<<"${DATA}"; then
 		printf 'Error: %s\n' "$(jq -r '.Note' <<<"${DATA}")" 1>&2
 		exit 1
 	fi
@@ -157,7 +157,7 @@ searchf() {
 		#process data and make table
 		jq -r '.bestMatches[]|
 			"\(."1. symbol"),\(."2. name"),\(."3. type"),\(."4. region"),\(."5. marketOpen"),\(."6. marketClose"),\(."7. timezone"),\(."8. currency"),\(."9. matchScore")"' <<<"${DATA}" | column -et -s',' -NSYMBOL,NAME,TYPE,REGION,MOPEN,MCLOSE,TZ,CUR,SCORE ${TRIMCOL} 
-	elif grep -qi 'standard API call frequency is 5 calls per minute and 500 calls per day' <<<"${DATA}"; then
+	elif grep -qi 'standard API call frequency is .* calls per minute and .* calls per day' <<<"${DATA}"; then
 		printf 'Error: %s\n' "$(jq -r '.Note' <<<"${DATA}")" 1>&2
 		exit 1
 	else
@@ -185,9 +185,9 @@ tsf() {
 
 	#test for error esponse
 	if jq -e '."Error Message"' <<<"${DATA}" &>/dev/null; then
-		printf 'Error: check symbol(s) and usage.\n' 1>&2
+		printf 'Error: invalid symbol or currency pair.\n' 1>&2
 		exit 1
-	elif grep -qi 'standard API call frequency is 5 calls per minute and 500 calls per day' <<<"${DATA}"; then
+	elif grep -qi 'standard API call frequency is .* calls per minute and .* calls per day' <<<"${DATA}"; then
 		printf 'Error: %s\n' "$(jq -r '.Note' <<<"${DATA}")" 1>&2
 		exit 1
 	fi
@@ -228,9 +228,9 @@ forexf() {
 
 	#test for error esponse
 	if jq -e '."Error Message"' <<<"${DATA}" &>/dev/null; then
-		printf 'Error: check symbol(s).\n' 1>&2
+		printf 'Error: check currency pairs.\n' 1>&2
 		exit 1
-	elif grep -qi 'standard API call frequency is 5 calls per minute and 500 calls per day' <<<"${DATA}"; then
+	elif grep -qi 'standard API call frequency is .* calls per minute and .* calls per day' <<<"${DATA}"; then
 		printf 'Error: %s\n' "$(jq -r '.Note' <<<"${DATA}")" 1>&2
 		exit 1
 	fi
