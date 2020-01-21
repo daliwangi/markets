@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3.1  jan/2020  by mountaineer_br
+# v0.3.2  jan/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -185,7 +185,7 @@ tsf() {
 
 	#test for error esponse
 	if jq -e '."Error Message"' <<<"${DATA}" &>/dev/null; then
-		printf 'Error: check symbol(s).\n' 1>&2
+		printf 'Error: check symbol(s) and usage.\n' 1>&2
 		exit 1
 	elif grep -qi 'standard API call frequency is 5 calls per minute and 500 calls per day' <<<"${DATA}"; then
 		printf 'Error: %s\n' "$(jq -r '.Note' <<<"${DATA}")" 1>&2
@@ -199,7 +199,7 @@ tsf() {
 	
 	#make table
 	#cols: timestamp,open,high,low,close,volume
-	sed 1d <<<"${DATA}" | column -et -s, -N"${COLNAMES^^}"
+	sed 1d <<<"${DATA}" | tac | column -et -s, -N"${COLNAMES^^}"
 	printf 'Symbol_: %s %s\n' "${1^^}" "${2^^}"
 	printf 'Records: %s\n' "${NREC}"
 
