@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.1  jan/2020  by mountaineerbr
+# v0.6.2  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -25,11 +25,11 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	bcalc.sh  [-cf] [-s'NUM'|-NUM] ['EXPRESSION']
+	bcalc.sh  [-cf] [-s'NUM'|-NUM] 'EXPRESSION'
 	
-	bcalc.sh  [-f] -t [-s'NUM'|-NUM] ['EXPRESSION']
+	bcalc.sh  -t [-s'NUM'|-NUM] [-f] 'EXPRESSION'
 
-	bcalc.sh  -n ['SHORT NOTE']
+	bcalc.sh  -n 'SHORT NOTE'
 
 	bcalc.sh  [-cchrv]
 
@@ -114,7 +114,7 @@ BASH ALIASES
 
 
 WARRANTY
-	Made and tested with Bash 5.0. This programme is distributed without
+	Made and tested with Bash 5. This programme is distributed without
 	support or bug corrections. Licensed under GPLv3 and above.
 
 	If useful, consider giving me a nickle! =)
@@ -142,7 +142,7 @@ USAGE EXAMPLES
 	Chars '-' and '()' need escaping when they start the expression, while '*'
 	needs escaping every time.
 
-		(1) Escaping
+		(I) Escaping
 			$ bcalc.sh '(-20-20)/2'
 			
 			$ bcalc.sh \\(20+20\\)/2
@@ -159,7 +159,7 @@ USAGE EXAMPLES
 			% bcalc.sh '2^2+(30)'
 	
 			
-		(3) Setting scale
+		(II) Setting scale
 			$ bcalc.sh -s2 1/3
 	
 			$ bcalc.sh -2 1/3
@@ -174,7 +174,7 @@ USAGE EXAMPLES
 				result: 100,000,000.00
 
 
-		(4) Scientific extensions
+		(III) Scientific extensions
 			$ bcalc.sh -c 'ln(0.3)'   #natural log function
 	
 			$ bcalc.sh -c 0.234*na    #'na' is Avogadro's constant
