@@ -1,35 +1,35 @@
 #!/bin/bash
-# Bcalc.sh -- Simple Calculator Wrapper for Bash
-# v0.5.9 jan/2020  by mountaineerbr
+# bcalc.sh -- simple bash bc wrapper
+# v0.6  jan/2020  by mountaineerbr
 
-## Defaults
+#defaults
 
-#Enable Record file?
-#comment out to disable
-BCREC=1
+#record file
+BCREC=1  #comment out or set to 0 to disable
 
-#Record file:
+#record file path
 RECFILE="${HOME}/.bcalc_record"
 
-#Extensions file:
+#extension file path
 EXTFILE="${HOME}/.bcalc_extensions"
 
-# Don't change these:
+#don't change these
 #length of result line
-#newer versions of bash accept '0' to disable multiline
-export BC_LINE_LENGTH=1000
-#make sue numeric locale is set correctly
+export BC_LINE_LENGTH=1000  #newer bash accepts '0' to disable multiline
+#make sure numeric locale is set correctly
 LC_NUMERIC='en_US.UTF-8'
 
-## Manual and help
+#man page
 HELP_LINES="NAME
-	Bcalc.sh -- Simple Calculator Wrapper for Bash
+	bcalc.sh -- simple bash bc wrapper
 
 
 SYNOPSIS
-	bcalc.sh  [-cft] [-s'NUM'|-NUM] ['EXPRESSION']
+	bcalc.sh  [-cf] [-s'NUM'|-NUM] ['EXPRESSION']
+	
+	bcalc.sh  [-f] -t [-s'NUM'|-NUM] ['EXPRESSION']
 
-	bcalc.sh  [-n 'SHORT NOTE']
+	bcalc.sh  -n ['SHORT NOTE']
 
 	bcalc.sh  [-cchrv]
 
@@ -40,16 +40,16 @@ DESCRIPTION
 
 	A record file is created at '${RECFILE}'
 	To disable using a record file set option '-f' or unset BCREC in the 
-	script head code, section Defaults. If a record file is available, use 
-	of 'ans' (lowercase) in EXPRESSION is swapped by the last result from 
+	script head code, section 'defaults'. If a record file is available, use 
+	of 'res' (lowercase) in EXPRESSION is swapped by the last result from 
 	the record file.
 
 	If no EXPRESSION is given, wait for for Stdin (from pipe) or user input.
 	Press 'Ctr+D' to send the EOF signal, as in Bc. If no user EXPRESSION
-	was given so far, prints last answer from the record file.
+	was given so far, prints last result from the record file.
 
-	EXPRESSIONS containing () or * may need escaping with '\\' or \"''\", de-
-	pending on your shell.
+	EXPRESSIONS containing specials chars interpreted by your shell may need
+	escaping.
 
 	The number of decimal plates (scale) of output floating point numbers is
 	dependent on user input for all operations except division, as in pure
@@ -60,14 +60,11 @@ DESCRIPTION
 
 	Remember that the decimal separator must be a dot '.'. Results with a
 	thousands separator can be obtained with option '-t', in which case a
-	comma ',' is used as thousands delimiter but decimal precision may be-
-	come limited or deteriorated if the resulting value has more than 20 
-	decimal plates.
+	comma ',' is used as thousands delimiter.
 
 
 BC MATH LIBRARY
 	Bcalc.sh uses Bc with the math library. Useful functions from Bc man:
-
 
 		The math  library  defines the following functions:
 
@@ -105,7 +102,7 @@ BASH ALIASES
 		alias c='/path/to/bcalc.sh'
 
 
-	There are two ingenius functions for using pure Bc in Bash:
+	There are two interesting functions for using pure Bc interactively:
 
 		c() { echo \"\${*}\" | bc -l;}
 
@@ -125,33 +122,68 @@ WARRANTY
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 	  
+BUGS
+	When option '-t' is used, decimal precision will become limited and de-
+	teriorated if the resulting number is longer than 20 digits total. That
+	is printf faults.
+
+	Bash Bc uses the 'scale' parameter to formatting results from division 
+	operations only. Nonetheless, this scripts tries to execute a division 
+	operation before printing the final result when option '-s' is set. This,
+	however, will only work to formatting the result of a single expression
+	or the last expression at the input.
+
+	Multiline input will skip formatting options set by the script.
+
+
 USAGE EXAMPLES
-		$ bcalc.sh 50.7+9
+	Below are shown some ways to escaping specials chars to avoid their being
+	interpreted by the shell and also some examples of this script options.
+	Chars '-' and '()' need escaping when they start the expression, while '*'
+	needs escaping every time.
 
-		$ bcalc.sh '-(100+100/2)*2'
+		(1) Escaping
+			$ bcalc.sh '(-20-20)/2'
+			
+			$ bcalc.sh \\(20+20\\)/2
 
-		$ bcalc.sh 2^2+(8-4)
+			$ bcalc.sh -- -3+30
 
-		$ bcalc.sh \\\\(100+100\\\\)/1
+			$ bcalc.sh 'a=4;dog=1;cat=dog; a/(cat+dog)'
+		    
+		    Z-shell users need extra escaping
+			% bcalc.sh '10*10*10'
+			
+			% bcalc.sh 10\\*10\\*10
+		    
+			% bcalc.sh '2^2+(30)'
+	
+			
+		(3) Setting scale
+			$ bcalc.sh -s2 1/3
+	
+			$ bcalc.sh -2 1/3
+			
+			$ bcalc.sh 'scale=2;1/3'
+	
+			$ echo '0.333333333' | bcalc.sh -2
+				result: 0.33
 
-		$ bcalc.sh ans+33
+		    Thousand separator
+			$ bcalc.sh -t 100000000
+				result: 100,000,000.00
 
-		$ bcalc.sh -s2 100/120
-		
-		$ bcalc.sh 'scale=2;100/120'
 
-		$ bcalc.sh -t -2 50000\\*5
-
-		$ bcalc.sh 'a=5; -a+20'
-
-		$ echo '70000.450000' | bcalc.sh -t2
-
-		$ bcalc.sh -c 'ln(0.3)'
-
-		$ bcalc.sh -c 0.234*na  #'na' is Avogadro's constant
-
-		$ bcalc.sh -n This is my note.
-
+		(4) Scientific extensions
+			$ bcalc.sh -c 'ln(0.3)'   #natural log function
+	
+			$ bcalc.sh -c 0.234*na    #'na' is Avogadro's constant
+	
+		    Adding note
+			$ bcalc.sh -n This is my note.
+			
+			$ bcalc.sh -n '<This; is my w||*ird not& & >'
+	
 
 OPTIONS
 	-NUM 	Shortcut for scale setting, same as '-sNUM'.
@@ -173,9 +205,9 @@ OPTIONS
 	-v 	Print this script version."
 
 
-## Functions
+#functions
 
-# Add Note function
+#-n add note function
 notef() {
 	if [[ -n "${*}" ]]; then
 		sed -i "$ i\>> ${*}" "${RECFILE}"
@@ -185,10 +217,10 @@ notef() {
 		exit 1
 	fi
 }
-# https://superuser.com/questions/781558/sed-insert-file-before-last-line
-# http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
+#https://superuser.com/questions/781558/sed-insert-file-before-last-line
+#http://www.yourownlinux.com/2015/04/sed-command-in-linux-append-and-insert-lines-to-file.html
 
-# Scientific Extension Function
+#-c scientific extension function
 setcf() {
 	#test if extensions file exists, if not download it from the internet
 	if ! [[ -f "${EXTFILE}" ]]; then
@@ -201,12 +233,14 @@ setcf() {
 			printf "cURL or Wget is required.\n" 1>&2
 			exit 1
 		fi
+	
 		#download extensions
 		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
 			printf "\n"
 			${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
 			printf "\n";} > "${EXTFILE}"
 	fi
+	
 	#print extension file?
 	if [[ "${CIENTIFIC}" -eq 2 ]]; then
 		cat "${EXTFILE}"
@@ -219,7 +253,7 @@ setcf() {
 }
 
 
-# Parse options
+#parse options
 while getopts ":0123456789cfhnrs:tv" opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
@@ -260,23 +294,24 @@ while getopts ":0123456789cfhnrs:tv" opt; do
 			;;
 		( \? )
 			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			#check if last arg starts with a negative sign
+			[[ "${@: -1}" = -* ]] && printf "First char in EXPRESSION is '-', try escaping: '(%s)'\n" "${@: -1}" 1>&2
 			exit 1
 			;;
 	esac
 done
 shift $((OPTIND -1))
 
-#set more opts
-#retest record file option
-[[ "${BCREC}" != "1" ]] && unset BREC
+#unset 'file record'?
+[[ "${BCREC}" != "1" ]] && unset BCREC
 
 #process expression
 EQ="${*:-$(</dev/stdin)}"
 EQ="${EQ//,}"
 EQ="${EQ%;}"
 
-## Check if there is a Record file available
-# otherwise, create and initialise one
+#check if a 'record file' can be available
+#otherwise, create and initialise one
 if [[ -n "${BCREC}" ]]; then
 	#init record file if none
 	if [[ ! -f "${RECFILE}" ]]; then
@@ -289,17 +324,15 @@ if [[ -n "${BCREC}" ]]; then
 		notef "${*}"
 	fi
 	
-	#swap 'ans' by last result
-	if [[ "${EQ}" =~ ans ]]; then
-		ANS=$(tail -n1 "${RECFILE}")
-		EQ="${EQ//ans/${ANS}}"
-	#if no expression was given at all, grep last result
-	elif [[ -z "${EQ}" ]]; then
-		EQ="$(tail -n1 "${RECFILE}")"
+	#swap 'res' by last result or no input uses last result, too
+	if [[ "${EQ}" =~ res ]] || [[ -z "${EQ}" ]]; then
+		LASTRES=$(tail -1 "${RECFILE}")
+		EQ="${EQ//res/${LASTRES}}"
+		EQ="${EQ:-${LASTRES}}"
 	fi
 #some error handling
 elif [[ -n "${NOTEOPT}" ]]; then
-	printf "Note function requires a record file.\n" 1>&2
+	printf "A record file is required for adding notes.\n" 1>&2
 	exit 1
 fi
 
@@ -309,14 +342,13 @@ fi
 #calc result and check expression syntax
 if RES="$(bc -l <<<"${EXT};${EQ}")"; then
 	[[ -z "${RES}" ]] && exit 1
-	RES0="${RES}"
 else
 	exit 1
 fi
 
-# Print equation to record file?
+#print to record file?
 if [[ -n "${BCREC}" ]]; then
-	#grep last result/answer
+	#grep last result
 	LASTRES="$(tail -1 "${RECFILE}")"
 
 	#check for duplicate result
@@ -332,25 +364,26 @@ if [[ -n "${BCREC}" ]]; then
 fi
 
 #format result
-#scale
-if [[ -n "${SCL}" ]]; then
-	RES="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1")"
-fi
 
+#don't format multiline inputs
+if [[ "$(wc -l <<<"${RES}")" -gt 1 ]]; then
+	[[ -n "${SCL}${TOPT}" ]] && printf 'Multiline skips formatting options.\n' 1>&2
+	printf "%s\n" "${RES}"
+	exit
 #thousands separator
-if [[ -n "${TOPT}" ]]; then
+elif [[ -n "${TOPT}" ]]; then
 	printf "%'.${SCL:-2}f\n" "${RES}"
 	exit
-else
-	#trim whitespaces
-	#set a big enough scale for the function, if none given
-	#scientific extensions defaults scale=100
-	#bc mathlib defaults scale=20
-	RES="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-100};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})" 2>/dev/null)"
-
-	#print result
-	printf '%s\n' "${RES:-${RES0}}"
+#user-set scale
+elif [[ -n "${SCL}" ]]; then
+	#get bc result with user scale
+	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
 fi
 
-exit
+#trim trailing noughts; set a big enough scale
+REST="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RESS:-${RES}})" 2>/dev/null)"
+[[ "${REST}" = '0' ]] && unset REST
+
+#print result
+printf '%s\n' "${REST:-${RESS:-${RES}}}"
 
