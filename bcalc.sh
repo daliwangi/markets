@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6  jan/2020  by mountaineerbr
+# v0.6.1  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -315,7 +315,7 @@ EQ="${EQ%;}"
 if [[ -n "${BCREC}" ]]; then
 	#init record file if none
 	if [[ ! -f "${RECFILE}" ]]; then
-		printf "## Bcalc.sh Record\n1\n" >> "${RECFILE}"
+		printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
 		printf "File initialised: %s\n" "${RECFILE}" 1>&2
 	fi
 
