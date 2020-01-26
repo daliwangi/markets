@@ -24,48 +24,47 @@ Esses scripts usam a última versão do Bash. Outros pacotes que podem precisar 
 
 <b>INDEX / ÍNDICE</b>
 
-<b>alpha.sh</b> -- Stocks and Currency Rates from <AlphaAvantage.co> (Most popular Yahoo Finance API alternative), get your free API key.
+<b>alpha.sh</b> -- Stocks and currency rates from <alphaavantage.co>, most popular yahoo finance api alternative; get your free API key.
 
-<b>bakkt.sh --</b> Price and contract/volume tickers for Bakkt public API.
+<b>bakkt.sh --</b> Price and contract/volume tickers from bakkt public api.
 
 <b>binance.sh --</b>  Binance public API, crypto converter, prices, book depth, coin ticker.
 
-<b>binfo.sh --</b> Blockchain Explorer for Bitcoin; uses Blockchain.info & BlockChair.com public APIs; shows notification on new block found for the Bitcoin blockchain.
+<b>binfo.sh --</b> Blockchain explorer for bitcoin; uses <blockchain.info> and <blockchair.com> public apis; notification on new block found.
 
-<b>bitstamp.sh --</b> Bitstamp exchange public API for live trade prices/info.
+<b>bitstamp.sh --</b> Bitstamp exchange public api for live trade prices/info.
 
-<b>bitfinex.sh --</b> Bitfinex exchange public API for live trade prices.
+<b>bitfinex.sh --</b> Bitfinex exchange public api for live trade prices.
 
-<b>brasilbtc.sh --</b> Puxa cotações de Bitcoin de Agências de Câmbio Brasileiras de APIs públicas; fetches Bitcoin rates from Brazilian Exchanges public APIs.
+<b>brasilbtc.sh --</b> Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas;
 
-<b>cgk.sh --</b> CoingGecko.com public API, currency converter, market ticker, cryptocurrency ticker;
-This is my favorite everyday-use script for all-currency rates!
+<b>cgk.sh --</b> <Coinggecko.com> public api, currency converter, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 
-<b>clay.sh --</b> CurrencyLayer.com API, central bank currency, precious metal and cryptocurrency converter.
+<b>clay.sh --</b> <Currencylayer.com> api, central bank currency, precious metal and cryptocurrency converter.
 
-<b>cmc.sh --</b>  CoinMarketCap.com API, currency converter, market ticker.
+<b>cmc.sh --</b>  <Coinmarketcap.com> api, currency converter, market ticker.
 
-<b>erates.sh --</b> ExchangeRatesAPI.io public API, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
+<b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
-<b>foxbit.sh --</b> FoxBit public API rates, Acesso API Público do FoxBit para cotações.
+<b>foxbit.sh --</b> FoxBit public API rates. Acesso ao api público da Foxbit para cotações.
 
-<b>hgb.sh --</b> Cotações de ações da Bovespa e índices e taxas (CDI e SELIC) do API da HG Brasil.
+<b>hgbrasil.sh --</b> Bovespa and tax rates. Cotações de ações da Bovespa e índices e taxas (CDI e SELIC) do api da hg brasil.
 
-<b>myc.sh --</b> MyCurrency.net public API, central bank currency converter.
+<b>myc.sh --</b> <Mycurrency.net> public api, central bank currency converter.
 
-<b>openx.sh --</b> OpenExchangeRates.org API, central bank currency converter.
+<b>openx.sh --</b> <Openexchangerates.org> api, central bank currency converter.
 
-<b>ourominas.sh --</b> Pega taxas da API pública da Ouro Minas.
+<b>ourominas.sh --</b> Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas.
 
-<b>parmetal.sh --</b> Pega taxas da API pública da Parmetal.
+<b>parmetal.sh --</b> Parmetal (precious metals exchange) rates public api. Pega taxas da api pública da Parmetal.
 
-<b>stocks.sh --</b> Financialmodelingprep.com public API latest and historical stock rates (same API as Alexander Epstein's 'stocks').
+<b>stocks.sh --</b> <Financialmodelingprep.com> public api latest and historical stock rates
 
-<b>uol.sh --</b> Puxa dados de páginas da API pública do UOL Economia.
+<b>uol.sh --</b> Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia.
 
-<b>yahooFinanceSymbols.txt</b> -- Some Yahoo! Finance stock symbols. Alguns símbolos do yahoo! Finance.
+<b>yahooFinanceSymbols.txt</b> -- Some yahoo finance stock symbols. Alguns símbolos do yahoo finance.
 
-<b>whalealert.sh --</b> Latest whale transactions from whale-alert.io API.
+<b>whalealert.sh --</b> Latest whale transactions from <whale-alert.io> api.
 
 ---
 
