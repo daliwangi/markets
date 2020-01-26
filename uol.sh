@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.8  dez/2019  by mountaineer_br
+# v0.1.9  dez/2019  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -12,6 +12,20 @@ SINOPSE
 	O script puxa as cotações de páginas de economia do UOL.
 
 	Os pacotes Bash, cURL ou Wget e iconv (Glibc) são necessários.
+
+
+GARANTIA
+	Este programa/script é software livre e está licenciado sob a Licença 
+	Geral Pública v3 ou superior do GNU. Sua distribuição não oferece supor-
+	te nem correção de bugs.
+	
+	O script precisa do cURL/Wget, JQ e Bash.
+
+	If this programme was useful, consider giving me a nickle! =)
+  
+	Se este programa foi útil, considere me lançar um trocado!
+
+		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
 OPÇÕES
