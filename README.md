@@ -22,7 +22,7 @@ Esses scripts usam a última versão do Bash. Outros pacotes que podem precisar 
 
 ---
 
-<b>INDEX</b>
+<b>INDEX / ÍNDICE</b>
 
 <b>alpha.sh</b> -- Stocks and Currency Rates from <AlphaAvantage.co> (Most popular Yahoo Finance API alternative), get your free API key.
 
@@ -109,36 +109,6 @@ Nenhum desses scripts deve ser usado em meio profissional sem análise prévia. 
 
 ---
 
-<b>INSTRUÇÕES BÁSICAS</b>
-
-No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos repos oficiais. Já o pacote websocat pode ser um pouco mais complicado..
-
-Para fazer o download de um script, abra-o/visualize-o no Github e depois clique com o botão direito do mouse em cima do botão 'Raw' e escolha a opção 'Salvar Link Como...'. Depois de feito o download (por exemplo, em ~/Downloads/binance.sh), será necessário marcar o script como executável. No GNOME, clicar com o botão direito em cima do arquivo > Propriedades > Permissões e selecionar a caixa 'Permitir execução do arquivo como programa', ou
-
-<i>$ chmod+x ~/Downloads/binance.sh</i>
-
-Então, caminhe até a pasta onde script se encontra.
-
-<i>$ cd ~/Downloads</i>
-
-Para executá-lo, não se esqueça de adicionar './' antes do nome do script:
-
-<i>$ ./binance.sh
-
-$ bash binance.sh</i>
-
-Alternativeamente, você pode clonar este repo inteiro.
-
-<i>$ cd Downloads
-
-$ git clone https://github.com/mountaineerbr/markets.git
-
-$ chmod +x ~/Downloads/markets/*.sh</i>
-
-Você pode fazer bash aliases individuais para os scripts ou colocar os scripts sob seu PATH.
-
----
-
 <b>BASIC INSTRUCTIONS</b>
 
 On Ubuntu 19.04, you can install curl, jq and lolcat packages easily from the official repos. The websocat package may be a little more complicated..
@@ -166,6 +136,36 @@ $ git clone https://github.com/mountaineerbr/markets.git
 $ chmod +x ~/Downloads/markets/*.sh</i>
 
 You can use bash aliases to individual scripts or place them under your PATH.
+
+---
+
+<b>INSTRUÇÕES BÁSICAS</b>
+
+No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos repos oficiais. Já o pacote websocat pode ser um pouco mais complicado..
+
+Para fazer o download de um script, abra-o/visualize-o no Github e depois clique com o botão direito do mouse em cima do botão 'Raw' e escolha a opção 'Salvar Link Como...'. Depois de feito o download (por exemplo, em ~/Downloads/binance.sh), será necessário marcar o script como executável. No GNOME, clicar com o botão direito em cima do arquivo > Propriedades > Permissões e selecionar a caixa 'Permitir execução do arquivo como programa', ou
+
+<i>$ chmod+x ~/Downloads/binance.sh</i>
+
+Então, caminhe até a pasta onde script se encontra.
+
+<i>$ cd ~/Downloads</i>
+
+Para executá-lo, não se esqueça de adicionar './' antes do nome do script:
+
+<i>$ ./binance.sh
+
+$ bash binance.sh</i>
+
+Alternativeamente, você pode clonar este repo inteiro.
+
+<i>$ cd Downloads
+
+$ git clone https://github.com/mountaineerbr/markets.git
+
+$ chmod +x ~/Downloads/markets/*.sh</i>
+
+Você pode fazer bash aliases individuais para os scripts ou colocar os scripts sob seu PATH.
 
 ---
 
