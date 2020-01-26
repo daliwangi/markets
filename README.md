@@ -115,7 +115,7 @@ On Ubuntu 19.04, you can install curl, jq and lolcat packages easily from the of
 
 To download a script, view it on Github. Then, right-click on the 'Raw' button and choose 'Save Link As ...' option. Once downloaded (eg ~/Downloads/binance.sh), you will need to mark the script as executable. In GNOME, right-click on the file > Properties > Permissions and check the 'Allow executing file as programme' box, or
 
-<i>$ chmod+x ~/Downloads/binance.sh</i>
+<i>$ chmod +x ~/Downloads/binance.sh</i>
 
 Then cd to the folder where the script is located.
 
@@ -145,7 +145,7 @@ No Ubuntu 19.04, pode-se instalar os pacotes curl, jq e lolcat facilmente dos re
 
 Para fazer o download de um script, abra-o/visualize-o no Github e depois clique com o botão direito do mouse em cima do botão 'Raw' e escolha a opção 'Salvar Link Como...'. Depois de feito o download (por exemplo, em ~/Downloads/binance.sh), será necessário marcar o script como executável. No GNOME, clicar com o botão direito em cima do arquivo > Propriedades > Permissões e selecionar a caixa 'Permitir execução do arquivo como programa', ou
 
-<i>$ chmod+x ~/Downloads/binance.sh</i>
+<i>$ chmod +x ~/Downloads/binance.sh</i>
 
 Então, caminhe até a pasta onde script se encontra.
 
