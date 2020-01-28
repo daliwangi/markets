@@ -18,7 +18,7 @@ xfce4-terminal -T 'ETH Binance' --geometry=6x20+115+0 -e "/home/jsn/bin/markets/
 
 xfce4-terminal -T 'BTC Detailed' --geometry=77x53+172+0 -e '/home/jsn/bin/markets/binance.sh -ai' &
 
-xfce4-terminal -T 'BTC Book Depth Binance' --geometry=36x44+800+0 -e '/home/jsn/bin/markets/binance.sh -add' &
+xfce4-terminal -T 'BTC Book Depth Binance' --geometry=36x44+800+0 -e '/home/jsn/bin/markets/binance.sh -abb' &
 
 xfce4-terminal -T 'BTC New-Block Blockchain.info' --geometry=74x17+506+495 -e '/home/jsn/bin/markets/binfo.sh -e' &
 
