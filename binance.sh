@@ -1,70 +1,69 @@
 #!/bin/bash
-# Binance.sh  -- Bash Crypto Converter and API Access
-# v0.8  jan/2020  by mountaineerbr
+# Binance.sh  --  Market rates from Binance public APIs
+# v0.9  jan/2020  by mountaineerbr
 
-# Some defaults
-#Decimal plates and printf-format; defaults=%s.
-FSTRDEF="%s"      #price formatting 
-#FSTRDEF="%.2f"   #set floating number with 2 decimal plates
-WHICHB="com"      #binance.com, binance.us or binance.je
-#Don't change this:
-LC_NUMERIC="en_US.UTF-8"
+#defaults
+
+#decimal plates
+FSTRDEF='%s'    #printf-like price formatting 
+#FSTRDEF=8      #eight decimal plates
+
+#server
+WHICHB='com'    #'com', 'us' or 'je'
+
+#don't change this
+LC_NUMERIC='en_US.UTF-8'
 
 HELP="NAME
-	Binance.sh - Binance API Access and Cryptocurrency Converter
+	Binance.sh - Market rates from Binance public APIs
 
 
 SYNOPSIS
-	binance.sh [-NUM|-ff\"NUM\"] [-ju] [AMOUNT] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff'NUM'] [-ju] [AMOUNT] MARKET
 
-	binance.sh [-NUM|-ff\"NUM\"] [-acijrsuw] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-NUM|-ff'NUM'] [-acirsw] [-ju] MARKET
 	
-	binance.sh [-bbbjtu] [FROM_CRYPTO] [TO_CRYPTO]
+	binance.sh [-bbbt] [-ju] MARKET
 	
 	binance.sh [-dhlv]
 
 
-	This script gets rate of any cryptocurrency pair that Binance supports
-	and can convert any amount of one crypto into another. It fetches data 
-	from Binance public APIs.
 
-	Take  notice  that Binance supports  specific markets, so for example, 
-	there is a market for XRPBTC but not for BTCXRP. You can get a list of 
-	all supported markets running the script with the option \"-l\".
+	Get the latest data from Binance public APIs.
 
-	You can get data from Binance.us with the flag option \"-u\" or from
-	Binance.je with option \"-j\", otherwise defaults to Binance.com from
-	Malta. Beware that Biannce.je and Binance.us options will only work as 
-	long as they use the same API code scheme as Binance.com.
+	This script does not intend to converting crypto currencies, even though 
+	it does calculate, say, 10.3 bitcoins in tether, but rather fetching 
+	rates for supported markets. That just means it cannot convert BTC to XRP,
+	but rather use the XRPBTC market rate. Writing the currency pair separa-
+	tely is supoprted, such as 'XRP BTC' but not 'XRP/BTC'
 
-	There are a few functions/modes for watching price rolling of the latest
-	trades, as well as trade quantity. You can also watch book depth of any
-	supported  Binance market.  Some functions use cURL/Wget to fetch data 
-	from REST APIs and some use Websocat to fetch data from websockets. If 
-	no market/currency pair is given, uses BTCUSDT by defaults. If option 
-	\"-j\" is used, defaults to BTCEUR and if \"-u\" is used, defaults to 
-	BTCUSD.
+	List of all supported markets with '-l'.
 
-	If your connection is unstable or intermitent, use option \"-a\" so that
-	Websocat will try to reconnect on error or EOF. Beware that this option 
-	may cause high CPU spinning until reconnection is achieved!
+	Choose which Binance server to get data from. Option '-j' uses <binance.je>,
+	'-u' uses <binance.us>, otherwise defaults to <binance.com> from Malta.
+	Switching servers will only work as long as Binance keeps using the same
+	API code scheme.
 
-	It is accepted to write each currency that forms a market separately or
-	together. Example: \"ZEC USDT\" or \"ZECUSDT\". Case is insensitive.
+	To keep trying to reconnect automatically on error or EOF, use option 
+	'-a', but beware this option may cause high CPU spinning until reconnec-
+	tion is achieved!
 
-	Functions that use cURL/Wget to fecth data from REST APIs update a lit-
-	tle slower because they depend on reconnecting repeatedly, whereas web-
-	socket streams leave an open connection so there is more frequent data
-	flow.
+	Setting options to use REST APIs instead of websockets update a little 
+	slower because REST depend on connecting repeatedly, whereas websockets
+	leave an open connection.
 
-	The number of decimal plates is the raw value received by defaults. A 
-	different number of decimal plates can be supplied with the option \"-f\",
-	see example (4). Option \"-NUM\" is a shortcut for \"-fNUM\", where NUM
-	must be a natural number (1,2,3..).
+	The number of decimal plates is the same received from the server. Set 
+	decimal plates with '-f', see example (4). Options '-NUM' are shortcuts
+	for '-fNUM', where NUM must be a natural number (1,2,3..).
 
-	It is also possible to add a \"thousands\" separator, just pass \"-ff\",
-	see usage example (5). Finally, the \"-f\" option also accepts a printf-
-	like formatting string (defaults=\"%s\").
+	It is also possible to add a 'thousands' separator using '-ff', see usage
+	example (5). Option '-f' also accepts a printf-like formatting string
+	(defaults='%s').
+
+	Some functions use curl/wget to fetch data from REST APIs and some use 
+	the websocat package to fetch data from websockets. If no market is gi-
+	ven, uses BTCUSDT by defaults. If option '-j' is used, market defaults 
+	to BTCEUR and if '-u' is used, defaults to BTCUSD.
 
   
 LIMITS ON WEBSOCKET MARKET STREAMS
@@ -77,9 +76,7 @@ LIMITS ON WEBSOCKET MARKET STREAMS
 	<https://binance-docs.github.io/apidocs/spot/en/#symbol-order-book-ticker>
 
 	
-	However, Websocat has an option to reconnect automatically (\"-a\") that
-	will try reconnecting upon error or EOF. Websocat may spin the CPU very 
-	highly until connection is accomplished.
+	Use script option '-a' to try reconnecting automatically.
 
 
 WARRANTY
@@ -89,13 +86,20 @@ WARRANTY
 	This script needs Bash, cURL or Wget, JQ , Websocat, Lolcat and Core-
 	utils to work properly.
 
-	Beware of unlimited scrollback buffers for terminal emulators. As data 
-	flow is very intense, scrollback buffers should be kept small or com-
-	pletely unset in order to avoid system freezes.
-
-	Give me a nickle! =)
+	If you found this useful, consider giving me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
+
+
+BUGS
+	Beware of unlimited scrollback buffers for terminal emulators. As lots
+	of data is printed, scrollback buffers should be kept small or complete-
+	ly unset in order to avoid system freezes.
+
+	If a division operation is given in AMOUNT, such as '1/3 BTCUSDT', bash
+	calculator will use its math library and set scale to 20 decimal plates,
+	plus one uncertainty digit. in such case, use option '-f' to set scale 
+	adequately.
 
 
 USAGE EXAMPLES
@@ -104,7 +108,7 @@ USAGE EXAMPLES
 			$ binance.sh btc usdt
 
 
-			Same using Binance US rates:
+			Same using <binance.com> rates:
 			
 			$ binance.sh -u btc usdt
 
@@ -131,136 +135,162 @@ USAGE EXAMPLES
 
 
 		(5) 	Order book depth view of ETHUSDT (20 levels on each 
-			side), data from Binance.us:
+			side), data from <binance.us>:
 
 			$ binance.sh -bbu eth usdt
 
 
-		(6)     Grep rates for all Bitcoin markets:
-
-			$ binance.sh -l
-
-			
-			Tip: Use pipe and grep to search for specific markets:
+		(6)     Get rates for all Bitcoin markets, use grep to search 
+			for specific markets:
 			
 			$ binance.sh -l	| grep BTC
 
 			
-			OBS: use \"^BTC\" to get markets that start with BTCxxx;
-			     use \"BTC$\" to get markets that  end  with xxxBTC.
+			OBS: \"grep '^BTC'\" to get markets that start with BTCxxx;
+			     \"grep 'BTC$'\" to get markets that  end  with xxxBTC.
+
 
 OPTIONS
-	-NUM 	Shortcut for simple decimal setting, same as \"-fNUM\".
+	-NUM 	   Shortcut for simple decimal setting, same as '-fNUM'.
 
-	-a 	Autoreconnect for Websocat options; defaults=off.
+	-a 	   Autoreconnect for websocat options; defaults=off.
 
-	-b 	Order book depth streams; depth=10; pass twice to depth=20; pass
-		three times to get some book order stats.
+	-b [MKT]   Order book depth, depth=10; twice to depth=20; three times to 
+		   get total ask and bid sizes.
 
-	-c 	Price in columns (last 250 orders); screen prices overlap in 
-		each update; prices update from bottom right to top left; uses
-		cURL/Wget.
+	-c [MKT]   Price in columns (last 250 orders); updates from bottom right to
+		   top left.
 
-	-d  	For debugging; print lines that fetch Binance raw JSON data.
+	-d [MKT]   Some debugging info.
 
-	-f  [NUM|STR]
-	-ff [NUM]
-		Number of decimal plates and printf-like formatting; for use 
-		with options \"-c\", \"-s\" and \"-w\"; defaults=%s.
+	-f [NUM|STR]
+	-ff [NUM]  Number of decimal plates or printf-like formatting; for use 
+		   with options '-csw'; defaults=%s.
 
-	-h 	Show this Help.
+	-h 	   Show this help.
 
-	-i 	Detailed Information of the trade stream; uses websocket.
+	-i [MKT]   Detailed information of the trade stream.
 	
-	-j 	Use Binance.je (Jersey) server; defaults=binance.com (Malta).
+	-j 	   Use <binance.je> server; defaults=<binance.com>.
 
-	-l 	List supported markets (coin pairs and rates).
+	-l 	   List supported markets.
 	
-	-r 	Together  with  options  \"-s\", \"-w\", \"-i\", use cURL/Wget
-		instead of Websocat.
+	-r 	   Use curl/wget instead of websocat with options '-swi'.
 
-	-s 	Stream of lastest trade prices; uses websocket.
+	-s [MKT]   Stream of latest tradesi.
 	
-	-t 	Rolling 24H Ticker for a currency pair/market; uses websocket.
+	-t [MKT]   Rolling 24h ticker.
 
-	-u 	Use Binance.us (US) server; defaults=binance.com (Malta).
-		
-	-v 	Show this script version.
+	-u 	   Use <binance.us> server; defaults=<binance.com>.
+		   
+	-v 	   Script version.
 	
-	-w 	Colored stream of latest trade prices; uses Websocket & Lolcat."
+	-w 	   Coloured stream of latest tradest, requires lolcat."
 
+#functions
 
-## Error Check Function
+#error check
 errf() {
-	if grep -iq -e "err" -e "code" <<< "${JSON}"; then
-		echo "${JSON}"
+	#test for error signals
+	if grep -iq -e 'err' -e 'code' <<< "${JSON}"; then
+		#set log file
 		UNIQ="/tmp/binance_err.log${RANDOM}${RANDOM}"
-		echo "${JSON}" > ${UNIQ}
-		echo "Error detected in JSON." 1>&2
-		echo "${UNIQ}" 1>&2
+		
+		#print json and log, too
+		printf '%s\n' "${JSON}" | tee "${UNIQ}" 1>&2
+
+		printf 'Err detected in JSON.\n' 1>&2
+		printf 'Log file at %s\n' "${UNIQ}" 1>&2
+		
 		exit 1
 	fi
 }
 
-# Functions
-colf() {  # Price in columns
+#-c price in columns
+colf() {
 	while true; do
-		JSON="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")"
+		#get data
+		JSON="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")"
+		
+		#check for errors
 		errf
+
+		#process data
 		jq -r '.[] | .p' <<< "${JSON}" | awk '{ printf "\n'${FSTR}'", $1 }' | column
-		printf "\n"
+		printf '\n'
 	done
-	exit 0
 }
-infof() {  # Price and trade info
-# Note: Only with this method you can access QuoteQty!!
+
+#-i price and trade info
+infof() {
+	#-r use curl
 	curlmode() {
-		printf "Rate, quantity and time (%s).\n" "${2^^}${3^^}"
-	while true; do
-		JSON=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/trades?symbol=${2^^}${3^^}&limit=1")
-		errf
-		RATE="$(jq -r '.[] | .price' <<< "${JSON}")"
-		QQT="$(jq -r '.[] | .quoteQty' <<< "${JSON}")"
-		TS="$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)"
-		DATE="$(date -d@"${TS}" "+%T%Z")"
-		printf "\n${FSTR} \t%'.f\t%s" "${RATE}" "${QQT}" "${DATE}"   
-	done
-	exit 0
+		#heading
+		printf -- 'Rate, quantity and time (%s).\n' "${2^^}${3^^}"
+		
+		#print data in cols and update regularly
+		while true; do
+			#get data
+			JSON=$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/trades?symbol=${2^^}${3^^}&limit=1")
+			
+			#check for errors
+			errf
+			
+			#process data
+			RATE="$(jq -r '.[] | .price' <<< "${JSON}")"
+			QQT="$(jq -r '.[] | .quoteQty' <<< "${JSON}")"
+			TS="$(jq -r '.[] | .time' <<< "${JSON}" | cut -c-10)"
+			DATE="$(date -d@"${TS}" '+%T%Z')"
+			
+			#print
+			printf "\n${FSTR} \t%'.f\t%s" "${RATE}" "${QQT}" "${DATE}"   
+		done
+		exit 0
 	}
-	# cURL Mode?
-	test -n "${CURLOPT}" &&	curlmode "${@}"
+	[[ -n "${CURLOPT}" ]] && curlmode "${@}"
 
-	# Websocat Mode
-	printf "Detailed Stream of %s%s\n" "${2^^}" "${3^^}"
-	printf -- "Price, Quantity and Time.\n"
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tPQ: \((.p|tonumber)*(.q|tonumber)|round)    \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|strflocaltime("%H:%M:%S%Z"))"'
-	exit 0
+	#websocat mode
+	
+	#heading
+	printf -- 'Detailed stream of %s%s\n' "${2^^}" "${3^^}"
+	printf -- 'Price, quantity and time.\n'
+	
+	#open websocket
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '"P: \(.p|tonumber)  \tQ: \(.q)     \tPQ: \((.p|tonumber)*(.q|tonumber)|round)    \t\(if .m == true then "MAKER" else "TAKER" end)\t\(.T/1000|strflocaltime("%H:%M:%S%Z"))"'
 }
 
-socketf() {  # Stream of prices
+#-s stream of prices
+socketf() {
+	#-r use curl
 	curlmode() { 
-		printf "Rate for %s.\n" "${2^^}${3^^}"
+		#heading
+		printf -- 'Rate for %s%s.\n' "${2^^}" "${3^^}"
 		while true; do
-			JSON="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=1")"
+			JSON="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=1")"
 	 		errf
-			jq -r '.[] | .p' <<< "${JSON}" | awk '{ printf "\n'${FSTR}'", $1 }' | ${COLORC}
+			jq -r '.[] | .p' <<< "${JSON}" | awk '{ printf "\n'${FSTR}'", $1 }' | "${COLORC[@]}"
 		done
 		exit 0
 		}
-	# cURL Mode?
-	test -n "${CURLOPT}" &&	curlmode "${@}"
+	[[ -n "${CURLOPT}" ]] && curlmode "${@}"
 
-	# Websocat Mode
-	printf "Stream of %s%s\n" "${2^^}" "${3^^}"
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | ${COLORC}
+	#websocat Mode
+	#heading
+	printf 'Stream of %s%s\n' "${2^^}" "${3^^}"
+	
+	#open websocket
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@aggTrade" | jq --unbuffered -r '.p' | xargs -n1 printf "\n${FSTR}" | "${COLORC[@]}"
 	#stdbuf -i0 -o0 -e0 cut -c-8
-	exit
 }
 
-bookdf() { # Depth of order book (depth=10)
-	printf "Order Book Depth\n"
-	printf "Price and Quantity\n"
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@depth10@100ms" |
+#-b depth of order book (depth=10)
+bookdf() {
+	#heading
+	printf 'Order book depth\n'
+	printf 'Price and quantity\n'
+	
+	#open websocket and process data
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@depth10@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -284,12 +314,16 @@ bookdf() { # Depth of order book (depth=10)
 		"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
 		"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
 		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)"'
-		exit
 }
-bookdef() { # Depth of order book (depth=20)
-	printf "Order Book Depth\n"
-	printf "Price and Quantity\n"
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@depth20@100ms" |
+
+#-b depth of order book (depth=10)
+bookdef() {
+	#heading
+	printf 'Order book depth\n'
+	printf 'Price and quantity\n'
+	
+	#open websocket and process data
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@depth20@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
 		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
 		"",
@@ -333,25 +367,35 @@ bookdef() { # Depth of order book (depth=20)
 		"\t\(.bids[17]|.[0]|tonumber)    \t\(.bids[17]|.[1]|tonumber)",
 		"\t\(.bids[18]|.[0]|tonumber)    \t\(.bids[18]|.[1]|tonumber)",
 		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
-	exit
 }
+
+#-bbb order book total sizes
 booktf() {
-	printf "Order Book Total Stats (%s%s)\n" "${2^^}" "${3^^}"
-	BOOK="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
+	#heading
+	printf 'Total ask and bid sizes (%s%s)\n' "${2^^}" "${3^^}"
+	
+	#get data
+	BOOK="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
+	
+	#process data
 	BIDSL="$(jq '.bids[]|.[1]' <<<"${BOOK}" | wc -l)"
 	ASKSL="$(jq '.asks[]|.[1]' <<<"${BOOK}" | wc -l)"
 	BIDST="$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
 	ASKST="$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
 	BARATE="$(bc -l <<<"scale=4;$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)/$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)")"
-	column -N' ,TOTAL,LEVELS' -s'=' -t <<- TABLE
-	B/A=${BARATE}
-	BIDS=${BIDST}=${BIDSL}
+
+	#print data
+	column -N' ,TOTAL,LEVELS' -s'=' -t <<-!
 	ASKS=${ASKST}=${ASKSL}
-	TABLE
+	BIDS=${BIDST}=${BIDSL}
+	B/A=${BARATE}
+	!
 }
 
-tickerf() { # 24-H Ticker
-	${WEBSOCATC} "${WSSADD}${2,,}${3,,}@ticker" |
+#-t 24-h ticker
+tickerf() {
+	#open websocket and process data
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@ticker" |
 		jq -r '"",.s,.e,(.E/1000|strflocaltime("%H:%M:%S%Z")),
 			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
@@ -374,33 +418,39 @@ tickerf() { # 24-H Ticker
 			"Last  T  :  \(.c|tonumber)  Qty: \(.Q)",
 			"Best Bid :  \(.b|tonumber)  Qty: \(.B)",
 			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
-	exit
 }
-# List markets and prices
+
+#-l list markets and prices
 lcoinsf() {
-	LDATA="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price")"
+	#get data
+	LDATA="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/ticker/price")"
+	
+	#process data
 	jq -r '.[] | "\(.symbol)=\(.price)"' <<< "${LDATA}"| sort | column -s '=' -et -N 'Market,Rate'
-	printf "Markets: %s\n" "$(jq -r '.[].symbol' <<< "${LDATA}"| wc -l)"
-	printf "<https://api.binance.%s/api/v3/ticker/price>" "${WHICHB}"
+	
+	#stats
+	printf 'Markets: %s\n' "$(jq -r '.[].symbol' <<< "${LDATA}"| wc -l)"
+	printf '<https://api.binance.%s/api/v3/ticker/price>\n' "${WHICHB}"
+
 	exit
 }
 
 
-# Parse options
-while getopts ":1234567890abcdf:hjlistuwvr" opt; do
+#parse options
+while getopts ':1234567890abcdf:hjlistuwvr' opt; do
 	case ${opt} in
 		( [0-9] ) #decimal setting, same as '-fNUM'
 			FSTR="${FSTR}${opt}"
 			;;
 		( a ) 	#autoreconnect
-			AUTOR0='-'
-			AUTOR1='autoreconnect:'
+			RETRY1='-'
+			RETRY2='autoreconnect:'
 			;;
-		( c ) # Price in columns
+		( c ) #price in columns
 			COPT=1
 			LIMIT=250
 			;;
-		( b ) # Order book depth view
+		( b ) #order book depth view
 			if [[ -z "${BOPT}" ]]; then
 				BOPT=1
 			elif [[ "${BOPT}" -eq 1 ]]; then
@@ -409,59 +459,59 @@ while getopts ":1234567890abcdf:hjlistuwvr" opt; do
 				BOPT=3
 			fi
 			;;
-		( d ) # Print lines that fetch data
-			printf "Check below script lines that fetch raw JSON data:\n"
-			grep -e "YOURAPP" -e "WEBSOCATC" <"${0}" | sed -e 's/^[ \t]*//' | sort
+		( d ) #print lines that fetch data
+			printf 'Script cmds to fetch data:\n'
+			grep -e 'YOURAPP' -e 'WEBSOCATC' <"${0}" | sed -e 's/^[ \t]*//' | sort
 			exit 0
 			;;
-		( f ) # Scale (decimal plates) and printf-like format numbers
+		( f ) #scale and printf-like format
 			[[ "${OPTARG}" =~ f ]] && FSTRSEP=1 
 			FSTR="${OPTARG#f}"
 			[[ "${OPTARG}" = f ]] && FSTR=0
 			;;
-		( h ) # Help
-			echo -e "${HELP}"
+		( h ) #help
+			printf '%s\n' "${HELP}"
 			exit 0
 			;;
-		( i ) # Detailed latest trade information
+		( i ) #detailed latest trade information
 			IOPT=1
 			;;
-		( j ) # Binance Jersey
-			WHICHB="je"
+		( j ) #binance jersey
+			WHICHB='je'
 			;;
-		( l ) # List markets (coins and respective rates)
+		( l ) #list markets
 			LOPT=1
 			;;
-		( r ) # cURL opt instead of Websocat
+		( r ) #curl instead of websocat
 			CURLOPT=1
 			;;
-		( s ) # Stream of trade prices
-			COLORC="cat"
+		( s ) #stream of trade prices
+			COLORC=(cat)
 			SOPT=1
 			;;
-		( t ) # Rolling Ticker 
+		( t ) #rolling ticker 
 			TOPT=1
 			;;
-		( u ) # Binance US
-			WHICHB="us"
+		( u ) #binance us
+			WHICHB='us'
 			;;
-		( v ) # Version of Script
+		( v ) #script version
 			grep -m1 '\# v' "${0}"
 			exit 0
 			;;
-		( w ) # Coloured stream of trade prices
+		( w ) #coloured stream of trade prices
 			SOPT=1
-			COLORC="lolcat -p 2000 -F 5"
+			COLORC=(lolcat -p 2000 -F 5)
 			;;
 		( \? )
-			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			printf 'Invalid option: -%s\n' "${OPTARG}" 1>&2
 			exit 1
 			;;
 	esac
 done
 shift $((OPTIND -1))
 
-## Set default scale if no custom scale
+#set default scale if no custom scale
 if [[ -z ${FSTR} ]]; then
 	FSTR="${FSTRDEF}"
 elif [[ "${FSTR}" = [0-9]* ]]; then
@@ -474,91 +524,109 @@ else
 	FSTR="${FSTR}"
 fi
 
-# Test for must have packages
+#must have packages
 if ! command -v jq &>/dev/null; then
-	printf "JQ is required.\n" 1>&2
+	printf 'JQ is required.\n' 1>&2
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -s"
+	YOURAPP=(curl -sL)
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP=(wget -qO-)
 else
-	printf "cURL or Wget is required.\n" 1>&2
+	printf 'Curl or wget is required.\n' 1>&2
 	exit 1
 fi
-if [[ -n "${IOPT}${SOPT}${BOPT}${BEOPT}${TOPT}" ]] && [[ -z "${CURLOPT}" ]] && ! command -v websocat &>/dev/null; then
-	printf "Websocat is required.\n" 1>&2
+if [[ -n "${IOPT}${SOPT}${BOPT}${TOPT}" ]] &&
+	[[ -z "${CURLOPT}" ]] && ! command -v websocat &>/dev/null; then
+	printf 'Websocat is required.\n' 1>&2
 	exit 1
 fi
 
-## Call opt functions
-# get a list of markets/coins
-test -n "${LOPT}" && lcoinsf
+#call opt functions
+#list of markets
+[[ -n "${LOPT}" ]] && lcoinsf
 
-# More defaults
-WEBSOCATC="websocat -nt --ping-interval 20 -E --ping-timeout 42 ${AUTOR0}"
-WSSADD="${AUTOR1}wss://stream.binance.${WHICHB}:9443/ws/"
+#set websocket
+#websocat command
+WEBSOCATC=(websocat -nt --ping-interval 20 -E --ping-timeout 42 ${RETRY1})
 
-# Arrange arguments
-# If first argument does not have numbers OR isn't a  valid expression
-if ! [[ "${1}" =~ [0-9] ]] || [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
+#websocket address
+WSSADD="${RETRY2}wss://stream.binance.${WHICHB}:9443/ws/"
+
+#arrange arguments
+#if first arg does not have numbers OR isn't a valid bc expression
+if ! [[ "${1}" =~ [0-9] ]] ||
+	[[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
 	set -- 1 "${@:1:2}"
 fi
 
-# Sets btc as "from_currency" for market code formation
+#set btc as 'from_currency' for market code formation
 if [[ -z ${2} ]]; then
-	set -- "${1}" "BTC"
+	set -- "${1}" BTC
 fi
 
-# Get markets symbols and test if inputs are valid markets
-MARKETS="$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price" | jq -r '.[].symbol')"
+#get market symbol list
+MARKETS="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/ticker/price" | jq -r '.[].symbol')"
+
+#set to_currency if none given
+#or if input is a valid market
 if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
-	if [[ "${WHICHB}" = "com" ]]; then
-		set -- ${@:1:2} "USDT"
-	elif [[ "${WHICHB}" = "je" ]]; then
-		set -- ${@:1:2} "EUR"
+	#copy input so far
+	USERIN="${2}${3}"
+
+	#try to help
+	if [[ "${WHICHB}" = us ]]; then
+		set -- "${1}" "${2}" USD
+	elif [[ "${WHICHB}" = je ]]; then
+		set -- "${1}" "${2}" EUR
 	else
-		set -- ${@:1:2} "USD"
+		set -- "${1}" "${2}" USDT
 	fi
 fi
 
-## Check if input is a supported market 
+#test if input symbols are valid already
 if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
-	printf "ERR: Market not supported: %s%s\n" "${2^^}" "${3^^}" 1>&2
-	printf "List markets with option \"-l\".\n" 1>&2
+	if [[ -n "${USERIN}" ]]; then
+		printf 'Err: not a supported market: %s\n' "${USERIN^^}" 1>&2
+	else
+		printf 'Err: not a supported market: %s%s\n' "${2^^}" "${3^^}" 1>&2
+	fi
+
 	exit 1
+elif [[ -n "${USERIN}" ]]; then
+	printf 'Auto set: %s%s\n' "${2^^}" "${3^^}" 1>&2
 fi
 
-## Call opt functions
-# Detailed Trade info
-test -n "${IOPT}" && infof "${@}"
-# Socket Stream
-test -n "${SOPT}" && socketf "${@}"
-# Book Order Depth View Optios
-if [[ "${BOPT}" -eq 1 ]]; then
-	# Book Order Depth 10
+#call opt functions
+#detailed trade info
+if [[ -n "${IOPT}" ]]; then
+	infof "${@}"
+#price websocket stream
+elif [[ -n "${SOPT}" ]]; then
+	socketf "${@}"
+#order book depth opts
+#order book depth 10
+elif [[ "${BOPT}" -eq 1 ]]; then
 	bookdf "${@}"
+#order book depth 20
 elif [[ "${BOPT}" -eq 2 ]]; then
-	# Book Order Depth 20
 	bookdef "${@}"
+#order book total sizes
 elif [[ "${BOPT}" -eq 3 ]]; then
-	# Book Order total bids/asks max depth levels
 	booktf "${@}"
-	exit
+#24-h ticker
+elif [[ -n "${TOPT}" ]]; then
+	tickerf "${@}"
+#price in columns
+elif [[ -n "${COPT}" ]]; then
+	colf "${@}"
+#default function -- market rates
+else
+	#get data
+	BRATE=$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/ticker/price?symbol=${2^^}${3^^}" | jq -r ".price")
+
+	#calc and printf results
+	bc -l <<< "(${1})*${BRATE}" | xargs printf "${FSTR}\n"
 fi
-# 24-H Ticker
-test -n "${TOPT}" && tickerf "${@}"
-# Price in columns
-test -n "${COPT}" && colf "${@}"
-
-## Crypto conversion/market rate -- DEFAULT OPT
-# Get rate
-BRATE=$(${YOURAPP} "https://api.binance.${WHICHB}/api/v3/ticker/price?symbol=${2^^}${3^^}" | jq -r ".price")
-# Calc and printf results
-bc -l <<< "(${1})*${BRATE}" | xargs printf "${FSTR}\n"
-
-exit 
-
-##Dead code
 
