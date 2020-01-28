@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  -- Bash Crypto Converter and API Access
-# v0.8.1 jan/2020  by mountaineerbr
+# v0.8  jan/2020  by mountaineerbr
 
 # Some defaults
 #Decimal plates and printf-format; defaults=%s.
@@ -344,7 +344,7 @@ booktf() {
 	ASKST="$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
 	BARATE="$(bc -l <<<"scale=4;$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)/$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)")"
 	column -N' ,TOTAL,LEVELS' -s'=' -t <<- TABLE
-	B/A_=${BARATE}
+	B/A=${BARATE}
 	BIDS=${BIDST}=${BIDSL}
 	ASKS=${ASKST}=${ASKSL}
 	TABLE
