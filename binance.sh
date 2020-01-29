@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.2  jan/2020  by mountaineerbr
+# v0.9.3  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -162,7 +162,7 @@ OPTIONS
 
 	-c [LIMIT] 'MKT' 
 		   Price in columns; optionally, limit number of orders fetched
-		   at a time; defaults=250 (max 1000).
+		   at a time; limit defaults=250 (max 1000).
 
 	-d 	   Debugging info.
 
