@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9  jan/2020  by mountaineerbr
+# v0.9.1  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -216,7 +216,7 @@ colf() {
 		errf
 
 		#process data
-		jq -r '.[] | .p' <<< "${JSON}" | awk '{ printf "\n'${FSTR}'", $1 }' | column
+		jq -r '.[] | .p' <<< "${JSON}" | awk '{ printf "'${FSTR}'\n", $0 }' | column 
 		printf '\n'
 	done
 }
@@ -372,22 +372,34 @@ bookdef() {
 #-bbb order book total sizes
 booktf() {
 	#heading
-	printf 'Total ask and bid sizes (%s%s)\n' "${2^^}" "${3^^}"
+	printf 'Order book sizes\n\n'
 	
 	#get data
 	BOOK="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
 	
 	#process data
-	BIDSL="$(jq '.bids[]|.[1]' <<<"${BOOK}" | wc -l)"
-	ASKSL="$(jq '.asks[]|.[1]' <<<"${BOOK}" | wc -l)"
-	BIDST="$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
-	ASKST="$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc -l)"
-	BARATE="$(bc -l <<<"scale=4;$(jq -r '.bids[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)/$(jq -r '.asks[]|.[1]' <<<"${BOOK}" | paste -sd+ | bc)")"
+	#bid levels and total size
+	BIDS=($(jq -r '.bids[]|.[1]' <<<"${BOOK}")) 
+	BIDSL="$(printf '%s\n' "${BIDS[@]}" | wc -l)"
+	BIDST="$(bc -l <<<"${BIDS[@]/%/+}0")"
+	
+	#ask levels and total size
+	ASKS=($(jq -r '.asks[]|.[1]' <<<"${BOOK}"))
+	ASKSL="$(printf '%s\n' "${ASKS[@]}" | wc -l)"
+	ASKST="$(bc -l <<<"${ASKS[@]/%/+}0")"
+	
+	#total levels and total sizes
+	TOTLT="$(bc -l <<<"${BIDSL}+${ASKSL}")"
+	TOTST="$(bc -l <<<"${BIDST}+${ASKST}")"
+	
+	#bid/ask rate
+	BARATE="$(bc -l <<<"scale=4;${BIDST}/${ASKST}")"
 
-	#print data
-	column -N' ,TOTAL,LEVELS' -s'=' -t <<-!
+	#print data in table
+	column -ts= -N"${2^^}${3^^},TOTAL,LEVELS" -TTOTAL <<-!
 	ASKS=${ASKST}=${ASKSL}
 	BIDS=${BIDST}=${BIDSL}
+	TOTAL=${TOTST}=${TOTLT}
 	B/A=${BARATE}
 	!
 }
