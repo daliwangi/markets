@@ -80,9 +80,9 @@ clayprata() { ~/bin/markets/clay.sh -g6 xag brl; }
 		look_back=1
 	fi
 	TS="$(date --date "${look_back} day ago" "+%Y%m%d")"
-	curl -sL "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv" |
-		grep -e XAU -e USD -e EUR |
-		column -et -s\; -NDATA\ ,A,B,COD,COMPRA,VENDA,C,D -TDATA\ ,COMPRA,VENDA -TCOMPRA,VENDA -HA,B,C,D
+	curl -sL "http://www4.bcb.gov.br/Download/fechamento/${TS}.csv" | grep -e XAU -e USD -e EUR |
+		sed -e 's/\/2020//g' -e 's/00*;/;/g' | column -et -s';' -N'DATA,A,B,COD,COMPRA,VENDA,C,D' -T'DATA,COMPRA,VENDA' -H'A,B,C,D'
+	#trimming columns will not work because fd1 is redirected to tee
 	
 
 	echo ""
