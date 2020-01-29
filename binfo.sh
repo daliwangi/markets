@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.13  jan/2020  by mountaineerbr
+# v0.6.14  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -446,7 +446,7 @@ rblockf() {
 		"Time___: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
 		"LocalT_: \(.time | strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		"Bits___: \(.bits)\tNonce__: \(.nonce)",
-		"Version: \(.ver)\tChain__: \(if .main_chain == "true" then "Main" else "Secondary" end)",
+		"Version: \(.ver)\tChain__: \(if .main_chain == true then "Main" else "Secondary" end)",
 		"Height_: \(.height)\t\tWeight_: \(.weight)",
 		"BlkSize: \(.size/1000) KB\tTxCount: \(.n_tx)",
 		"TotlFee: \(.fee/100000000) BTC",
