@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.1  jan/2020  by mountaineerbr
+# v0.9.2  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -19,14 +19,13 @@ HELP="NAME
 
 
 SYNOPSIS
-	binance.sh [-NUM|-ff'NUM'] [-ju] [AMOUNT] MARKET
+	binance.sh [-NUM|-ff\"NUM\"] [-ju] [AMOUNT] MARKET
 
-	binance.sh [-NUM|-ff'NUM'] [-acirsw] [-ju] MARKET
+	binance.sh [-NUM|-ff\"NUM\"] [-acirsw] [-ju] MARKET
 	
 	binance.sh [-bbbt] [-ju] MARKET
 	
 	binance.sh [-dhlv]
-
 
 
 	Get the latest data from Binance public APIs.
@@ -155,21 +154,26 @@ OPTIONS
 
 	-a 	   Autoreconnect for websocat options; defaults=off.
 
-	-b [MKT]   Order book depth, depth=10; twice to depth=20; three times to 
+	-b 'MKT'   
+	-bb 'MKT'   
+	-bbb 'MKT' 
+		   Order book depth, depth=10; twice to depth=20; three times to 
 		   get total ask and bid sizes.
 
-	-c [MKT]   Price in columns (last 250 orders); updates from bottom right to
-		   top left.
+	-c [LIMIT] 'MKT' 
+		   Price in columns; optionally, limit number of orders fetched
+		   at a time; defaults=250 (max 1000).
 
-	-d [MKT]   Some debugging info.
+	-d 	   Debugging info.
 
 	-f [NUM|STR]
-	-ff [NUM]  Number of decimal plates or printf-like formatting; for use 
+	-ff [NUM]  
+		   Number of decimal plates or printf-like formatting; for use 
 		   with options '-csw'; defaults=%s.
 
 	-h 	   Show this help.
 
-	-i [MKT]   Detailed information of the trade stream.
+	-i 'MKT'   Detailed information of the trade stream.
 	
 	-j 	   Use <binance.je> server; defaults=<binance.com>.
 
@@ -177,15 +181,15 @@ OPTIONS
 	
 	-r 	   Use curl/wget instead of websocat with options '-swi'.
 
-	-s [MKT]   Stream of latest tradesi.
+	-s 'MKT'   Stream of latest trades.
 	
-	-t [MKT]   Rolling 24h ticker.
+	-t 'MKT'   Rolling 24h ticker.
 
 	-u 	   Use <binance.us> server; defaults=<binance.com>.
 		   
 	-v 	   Script version.
 	
-	-w 	   Coloured stream of latest tradest, requires lolcat."
+	-w 	   Coloured stream of latest trades, requires lolcat."
 
 #functions
 
@@ -208,9 +212,13 @@ errf() {
 
 #-c price in columns
 colf() {
+	#check if given limit is valid - max 1000
+	((${1}-1)) && ((${1}<=1000)) || set -- 250 "${2}" "${3}"
+	
+	#loop to get prices and print
 	while true; do
 		#get data
-		JSON="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=${LIMIT}")"
+		JSON="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/aggTrades?symbol=${2^^}${3^^}&limit=${1}")"
 		
 		#check for errors
 		errf
@@ -228,7 +236,7 @@ infof() {
 		#heading
 		printf -- 'Rate, quantity and time (%s).\n' "${2^^}${3^^}"
 		
-		#print data in cols and update regularly
+		#print data in one column and update regularly
 		while true; do
 			#get data
 			JSON=$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/trades?symbol=${2^^}${3^^}&limit=1")
