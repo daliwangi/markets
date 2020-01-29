@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.12  jan/2020  by mountaineerbr
+# v0.6.13  jan/2020  by mountaineerbr
 
 ## Some defalts
 LC_NUMERIC=en_US.UTF-8
@@ -216,8 +216,8 @@ sstreamf() {
 					"LocalT_: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tReceivd: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
 				)'
 		N=$((++N))
-		printf 'Log: /tmp/binfo.sh.reconnects.log\n' 1>&2
-		printf 'Reconnection #%s at %s.\n' "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
+		printf '\nLog: /tmp/binfo.sh.reconnects.log\n' 1>&2
+		printf 'Reconnection #%s at %s.\n\n' "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
 		sleep 4
 	done
 	#{"op":"blocks_sub"}
