@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.5  jan/2020  by mountaineerbr
+# v0.9.8  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -152,28 +152,32 @@ USAGE EXAMPLES
 OPTIONS
 	-NUM 	   Shortcut for simple decimal setting, same as '-fNUM'.
 
-	-a 	   Autoreconnect for websocat options; defaults=off.
+	-a 	   Autoreconnect for websocat options; defaults=unset.
 
-	-b 'MKT'   
-	-bb 'MKT'   
-	-bbb 'MKT' 
-		   Order book depth, depth=10; twice to use depth=20; three times
-		   to get order book sizes.
+	-b  [LEVELS] 'MKT'   
+		   Order book depth; valid limits 5, 10 and 20; defaults=20.
+	
+	-bb [LEVELS] 'MKT'
+		   Calculate bid and ask sizes from order book; max levels 5000-
+		   10000; defaults=10000.
 
-	-c [LIMIT] 'MKT' 
+	-c  [LIMIT] 'MKT' 
 		   Price in columns; optionally, limit number of orders fetched
-		   at a time; limit defaults=250 (max 1000).
+		   at a time; max limit 1000; defaults=250.
 
 	-d 	   Debugging info.
 
-	-f [NUM|STR]
+	-f  [NUM|STR]
+		   Number of decimal plates 'NUM' or printf-like formatting of
+		   prices 'STR'; for use with options '-csw'; defaults=%s (same
+		   as received).
+	
 	-ff [NUM]  
-		   Number of decimal plates or printf-like formatting; for use 
-		   with options '-csw'; defaults=%s.
+		   Number of decimal plates, add a thousands separatori, too.
 
 	-h 	   Show this help.
 
-	-i 'MKT'   Detailed information of the trade stream.
+	-i  'MKT'  Detailed information of the trade stream.
 	
 	-j 	   Use <binance.je> server; defaults=<binance.com>.
 
@@ -181,9 +185,9 @@ OPTIONS
 	
 	-r 	   Use curl/wget instead of websocat with options '-swi'.
 
-	-s 'MKT'   Stream of latest trades.
+	-s  'MKT'  Stream of latest trades.
 	
-	-t 'MKT'   Rolling 24h ticker.
+	-t  'MKT'  Rolling 24h ticker.
 
 	-u 	   Use <binance.us> server; defaults=<binance.com>.
 		   
@@ -291,99 +295,48 @@ socketf() {
 	#stdbuf -i0 -o0 -e0 cut -c-8
 }
 
-#-b depth of order book (depth=10)
+#-b depth view of order book
 bookdf() {
+	#test if user set depth limit
+	if [[ "${1}" -ne 5 ]] && [[ "${1}" -ne 10 ]] && [[ "${1}" -ne 20 ]]; then
+		[[ "${1}" -ne 1 ]] && printf 'Warning: valid limits are 5, 10 and 20\n' 1>&2
+		set -- 20 "${2}" "${3}"
+	fi
+	
 	#heading
-	printf 'Order book depth\n'
+	printf 'Order book %s%s\n' "${2,,}" "${3,,}"
 	printf 'Price and quantity\n'
 	
 	#open websocket and process data
-	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@depth10@100ms" |
+	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@depth${1}@100ms" |
 	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
-		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
+		"\nORDER BOOK \($FCUR)\($TCUR)",
 		"",
-		"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
-		"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
-		"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
-		"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
-		"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
-		"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
-		"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
-		"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
-		"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
-		"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
-		"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
-		"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
-		"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
-		"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
-		"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
-		"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
-		"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
-		"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
-		"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
-		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)"'
+		(.asks|[.[range(1;length)]]|reverse[]|
+			"\t\(.[0]|tonumber)    \t\(.[1]|tonumber)"
+		),
+		(.asks[0]|"     > \(.[0]|tonumber)      \t\(.[1]|tonumber)"),
+		(.bids[0]|"     < \(.[0]|tonumber)      \t\(.[1]|tonumber)"),
+		(.bids|.[range(1;length)]|
+			"\t\(.[0]|tonumber)    \t\(.[1]|tonumber)"
+		)'
+	printf '\n'
 }
+#"\tPRICE    \tQTY",
 
-#-b depth of order book (depth=10)
-bookdef() {
-	#heading
-	printf 'Order book depth\n'
-	printf 'Price and quantity\n'
-	
-	#open websocket and process data
-	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@depth20@100ms" |
-	jq -r --arg FCUR "${2^^}" --arg TCUR "${3^^}" '
-		"\nORDER BOOK DEPTH \($FCUR) \($TCUR)",
-		"",
-		"\t\(.asks[19]|.[0]|tonumber)    \t\(.asks[19]|.[1]|tonumber)",
-		"\t\(.asks[18]|.[0]|tonumber)    \t\(.asks[18]|.[1]|tonumber)",
-		"\t\(.asks[17]|.[0]|tonumber)    \t\(.asks[17]|.[1]|tonumber)",
-		"\t\(.asks[16]|.[0]|tonumber)    \t\(.asks[16]|.[1]|tonumber)",
-		"\t\(.asks[15]|.[0]|tonumber)    \t\(.asks[15]|.[1]|tonumber)",
-		"\t\(.asks[14]|.[0]|tonumber)    \t\(.asks[14]|.[1]|tonumber)",
-		"\t\(.asks[13]|.[0]|tonumber)    \t\(.asks[13]|.[1]|tonumber)",
-		"\t\(.asks[12]|.[0]|tonumber)    \t\(.asks[12]|.[1]|tonumber)",
-		"\t\(.asks[11]|.[0]|tonumber)    \t\(.asks[11]|.[1]|tonumber)",
-		"\t\(.asks[10]|.[0]|tonumber)    \t\(.asks[10]|.[1]|tonumber)",
-		"\t\(.asks[9]|.[0]|tonumber)    \t\(.asks[9]|.[1]|tonumber)",
-		"ASKS\t\(.asks[8]|.[0]|tonumber)    \t\(.asks[8]|.[1]|tonumber)",
-		"\t\(.asks[7]|.[0]|tonumber)    \t\(.asks[7]|.[1]|tonumber)",
-		"\t\(.asks[6]|.[0]|tonumber)    \t\(.asks[6]|.[1]|tonumber)",
-		"\t\(.asks[5]|.[0]|tonumber)    \t\(.asks[5]|.[1]|tonumber)",
-		"\t\(.asks[4]|.[0]|tonumber)    \t\(.asks[4]|.[1]|tonumber)",
-		"\t\(.asks[3]|.[0]|tonumber)    \t\(.asks[3]|.[1]|tonumber)",
-		"\t\(.asks[2]|.[0]|tonumber)    \t\(.asks[2]|.[1]|tonumber)",
-		"\t\(.asks[1]|.[0]|tonumber)    \t\(.asks[1]|.[1]|tonumber)",
-		"     > \(.asks[0]|.[0]|tonumber)      \t\(.asks[0]|.[1]|tonumber)",
-		"     < \(.bids[0]|.[0]|tonumber)      \t\(.bids[0]|.[1]|tonumber)",
-		"\t\(.bids[1]|.[0]|tonumber)    \t\(.bids[1]|.[1]|tonumber)",
-		"\t\(.bids[2]|.[0]|tonumber)    \t\(.bids[2]|.[1]|tonumber)",
-		"\t\(.bids[3]|.[0]|tonumber)    \t\(.bids[3]|.[1]|tonumber)",
-		"\t\(.bids[4]|.[0]|tonumber)    \t\(.bids[4]|.[1]|tonumber)",
-		"\t\(.bids[5]|.[0]|tonumber)    \t\(.bids[5]|.[1]|tonumber)",
-		"\t\(.bids[6]|.[0]|tonumber)    \t\(.bids[6]|.[1]|tonumber)",
-		"\t\(.bids[7]|.[0]|tonumber)    \t\(.bids[7]|.[1]|tonumber)",
-		"BIDS\t\(.bids[8]|.[0]|tonumber)    \t\(.bids[8]|.[1]|tonumber)",
-		"\t\(.bids[9]|.[0]|tonumber)    \t\(.bids[9]|.[1]|tonumber)",
-		"\t\(.bids[10]|.[0]|tonumber)    \t\(.bids[10]|.[1]|tonumber)",
-		"\t\(.bids[11]|.[0]|tonumber)    \t\(.bids[11]|.[1]|tonumber)",
-		"\t\(.bids[12]|.[0]|tonumber)    \t\(.bids[12]|.[1]|tonumber)",
-		"\t\(.bids[13]|.[0]|tonumber)    \t\(.bids[13]|.[1]|tonumber)",
-		"\t\(.bids[14]|.[0]|tonumber)    \t\(.bids[14]|.[1]|tonumber)",
-		"\t\(.bids[15]|.[0]|tonumber)    \t\(.bids[15]|.[1]|tonumber)",
-		"\t\(.bids[16]|.[0]|tonumber)    \t\(.bids[16]|.[1]|tonumber)",
-		"\t\(.bids[17]|.[0]|tonumber)    \t\(.bids[17]|.[1]|tonumber)",
-		"\t\(.bids[18]|.[0]|tonumber)    \t\(.bids[18]|.[1]|tonumber)",
-		"\t\(.bids[19]|.[0]|tonumber)    \t\(.bids[19]|.[1]|tonumber)"'
-}
-
-#-bbb order book total sizes
+#-bb order book total sizes
 booktf() {
+	#check if user set limit
+	if [[ "${1}" -eq 1 ]] || [[ "${1}" -gt 10000 ]]; then
+		[[ "${1}" -ne 1 ]] && printf 'Warning: max levels 10000\n' 1>&2
+		set -- 10000 "${2}" "${3}"
+	fi
+
 	#heading
 	printf 'Order book sizes\n\n'
-	
+
 	#get data
-	BOOK="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=10000")"
+	BOOK="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/depth?symbol=${2^^}${3^^}&limit=${1}")"
 	
 	#process data
 	#bid levels and total size
@@ -446,6 +399,7 @@ tickerf() {
 			"Last  T  :  \(.c|tonumber)  Qty: \(.Q)",
 			"Best Bid :  \(.b|tonumber)  Qty: \(.B)",
 			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
+	printf '\n'
 }
 
 #-l list markets and prices
@@ -478,13 +432,7 @@ while getopts ':1234567890abcdf:hjlistuwvr' opt; do
 			COPT=1
 			;;
 		( b ) #order book depth view
-			if [[ -z "${BOPT}" ]]; then
-				BOPT=1
-			elif [[ "${BOPT}" -eq 1 ]]; then
-				BOPT=2
-			elif [[ "${BOPT}" -eq 2 ]]; then
-				BOPT=3
-			fi
+			[[ -z "${BOPT}" ]] && BOPT=1 ||	BOPT=2
 			;;
 		( d ) #print lines that fetch data
 			printf 'Script cmds to fetch data:\n'
@@ -638,11 +586,8 @@ elif [[ -n "${SOPT}" ]]; then
 #order book depth 10
 elif [[ "${BOPT}" -eq 1 ]]; then
 	bookdf "${@}"
-#order book depth 20
-elif [[ "${BOPT}" -eq 2 ]]; then
-	bookdef "${@}"
 #order book total sizes
-elif [[ "${BOPT}" -eq 3 ]]; then
+elif [[ "${BOPT}" -eq 2 ]]; then
 	booktf "${@}"
 #24-h ticker
 elif [[ -n "${TOPT}" ]]; then
