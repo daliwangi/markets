@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.4  jan/2020  by mountaineerbr
+# v0.9.5  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -157,8 +157,8 @@ OPTIONS
 	-b 'MKT'   
 	-bb 'MKT'   
 	-bbb 'MKT' 
-		   Order book depth, depth=10; twice to depth=20; three times to 
-		   get total ask and bid sizes.
+		   Order book depth, depth=10; twice to use depth=20; three times
+		   to get order book sizes.
 
 	-c [LIMIT] 'MKT' 
 		   Price in columns; optionally, limit number of orders fetched
@@ -407,14 +407,17 @@ booktf() {
 
 	#bid/ask rate
 	BARATE="$(bc -l <<<"scale=4;${BIDST}/${ASKST}")"
-
-	#print data in table
+	
+	#print stats
+	#ratio
+	printf 'BID/ASK  %s\n\n' "${BARATE}"
+	
+	#table
 	column -ts= -N"${2^^}${3^^},SIZE,QUOTESIZE,LEVELS" -TSIZE <<-!
 	ASKS=${ASKST}=${ASKSQUOTET}=${ASKSL}
 	BIDS=${BIDST}=${BIDSQUOTET}=${BIDSL}
 	TOTAL=${TOTST}=${TOTQUOTET}=${TOTLT}
 	!
-	printf '\nBID/ASK  %s\n' "${BARATE}"
 }
 
 #-t 24-h ticker
@@ -596,7 +599,7 @@ MARKETS="$("${YOURAPP[@]}" "https://api.binance.${WHICHB}/api/v3/ticker/price" |
 #set to_currency if none given
 #or if input is a valid market
 if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
-	#copy input so far
+	#copy original user input, if any
 	USERIN="${2}${3}"
 
 	#try to help
@@ -609,7 +612,7 @@ if [[ -z ${3} ]] && ! grep -qi "^${2}$" <<< "${MARKETS}"; then
 	fi
 fi
 
-#test if input symbols are valid already
+#test if market is valid
 if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
 	if [[ -n "${USERIN}" ]]; then
 		printf 'Err: not a supported market: %s\n' "${USERIN^^}" 1>&2
@@ -618,8 +621,10 @@ if ! grep -qi "^${2}${3}$" <<< "${MARKETS}"; then
 	fi
 
 	exit 1
-elif [[ -n "${USERIN}" ]]; then
-	printf 'Auto set: %s%s\n' "${2^^}" "${3^^}" 1>&2
+#print reminder message that the script needed to help
+#user input to form a market pair
+#elif [[ -n "${USERIN}" ]]; then
+#	printf 'Autoset: %s%s\n' "${2^^}" "${3^^}" 1>&2
 fi
 
 #call opt functions
