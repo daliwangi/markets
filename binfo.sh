@@ -1,37 +1,48 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.6.14  jan/2020  by mountaineerbr
+# v0.7  jan/2020  by mountaineerbr
 
-## Some defalts
+#defaults
+
+#don't change these
 LC_NUMERIC=en_US.UTF-8
 
 HELP="NAME
     binfo.sh  -- Bitcoin Blockchain Explorer for Bash
-    		 Bash Interface for Blockchain.info & Blockchair.com APIs
+    		 Bash Interface for <blockchain.info> & <blockchair.com> APIs
 
 
 SYNOPSIS
-	$ binfo.sh  [-aass \"AddressHx\"]
+	$ binfo.sh  'Hx'
+	
+	$ binfo.sh  [-aass] 'AddrHx'
 
-	$ binfo.sh  [-b \"BlockHx|ID\"] [-n \"BlockHeight\"]
+	$ binfo.sh  [-b 'BlkHx|ID'] [-n 'BlkHeight']
 
-	$ binfo.sh  [-tt \"TransactionHx|ID\"]
+	$ binfo.sh  [-tt] 'TxHx|ID'
 
 	$ binfo.sh  [-ehiiluv]
 
 
 	Fetch information of Bitcoin blocks, addresses and transactions from
-	Blockchain.info (same as Blockchain.com) public APIs. It is intended to
-	be used as a simple Bitcoin blockchain explorer. Only one argument
-	(block has, transaction hash, etc) is accepted at a time. Blockchain.info
-	and Blockchair may provide an internal index number of blocks, transac-
-	tions, etc to use instead of their respective hashes.
+	<blockchain.info> public APIs. It is intended to be used as a simple Bit-
+	coin blockchain explorer. Only one argument (block, address, transaction
+	hash, etc) is accepted at a time.
 
-	Blockchain.info still does not support segwit addresses. On the other
-	hand, Blockchair.com supports segwit and other types of addresses and
-	was implemented in this programme for such cases.
+	If no optioni is given, the programme will try to select the appropriate
+	option automatically, for example, it will determine between block, ad-
+	dress and transaction hashes. If only an interger is given, the pro-
+	gramme will understand that as a block height.
 
-	The new block notification (option \"-e\") websocket connection is ex-
+	<Blockchain.info> and <blockchair.com> may provide an internal index num-
+	ber (ID) of blocks, transactions, etc to use instead of their respective
+	hashes. However, options for IDs cannot be selected automatically.
+
+	<Blockchain.info> still does not support segwit (bech32) addresses. On 
+	the other hand, <blockchair.com> supports segwit and other types of 
+	addresses and was implemented in this programme for such cases.
+
+	The new block notification (option '-e') websocket connection is ex-
 	pected to drop occasionally. Automatic reconnection will be tried.
 
 
@@ -47,7 +58,6 @@ WARRANTY
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
-
 BLOCKCHAIN STRUCTURE
 	The blockchain has four basic levels of organisation:
 
@@ -57,10 +67,10 @@ BLOCKCHAIN STRUCTURE
 		(3)  Transaction
 
 	If you do not have a specific address or transaction to lookup, try
-	fetching the latest block hash and transaction info (option \"-l\").
+	fetching the latest block hash and transaction info (option '-l').
 	Note that the latest block takes a while to process, so you only get
-	transaction IDs at first. For thorough block information, use option \"-b\"
-	with the block hash. You can also inspect a block with option \"-n\"
+	transaction IDs at first. For thorough block information, use option '-b'
+	with the block hash. You can also inspect a block with option '-n'
 	and its height number.
 
 
@@ -133,7 +143,7 @@ USAGE EXAMPLES
 		binfo.sh -a 34xp4vRoCGJym3xR7yCVPFHoCNxv4Twseo
 
 
-	(7) Transaction information from Blockchair (pass \"-t\" twice) (the pizza tx):
+	(7) Transaction information from Blockchair (pass '-t' twice) (the pizza tx):
 
 		binfo.sh -tt a1075db55d416d3ca199f55b6084e2115b9345e16c5cf302fc80e9d5fbf5d48d
 
@@ -175,30 +185,30 @@ OPTIONS
 
       -v 	Print script version."
 
-## Functions
+#functions
 
 #check for error response from blockchair
 chairerrf() {
-	if [[ "$(jq -r '.context.code' <<<"${1}")" != "200" ]]; then
-		printf "Err: <blockchair.com> -- server response\n" 1>&2
+	if [[ "$(jq -r '.context.code' <<<"${1}")" != 200 ]]; then
+		printf 'Err: <blockchair.com> -- server response\n' 1>&2
 		exit 1
 	fi
 }
 
-## -e Socket stream for new blocks
+#-e socket stream for new blocks
 sstreamf() {
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from latest block.\n" 1>&2
-		websocat --text "wss://ws.blockchain.info/inv" <<< "{'op':'ping_block'}"
+		printf 'JSON from latest block.\n' 1>&2
+		websocat --text 'wss://ws.blockchain.info/inv' <<< '{"op":"ping_block"}'
 		exit 0
 	fi
 	#trap sigint ctrl+c
 	trap 'exit' SIGINT
-	# Start websocket connection and loop for recconeccting
+	#start websocket connection and loop for recconeccting
 	while true; do
-		printf "New-block-found notification stream\n" 1>&2
-		websocat --text --no-close --ping-interval 18 "wss://ws.blockchain.info/inv" <<< '{"op":"blocks_sub"}' |
+		printf 'New-block-found notification stream\n' 1>&2
+		websocat --text --no-close --ping-interval 18 'wss://ws.blockchain.info/inv' <<< '{"op":"blocks_sub"}' |
 			jq -r '"",
 				"--------",
 				"New block found!",
@@ -217,7 +227,7 @@ sstreamf() {
 				)'
 		N=$((++N))
 		printf '\nLog: /tmp/binfo.sh.reconnects.log\n' 1>&2
-		printf 'Reconnection #%s at %s.\n\n' "${N}" "$(date "+%Y-%m-%dT%H:%M:%S%Z")" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
+		printf 'Reconnection #%s at %s.\n\n' "${N}" "$(date '+%Y-%m-%dT%H:%M:%S%Z')" | tee -a /tmp/binfo.sh_connect_retries.log 1>&2
 		sleep 4
 	done
 	#{"op":"blocks_sub"}
@@ -225,19 +235,19 @@ sstreamf() {
 	#{"op":"ping"}
 }
 
-## -i 24-H Ticker for the Bitcoin Blockchain
+#-i 24-h ticker for the bitcoin blockchain
 blkinfof() {
-	printf "Bitcoin Blockchain General Info\n"
-	CHAINJSON="$(${YOURAPP} "https://api.blockchain.info/stats")"
+	printf 'Bitcoin Blockchain General Info\n'
+	CHAINJSON="$("${YOURAPP[@]}" 'https://api.blockchain.info/stats')"
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the 24H ticker function.\n" 1>&2
-		printf "%s\n" "${CHAINJSON}"
+		printf 'JSON from the 24H ticker function.\n' 1>&2
+		printf '%s\n' "${CHAINJSON}"
 		exit 0
 	fi
 
-	# Print the 24-H ticker
+	#print the 24-h ticker
 	jq -r '"Time___: \((.timestamp/1000)|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
 		"",
 		"Blockchain",
@@ -277,31 +287,31 @@ blkinfof() {
 		"Blocks_: -\(.nextretarget-.n_blocks_total)",
 		"Days___: -\( (.nextretarget-.n_blocks_total)*.minutes_between_blocks/(60*24))"' <<< "${CHAINJSON}"
 
-	# Some more stats
-	printf "\nMempool (unconfirmed txs)\n"
-	printf "TxCount: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
-	printf "Blk_ETA: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/eta")/60")"
-	printf "Last 100 blocks\n"
-	printf "AvgTx/B: %.0f\n" "$(${YOURAPP} "https://blockchain.info/q/avgtxnumber")"
-	printf "AvgBlkT: %.2f minutes\n" "$(bc -l <<< "$(${YOURAPP} "https://blockchain.info/q/interval")/60")"
+	#some more stats
+	printf '\nMempool (unconfirmed txs)\n'
+	printf 'TxCount: %s\n' "$("${YOURAPP[@]}" 'https://blockchain.info/q/unconfirmedcount')"
+	printf 'Blk_ETA: %.2f minutes\n' "$(bc -l <<< "$("${YOURAPP[@]}" 'https://blockchain.info/q/eta')/60")"
+	printf 'Last 100 blocks\n'
+	printf 'AvgTx/B: %.0f\n' "$("${YOURAPP[@]}" 'https://blockchain.info/q/avgtxnumber')"
+	printf 'AvgBlkT: %.2f minutes\n' "$(bc -l <<< "$("${YOURAPP[@]}" 'https://blockchain.info/q/interval')/60")"
 }
 
-## -ii Ticker for the Bitcoin Blockchain from Blockchair (updates every ~5min)
+#-ii ticker for the bitcoin blockchain from blockchair (updates every ~5min)
 chairblkinfof() {
 	#get data
-	CHAINJSON="$(${YOURAPP} "https://api.blockchair.com/bitcoin/stats")"
+	CHAINJSON="$("${YOURAPP[@]}" 'https://api.blockchair.com/bitcoin/stats')"
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the chair 24H ticker function.\n" 1>&2
-		printf "%s\n" "${CHAINJSON}"
+		printf 'JSON from the chair 24H ticker function.\n' 1>&2
+		printf '%s\n' "${CHAINJSON}"
 		exit 0
 	fi
 
 	#check for error response
 	chairerrf "${CHAINJSON}"
 
-	# Print the 24H ticker
+	#print the 24h ticker
 	jq -r '"Bitcoin Blockchain Stats (Blockchair)",
 		"TStamp_: \(.context.cache.since)",
 		"",
@@ -363,7 +373,7 @@ chairblkinfof() {
 			(.countdowns[]|"Event__: \(.event)","TimLeft: \(.time_left/86400) days")
 		)' <<< "${CHAINJSON}"
 
-		## SPECIAL function for the Halving!!
+		##special function for the halving!!
 		HTIME="$(jq -r '.data.countdowns[]|select(.event=="Reward halving").time_left' <<<"${CHAINJSON}")"
 		if [[ -n "${HTIME}" ]]; then
 			printf '\n'
@@ -375,16 +385,16 @@ chairblkinfof() {
 		fi
 }
 
-## -n Block info by height
+#-n block info by height
 hblockf() {
 	#fetch data
-	RAWBORIG="$(${YOURAPP} "https://blockchain.info/block-height/${1}?format=json")"
+	RAWBORIG="$("${YOURAPP[@]}" "https://blockchain.info/block-height/${1}?format=json")"
 	RAWB="$(jq -er '.blocks[]' <<< "${RAWBORIG}" 2>/dev/null)" || unset RAWB
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the heigh/n block info function.\n" 1>&2
-		printf "%s\n" "${RAWB}"
+		printf 'JSON from the heigh/n block info function.\n' 1>&2
+		printf '%s\n' "${RAWB}"
 		exit 0
 	fi
 
@@ -392,19 +402,19 @@ hblockf() {
 	rblockf
 }
 
-## -l Latest block summary info
+#-l latest block summary info
 latestf() {
-	# Get JSON ( only has hash, time, block_index, height and txIndexes )
-	LBLOCK="$(${YOURAPP} "https://blockchain.info/latestblock")"
+	#get json ( only has hash, time, block_index, height and txindexes )
+	LBLOCK="$("${YOURAPP[@]}" 'https://blockchain.info/latestblock')"
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the lastest block function.\n" 1>&2
-		printf "%s\n" "${LBLOCK}"
+		printf 'JSON from the lastest block function.\n' 1>&2
+		printf '%s\n' "${LBLOCK}"
 		exit 0
 	fi
 
-	# Print the other info
+	#print the other info
 	jq -r '"Latest block",
 		"Blk_Hx: \(.hash)",
 		"Height: \(.height)",
@@ -412,31 +422,31 @@ latestf() {
 		"LocalT: \(.time |strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${LBLOCK}"
 }
 
-## -b Raw Block info
+#-b raw block info
 rblockf() {
-	# Check whether input has block hash or
-	# whether RAWB is from the hblockf function
+	#check whether input has block hash or
+	#whether rawb is from the hblockf function
 	if [[ -z "${RAWB}" ]] && [[ -z "${1}" ]]; then
-		printf "Fetching latest block data..\r" 1>&2
-		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/$(${YOURAPP} "https://blockchain.info/latestblock" | jq -r '.hash')")"
+		printf 'Fetching latest block data..\r' 1>&2
+		RAWB="$("${YOURAPP[@]}" "https://blockchain.info/rawblock/$("${YOURAPP[@]}" 'https://blockchain.info/latestblock' | jq -r '.hash')")"
 	elif [[ -z "${RAWB}" ]]; then
-		RAWB="$(${YOURAPP} "https://blockchain.info/rawblock/${1}")"
+		RAWB="$("${YOURAPP[@]}" "https://blockchain.info/rawblock/${1}")"
 	fi
 
-	# print JSON?
+	#print json?
 	if [[ -n "${PJSON}" ]]; then
-		printf "JSON from the raw block info function.\n" 1>&2
-		printf "%s\n" "${RAWB}"
+		printf 'JSON from the raw block info function.\n' 1>&2
+		printf '%s\n' "${RAWB}"
 		exit 0
 	fi
 
-	# Print Txs info
-	# Get txs and call rawtxf function
+	#print txs info
+	#get txs and call rawtxf function
 	RAWTX="$(jq -r '.tx[]' <<< "${RAWB}")"
 	rtxf
 
-	# Print Block info
-	printf "\n\nBlock Info\n"
+	#print block info
+	printf '\n\nBlock Info\n'
 	jq -r '"",
 		"--------",
 		"Hash___: \(.hash)",
@@ -459,68 +469,68 @@ rblockf() {
 	OO=($(jq -r '.tx[].out[].value // empty' <<< "${RAWB}"))
 	VIN=$(bc -l <<< "(${II[*]/%/+}0)/100000000")
 	VOUT=$(bc -l <<< "(${OO[*]/%/+}0)/100000000")
-	BLKREWARD=$(printf "%s-%s\n" "${VOUT}" "${VIN}" | bc -l)
+	BLKREWARD=$(printf '%s-%s\n' "${VOUT}" "${VIN}" | bc -l)
 	printf "Reward_: %'.8f BTC\n" "${BLKREWARD}"
 	printf "Input__: %'.8f BTC\n" "${VIN}"
 	printf "Output_: %'.8f BTC\n" "${VOUT}"
 }
 
-## -a Address info
+#-a address info
 raddf() {
-	# -s Address Sumary?
+	#-s address sumary?
 	if [[ -n "${SUMMARYOPT}" ]]; then
-		SUMADD=$(${YOURAPP} "https://blockchain.info/balance?active=${1}")
-		# Print JSON?
+		SUMADD=$("${YOURAPP[@]}" "https://blockchain.info/balance?active=${1}")
+		#print json?
 		if [[ -n  "${PJSON}" ]]; then
-			printf "JSON from the summary address function.\n" 1>&2
-			printf "%s\n" "${SUMADD}"
+			printf 'JSON from the summary address function.\n' 1>&2
+			printf '%s\n' "${SUMADD}"
 			exit 0
 		fi
 
-		# Check for error, then try Blockchair
-		if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${SUMADD}"; then
-			printf "Err: <blockchain.com> -- %s\n" "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
-			printf "Trying with <blockchair.com>..\r" 1>&2
+		#check for error, then try blockchair
+		if grep -iq -e 'err:' -e 'illegal' -e 'invalid' -e 'Checksum does not validate' <<< "${SUMADD}"; then
+			printf 'Err: <blockchain.com> -- %s\n' "$(jq -r '.reason' <<<"${SUMADD}")" 1>&2
+			printf 'Trying with <blockchair.com>..\r' 1>&2
 			chairaddf "${1}"
 			exit
 		fi
 
 		#print addr information
-		printf "Summary Address Info\n"
+		printf 'Summary Address Info\n'
 		jq -r '"Address: \(keys[])",
-		(.[]|
-		"TxCount: \(.n_tx)",
-		"Receivd: \(.total_received)  \(.total_received/100000000) BTC",
-		"Sent___: \(.total_received-.final_balance)  \((.total_received-.final_balance)/100000000) BTC",
-		"Balance: \(.final_balance)  \(.final_balance/100000000) BTC"
+			(.[]|
+			"TxCount: \(.n_tx)",
+			"Receivd: \(.total_received)  \(.total_received/100000000) BTC",
+			"Sent___: \(.total_received-.final_balance)  \((.total_received-.final_balance)/100000000) BTC",
+			"Balance: \(.final_balance)  \(.final_balance/100000000) BTC"
 			)' <<< "${SUMADD}"
 		exit 0
 	fi
 
 	#full address information
 	#get raw addr data
-	RAWADD=$(${YOURAPP} "https://blockchain.info/rawaddr/${1}")
+	RAWADD=$("${YOURAPP[@]}" "https://blockchain.info/rawaddr/${1}")
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the address function.\n" 1>&2
-		printf "%s\n" "${RAWADD}"
+		printf 'JSON from the address function.\n' 1>&2
+		printf '%s\n' "${RAWADD}"
 		exit 0
 	fi
 
-	# Check for error, try Blockchair
-	if grep -iq -e "err:" -e "illegal" -e "invalid" -e "Checksum does not validate" <<< "${RAWADD}"; then
-		printf "Err: <blockchain.com> -- %s\n" "${RAWADD}" 1>&2
-		printf "Trying with <blockchair.com>..\r" 1>&2
+	#check for error, try blockchair
+	if grep -iq -e 'err:' -e 'illegal' -e 'invalid' -e 'Checksum does not validate' <<< "${RAWADD}"; then
+		printf 'Err: <blockchain.com> -- %s\n' "${RAWADD}" 1>&2
+		printf 'Trying with <blockchair.com>..\r' 1>&2
 		chairaddf "${1}"
 		exit
 	fi
 
-	# Tx info
-	# Get txs and call rawtxf function
-	RAWTX="$(jq -r '.txs[]' <<< "${RAWADD}")"
+	#tx info
+	#get txs and call rawtxf function
+	RAWTX="$(jq -r '.txs|reverse[]' <<< "${RAWADD}")"
 	rtxf
-	printf "\n\nAddress Info\n"
+	printf '\n\nAddress Info\n'
 	jq -r '"",
 		"--------",
 		"Address: \(.address)",
@@ -531,15 +541,15 @@ raddf() {
 		"Balance: \(.final_balance)  \(.final_balance/100000000) BTC"' <<< "${RAWADD}"
 }
 
-## -aa Address Info ( from Blockchair )
+#-aa address info ( from blockchair )
 chairaddf() {
-	# Get address info
-	CHAIRADD="$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${1}?limit=10000")"
+	#get address info
+	CHAIRADD="$("${YOURAPP[@]}" "https://api.blockchair.com/bitcoin/dashboards/address/${1}?limit=10000")"
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the blockchair address function.\n" 1>&2
-		printf "%s\n" "${CHAIRADD}"
+		printf 'JSON from the blockchair addr function.\n' 1>&2
+		printf '%s\n' "${CHAIRADD}"
 		exit 0
 	fi
 
@@ -547,14 +557,14 @@ chairaddf() {
 	chairerrf "${CHAIRADD}"
 
 	#check for no results
-	if [[ "$(jq -r '.context.results' <<<"${CHAIRADD}")" = "0" ]]; then
-		printf "Warning: <blockchair.com> -- no results for this address\n" 1>&2
+	if [[ "$(jq -r '.context.results' <<<"${CHAIRADD}")" = 0 ]]; then
+		printf 'Warning: <blockchair.com> -- no results for this address\n' 1>&2
 		exit 1
 	fi
 
-	# -s Summary Address Information ?
+	#-s summary address information ?
 	if [[ -n "${SUMMARYOPT}" ]]; then
-		printf "Summary Address Info (Blockchair)\n"
+		printf 'Summary Address Info (Blockchair)\n'
 		jq -r '"Address: \(.data|keys[0])",
 			(.data[].address|
 				"TxCount: \(.transaction_count)",
@@ -565,18 +575,18 @@ chairaddf() {
 		exit
 	fi
 
-	# Print Tx Hashes (only last 10000)
-	printf "\nTx Hashes (max 10000):\n"
-	jq -r '.data[] | "\t\(.transactions[])"' <<< "${CHAIRADD}"
+	#print tx hashes (only last 10000)
+	printf '\nTx Hashes (max 10000):\n'
+	jq -r '.data[] | "\t\(.transactions|reverse[])"' <<< "${CHAIRADD}"
 
-	# Print unspent tx
-	printf "\nUnspent Txs:\n"
+	#print unspent tx
+	printf '\nUnspent Txs:\n'
 	jq -er '.data[].utxo[]|
 			"\t\(.transaction_hash)",
-			"\t ^Block: \(.block_id)  Value: \(.value)  \(.value/100000000) BTC"' <<< "${CHAIRADD}" || printf "No unspent tx list.\n"
+			"\t ^Block: \(.block_id)  Value: \(.value)  \(.value/100000000) BTC"' <<< "${CHAIRADD}" || printf 'No unspent tx list.\n'
 
-	# Print Address info
-	printf "\n\nAddress Info\n"
+	#print address info
+	printf '\n\nAddress Info\n'
 	jq -r '"",
 		"--------",
 		"Address: \(.data|keys[0])",
@@ -595,27 +605,27 @@ chairaddf() {
 		)' <<< "${CHAIRADD}"
 }
 
-## -t Raw Tx info
+#-t raw tx info
 rtxf() {
-	# Check if there is a RAWTX from another function already
+	#check if there is a rawtx from another function already
 	if [[ -z "${RAWTX}" ]]; then
-		RAWTX=$(${YOURAPP} "https://blockchain.info/rawtx/${1}")
+		RAWTX=$("${YOURAPP[@]}" "https://blockchain.info/rawtx/${1}")
 	fi
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		# only if from tx opts explicitly
-		printf "JSON from the tx function.\n" 1>&2
-		printf "%s\n" "${RAWTX}"
+		#only if from tx opts explicitly
+		printf 'JSON from the tx function.\n' 1>&2
+		printf '%s\n' "${RAWTX}"
 		exit 0
 	fi
 
-	# Test for no Tx info received, maybe there is no tx done at an address
+	#test for no tx info received, maybe there is no tx done at an address
 	if ! jq -e '.hash' <<<"${RAWTX}" 1>/dev/null 2>&1; then
-		printf "No transaction info        \n"
+		printf 'No transaction info        \n'
 		return 1
 	else
-		printf "Transaction Info           \n" #whitespaces to rm previous loading message
+		printf 'Transaction Info           \n' #whitespaces to rm previous loading message
 	fi
 
 	jq -r '"",
@@ -632,21 +642,21 @@ rtxf() {
 		(.out[]|"    \(.addr)  \(if .value == null then "??" else (.value/100000000) end) BTC  \(if .spent == true then "SPENT" else "UNSPENT" end)  \(.addr_tag // "")")' <<< "${RAWTX}"
 }
 
-## -tt Transaction info from Blockchair.com
+#-tt transaction info from <blockchair.com>
 chairrtxf() {
-	TXCHAIR=$(${YOURAPP} "https://api.blockchair.com/bitcoin/dashboards/transaction/${1}")
-	# Print JSON?
+	TXCHAIR=$("${YOURAPP[@]}" "https://api.blockchair.com/bitcoin/dashboards/transaction/${1}")
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the chair tx function.\n" 1>&2
-		printf "%s\n" "${TXCHAIR}"
+		printf 'JSON from the chair tx function.\n' 1>&2
+		printf '%s\n' "${TXCHAIR}"
 		exit 0
 	fi
-	# Test response from server
-	if grep -iq "DOCTYPE html" <<< "${TXCHAIR}"; then
-		printf "Err: <blockchair.com> -- transaction not found\n" 1>&2
+	#test response from server
+	if grep -iq 'DOCTYPE html' <<< "${TXCHAIR}"; then
+		printf 'Err: <blockchair.com> -- transaction not found\n' 1>&2
 		exit 1
 	fi
-	printf "Transaction Info (Blockchair)\n"
+	printf 'Transaction Info (Blockchair)\n'
 	jq -r '(.data[].transaction|
 			"",
 			"--------",
@@ -672,155 +682,180 @@ chairrtxf() {
 		)' <<< "${TXCHAIR}"
 }
 
-## -u | -m Memory Pool Unconfirmed Txs ( Mempool )
-# Only 48 last transaction, prefer Blockchair.com api
+#-u | -m memory pool unconfirmed txs ( mempool )
+#only 48 last transaction, prefer <blockchair.com> api
 #utxf() {
 #	printf "Unconfirmed transactions (Mempool).\n" 1>&2
-#	RAWTX="$(${YOURAPP} "https://blockchain.info/unconfirmed-transactions?format=json" | jq -r '.txs[]')"
+#	RAWTX="$("${YOURAPP[@]}" "https://blockchain.info/unconfirmed-transactions?format=json" | jq -r '.txs[]')"
 #	rtxf
 #	exit
 #}
 
-## -u | -m Memory Pool Unconfirmed Txs (Mempool) from Blockchair
-## Uses blockchain.info and blockchair.com
+#-u | -m memory pool unconfirmed txs (mempool) from blockchair
+#uses blockchain.info and blockchair.com
 utxf() {
-	printf "Addresses and balance deltas:\n"
-	printf "Waiting server response..\r" 1>&2
-	MEMPOOL="$(${YOURAPP} "https://api.blockchair.com/bitcoin/state/changes/mempool")"
+	printf 'Addresses and balance deltas:\n'
+	printf 'Waiting server response..\r' 1>&2
+	MEMPOOL="$("${YOURAPP[@]}" 'https://api.blockchair.com/bitcoin/state/changes/mempool')"
 
-	# Print JSON?
+	#print json?
 	if [[ -n  "${PJSON}" ]]; then
-		printf "JSON from the mempool function.\n" 1>&2
-		printf "%s\n" "${MEMPOOL}"
+		printf 'JSON from the mempool function.\n' 1>&2
+		printf '%s\n' "${MEMPOOL}"
 		exit 0
 	fi
 
 	#check for error response
 	chairerrf "${MEMPOOL}"
 
-	# Print Addresses and balance delta (in satoshi and BTC)
+	#print addresses and balance delta (in satoshi and btc)
 	#addresses and balance deltas
 	jq -r '.data | keys_unsorted[] as $k | "\($k)  \(.[$k])  \(.[$k]/100000000) BTC"' <<< "${MEMPOOL}"
 
 	#some more info
-	printf "\nUnconfirmed txs (Mempool)\n"
+	printf '\nUnconfirmed txs (Mempool)\n'
 	jq -r '(.context.cache|"TStamp_: \(.since)  Duration: \(.duration)")' <<< "${MEMPOOL}"
-	printf "Addrs__: %s\n" "$(jq -r '.context.results' <<<"${MEMPOOL}")"
-	printf "TxCount: %s\n" "$(${YOURAPP} "https://blockchain.info/q/unconfirmedcount")"
+	printf 'Addrs__: %s\n' "$(jq -r '.context.results' <<<"${MEMPOOL}")"
+	printf 'TxCount: %s\n' "$("${YOURAPP[@]}" 'https://blockchain.info/q/unconfirmedcount')"
 
 	#calc total value of mempool
 	TOTALDELTA=($(jq -r '.data[]|tostring|match("^[1-9][0-9]+")|.string' <<<"${MEMPOOL}"))
-	printf "TtValue: %.8f  BTC\n" "$(bc -l <<<"(${TOTALDELTA[*]/%/+}0)/100000000")"
-	#TOTALDELTA="$(jq -r '.data[]|tostring|match("^[1-9][0-9]+")|.string' <<<"${MEMPOOL}" | paste -sd+ | bc -l)"
-	#TOTALDELTA="$(bc -l <<<"${TOTALDELTA}/100000000")"
-	#printf "TtValue: %.8f  BTC\n" "${TOTALDELTA}"
+	printf 'TtValue: %.8f  BTC\n' "$(bc -l <<<"(${TOTALDELTA[*]/%/+}0)/100000000")"
 }
 
-## Check if there is any argument
-if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-	printf "Run with -h for help.\n"
-	exit 0
-fi
-# Must have packages
+#check if there is any argument
+#if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
+#	printf "Run with -h for help.\n"
+#	exit 0
+#fi
+
+#must have packages
 if ! command -v jq &>/dev/null; then
-	printf "JQ is required.\n" 1>&2
+	printf 'JQ is required.\n' 1>&2
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP=(curl -sL)
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP=(wget -qO-)
 else
-	printf "cURL or Wget is required.\n" 1>&2
+	printf 'cURL or Wget is required.\n' 1>&2
 	exit 1
 fi
 
-# Parse options
-while getopts ":abehijlmnsutv" opt; do
+#parse options
+while getopts ':abehijlmnsutv' opt; do
 	case ${opt} in
-		( a ) # Address info
+		( a ) #address info
 			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
 			;;
-		( b ) # Raw Block info
+		( b ) #raw block info
 			RAWOPT=1
 			;;
-		( e ) # Soket mode for new BTC blocks
+		( e ) #soket mode for new btc blocks
 			STREAMOPT=1
 			;;
-		( h ) # Help
-			printf "%s\n" "${HELP}"
+		( h ) #help
+			printf '%s\n' "${HELP}"
 			exit 0
 			;;
-		( i ) # 24-H Blockchain Ticker
+		( i ) #24-h blockchain ticker
 			test -z "${BLKCHAINOPT}" && BLKCHAINOPT=info || BLKCHAINOPT=chair
 			;;
-		( j ) # Print JSON
+		( j ) #print json
 			PJSON=1
 			;;
-		( l ) # Latest Block info
+		( l ) #latest block info
 			LATESTOPT=1
 			;;
-		( m|u ) # Memory Pool Unconfirmed Txs
+		( m|u ) #memory pool unconfirmed txs
 			MEMOPT=1
 			;;
-		( n ) # Block Height info
+		( n ) #block height info
 			HOPT=1
 			;;
-		( s ) # Summary  Address info
+		( s ) #summary  address info
 			SUMMARYOPT=1
 			test -z "${ADDOPT}" && ADDOPT=info || ADDOPT=chair
 			;;
-		( t ) # Transaction info
+		( t ) #transaction info
 			test -z "${TXOPT}" && TXOPT=info || TXOPT=chair
 			;;
-		( v ) # Version of Script
+		( v ) #version of script
 			head "${0}" | grep -e '# v'
 			exit 0
 			;;
 		( \? )
-			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			printf 'Invalid option: -%s\n' "${OPTARG}" 1>&2
 			exit 1
 			;;
 	 esac
 done
 shift $((OPTIND -1))
 
-# Check function args
+#check function args
 if { [[ -n "${ADDOPT}" ]] || [[ -n "${TXOPT}" ]];} && [[ -z "${1}" ]]; then
-	printf "Err -- hash is needed\n" 1>&2
+	printf 'Err -- hash is needed\n' 1>&2
 	exit 1
 fi
 
-# Call opts
-# New block stream
+#call opts
+#new block stream
 if [[ -n "${STREAMOPT}" ]]; then
 	sstreamf
-# Blockchain information / stats
+#blockchain information / stats
 elif [[ "${BLKCHAINOPT}" = info ]]; then
 	blkinfof
 elif [[ "${BLKCHAINOPT}" = chair ]]; then
 	chairblkinfof
-# Blocks
+#blocks
 elif [[ -n "${LATESTOPT}" ]]; then
 	latestf
+#block by height
 elif [[ -n "${HOPT}" ]]; then
 	hblockf "${1}"
+#block by hash
 elif [[ -n "${RAWOPT}" ]]; then
 	rblockf "${1}"
-# Addresses
+#addresses
 elif [[ "${ADDOPT}" = info ]]; then
 	raddf "${1}"
 elif [[ "${ADDOPT}" = chair ]]; then
 	chairaddf "${1}"
-# Transactions
+#transactions
 elif [[ "${TXOPT}" = info ]]; then
 	rtxf "${1}"
 elif [[ "${TXOPT}" = chair ]]; then
 	chairrtxf "${@}"
+#mempool
 elif [[ -n "${MEMOPT}" ]]; then
 	utxf
+#if no option was given by the user, try to identify
 else
-	printf 'No option given. Stop.\n' 1>&2
-	exit 1
+	#is legacy addr?
+	if grep -qE -e '^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$' <<<"${1}"; then
+		#addr
+		raddf "${1}"
+	#is bech32 addr?
+	elif grep -qE -e '^bc(0([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59})|1[ac-hj-np-z02-9]{8,87})$' <<<"${1}"; then
+		#addr
+		chairaddf "${1}"
+	#is tx or block?
+	elif grep -qE '^[a-fA-F0-9]{64}$' <<<"${1}"; then
+		#is block?
+		if grep -qE '^[0]{8}[a-fA-F0-9]{56}$' <<<"${1}"; then
+			#block by hash
+			rblockf "${1}"
+		else
+			#tx hash
+			rtxf "${1}"
+		fi
+	elif ((${1}<1000000)) 2>/dev/null; then
+		#block by height
+		hblockf "${1}"
+	else
+		printf 'No option given. Stop.\n' 1>&2
+		exit 1
+	fi
 fi
 
