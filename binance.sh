@@ -409,14 +409,14 @@ booktf() {
 	BARATE="$(bc -l <<<"scale=4;${BIDST}/${ASKST}")"
 	
 	#print stats
-	#ratio
-	printf 'BID/ASK  %s\n\n' "${BARATE}"
+	#ratio  #printf 'BID/ASK  %s\n\n' "${BARATE}"
 	
 	#table
 	column -ts= -N"${2^^}${3^^},SIZE,QUOTESIZE,LEVELS" -TSIZE <<-!
 	ASKS=${ASKST}=${ASKSQUOTET}=${ASKSL}
 	BIDS=${BIDST}=${BIDSQUOTET}=${BIDSL}
 	TOTAL=${TOTST}=${TOTQUOTET}=${TOTLT}
+	BID/ASK=${BARATE}
 	!
 }
 
