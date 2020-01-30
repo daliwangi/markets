@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.3  jan/2020  by mountaineerbr
+# v0.9.4  jan/2020  by mountaineerbr
 
 #defaults
 
@@ -389,27 +389,32 @@ booktf() {
 	#bid levels and total size
 	BIDS=($(jq -r '.bids[]|.[1]' <<<"${BOOK}")) 
 	BIDSL="$(printf '%s\n' "${BIDS[@]}" | wc -l)"
-	BIDST="$(bc -l <<<"${BIDS[@]/%/+}0")"
+	BIDST="$(bc -l <<<"${BIDS[*]/%/+}0")"
+	BIDSQUOTE=($(jq -r '.bids[]|((.[0]|tonumber)*(.[1]|tonumber))' <<<"${BOOK}")) 
+	BIDSQUOTET="$(bc -l <<<"scale=2;(${BIDSQUOTE[*]/%/+}0)/1")"
 	
 	#ask levels and total size
 	ASKS=($(jq -r '.asks[]|.[1]' <<<"${BOOK}"))
 	ASKSL="$(printf '%s\n' "${ASKS[@]}" | wc -l)"
-	ASKST="$(bc -l <<<"${ASKS[@]/%/+}0")"
+	ASKST="$(bc -l <<<"${ASKS[*]/%/+}0")"
+	ASKSQUOTE=($(jq -r '.asks[]|((.[0]|tonumber)*(.[1]|tonumber))' <<<"${BOOK}")) 
+	ASKSQUOTET="$(bc -l <<<"scale=2;(${ASKSQUOTE[*]/%/+}0)/1")"
 	
 	#total levels and total sizes
 	TOTLT="$(bc -l <<<"${BIDSL}+${ASKSL}")"
 	TOTST="$(bc -l <<<"${BIDST}+${ASKST}")"
-	
+	TOTQUOTET="$(bc -l <<<"${BIDSQUOTET}+${ASKSQUOTET}")"
+
 	#bid/ask rate
 	BARATE="$(bc -l <<<"scale=4;${BIDST}/${ASKST}")"
 
 	#print data in table
-	column -ts= -N"${2^^}${3^^},TOTAL,LEVELS" -TTOTAL <<-!
-	ASKS=${ASKST}=${ASKSL}
-	BIDS=${BIDST}=${BIDSL}
-	TOTAL=${TOTST}=${TOTLT}
-	B/A=${BARATE}
+	column -ts= -N"${2^^}${3^^},SIZE,QUOTESIZE,LEVELS" -TSIZE <<-!
+	ASKS=${ASKST}=${ASKSQUOTET}=${ASKSL}
+	BIDS=${BIDST}=${BIDSQUOTET}=${BIDSL}
+	TOTAL=${TOTST}=${TOTQUOTET}=${TOTLT}
 	!
+	printf '\nBID/ASK  %s\n' "${BARATE}"
 }
 
 #-t 24-h ticker
@@ -468,7 +473,6 @@ while getopts ':1234567890abcdf:hjlistuwvr' opt; do
 			;;
 		( c ) #price in columns
 			COPT=1
-			LIMIT=250
 			;;
 		( b ) #order book depth view
 			if [[ -z "${BOPT}" ]]; then
