@@ -1,24 +1,22 @@
 #!/bin/bash
 #
-# Cmc.sh -- Coinmarketcap.com API Access
-# v0.6.24  2019/dec  by mountaineerbr
+# cmc.sh -- coinmarketcap.com api access
+# v0.7  jan/2020  by mountaineerbr
 
+#cmc api personal key
+#CMCAPIKEY=''
 
-## CMC API Personal KEY
-#CMCAPIKEY=""
-
-
-## Defaults
-# Set default scale if no custom scale
+#defaults
+#set default scale if no custom scale
 SCLDEFAULTS=16
 
-## You should not change these:
-LC_NUMERIC="en_US.UTF-8"
-# Troy ounce to gram ratio
+#you should not change these:
+LC_NUMERIC='en_US.UTF-8'
+#troy ounce to gram ratio
 TOZ='31.1034768' 
 
-## Manual and help
-## Usage: $ cmc.sh [amount] [from currency] [to currency]
+#manual and help
+#usage: $ cmc.sh [amount] [from currency] [to currency]
 HELP_LINES="NAME
 	Cmc.sh -- Currency Converter and Market Information
 		  Coinmarketcap.com API Access
@@ -27,51 +25,54 @@ HELP_LINES="NAME
 SYNOPSIS
 	cmc.sh [-ahlv]
 
-	cmc.sh [-bgp] [-sNUM|-NUM] [AMOUNT] [FROM_CURRENCY] [TO_CURRENCY]
+	cmc.sh [-bgp] [-sNUM|-NUM] [AMOUNT] 'FROM_CURRENCY' 'TO_CURRENCY'
 
-	cmc.sh [-m] [TO_CURRENCY]
+	cmc.sh [-m] 'TO_CURRENCY'
 
 	cmc.sh [-t] [NUM] [CURRENCY]
 	
 
 DESCRIPTION
-	This programme fetches updated currency rates from CoinMarketCap.com
-	through a Private API key. It can convert any amount of one supported
-	crypto currency into another. CMC also converts crypto to ~93 central 
-	bank currencies.
+	This programme fetches updated currency rates from <coinmarketcap.com>
+	through a free private API key. It can convert any amount of one sup-
+	ported crypto currency into another. CMC also converts crypto to ~93 
+	central bank currencies, gold and silver.
 
 	You can see a List of supported currencies running the script with the
-	argument \"-l\".
+	argument '-l'.
 
-	Only central bank currency conversions are not supported directly, but 
-	we can derive bank currency rates undirectly, for e.g. USD vs CNY.The 
-	Bank Currency option \"-b\" can also calculate bank currencies vs. pre-
-	cious metals.
+	Central bank currency conversions are not supported officially by CMC,
+	but we can derive bank currency rates undirectly, for ex USD vs CNY.
+	The bank currency option '-b' can also calculate currencies vs. precious
+	metals.
 
-	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+
+GOLD AND SILVER
+	Gold and Silver are priced in troy ounces. It means that in each troy 
 	ounce there are aproximately 31.1 grams, such as represented by the
 	following constant:
 		
-		\"GRAM/OUNCE\" rate = 31.1034768
+		'GRAM/OUNCE' rate = 31.1034768
 
 
-	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	Option '-g' will try to calculate rates in grams instead of ounces for
 	precious metals. 
 
 	Nonetheless, it is useful to learn how to do this convertion manually.
-	It is useful to define a variable with the gram to troy oz ratio in your
-	\".bashrc\" to work with precious metals (see usage example 10). I sug-
-	gest a variable called TOZ that will contain the GRAM/OZ constant.
+	Check usage examples (7) and (8). It may be useful to define a variable
+	with the gram to troy oz ratio in your '.bashrc' to work with precious 
+	metals. I suggest a variable called TOZ that will contain the GRAM/OZ 
+	constant:
 
-		TOZ=\"31.1034768\"
+		TOZ='31.1034768'
 
 
-	Default precision is ${SCLDEFAULTS} and can be adjusted with \"-s\".
+	Default precision is ${SCLDEFAULTS} and can be adjusted with '-s'.
 
 
 IMPORTANT NOTICE
 	Please take a little time to register at <https://coinmarketcap.com/api/>
-	for a free API key and add it to the \"CMCAPIKEY\" variable in the script 
+	for a free API key and add it to the 'CMCAPIKEY' variable in the script 
 	source code or set it as an environment variable.
 
 
@@ -80,15 +81,15 @@ WARRANTY
 	without support or bug corrections. This programme needs Bash, cURL, JQ
 	and Coreutils to work properly.
 
-	It  is  _not_  advisable  to depend  solely on CoinMarketCap rates for 
-	serious	trading.
+	It is _not_ advisable to depend solely on <coinmarketcap.com> rates for 
+	serious	trading. Do your own research!
 	
-	Give me a nickle! =)
+	If you found this script useful, please consider giving me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
-USAGE EXAMPLES:		
+USAGE EXAMPLES		
 		(1)     One Bitcoin in US Dollar:
 			
 			$ cmc.sh btc
@@ -126,7 +127,7 @@ USAGE EXAMPLES:
 			
 			
 			TIP: use Less with opion -S (--chop-long-lines) or the 
-			\"Most\" pager for scrolling horizontally:
+			'Most' pager for scrolling horizontally:
 
 			$ cmc.sh -t 100 btc | less -S
 
@@ -139,7 +140,7 @@ USAGE EXAMPLES:
 		(8)    Using grams for precious metals instead of troy ounces.
 
 			To use grams instead of ounces for calculation precious 
-			metals rates, use option \"-g\". E.g., one gram of gold 
+			metals rates, use option '-g'. E.g., one gram of gold 
 			in USD, with two decimal plates:
 
 				$ cmc.sh -2bg xau usd 
@@ -151,12 +152,12 @@ USAGE EXAMPLES:
 			The rate of conversion (constant) of grams by troy ounce
 			may be represented as below:
 			 
-				GRAM/OUNCE = \"31.1034768\"
+				GRAM/OUNCE = '31.1034768'
 			
 
 			
 			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
-			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
+			just multiply AMOUNT by the 'GRAM/OUNCE' constant.
 
 				$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
 
@@ -168,7 +169,7 @@ USAGE EXAMPLES:
 
 
 			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
+			just divide AMOUNT by the 'GRAM/OUNCE' constant.
 
 				$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
 			
@@ -180,16 +181,16 @@ USAGE EXAMPLES:
 
 			To convert (a) from gold to crypto currencies, (b) from 
 			bank currencies to gold or (c) from gold to bank curren-
-			cies, do not forget to use the option \"-b\"!
+			cies, do not forget to use the option '-b'!
 
 
 OPTIONS
-		-NUM 	Shortcut for scale setting, same as \"-sNUM\".
+		-NUM 	Shortcut for scale setting, same as '-sNUM'.
 
 		-a 	  API key status.
 
-		-b 	  Bank currency function: from_ and to_currency can be 
-			  any central bank or crypto currency supported by CMC.
+		-b 	  Bank currency function, converts between bank curren-
+			  cies.
 
 		-g 	  Use grams instead of troy ounces; only for precious
 			  metals.
@@ -208,10 +209,11 @@ OPTIONS
 		-p 	  Print timestamp, if available.
 		
 		-t [NUM] [TO_CURRENCY]
-			  Tickers for top cryptos; number of top currencies 
-			  defaults=10, max=100; target rates defaults=USD; 
+		-tt [NUM]
+			  Tickers for top cryptos; twice to  see winners and 
+			  losers against BTC and USD; defaults=10, max=100.
 
-		-v 	  Show this script version."
+		-v 	  Script version."
 
 OTHERCUR="2781=USD=United States Dollar ($)
 3526=ALL=Albanian Lek (L)
@@ -313,15 +315,15 @@ OTHERCUR="2781=USD=United States Dollar ($)
 
 TOCURLIST=( USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD ) 
 
-## -b Bank currency rate function
+#-b bank currency rate function
 bankf() {
 	unset BANK
 	if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
-		# Print JSON?
-		printf "No specific JSON for the bank currency function.\n"
+		#print json?
+		printf 'No specific JSON for the bank currency function.\n'
 		exit 1
 	fi
-	# Rerun script, get rates and process data	
+	#rerun script, get rates and process data	
 	BTCBANK="$("${0}" -p BTC "${2^^}")"
 	BTCBANKHEAD=$(head -n1 <<< "${BTCBANK}") # Timestamp
 	BTCBANKTAIL=$(tail -n1 <<< "${BTCBANK}") # Rate
@@ -329,174 +331,227 @@ bankf() {
 	BTCTOCURHEAD=$(head -n1 <<< "${BTCTOCUR}") # Timestamp
 	BTCTOCURTAIL=$(tail -n1 <<< "${BTCTOCUR}") # Rate
 	if [[ -n "${TIMEST}" ]]; then
-		printf "%s (from currency)\n" "${BTCBANKHEAD}"
-		printf "%s ( to  currency)\n" "${BTCTOCURHEAD}"
+		printf '%s (from currency)\n' "${BTCBANKHEAD}"
+		printf '%s ( to  currency)\n' "${BTCTOCURHEAD}"
 	fi
 
-	# Calculate result & print result 
-	# Precious metals in grams?
+	#calculate result & print result 
+	#precious metals in grams?
 	ozgramf "${2}" "${3}"
 	RESULT="$(bc -l <<< "(((${1})*${BTCTOCURTAIL})/${BTCBANKTAIL})${GRAM}${TOZ}")"
-	# Check for errors
+	#check for errors
 	if [[ -z "${RESULT}" ]]; then
-		printf "Error: check currency codes.\n" 1>&2
+		printf 'Err: invalid currency code(s).\n' 1>&2
 		exit 1
 	fi
 	printf "%.${SCL}f\n" "${RESULT}"
 }
 
-## Market Capital Function
+#market capital function
 mcapf() {
-	# Check inupt to_currency
+	#check inupt to_currency
 	if [[ -n "${1}" ]]; then
-		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
+		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 		if  ! grep -qi "${1}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${1}$"; then
 			if jq -er '.["'"${1^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 				set -- "$(jq -r '.["'"${1^^}"'"]' <<< "${SYMBOLLIST}")"
 			else
-				printf "Check TO_CURRENCY code.\n" 1>&2
+				printf 'Check TO_CURRENCY code.\n' 1>&2
 				exit 1
 			fi
 		fi
 	else
 		set -- USD
 	fi
-	# Get market data
-	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H "Accept: application/json" -d "convert=${1^^}" -G "https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest")
-	# Print JSON?
+	#get market data
+	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest')
+	#print json?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${CMCGLOBAL}"
+		printf '%s\n' "${CMCGLOBAL}"
 		exit 0
 	fi
 	LASTUP=$(jq -r '.data.last_updated' <<< "${CMCGLOBAL}")
-	# Avoid erros being printed
+	#avoid erros being printed
 	{
-	printf "## CRYPTO MARKET INFORMATION\n"
-	date --date "${LASTUP}"  "+#  %FT%T%Z"
-	printf "\n# Exchanges     : %s\n" "$(jq -r '.data.active_exchanges' <<< "${CMCGLOBAL}")"
-	printf "# Active cryptos: %s\n" "$(jq -r '.data.active_cryptocurrencies' <<< "${CMCGLOBAL}")"
-	printf "# Market pairs  : %s\n" "$(jq -r '.data.active_market_pairs' <<< "${CMCGLOBAL}")"
+	printf '## CRYPTO MARKET INFORMATION\n'
+	date --date "${LASTUP}"  '+#  %FT%T%Z'
+	printf '\n# Exchanges     : %s\n' "$(jq -r '.data.active_exchanges' <<< "${CMCGLOBAL}")"
+	printf '# Active cryptos: %s\n' "$(jq -r '.data.active_cryptocurrencies' <<< "${CMCGLOBAL}")"
+	printf '# Market pairs  : %s\n' "$(jq -r '.data.active_market_pairs' <<< "${CMCGLOBAL}")"
 
-	printf "\n## All Crypto Market Cap\n"
+	printf '\n## All Crypto Market Cap\n'
 	printf "   %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.total_market_cap" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Volume\n"
+	printf ' # Last 24h Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.total_volume_24h" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Reported Volume\n"
+	printf ' # Last 24h Reported Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.total_volume_24h_reported" <<< "${CMCGLOBAL}")" "${1^^}"
 	
-	printf "\n## Bitcoin Market Cap\n"
+	printf '\n## Bitcoin Market Cap\n'
 	printf "   %'.2f %s\n" "$(jq -r "(.data.quote.${1^^}.total_market_cap-.data.quote.${1^^}.altcoin_market_cap)" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Volume\n"
+	printf ' # Last 24h Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r "(.data.quote.${1^^}.total_volume_24h-.data.quote.${1^^}.altcoin_volume_24h)" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Reported Volume\n"
+	printf ' # Last 24h Reported Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r "(.data.quote.${1^^}.total_volume_24h_reported-.data.quote.${1^^}.altcoin_volume_24h_reported)" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf "## Circulating Supply\n"
+	printf '## Circulating Supply\n'
 	printf " # BTC: %'.2f bitcoins\n" "$(bc -l <<< "$(curl -s "https://blockchain.info/q/totalbc")/100000000")"
 
-	printf "\n## AltCoin Market Cap\n"
+	printf '\n## AltCoin Market Cap\n'
 	printf "   %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.altcoin_market_cap" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Volume\n"
+	printf ' # Last 24h Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.altcoin_volume_24h" <<< "${CMCGLOBAL}")" "${1^^}"
-	printf " # Last 24h Reported Volume\n"
-	printf "    %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.altcoin_volume_24h_reported" <<< "${CMCGLOBAL}") "${1^^}""
+	printf ' # Last 24h Reported Volume\n'
+	printf "    %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.altcoin_volume_24h_reported" <<< "${CMCGLOBAL}")" "${1^^}"
 	
-	printf "\n## Dominance\n"
+	printf '\n## Dominance\n'
 	printf " # BTC: %'.2f %%\n" "$(jq -r '.data.btc_dominance' <<< "${CMCGLOBAL}")"
 	printf " # ETH: %'.2f %%\n" "$(jq -r '.data.eth_dominance' <<< "${CMCGLOBAL}")"
 
-	printf "\n## Market Cap per Coin\n"
+	printf '\n## Market Cap per Coin\n'
 	printf " # Bitcoin : %'.2f %s\n" "$(jq -r "((.data.btc_dominance/100)*.data.quote.${1^^}.total_market_cap)" <<< "${CMCGLOBAL}")" "${1^^}"
 	printf " # Ethereum: %'.2f %s\n" "$(jq -r "((.data.eth_dominance/100)*.data.quote.${1^^}.total_market_cap)" <<< "${CMCGLOBAL}")" "${1^^}"
-	# Avoid erros being printed
+	#avoid erros being printed
 	} 2>/dev/null
 }
 
-## -t Top Tickers Function
+#-t top tickers function
 tickerf() {
-	# How many top cryptos should be printed? Defaults=10
-	# If number of tickers is in ARG2
+	#how many top cryptosd? defaults=10
 	if [[ ! ${1} =~ ^[0-9]+$ ]]; then
-		if [[ -n "${SCL}" ]]; then
-			set -- "${SCL}" ${@}
-		else
-			set -- 10 ${@}
-		fi
+		set -- 10 "${@}"
 	fi
+
+	#default to currency
 	if [[ -z "${2}" ]]; then
 		set -- "${1}" USD
 	fi
 
-	# Check input to_currency
+	#check input to_currency
 	if [[ "${2^^}" != USD ]]; then
-		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
-		if  ! grep -qi "${2}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
+		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
+		if  ! grep -qi "${2}" <<< "${TOCURLIST[@]}" && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
 			if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 				set -- "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")"
 			else
-				printf "Check TO_CURRENCY code.\n" 1>&2
+				printf 'Check TO_CURRENCY code.\n' 1>&2
 				exit 1
 			fi
 		fi
 	fi
-	# Prepare retrive query to server
-	# Get JSON
+
+	#get data
 	TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
-	# Print JSON?
+	
+	#print json?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${TICKERJSON}"
+		printf '%s\n' "${TICKERJSON}"
 		exit 0
 	fi
-	# Test screen width
-	# If stdout is redirected; skip this
+
+	#test screen width
+	#if stdout is redirected; skip this
 	if ! [[ -t 1 ]]; then
 		true
-	elif test "$(tput cols)" -lt "100"; then
+	elif test "$(tput cols)" -lt '100'; then
 		COLCONF="-HMCAP(${2^^}),SUPPLY/TOTAL,UPDATE -TPRICE(${2^^}),VOL24h(${2^^})"
-		printf "OBS: More columns are needed to print more info.\n" 1>&2
-	elif test "$(tput cols)" -lt "120"; then
-		COLCONF="-HSUPPLY/TOTAL,UPDATE"
-		printf "OBS: More columns are needed to print more info.\n" 1>&2
+		printf 'OBS: More columns are needed to print more info.\n' 1>&2
+	elif test "$(tput cols)" -lt '120'; then
+		COLCONF='-HSUPPLY/TOTAL,UPDATE'
+		printf 'OBS: More columns are needed to print more info.\n' 1>&2
 	else
-		COLCONF="-TSUPPLY/TOTAL,UPDATE"
+		COLCONF='-TSUPPLY/TOTAL,UPDATE'
 	fi
-	# Bitcoin table is special from others
+	
+	#altcoins vs bitcoin
 	if [[ "${2^^}" = BTC ]]; then
 
 		BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
 		BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
 		BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
-		#XXXXXXXXXXXXXXXXXXXXXXXX
 		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(BTC),D1h(BTC),D24h(BTC),D7D(BTC),VOL24h(BTC),MCAP(BTC),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	#coins vs USD
 	else
 		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${2^^}),D1h(USD),D24h(USD),D7D(USD),VOL24h(${2^^}),MCAP(${2^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
 	fi
 }
 
-## -l Print currency lists
-listsf() {
-	printf "\n=============CRYPTOCURRENCIES============\n"
-	curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G https://pro-api.coinmarketcap.com/v1/cryptocurrency/map | jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' | column -s'=' -et -N 'ID,SYMBOL,NAME'
-	printf "\n\n===========BANK CURRENCIES===========\n"
-	printf "%s\n" "${OTHERCUR}" | column -s'=' -et -N'ID,SYMBOL,NAME'
+#-tt winners and losers
+winlosef() {
+	#how many top cryptosd? defaults=10
+	if [[ ! ${1} =~ ^[0-9]+$ ]]; then
+		set -- 10 "${@}"
+	fi
+
+	#get data
+	DATA0="$(tickerf "${1}" BTC | sed '1,2d')" 
+	DATA1="$(tickerf "${1}" USD | sed '1,2d')" 
+	
+	#calc winners and losers by time frame
+	#1h
+	A1=$(awk '{print $5}'<<<"$DATA0" | grep -cv '^-')
+	B1=$(awk '{print $5}'<<<"$DATA0" | grep -c '^-')
+	C1=$(awk '{print $5}'<<<"$DATA1" | grep -cv '^-')
+	D1=$(awk '{print $5}'<<<"$DATA1" | grep -c '^-')
+	
+	#24h
+	A24=$(awk '{print $6}'<<<"$DATA0" | grep -cv '^-')
+	B24=$(awk '{print $6}'<<<"$DATA0" | grep -c '^-')
+	C24=$(awk '{print $6}'<<<"$DATA1" | grep -cv '^-')
+	D24=$(awk '{print $6}'<<<"$DATA1" | grep -c '^-')
+	
+	#7 days
+	A7=$(awk '{print $7}'<<<"$DATA0" | grep -cv '^-')
+	B7=$(awk '{print $7}'<<<"$DATA0" | grep -c '^-')
+	C7=$(awk '{print $7}'<<<"$DATA1" | grep -cv '^-')
+	D7=$(awk '{print $7}'<<<"$DATA1" | grep -c '^-')
+	
+	#winners vs losers against btc/usd
+	echo 'Winners and losers'
+	echo "Top ${1} coins"
+	echo
+	echo 'Alts vs BTC'
+	column -et -s= -NTIME,WIN,LOSE -RTIME,WIN,LOSE <<-!
+		1H=$A1=$B1
+		24H=$A24=$B24
+		7D=$A7=$B7
+		!
+	echo
+	echo "Alts vs USD"
+	#winners vs losers against btc/[to_currency]
+	column -et -s= -NTIME,WIN,LOSE -RTIME,WIN,LOSE <<-!
+		1H=$C1=$D1
+		24H=$C24=$D24
+		7D=$C7=$D7
+		!
+		:<<-!
+		POS=${A1}=${B1}=${A24}=${B24}=${A7}=${B7}
+		NEG=${C1}=${D1}=${C24}=${D24}=${C7}=${C7}
+		!
 }
 
-## -a API status
+#-l print currency lists
+listsf() {
+	printf '\n=============CRYPTOCURRENCIES============\n'
+	curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' | column -s'=' -et -N 'ID,SYMBOL,NAME'
+	printf '\n\n===========BANK CURRENCIES===========\n'
+	printf '%s\n' "${OTHERCUR}" | column -s'=' -et -N'ID,SYMBOL,NAME'
+}
+
+#-a api status
 apif() {
-	PAGE="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json"  'https://pro-api.coinmarketcap.com/v1/key/info')"
-	# Print JSON?
+	PAGE="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json'  'https://pro-api.coinmarketcap.com/v1/key/info')"
+	#print json?
 	if [[ -n ${PJSON} ]]; then
-		printf "%s\n" "${PAGE}"
+		printf '%s\n' "${PAGE}"
 		exit 0
 	fi
 	#print heading and status page
-	printf "API key: %s\n\n" "${CMCAPIKEY}"
+	printf 'API key: %s\n\n' "${CMCAPIKEY}"
 	tr -d '{}",' <<<"${PAGE}"| sed -e 's/^\s*\(.*\)/\1/' -e '1,/data/d' -e 's/_/ /g'| sed -e '/^$/N;/^\n$/D' | sed -e 's/^\([a-z]\)/\u\1/g'
-	#| cat -s    #sed -e '$d'
 }
 
-# Precious metals in grams?
+#precious metals in grams?
 ozgramf() {
-	# Precious metals - ounce to gram
+	#precious metals - ounce to gram
 	if [[ -n "${GRAMOPT}" ]]; then
 		if grep -qi -e 'XAU' -e 'XAG' -e 'XPT' -e 'XPD' <<<"${1}"; then
 			FMET=1
@@ -520,88 +575,89 @@ ozgramf() {
 }
 
 
-# Parse options
-while getopts ":0123456789ablmghjs:tvp" opt; do
+#parse options
+while getopts ':0123456789ablmghjs:tvp' opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
 			;;
-		( a ) # API key status
+		( a ) #api key status
 			APIOPT=1
 			;;
-		( b ) # Hack central bank currency rates
+		( b ) #hack central bank currency rates
 			BANK=1
 			;;
-		( g ) # Gram opt
+		( g ) #gram opt
 			GRAMOPT=1
 			;;
-		( j ) # Debug: Print JSON
+		( j ) #debug: print json
 			PJSON=1
 			;;
-		( l ) # List available currencies
+		( l ) #list available currencies
 			LISTS=1
 			;;
-		( m ) # Market Capital Function
+		( m ) #market capital function
 			MCAP=1
 			;;
-		( h ) # Show Help
+		( h ) #show help
 			echo -e "${HELP_LINES}"
 			exit 0
 			;;
-		( p ) # Print Timestamp with result
+		( p ) #print timestamp with result
 			TIMEST=1
 			;;
-		( s ) # Decimal plates
+		( s ) #decimal plates
 			SCL="${OPTARG}"
 			;;
-		( t ) ## Tickers for crypto currencies
-			TICKEROPT=1
+		( t ) #tickers for crypto currencies
+		      #winners and losers
+			[[ -z "${TICKEROPT}" ]] && TICKEROPT=1 || TICKEROPT=2
 			;;
-		( v ) ## Script version
+		( v ) #script version
 			grep -m1 '# v' "${0}"
 			exit 0
 			;;
 		( \? )
-			printf "Invalid option: -%s\n" "$OPTARG" 1>&2
+			printf 'Invalid option: -%s\n' "$OPTARG" 1>&2
 			exit 1
 			;;
 	esac
 done
 shift $((OPTIND -1))
 
-#Check for API KEY
+#check for api key
 if [[ -z "${CMCAPIKEY}" ]]; then
-	printf "Please create a free API key and add it to the script source-code or set it as an environment variable.\n" 1>&2
+	printf 'Please create a free API key and add it to the script source-code or set it as an environment variable.\n' 1>&2
 	exit 1
 fi
 
-# Test for must have packages
+#test for must have packages
 if [[ -z "${CCHECK}" ]]; then
 	if ! command -v jq &>/dev/null; then
-		printf "JQ is required.\n" 1>&2
+		printf 'JQ is required.\n' 1>&2
 		exit 1
 	fi
 	if ! command -v curl &>/dev/null; then
-		printf "cURL is required.\n" 1>&2
+		printf 'cURL is required.\n' 1>&2
 		exit 1
 	fi
 	CCHECK=1
 	export CCHECK
 fi
 
-# Call opt functions 
-if [[ -n "${TICKEROPT}" ]]; then
-	tickerf ${@}
-	exit
-fi
-
-## Set custom scale
+#set custom scale
 if [[ -z ${SCL} ]]; then
 	SCL="${SCLDEFAULTS}"
 fi
 
-# Call opt functions
-if [[ -n "${MCAP}" ]]; then
+#call opt functions
+if [[ "${TICKEROPT}" = 1 ]]; then
+	tickerf "${@}"
+	exit
+elif [[ "${TICKEROPT}" = 2 ]]; then
+	winlosef "${@}"
+	exit
+elif [[ -n "${MCAP}" ]]; then
 	mcapf "${@}"
 	exit
 elif [[ -n "${APIOPT}" ]]; then
@@ -609,87 +665,82 @@ elif [[ -n "${APIOPT}" ]]; then
 	exit
 fi
 
-# Set equation arguments
-# If first argument does not have numbers
+#set equation arguments
+#if first argument does not have numbers
 if ! [[ "${1}" =~ [0-9] ]]; then
 	set -- 1 "${@}"
-# if AMOUNT is not a valid expression for Bc
+#if amount is not a valid expression for bc
 elif [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
-	printf "Invalid expression in \"AMOUNT\"." 1>&2
+	printf "Invalid expression in 'AMOUNT'\n" 1>&2
 	exit 1
 fi
 if [[ -z ${2} ]]; then
-	set -- "${1}" btc
+	set -- "${1}" BTC
 fi
 if [[ -z ${3} ]]; then
-	set -- "${1}" "${2}" usd
+	set -- "${1}" "${2}" USD
 fi
 
-## Check currencies
+#check currencies
+#get data if empty
 if [[ -z "${SYMBOLLIST}" ]]; then
-	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map" | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
+	SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 	export SYMBOLLIST
 fi
+#check
 if [[ -z "${BANK}" ]]; then
-	## Check FROM_CURRENCY
-	if ! jq -er ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
+	#check from_currency
+	if ! jq -er '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
 		if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 			set -- "${1}" "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")" "${3}"
 		else
-			printf "ERR: FROM_CURRENCY -- %s\nCheck symbol or \"-h\" for help.\n" "${2^^}" 1>&2
+			printf 'Err: invalid FROM_CURRENCY -- %s\n' "${2^^}" 1>&2
 			exit 1
 		fi
 	fi
-	## Check TO_CURRENCY
-	if  ! grep -qi "${3}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${3}$"; then
+	#check to_currency
+	if  ! grep -qi "${3}" <<< "${TOCURLIST[@]}" && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${3}$"; then
 		if jq -er '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 			set -- "${1}" "${2}" "$(jq -r '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}")"
 		else
-			printf "ERR: TO_CURRENCY -- %s\nCheck symbol or \"-h\" for help.\n" "${3^^}" 1>&2
+			printf 'Err: invalid TO_CURRENCY -- %s\n' "${3^^}" 1>&2
 			exit 1
 		fi
 	fi
 fi
 
-## Call opt functions
+#call opt functions
 if [[ -n "${BANK}" ]]; then
 	bankf "${@}"
-	exit
 elif [[ -n "${LISTS}" ]]; then
 	listsf
-	exit
+#default function
+#currency converter
+else
+	#get rate json
+	CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -d "&symbol=${2^^}&convert=${3^^}" -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest')
+	
+	#print json?
+	if [[ -n ${PJSON} ]]; then
+		printf '%s\n' "${CMCJSON}"
+		exit 0
+	fi
+	
+	#get pair rate
+	CMCRATE=$(jq -r ".data[] | .quote.${3^^}.price" <<< "${CMCJSON}" | sed 's/e/*10^/g') 
+	
+	#print json timestamp ?
+	if [[ -n ${TIMEST} ]]; then
+	JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
+		date --date "$JSONTIME" '+## %FT%T%Z'
+	fi
+	
+	#make equation and calculate result
+	#metals in grams?
+	ozgramf "${2}" "${3}"
+	
+	RESULT="$(bc -l <<< "((${1})*${CMCRATE})${GRAM}${TOZ}")"
+	
+	printf "%.${SCL}f\n" "${RESULT}"
 fi
-
-## Currency converter -- Default function
-## Get Rate JSON
-CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "&symbol=${2^^}&convert=${3^^}" -G "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest")
-# Print JSON?
-if [[ -n ${PJSON} ]]; then
-	printf "%s\n" "${CMCJSON}"
-	exit 0
-fi
-
-## Get pair rate
-CMCRATE=$(jq -r ".data[] | .quote.${3^^}.price" <<< "${CMCJSON}" | sed 's/e/*10^/g') 
-
-## Print JSON timestamp ?
-if [[ -n ${TIMEST} ]]; then
-JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
-	date --date "$JSONTIME" "+## %FT%T%Z"
-fi
-
-## Make equation and calculate result
-# Metals in grams?
-ozgramf "${2}" "${3}"
-RESULT="$(bc -l <<< "((${1})*${CMCRATE})${GRAM}${TOZ}")"
-printf "%.${SCL}f\n" "${RESULT}"
-
-exit
-
-##Dead code
-# Check if there is any argument
-#if ! [[ ${*} =~ [a-zA-Z]+ ]]; then
-#	printf "Run with -h for help.\n"
-#	exit 1
-#fi
 
