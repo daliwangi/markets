@@ -1,11 +1,14 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.2  jan/2020  by mountaineerbr
+# v0.6.3  jan/2020  by mountaineerbr
 
 #defaults
 
-#record file
-BCREC=1  #comment out or set to 0 to disable
+#special variable that holds the result of the last entry in the history
+HOLD='res'  #'ans'
+
+#use of record file (enabled=1/disabled=0 or unset)
+BCREC=1
 
 #record file path
 RECFILE="${HOME}/.bcalc_record"
@@ -14,8 +17,8 @@ RECFILE="${HOME}/.bcalc_record"
 EXTFILE="${HOME}/.bcalc_extensions"
 
 #don't change these
-#length of result line
-export BC_LINE_LENGTH=1000  #newer bash accepts '0' to disable multiline
+#length of result line (newer bash accepts '0' to disable multiline)
+export BC_LINE_LENGTH=1000
 #make sure numeric locale is set correctly
 LC_NUMERIC='en_US.UTF-8'
 
@@ -38,15 +41,16 @@ DESCRIPTION
 	Bcalc.sh uses the powerful Bash Calculator (Bc) with its math library
 	and adds some useful features described below.
 
-	A record file is created at '${RECFILE}'
+	A record file (a history) is created at '${RECFILE}'
 	To disable using a record file set option '-f' or unset BCREC in the 
-	script head code, section 'defaults'. If a record file is available, use 
-	of 'res' (lowercase) in EXPRESSION is swapped by the last result from 
-	the record file.
+	script head code, section 'defaults'. If a record file is available, the
+	special variable '${HOLD}' can be used in EXPRESSION and holds the last
+	entry in the record file. This special variable can be user-defined in
+	the script head source code, section defaults.
 
 	If no EXPRESSION is given, wait for for Stdin (from pipe) or user input.
 	Press 'Ctr+D' to send the EOF signal, as in Bc. If no user EXPRESSION
-	was given so far, prints last result from the record file.
+	was given so far, prints last entry in the record file.
 
 	EXPRESSIONS containing specials chars interpreted by your shell may need
 	escaping.
@@ -125,15 +129,12 @@ WARRANTY
 BUGS
 	When option '-t' is used, decimal precision will become limited and de-
 	teriorated if the resulting number is longer than 20 digits total. That
-	is printf faults.
+	is printf limitation as it uses bc with the mathlib internally.
 
-	Bash Bc uses the 'scale' parameter to formatting results from division 
-	operations only. Nonetheless, this scripts tries to execute a division 
-	operation before printing the final result when option '-s' is set. This,
-	however, will only work to formatting the result of a single expression
-	or the last expression at the input.
+	Multiline input will skip format settings defined by script options.
 
-	Multiline input will skip formatting options set by the script.
+	Bash Bc can only uses the point as a decimal separator, independently of 
+	user locale.
 
 
 USAGE EXAMPLES
@@ -194,7 +195,7 @@ OPTIONS
 
 	-h 	Show this help.
 
-	-n 	Add note to last result in the record file.
+	-n 	Add note to last entry in the record file.
 
 	-r 	Print record file.
 
@@ -324,10 +325,10 @@ if [[ -n "${BCREC}" ]]; then
 		notef "${*}"
 	fi
 	
-	#swap 'res' by last result or no input uses last result, too
-	if [[ "${EQ}" =~ res ]] || [[ -z "${EQ}" ]]; then
+	#swap '$HOLD' by last entry in history, or use last entry if no input
+	if [[ "${EQ}" =~ "${HOLD}" ]] || [[ -z "${EQ}" ]]; then
 		LASTRES=$(tail -1 "${RECFILE}")
-		EQ="${EQ//res/${LASTRES}}"
+		EQ="${EQ//${HOLD}/${LASTRES}}"
 		EQ="${EQ:-${LASTRES}}"
 	fi
 #some error handling
@@ -339,7 +340,7 @@ fi
 #load cientific extensions?
 [[ -n "${CIENTIFIC}" ]] && setcf
 
-#calc result and check expression syntax
+#calc new result and check expression syntax
 if RES="$(bc -l <<<"${EXT};${EQ}")"; then
 	[[ -z "${RES}" ]] && exit 1
 else
@@ -348,16 +349,16 @@ fi
 
 #print to record file?
 if [[ -n "${BCREC}" ]]; then
-	#grep last result
+	#grep last history entry
 	LASTRES="$(tail -1 "${RECFILE}")"
 
-	#check for duplicate result
-	if [[ "${RES}" != "${LASTRES}" ]]; then
+	#check for duplicate entries
+	if [[ "${RES}" != 0 ]] && [[ "${RES}" != "${LASTRES}" ]]; then
 		{
 		#print timestamp
 		printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}"
 		
-		#print original result
+		#print new result
 		printf "%s\n" "${RES}"
 		} >> "${RECFILE}"
 	fi
@@ -376,7 +377,7 @@ elif [[ -n "${TOPT}" ]]; then
 	exit
 #user-set scale
 elif [[ -n "${SCL}" ]]; then
-	#get bc result with user scale
+	#make bc result with user scale
 	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
 fi
 
