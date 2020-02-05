@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7  jan/2020  by mountaineerbr
+# v0.7.1  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -850,7 +850,7 @@ else
 			#tx hash
 			rtxf "${1}"
 		fi
-	elif ((${1}<1000000)) 2>/dev/null; then
+	elif [[ "${1}" =~ ^[0-9]+$ ]] && ((${1}<1000000)) 2>/dev/null; then
 		#block by height
 		hblockf "${1}"
 	else
