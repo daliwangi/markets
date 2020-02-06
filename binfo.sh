@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.1  feb/2020  by mountaineerbr
+# v0.7.2  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -265,11 +265,9 @@ blkinfof() {
 		"24HSize: \(.blocks_size/1000000) MB",
 		"AvgBlkS: \((.blocks_size/1000)/.n_blocks_mined) KB/block",
 		"",
-		"Transactions (last 24H)",
+		"Transactions and Mining Costs -- Last 24H",
 		"EstVol_: \(.estimated_btc_sent/100000000) BTC",
 		"         \(.estimated_transaction_volume_usd|round) USD",
-		"",
-		"Mining Costs",
 		"TotFees: \(.total_fees_btc/100000000) BTC",
 		"Revenue: \(.miners_revenue_btc) BTC",
 		"         \(.miners_revenue_usd|round) USD",
