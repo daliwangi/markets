@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.2  feb/2020  by mountaineerbr
+# v0.7.3  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -271,6 +271,7 @@ blkinfof() {
 		"TotFees: \(.total_fees_btc/100000000) BTC",
 		"Revenue: \(.miners_revenue_btc) BTC",
 		"         \(.miners_revenue_usd|round) USD",
+		"",
 		"FeeVol% (TotFees/Revenue):",
 		"  \(((.total_fees_btc/100000000)/.miners_revenue_btc)*100) %",
 		"RevenueVol% (Revenue/EstVol):",
