@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.12  feb/2020  by mountaineerbr
+# v0.10.13  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -301,7 +301,7 @@ mcapf() {
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CGKGLOBAL}"
-		printf 'Second json:' 1>&2
+		printf 'Second json:\n' 1>&2
 		sleep 4
 		printf "%s\n" "${MARKETGLOBAL}"
 		exit
