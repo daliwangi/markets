@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.11  feb/2020  by mountaineerbr
+# v0.10.12  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -280,23 +280,34 @@ mcapf() {
 	#-d only dominance?
 	if [[ -n "${DOMOPT}" ]] &&
 		DOM="$(jq -e ".data.market_cap_percentage.${1,,}//empty" <<< "${CGKGLOBAL}")"; then
+		
+		# Print JSON?
+		if [[ -n ${PJSON} ]]; then
+			printf "%s\n" "${CGKGLOBAL}"
+			exit
+		fi
+
 		printf "%.${SCL}f\n" "${DOM}"
+		
 		exit 
 	else
 		jq -r '.data.market_cap_percentage|to_entries[] | [.key, .value] | @tsv' <<< "${CGKGLOBAL}"
 		exit 1
 	fi
-	#no need, ref only: DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
+	#DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
 
 	MARKETGLOBAL="$(${YOURAPP} "https://api.coingecko.com/api/v3/coins/markets?vs_currency=${1,,}&order=market_cap_desc&per_page=10&page=1&sparkline=false")"
+
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CGKGLOBAL}"
-		printf 'sleep time' 1>&2
+		printf 'Second json:' 1>&2
 		sleep 4
 		printf "%s\n" "${MARKETGLOBAL}"
 		exit
 	fi
+
+	#timestamp
 	CGKTIME=$(jq -r '.data.updated_at' <<< "${CGKGLOBAL}")
 	{ # Avoid erros being printed
 	printf "## CRYPTO MARKET STATS\n"
@@ -603,7 +614,7 @@ while getopts ":0123456789bdeghljmp:s:tv" opt; do
 		( b ) ## Activate the Bank currency function
 			BANK=1
 			;;
-		( d ) #sinle cur dominance
+		( d ) #single currency dominance
 			DOMOPT=1
 			MCAP=1
 			;;
