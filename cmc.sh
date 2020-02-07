@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # cmc.sh -- coinmarketcap.com api access
-# v0.7.3  feb/2020  by mountaineerbr
+# v0.7.4  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -74,8 +74,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 	vertion manually. 
 	
 	It is useful to define a variable with the gram to troy oz ratio in your
-	\".bashrc\" to work with precious metals (see usage example 10). I sug-
-	gest a variable called TOZ that will contain the GRAM/OZ constant:
+	\".bashrc\" to work with precious metals. I suggest a variable called 
+	TOZ that will contain the GRAM/OZ constant:
 	
 		TOZ=\"${TOZ}\"
 	
