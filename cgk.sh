@@ -1,11 +1,22 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.10  jan/2020  by mountaineerbr
+# v0.10.11  feb/2020  by mountaineerbr
 
-# Some defaults
+#defaults
+
+#default crypto, defaults=btc
+DEFCUR=btc
+
+#vs currency, defaults=usd
+DEFVSCUR=usd
+
+#scale, defaults=16
 SCLDEFAULTS=16
+
+#don't change these
 LC_NUMERIC="en_US.UTF-8"
-## Troy ounce to gram ratio
+
+#troy ounce to gram ratio
 TOZ='31.1034768'
 
 ## Manual and help
@@ -15,31 +26,36 @@ HELP_LINES="NAME
 		\e[1;33;40m  Coingecko.com API Access\033[00m
 
 SYNOPSIS
-	cgk.sh [AMOUNT] [FROM_CURRENCY] [VS_CURRENCY]
+	cgk.sh [-sNUM] [AMOUNT] 'FROM_CRYPTO' [VS_CURRENCY]
 
-	cgk.sh [-bgs] [AMOUNT] [FROM_CURRENCY] [VS_CURRENCY] 
+	cgk.sh -b [-g|-sNUM] [AMOUNT] 'FROM_CURRENCY' [VS_CURRENCY] 
 	
-	cgk.sh [-pt] [CURRENCY] [optional:VS_SYMBOL]
+	cgk.sh -d [CRYPTO]
+	
+	cgk.sh -ee [-p]
+	
+	cgk.sh -t [-pNUM] 'CRYPTO' [VS_CURRENCY]
+	
+	cgk.sh -m [VS_CURRENCY]
 
-	cgk.sh [-ehjlmpv]
-
-
-	Note: Currencies can be symbols or CoinGecko IDs.
+	cgk.sh [-hlv]
 
 
 DESCRIPTION
-	This programme fetches updated currency rates from CoinGecko.com and can
-	convert any amount of one supported currency into another.
+	This programme fetches updated crypto and bank currency rates from Coin
+	Gecko.com and can convert any amount of one supported currency into an-
+	other. Currencies can be symbols or CoinGecko IDs, list them with option
+	\"-l\". VS_CURRENCY is optional and defaults to ${DEFVSCUR,,}.
 	
 	CoinGecko has got a public API for many crypto and bank currency rates.
 	Officially, CoinGecko only keeps rates of existing market pairs. For ex-
 	ample, the market BTC/XRP is supported but XRP/BTC is not.
 
 	Central bank currency conversions are not supported directly, but we can
-	derive  them  undirectly, for e.g. USD vs CNY. As CoinGecko updates fre-
+	derive them undirectly, for e.g. USD vs CNY. As CoinGecko updates fre-
 	quently, it is one of the best APIs for bank currency rates, too.
 
-	The  Bank  Currency Function \"-b\" can calculate central bank currency
+	The  bank  currency Function \"-b\" can calculate central bank currency
 	rates , such  as USD/BRL. It can also calculate unofficially supported
 	crypto currency markets, such as \"ZCash vs. DigiByte\" and \"Ripple vs
 	Bitcoin\".
@@ -49,27 +65,6 @@ DESCRIPTION
 	accepts  IDs  in the  \"from_currrency\" field. However, if input is a 
 	symbol, it will be swapped to its corresponding ID automatically.
 	
-	You can get a List of supported currencies running the script with the
-	option \"-l\".
-
-	Gold and Silver are priced in Troy Ounces. It means that in each troy 
-	ounce there are aproximately 31.1 grams, such as represented by the 
-	following constant:
-		
-		\"GRAM/OUNCE\" rate = 31.1034768
-
-
-	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals.
-
-	Nonetheless, it is useful to learn how to do this convertion manually.
-	It is useful to define a variable with the gram to troy oz ratio in your
-	\".bashrc\" to work with precious metals (see usage example 10). I sug-
-	gest a variable called TOZ that will contain the GRAM/OZ constant.
-
-		TOZ=\"31.1034768\"
-
-
 	Default precision is ${SCLDEFAULTS} and can be adjusted with option \"-s\" (scale).
 	
 
@@ -88,7 +83,62 @@ ABBREVIATIONS
 		<https://blog.coingecko.com/trust-score/>
 
 
-FUNCTION \"-t\" 24H ROLLING TICKER
+PRECIOUS METALS -- OUNCES TROY AND GRAMS
+	The following section explains about the GRAM/OZ constant used in this
+	program.
+	
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the fol-
+	lowing constant:
+		
+		\"GRAM/OUNCE\" rate = ${TOZ}
+	
+	
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals.
+	
+	Nonetheless, it is useful to learn how to do this convertion manually. 
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant:
+	
+		TOZ=\"${TOZ}\"
+	
+	
+	To use grams instead of ounces for calculation precious metals rates, 
+	use option \"-g\". E.g. one gram of gold in USD, with two decimal plates:
+	
+		$ cgk.sh -2bg 1 xau usd 
+	
+	
+	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+	
+		$ cgk.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
+	
+	
+	One EUR in grams of Gold:
+	
+		$ cgk.sh -b \"\e[1;33;40m1\033[00m*31.1\" eur xau 
+	
+	
+	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+	
+		$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
+	
+	
+	One gram of Gold in EUR:
+			
+		$ cgk.sh -b \"\e[1;33;40m1\033[00m/31.1\" xau eur 
+	
+	
+	To convert (a) from gold to crypto currencies, (b) from bank currencies
+	to gold	or (c) from gold to bank curren-cies, do not forget to use the 
+	option \"-b\"!
+
+
+24H ROLLING TICKER FUNCTION \"-t\" 
 	Some currency convertion data is available for use with the Market Cap 
 	Function \"-m\". You can choose which currency to display data, when 
 	available, from the table below:
@@ -114,12 +164,12 @@ WARRANTY
 	It  is  _not_ advisable to depend solely on CoinGecko rates for serious 
 	trading.
 	
-	Give me a nickle! =)
+	If you found this useful, consider giving me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
 
 
-USAGE EXAMPLES:		
+USAGE EXAMPLES		
 		(1)     One Bitcoin in US Dollar:
 			
 			$ cgk.sh btc
@@ -174,58 +224,14 @@ USAGE EXAMPLES:
 			$ cgk.sh -m cny
 
 
-		(9)    Using grams for precious metals instead of troy ounces.
-
-			To use grams instead of ounces for calculation precious 
-			metals rates, use option \"-g\". E.g., one gram of gold 
-			in USD, with two decimal plates:
-
-				$ cgk.sh -2bg 1 xau usd 
-
-
-			The following section explains about the GRAM/OZ cons-
-			tant used in this program.
-
-			The rate of conversion (constant) of grams by troy ounce
-			may be represented as below:
-			 
-				GRAM/OUNCE = \"${TOZ}\"
-			
-
-			
-			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
-			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
-
-				$ cgk.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
-
-
-				One EUR in grams of Gold:
-
-				$ cgk.sh -b \"\e[1;33;40m1\033[00m*31.1\" eur xau 
-
-
-
-			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
-
-				$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
-			
-
-				One gram of Gold in EUR:
-					
-				$ cgk.sh -b \"\e[1;33;40m1\033[00m/31.1\" xau eur 
-
-
-			To convert (a) from gold to crypto currencies, (b) from 
-			bank currencies to gold or (c) from gold to bank curren-
-			cies, do not forget to use the option \"-b\"!
-
-
 OPTIONS
 	-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
 
 	-b 	  Activate Bank Currency function; it extends support for con-
 		  verting any central bank or crypto currency to any other.
+
+	-d 'CRYPTO'
+		  Dominance of a single crypto currency in percentage.
 
 	-e 	  Exchange information; number of pages to fetch with option \"-p\";
 		  pass \"-ee\" to print a list of exchange names and IDs only.
@@ -238,43 +244,56 @@ OPTIONS
 
 	-l 	  List supported currencies.
 
-	-m [TO_CURRENCY]
-		  Market Capitulation table; defaults=USD.
+	-m [VS_CURRENCY]
+		  Market capitulation table; defaults=USD.
 
 	-p [NUM]
 		  Number of pages retrieved from the server; each page may con-
-		  tain 100 results; use with option \"-e\" and \"-t\"; defaults=4.
+		  tain 100 results; use with options \"-e\" and \"-t\"; defaults=4.
 	 	
 	-s [NUM]  Scale setting (decimal plates); defaults=${SCLDEFAULTS}.
 	
 	-t 	  Tickers of a single cryptocurrency from all suported exchanges
 		  and all its pairs; a second crypto can also be set to form a 
-		  currency pair (market); change number of pages to fetch with 
-		  option \"-p\".
+		  currency pair; can use with \"-p\".
 		
 	-v 	  Show this programme version."
 
 ## Functions
 ## -m Market Cap function		
+#-d dominance opt
 mcapf() {
-	# Check if input has a defined to_currency
+	# Check if input has a defined vs_currency
 	if [[ -z "${1}" ]]; then
 		NOARG=1
-		set -- usd
+		set -- "${DEFVSCUR,,}"
 	fi
 	# Get Data 
 	CGKGLOBAL="$(${YOURAPP} "https://api.coingecko.com/api/v3/global" -H  "accept: application/json")"
-	#DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
-	# Check if input is a valid to_currency for this function
+	# Check if input is a valid vs_currency for this function
 	if ! jq -r '.data.total_market_cap|keys[]' <<< "${CGKGLOBAL}" | grep -qi "^${1}$"; then
 		printf "Using USD. Not supported -- %s.\n" "${1^^}" 1>&2
 		NOARG=1
 		set -- usd
 	fi
+
+	#-d only dominance?
+	if [[ -n "${DOMOPT}" ]] &&
+		DOM="$(jq -e ".data.market_cap_percentage.${1,,}//empty" <<< "${CGKGLOBAL}")"; then
+		printf "%.${SCL}f\n" "${DOM}"
+		exit 
+	else
+		jq -r '.data.market_cap_percentage|to_entries[] | [.key, .value] | @tsv' <<< "${CGKGLOBAL}"
+		exit 1
+	fi
+	#no need, ref only: DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
+
 	MARKETGLOBAL="$(${YOURAPP} "https://api.coingecko.com/api/v3/coins/markets?vs_currency=${1,,}&order=market_cap_desc&per_page=10&page=1&sparkline=false")"
 	# Print JSON?
 	if [[ -n ${PJSON} ]]; then
 		printf "%s\n" "${CGKGLOBAL}"
+		printf 'sleep time' 1>&2
+		sleep 4
 		printf "%s\n" "${MARKETGLOBAL}"
 		exit
 	fi
@@ -425,7 +444,7 @@ bankf() {
 		BTCBANK="(1/$("${0}" bitcoin "${2,,}" 2>/dev/null))" ||
 			{ echo "Function error; check currencies."; exit 1;}
 	fi
-	# Get rates to to_currency anyways
+	# Get rates to vs_currency anyways
 	if [[ "${3,,}" = "btc" ]]; then
 		BTCTOCUR=1
 	elif ! BTCTOCUR="$("${0}" "${3,,}" btc 2>/dev/null)"; then
@@ -576,13 +595,17 @@ ozgramf() {
 
 
 # Parse options
-while getopts ":0123456789beghljmp:s:tv" opt; do
+while getopts ":0123456789bdeghljmp:s:tv" opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
 			;;
 		( b ) ## Activate the Bank currency function
 			BANK=1
+			;;
+		( d ) #sinle cur dominance
+			DOMOPT=1
+			MCAP=1
 			;;
 		( e ) ## List supported Exchanges
 			[[ -z "${EXOPT}" ]] && EXOPT=1 || EXOPT=2
@@ -673,10 +696,10 @@ fi
 CODE1="${2}"
 CODE2="${3}"
 if [[ -z ${2} ]]; then
-	set -- "${1}" btc
+	set -- "${1}" "${DEFCUR,,}"
 fi
 if [[ -z ${3} ]]; then
-	set -- "${1}" "${2}" usd
+	set -- "${1}" "${2}" "${DEFVSCUR,,}"
 fi
 
 ## Check FROM currency
