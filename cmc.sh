@@ -1,17 +1,24 @@
 #!/bin/bash
 #
 # cmc.sh -- coinmarketcap.com api access
-# v0.7  jan/2020  by mountaineerbr
+# v0.7.1  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
 
 #defaults
-#set default scale if no custom scale
+#default from crypto currency
+DEFCUR=BTC
+
+#default vs currency
+DEFTOCUR=USD
+
+#scale if no custom scale
 SCLDEFAULTS=16
 
 #you should not change these:
 LC_NUMERIC='en_US.UTF-8'
+
 #troy ounce to gram ratio
 TOZ='31.1034768' 
 
@@ -25,11 +32,13 @@ HELP_LINES="NAME
 SYNOPSIS
 	cmc.sh [-ahlv]
 
-	cmc.sh [-bgp] [-sNUM|-NUM] [AMOUNT] 'FROM_CURRENCY' 'TO_CURRENCY'
+	cmc.sh [-p|-sNUM] [AMOUNT] 'FROM_CURRENCY' [TO_CURRENCY]
+	
+	cmc.sh -b [-gp] [-sNUM] [AMOUNT] 'FROM_CURRENCY' [TO_CURRENCY]
 
-	cmc.sh [-m] 'TO_CURRENCY'
+	cmc.sh -m [TO_CURRENCY]
 
-	cmc.sh [-t] [NUM] [CURRENCY]
+	cmc.sh [-t] [NUM] [TO_CURRENCY]
 	
 
 DESCRIPTION
@@ -46,28 +55,62 @@ DESCRIPTION
 	The bank currency option '-b' can also calculate currencies vs. precious
 	metals.
 
-
-GOLD AND SILVER
-	Gold and Silver are priced in troy ounces. It means that in each troy 
-	ounce there are aproximately 31.1 grams, such as represented by the
-	following constant:
-		
-		'GRAM/OUNCE' rate = 31.1034768
-
-
-	Option '-g' will try to calculate rates in grams instead of ounces for
-	precious metals. 
-
-	Nonetheless, it is useful to learn how to do this convertion manually.
-	Check usage examples (7) and (8). It may be useful to define a variable
-	with the gram to troy oz ratio in your '.bashrc' to work with precious 
-	metals. I suggest a variable called TOZ that will contain the GRAM/OZ 
-	constant:
-
-		TOZ='31.1034768'
-
-
 	Default precision is ${SCLDEFAULTS} and can be adjusted with '-s'.
+
+
+PRECIOUS METALS -- OUNCES TROY AND GRAMS
+	The following section explains about the GRAM/OZ constant used in this
+	program.
+	
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the fol-
+	lowing constant:
+		
+		\"GRAM/OUNCE\" rate = ${TOZ}
+	
+	
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals.
+	
+	Nonetheless, it is useful to learn how to do this convertion manually. 
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant:
+	
+		TOZ=\"${TOZ}\"
+	
+	
+	To use grams instead of ounces for calculation precious metals rates, 
+	use option \"-g\". E.g. one gram of gold in USD, with two decimal plates:
+	
+		$ cmc.sh -2bg 1 xau usd 
+	
+	
+	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+	
+		$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
+	
+	
+	One EUR in grams of Gold:
+	
+		$ cmc.sh -b \"\e[1;33;40m1\033[00m*31.1\" eur xau 
+	
+	
+	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+	
+		$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
+	
+	
+	One gram of Gold in EUR:
+			
+		$ cmc.sh -b \"\e[1;33;40m1\033[00m/31.1\" xau eur 
+	
+	
+	To convert (a) from gold to crypto currencies, (b) from bank currencies
+	to gold	or (c) from gold to bank curren-cies, do not forget to use the 
+	option \"-b\"!
 
 
 IMPORTANT NOTICE
@@ -135,53 +178,6 @@ USAGE EXAMPLES
 		(7)    One Bitcoin in troy ounces of Gold:
 					
 			$ cmc.sh 1 btc xau 
-
-
-		(8)    Using grams for precious metals instead of troy ounces.
-
-			To use grams instead of ounces for calculation precious 
-			metals rates, use option '-g'. E.g., one gram of gold 
-			in USD, with two decimal plates:
-
-				$ cmc.sh -2bg xau usd 
-
-
-			The following section explains about the GRAM/OZ cons-
-			tant used in this program.
-
-			The rate of conversion (constant) of grams by troy ounce
-			may be represented as below:
-			 
-				GRAM/OUNCE = '31.1034768'
-			
-
-			
-			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
-			just multiply AMOUNT by the 'GRAM/OUNCE' constant.
-
-				$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
-
-
-				One EUR in grams of Gold:
-
-				$ cmc.sh -b \"\e[1;33;40m1\033[00m*31.1\" eur xau 
-
-
-
-			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the 'GRAM/OUNCE' constant.
-
-				$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
-			
-
-				One gram of Gold in EUR:
-					
-				$ cmc.sh -b \"\e[1;33;40m1\033[00m/31.1\" xau eur 
-
-
-			To convert (a) from gold to crypto currencies, (b) from 
-			bank currencies to gold or (c) from gold to bank curren-
-			cies, do not forget to use the option '-b'!
 
 
 OPTIONS
@@ -675,10 +671,10 @@ elif [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
 	exit 1
 fi
 if [[ -z ${2} ]]; then
-	set -- "${1}" BTC
+	set -- "${1}" ${DEFCUR^^}
 fi
 if [[ -z ${3} ]]; then
-	set -- "${1}" "${2}" USD
+	set -- "${1}" "${2}" ${DEFTOCUR^^}
 fi
 
 #check currencies
