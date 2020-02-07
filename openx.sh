@@ -1,15 +1,16 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.4 - 2019/dec  by mountaineerbr
-
+# v0.6.5 - feb/2020  by mountaineerbr
 
 ## Please make a free account and update this script
 ## with *your* Open Exchange Rates API ID ( app_id ).
 #OPENXAPPID=""
 
+#defaults
+#default to_currency
+DEFTOCUR=USD
 
-## Defaults
 # Number of decimal plates (scale):
 SCLDEFAULTS=16
 
@@ -46,28 +47,67 @@ DESCRIPTION
 	should not be used to perform precise forex trades, as the free plan
 	updates hourly only and has a limit of 1000 accesses per month.
 
-	Gold and Silver are priced in Troy Ounces. It means that in each troy 
-	ounce there are aproximately 31.1 grams, such as represented by the
-	following constant:
-		
-		\"GRAM/OUNCE\" rate = 31.1034768
-
-
-	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals.
-
-	Nonetheless, it is useful to learn how to do this convertion manually.
-	It is useful to define a variable with the gram to troy oz ratio in your
-	\".bashrc\" to work with precious metals (see usage example 10). I sug-
-	gest a variable called TOZ that will contain the GRAM/OZ constant.
-
-		TOZ=\"31.1034768\"
-
-
 	Bash Calculator uses a dot \".\" as decimal separtor. Default precision
 	is ${SCLDEFAULTS}, plus an uncertainty digit.
 
 	
+PRECIOUS METALS -- OUNCES TROY AND GRAMS
+	The following section explains about the GRAM/OZ constant used in this
+	program.
+	
+	Gold and Silver are priced in Troy Ounces. It means that in each troy 
+	ounce there are aproximately 31.1 grams, such as represented by the fol-
+	lowing constant:
+		
+		\"GRAM/OUNCE\" rate = ${TOZ}
+	
+	
+	Option \"-g\" will try to calculate rates in grams instead of ounces for
+	precious metals.
+	
+	Nonetheless, it is useful to learn how to do this convertion manually. 
+	It is useful to define a variable with the gram to troy oz ratio in your
+	\".bashrc\" to work with precious metals (see usage example 10). I sug-
+	gest a variable called TOZ that will contain the GRAM/OZ constant:
+	
+		TOZ=\"${TOZ}\"
+	
+
+	To use grams instead of ounces for calculation precious metals rates, 
+	use option \"-g\". E.g., one gram of gold in USD:
+
+		$ openx.sh -g xau usd 
+
+
+	The rate of conversion (constant) of grams by troy ouncemay be repre-
+	sented as below:
+	 
+		GRAM/OUNCE = \"31.1034768\"
+	
+	
+	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+
+		$ openx.sh \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
+
+
+	One EUR in grams of Gold:
+
+		$ openx.sh \"\e[1;33;40m1\033[00m*31.1\" eur xau 
+
+
+
+	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
+	AMOUNT by the \"GRAM/OUNCE\" constant.
+
+		$ openx.sh \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
+	
+
+	One gram of Gold in EUR:
+			
+		$ openx.sh \"\e[1;33;40m1\033[00m/31.1\" xau eur 
+
+
 WARRANTY
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -82,7 +122,7 @@ WARRANTY
 	<https://www.gnu.org/licenses/>.  
 	
 
-	Give me a nickle! =)
+	If you found this useful, consider giving me a nickle! =)
 
 		bc1qlxm5dfjl58whg6tvtszg5pfna9mn2cr2nulnjr
      
@@ -111,53 +151,11 @@ USAGE EXAMPLES
 			$ openx.sh -s3  dkk cny
 			
 
-			Using a math expression in AMOUNT:
+		    Using a math expression in AMOUNT:
 
 			$ openx.sh -3 '(3*245.75)+262+.75' dkk cny
 
 		
-		(3)    Using grams for precious metals instead of troy ounces.
-
-			To use grams instead of ounces for calculation precious 
-			metals rates, use option \"-g\". E.g., one gram of gold 
-			in USD:
-
-			$ openx.sh -g xau usd 
-
-
-			The following section explains about the GRAM/OZ cons-
-			tant used in this program.
-
-			The rate of conversion (constant) of grams by troy ounce
-			may be represented as below:
-			 
-				GRAM/OUNCE = \"31.1034768\"
-			
-
-			
-			To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold,
-			just multiply AMOUNT by the \"GRAM/OUNCE\" constant.
-
-				$ openx.sh \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
-
-
-				One EUR in grams of Gold:
-
-				$ openx.sh \"\e[1;33;40m1\033[00m*31.1\" eur xau 
-
-
-
-			To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR,
-			just divide AMOUNT by the \"GRAM/OUNCE\" constant.
-
-				$ openx.sh \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
-			
-
-				One gram of Gold in EUR:
-					
-				$ openx.sh \"\e[1;33;40m1\033[00m/31.1\" xau eur 
-
-
 OPTIONS
 		-NUM 	  Shortcut for scale setting, same as \"-sNUM\".
 
@@ -270,12 +268,12 @@ if [[ -z ${SCL} ]]; then
 fi
 
 # Set equation arquments
-if ! [[ ${1} =~ [0-9] ]]; then
+if ! [[ ${1} =~ [0-9]+ ]]; then
 	set -- 1 ${@:1:2}
 fi
 
 if [[ -z ${3} ]]; then
-	set -- ${@:1:2} "USD"
+	set -- ${@:1:2} "${DEFTOCUR^^}"
 fi
 
 ## Grep JSON from server
