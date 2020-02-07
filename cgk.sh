@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.14  feb/2020  by mountaineerbr
+# v0.10.15  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -105,8 +105,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 		TOZ=\"${TOZ}\"
 	
 	
-	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
-	AMOUNT by the \"GRAM/OUNCE\" constant.
+	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply AMOUNT by
+	the \"GRAM/OUNCE\" constant.
 	
 		$ cgk.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
 	
@@ -118,8 +118,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 		$ cgk.sh -b -g 1 eur xau 
 	
 	
-	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
-	AMOUNT by the \"GRAM/OUNCE\" constant.
+	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide AMOUNT by
+	the \"GRAM/OUNCE\" constant.
 	
 		$ cgk.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
 	

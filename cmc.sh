@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # cmc.sh -- coinmarketcap.com api access
-# v0.7.4  feb/2020  by mountaineerbr
+# v0.7.5  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -80,8 +80,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 		TOZ=\"${TOZ}\"
 	
 	
-	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
-	AMOUNT by the \"GRAM/OUNCE\" constant.
+	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply AMOUNT by
+	the \"GRAM/OUNCE\" constant.
 	
 		$ cmc.sh -b \"\e[0;33;40mAMOUNT\033[00m*31.1\" eur xau 
 	
@@ -93,8 +93,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 		$ cmc.sh -b -g 1 eur xau 
 	
 	
-	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
-	AMOUNT by the \"GRAM/OUNCE\" constant.
+	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide AMOUNT by
+	the \"GRAM/OUNCE\" constant.
 	
 		$ cmc.sh -b \"\e[0;33;40m[amount]\033[00m/31.1\" xau usd 
 	
