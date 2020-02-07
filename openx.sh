@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.5 - feb/2020  by mountaineerbr
+# v0.6.7 - feb/2020  by mountaineerbr
 
 ## Please make a free account and update this script
 ## with *your* Open Exchange Rates API ID ( app_id ).
@@ -63,26 +63,14 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 	
 	
 	Option \"-g\" will try to calculate rates in grams instead of ounces for
-	precious metals.
+	precious metals. Nonetheless, it is useful to learn how to do this 
+	convertion manually. 
 	
-	Nonetheless, it is useful to learn how to do this convertion manually. 
 	It is useful to define a variable with the gram to troy oz ratio in your
-	\".bashrc\" to work with precious metals (see usage example 10). I sug-
-	gest a variable called TOZ that will contain the GRAM/OZ constant:
+	\".bashrc\" to work with precious metals. I suggest a variable called 
+	TOZ that will hold the GRAM/OZ constant:
 	
 		TOZ=\"${TOZ}\"
-	
-
-	To use grams instead of ounces for calculation precious metals rates, 
-	use option \"-g\". E.g., one gram of gold in USD:
-
-		$ openx.sh -g xau usd 
-
-
-	The rate of conversion (constant) of grams by troy ouncemay be repre-
-	sented as below:
-	 
-		GRAM/OUNCE = \"31.1034768\"
 	
 	
 	To get \e[0;33;40mAMOUNT\033[00m of EUR in grams of Gold, just multiply
@@ -94,7 +82,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 	One EUR in grams of Gold:
 
 		$ openx.sh \"\e[1;33;40m1\033[00m*31.1\" eur xau 
-
+		
+		$ openx.sh -g 1 eur xau 
 
 
 	To get \e[0;33;40mAMOUNT\033[00m of grams of Gold in EUR, just divide 
@@ -106,6 +95,8 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 	One gram of Gold in EUR:
 			
 		$ openx.sh \"\e[1;33;40m1\033[00m/31.1\" xau eur 
+		
+		$ openx.sh -g 1 xau eur 
 
 
 WARRANTY
