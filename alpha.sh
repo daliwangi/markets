@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3.4  jan/2020  by mountaineer_br
+# v0.3.5  feb/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -173,7 +173,7 @@ tsf() {
 		DATA="$(${YOURAPP} "https://www.alphavantage.co/query?function=TIME_SERIES_${PERIOD}&symbol=${1^^}&outputsize=full&apikey=${ALPHAAPIKEY}&datatype=csv")"
 	else
 		#get forex data
-		DATA="$(${YOURAPP} "https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=${1^^}&to_symbol=${2^^}&outputsize=full&apikey=${ALPHAAPIKEY}&datatype=csv")"
+		DATA="$(${YOURAPP} "https://www.alphavantage.co/query?function=FX_${PERIOD}&from_symbol=${1^^}&to_symbol=${2^^}&outputsize=full&apikey=${ALPHAAPIKEY}&datatype=csv")"
 	fi
 
 	# Print raw data?
@@ -182,6 +182,9 @@ tsf() {
 		[[ -z "${CSVOPT}" ]] && printf 'Using CSV data for this call.\n' 1>&2
 		exit 0
 	fi
+
+	#get rid of windows carrige return ^M
+	DATA="$(tr -d '\r' <<<"${DATA}")"
 
 	#test for error esponse
 	if jq -e '."Error Message"' <<<"${DATA}" &>/dev/null; then
