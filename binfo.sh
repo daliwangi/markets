@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.4  feb/2020  by mountaineerbr
+# v0.7.5  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -373,7 +373,7 @@ chairblkinfof() {
 		)' <<< "${CHAINJSON}"
 
 		##special function for the halving!!
-		HTIME="$(jq -r '.data.countdowns[]|select(.event=="Reward halving").time_left' <<<"${CHAINJSON}")"
+		HTIME="$(jq -r '.data.countdowns[]|select(.event=="Reward halving").time_left//empty' <<<"${CHAINJSON}")"
 		if [[ -n "${HTIME}" ]]; then
 			printf '\n'
 			cat <<-!
