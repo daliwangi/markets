@@ -1,7 +1,6 @@
 #!/bin/bash
-#
 # cmc.sh -- coinmarketcap.com api access
-# v0.7.6  feb/2020  by mountaineerbr
+# v0.7.7  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -499,27 +498,41 @@ winlosef() {
 	fi
 
 	#get data
-	DATA0="$(tickerf "${1}" BTC | sed '1d')" 
-	DATA1="$(tickerf "${1}" USD | sed '1d')" 
+	DATA0="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=BTC")"
+	DATA1="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=USD")"
+
+	#process data
+	BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${DATA0}")"
+	DATA01H="$(jq -r ".[]|((.percent_change_1h|tonumber)-${BTC1H})" <<<"${DATA0}")"
+	DATA11H="$(jq -r '.[].percent_change_1h' <<<"${DATA1}")"
+
+	BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${DATA0}")"
+	DATA024H="$(jq -r ".[]|((.percent_change_24h|tonumber)-${BTC24H})" <<<"${DATA0}")"
+	DATA124H="$(jq -r '.[].percent_change_24h' <<<"${DATA1}")"
 	
+	BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${DATA0}")"
+	DATA07D="$(jq -r ".[]|((.percent_change_7d|tonumber)-${BTC7D})" <<<"${DATA0}")"
+	DATA17D="$(jq -r '.[].percent_change_7d' <<<"${DATA1}")"
+
+
 	#calc winners and losers by time frame
 	#1h
-	A1=$(awk '{print $5}'<<<"$DATA0" | grep -cv '^-')
-	B1=$(awk '{print $5}'<<<"$DATA0" | grep -c '^-')
-	C1=$(awk '{print $5}'<<<"$DATA1" | grep -cv '^-')
-	D1=$(awk '{print $5}'<<<"$DATA1" | grep -c '^-')
+	A1=$(grep -cv '^-' <<<"${DATA01H}")
+	B1=$(grep -c '^-'  <<<"${DATA01H}")
+	C1=$(grep -cv '^-' <<<"${DATA11H}")
+	D1=$(grep -c '^-'  <<<"${DATA11H}")
 	
 	#24h
-	A24=$(awk '{print $6}'<<<"$DATA0" | grep -cv '^-')
-	B24=$(awk '{print $6}'<<<"$DATA0" | grep -c '^-')
-	C24=$(awk '{print $6}'<<<"$DATA1" | grep -cv '^-')
-	D24=$(awk '{print $6}'<<<"$DATA1" | grep -c '^-')
+	A24=$(grep -cv '^-' <<<"${DATA024H}")
+	B24=$(grep -c '^-'  <<<"${DATA024H}")
+	C24=$(grep -cv '^-' <<<"${DATA124H}")
+	D24=$(grep -c '^-'  <<<"${DATA124H}")
 	
 	#7 days
-	A7=$(awk '{print $7}'<<<"$DATA0" | grep -cv '^-')
-	B7=$(awk '{print $7}'<<<"$DATA0" | grep -c '^-')
-	C7=$(awk '{print $7}'<<<"$DATA1" | grep -cv '^-')
-	D7=$(awk '{print $7}'<<<"$DATA1" | grep -c '^-')
+	A7=$(grep -cv '^-' <<<"${DATA07D}")
+	B7=$(grep -c '^-'  <<<"${DATA07D}")
+	C7=$(grep -cv '^-' <<<"${DATA17D}")
+	D7=$(grep -c '^-'  <<<"${DATA17D}")
 	
 	#winners vs losers against btc/usd tables
 	VSBTC=$(column -et -s= -NRNG,WIN,LOSE -RRNG,WIN,LOSE <<-!
