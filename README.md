@@ -10,7 +10,7 @@ This is a repo related to crypto, bank currency and stock markets.
 
 Run the script with '-h' for a help page. Check below for script descriptions, download and basic instructions to run them.
 
-These scripts use the latest version of Bash. Other packages that may be required to run some functions are Curl/Wget, Jq, Websocat and Lolcat.
+These bash scripts mostly need 'curl'. Some of them will work if you have got 'wget' instead, but not all of them. Other important packages are 'jq' and 'websocat' for some scripts.
 
 ---
 
@@ -18,7 +18,7 @@ These scripts use the latest version of Bash. Other packages that may be require
 
 Este repo é relacionado com mercados de cripto, de moedas de banco centrais e ações. Rode os scripts com '-h' para uma página de ajuda.
 
-Esses scripts usam a última versão do Bash. Outros pacotes que podem precisar estar presentes para rodar algumas funções são Curl/Wget, Jq, Websocat and Lolcat.
+A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se você tiver somente o 'wget', mas não todos. Outros pacotes importantes para alguns scripts são 'jq' e 'websocat'.
 
 ---
 
@@ -50,7 +50,9 @@ Esses scripts usam a última versão do Bash. Outros pacotes que podem precisar 
 
 <b>hgbrasil.sh --</b> Bovespa and tax rates. Cotações de ações da Bovespa e índices e taxas (CDI e SELIC) do api da hg brasil.
 
-<b>myc.sh --</b> <Mycurrency.net> public api, central bank currency converter.
+<b>myc.sh --</b> <Mycurrency.net> public api, central bank currency rate converter.
+
+<b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
 <b>openx.sh --</b> <Openexchangerates.org> api, central bank currency converter.
 
