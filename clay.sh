@@ -1,12 +1,15 @@
 #!/bin/bash
 #
 # clay.sh -- <currencylayer.com> currency rates api access
-# v0.4.11  feb/2020  by mountaineerbr
+# v0.4.13  feb/2020  by mountaineerbr
 
 #your own personal api key
 #CLAYAPIKEY=''
 
 #defaults
+#default to_currency
+DEFTOCUR=USD
+
 #number of decimal plates (scale):
 SCLDEFAULTS=20   #bash calculator defaults is 20 plus one uncertainty digit
 
@@ -24,14 +27,15 @@ HELP_LINES="NAME
 
 SYNOPSIS
 
-	clay.sh [-tg] [-sNUM] [AMOUNT] FROM_CURRENCY TO_CURRENCY
+	clay.sh [-tg] [-sNUM] [AMOUNT] FROM_CURRENCY [TO_CURRENCY]
 
 	clay.sh [-hjlv]
 
 
 DESCRIPTION
 	This programme fetches updated currency rates from the internet	and can
-	convert any amount of one supported currency into another.
+	convert any amount of one supported currency into another. If user does
+	not specify TO_CURRENCY, script defaults to ${DEFTOCUR}.
 
 	Free plans should get currency updates daily only. It supports very few 
 	cyrpto currencies. Please, access <https://currencylayer.com/> and sign
@@ -116,6 +120,7 @@ USAGE EXAMPLES
 		    plates (scale):
 
 			$ clay.sh -s3 50 djf cny
+
 
 		(3) One CAD in JPY using math expression in AMOUNT:
 			
@@ -228,7 +233,7 @@ if ! [[ ${1} =~ [0-9] ]]; then
 fi
 
 if [[ -z ${3} ]]; then
-	set -- "${@:1:2}" USD
+	set -- "${@:1:2}" "${DEFTOCUR}"
 fi
 
 #get json once
@@ -244,16 +249,25 @@ elif [[ "$(jq -r '.success' <<<"${CLJSON}")" = false ]]; then
 	exit 1
 fi
 
+#are user input symbols valid?
+if [[ "${2^^}" != USD ]] && ! jq -e ".quotes.USD${2^^}" <<<"${CLJSON}" &>/dev/null; then
+	printf 'Err: unsupported FROM_CURRENCY -- %s\n' "${2^^}" 1>&2
+	exit 1
+elif [[ "${3^^}" != USD ]] && ! jq -e ".quotes.USD${3^^}" <<<"${CLJSON}" &>/dev/null; then
+	printf 'Err: unsupported FROM_CURRENCY -- %s\n' "${3^^}" 1>&2
+	exit 1
+fi
+
 #get currency rates
-if ! [[ ${2^^} = USD && ${3^^} = USD ]]; then
-	FROMCURRENCY=$(jq ".quotes.USD${2^^}" <<< "${CLJSON}")
-	TOCURRENCY=$(jq ".quotes.USD${3^^}" <<< "${CLJSON}")
-elif [[ ${2^^} = USD ]]; then
+if [[ ${2^^} = USD ]]; then
 	FROMCURRENCY=1
-	TOCURRENCY=$(jq ".quotes.USD${3^^}" <<< "${CLJSON}")
+	TOCURRENCY=$(jq -r ".quotes.USD${3^^}" <<< "${CLJSON}")
 elif [[ ${3^^} = USD ]]; then
-	FROMCURRENCY=$(jq ".quotes.USD${2^^}" <<< "${CLJSON}")
+	FROMCURRENCY=$(jq -r ".quotes.USD${2^^}" <<< "${CLJSON}")
 	TOCURRENCY=1
+else
+	FROMCURRENCY=$(jq -r ".quotes.USD${2^^}" <<< "${CLJSON}")
+	TOCURRENCY=$(jq -r ".quotes.USD${3^^}" <<< "${CLJSON}")
 fi
 
 #transform 'e' to '*10^'

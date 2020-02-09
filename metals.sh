@@ -1,17 +1,22 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1.1  feb/2020  by mountaineerbr
+# v0.1.3  feb/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
 
 #defaults
+
+#default to_currency
+DEFTOCUR=USD
+
 #number of decimal plates (scale):
 SCLDEFAULTS=20   #bash calculator defaults is 20 plus one uncertainty digit
 
 #don't change these
 LC_NUMERIC='en_US.UTF-8'
+
 #troy ounce to gram ratio
 TOZ='31.1034768'
 
@@ -22,7 +27,7 @@ HELP_LINES="NAME
 
 SYNOPSIS
 
-	metals.sh [-tg] [-sNUM] [AMOUNT] FROM_CURRENCY TO_CURRENCY
+	metals.sh [-tg] [-sNUM] [AMOUNT] FROM_CURRENCY [TO_CURRENCY]
 
 	metals.sh [-hjlv]
 
@@ -30,7 +35,7 @@ SYNOPSIS
 DESCRIPTION
 	This programme fetches updated precious metals and bank currency rates 
 	from <metals-api.com> and can convert any amount of one supported cur-
-	rency into another.
+	rency into another. If no TO_CURRENCY is given defaults to ${DEFTOCUR}.
 
 	Bash Calculator uses a dot '.' as decimal separtor. Default precision
 	is ${SCLDEFAULTS}, plus an uncertainty digit.
@@ -156,7 +161,7 @@ OPTIONS
 #list symbols
 listf() {
 	#list
-	LIST="$(curl -s "https://metals-api.com/api/symbols?access_key=$METALSAPIKEY"|jq -r 'keys[] as $k | "\($k) \(.[$k])"')"
+	LIST="$(curl -Ls "https://metals-api.com/api/symbols?access_key=$METALSAPIKEY"|jq -r 'keys[] as $k | "\($k) \(.[$k])"')"
 	printf '%s\n' "${LIST}"
 	printf 'Symbols: %s\n' "$(wc -l <<<"${LIST}")"
 	exit
@@ -168,6 +173,17 @@ errf() {
 		jq -r '.error.info' <<<"${JSON}" 1>&2
 		exit 1
 	elif grep -oi 'Whoops, looks like something went wrong.' <<<"${JSON}" 1>&2; then
+		exit 1
+	fi
+}
+
+#are user input symbols valid?
+errf2() {
+	if [[ "${1^^}" != USD ]] && ! jq -e ".rates.${1^^}" <<<"${JSON}" &>/dev/null; then
+		printf 'Err: unsupported FROM_CURRENCY -- %s\n' "${1^^}" 1>&2
+		exit 1
+	elif [[ "${2^^}" != USD ]] &&  ! jq -e ".rates.${2^^}" <<<"${JSON}" &>/dev/null; then
+		printf 'Err: unsupported FROM_CURRENCY -- %s\n' "${2^^}" 1>&2
 		exit 1
 	fi
 }
@@ -262,16 +278,18 @@ if ! [[ ${1} =~ [0-9] ]]; then
 fi
 
 if [[ ! "${3^^}" =~ ^[A-Z]+$  ]]; then
-	set -- "${@:1:2}" USD "${@:3}"
+	set -- "${@:1:2}" "${DEFTOCUR}" "${@:3}"
 fi
 
-#historical price? -- temporary server error? -- server responds with 'no_results' 
-[[ "${4}" =~ ^[0-9]{4}[/-][0-9]{2}[/-][0-9]{2}$ ]] && HISTDATE="&date=${4//\//-}"
-
 #get json once
-JSON="$(curl -sL "http://metals-api.com/api/convert?access_key=${METALSAPIKEY}&from=${2^^}&to=${3^^}${HISTDATE}")"
+JSON="$(curl -sL "http://metals-api.com/api/latest?access_key=${METALSAPIKEY}")"
+
+#historical price? -- temporary server error? -- server responds with 'no_results' 
+#[[ "${4}" =~ ^[0-9]{4}[/-][0-9]{2}[/-][0-9]{2}$ ]] && HISTDATE="&date=${4//\//-}"
+#JSON="$(curl -sL "http://metals-api.com/api/convert?access_key=${METALSAPIKEY}&from=${2^^}&to=${3^^}${HISTDATE}")"
 #&amount=1
 #&date=YYY-MM-DD -- temp err? -- server responds with 'no_results'
+
 
 #print json?
 if [[ -n ${PJSON} ]]; then
@@ -279,24 +297,43 @@ if [[ -n ${PJSON} ]]; then
 	exit 0
 fi
 
-#test for error
+#test for error response from server
 errf
 
-#get rate
-RATE="$(jq -r '.info.rate' <<<"${JSON}")"
+#are user input symbols valid?
+errf2 "${2}" "${3}"
+
+#get currency rates
+if [[ ${2^^} = USD ]]; then
+	FROMCURRENCY=1
+	TOCURRENCY=$(jq -r ".rates.${3^^}" <<< "${JSON}")
+elif [[ ${3^^} = USD ]]; then
+	FROMCURRENCY=$(jq -r ".rates.${2^^}" <<< "${JSON}")
+	TOCURRENCY=1
+else
+	FROMCURRENCY=$(jq -r ".rates.${2^^}" <<< "${JSON}")
+	TOCURRENCY=$(jq -r ".rates.${3^^}" <<< "${JSON}")
+fi
 
 #transform 'e' to '*10^'
-RATE=$(sed 's/[eE]/*10^/g' <<< "${RATE}")
+if [[ "${FROMCURRENCY}" =~ e ]]; then
+	FROMCURRENCY=$(sed 's/[eE]/*10^/g' <<< "${FROMCURRENCY}")
+fi
+if [[ "${TOCURRENCY}" =~ e ]]; then
+	TOCURRENCY=$(sed 's/[eE]/*10^/g' <<< "${TOCURRENCY}") 
+fi
 
 #print timestamp?
 if [[ -n ${TIMEST} ]]; then
 	JSONTIME="$(jq '.info.timestamp' <<< "${JSON}")"
-	date -d@"$JSONTIME" '+#%FT%T%Z'
+	JSONTIME2="$(jq '.date' <<< "${JSON}")"
+	printf 'Time: %s\n' "$(date -d@"$JSONTIME" '+#%FT%T%Z')"
+	printf 'Date: %s\n' "$(date -d@"$JSONTIME2" '+#%FT%T%Z')"
 fi
 
 #precious metals in grams?
 ozgramf "${2}" "${3}"
 
 #calc equation and print result
-bc -l <<< "scale=${SCL};(((${1})*${RATE})${GRAM}${TOZ})/1;"
-
+bc -l <<< "scale=${SCL};(((${1})*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1;"
+#bc -l <<< "scale=${SCL};(((${1})*${RATE})${GRAM}${TOZ})/1;"
