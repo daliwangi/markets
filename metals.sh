@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1.3  feb/2020  by mountaineerbr
+# v0.1.5  feb/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
@@ -325,10 +325,12 @@ fi
 
 #print timestamp?
 if [[ -n ${TIMEST} ]]; then
-	JSONTIME="$(jq '.info.timestamp' <<< "${JSON}")"
-	JSONTIME2="$(jq '.date' <<< "${JSON}")"
-	printf 'Time: %s\n' "$(date -d@"$JSONTIME" '+#%FT%T%Z')"
-	printf 'Date: %s\n' "$(date -d@"$JSONTIME2" '+#%FT%T%Z')"
+	if JSONTIME="$(jq -er '.timestamp' <<< "${JSON}" 2>/dev/null)"; then
+		printf 'Time: %s\n' "$(date -d@"$JSONTIME" '+%FT%T%Z')"
+	fi
+	if JSONTIME2="$(jq -er '.date' <<< "${JSON}" 2>/dev/null)"; then
+		printf 'Date: %s\n' "$JSONTIME2"
+	fi
 fi
 
 #precious metals in grams?
@@ -336,4 +338,3 @@ ozgramf "${2}" "${3}"
 
 #calc equation and print result
 bc -l <<< "scale=${SCL};(((${1})*${TOCURRENCY}/${FROMCURRENCY})${GRAM}${TOZ})/1;"
-#bc -l <<< "scale=${SCL};(((${1})*${RATE})${GRAM}${TOZ})/1;"
