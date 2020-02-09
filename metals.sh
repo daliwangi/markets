@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1  feb/2020  by mountaineerbr
+# v0.1.1  feb/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
@@ -265,13 +265,13 @@ if [[ ! "${3^^}" =~ ^[A-Z]+$  ]]; then
 	set -- "${@:1:2}" USD "${@:3}"
 fi
 
-#historical price? -- does not seem to work
-#[[ -n "${4}" ]] && DATE="&end_date=${4//\//-}"
+#historical price? -- temporary server error? -- server responds with 'no_results' 
+[[ "${4}" =~ ^[0-9]{4}[/-][0-9]{2}[/-][0-9]{2}$ ]] && HISTDATE="&date=${4//\//-}"
 
 #get json once
-JSON="$(curl -sL "http://metals-api.com/api/convert?access_key=${METALSAPIKEY}&from=${2^^}&to=${3^^}")"
+JSON="$(curl -sL "http://metals-api.com/api/convert?access_key=${METALSAPIKEY}&from=${2^^}&to=${3^^}${HISTDATE}")"
 #&amount=1
-#&date=YYY-MM-DD -- does not seem to work
+#&date=YYY-MM-DD -- temp err? -- server responds with 'no_results'
 
 #print json?
 if [[ -n ${PJSON} ]]; then
