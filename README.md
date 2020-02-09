@@ -1,6 +1,6 @@
 # markets
 ![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
-Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc.
+Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc; check 'metais.sh'.
 
 ---
 
@@ -40,21 +40,23 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>cgk.sh --</b> <Coinggecko.com> public api, currency converter, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 
-<b>clay.sh --</b> <Currencylayer.com> api, central bank currency, precious metal and cryptocurrency converter.
+<b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
 
-<b>cmc.sh --</b>  <Coinmarketcap.com> api, currency converter, market ticker.
+<b>cmc.sh --</b>  <Coinmarketcap.com> free api key, currency converter, market ticker.
 
 <b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
-<b>foxbit.sh --</b> FoxBit public API rates. Acesso ao api público da Foxbit para cotações.
+<b>foxbit.sh --</b> FoxBit exchange public API rates. Acesso ao api público da Foxbit para cotações.
 
 <b>hgbrasil.sh --</b> Bovespa and tax rates. Cotações de ações da Bovespa e índices e taxas (CDI e SELIC) do api da hg brasil.
 
 <b>myc.sh --</b> <Mycurrency.net> public api, central bank currency rate converter.
 
+<b>metais.sh --</b> script to open and arrange terminal windows with these market scripts on X.
+
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
-<b>openx.sh --</b> <Openexchangerates.org> api, central bank currency converter.
+<b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currency converter.
 
 <b>ourominas.sh --</b> Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas.
 
@@ -66,7 +68,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>yahooFinanceSymbols.txt</b> -- Some yahoo finance stock symbols. Alguns símbolos do yahoo finance.
 
-<b>whalealert.sh --</b> Latest whale transactions from <whale-alert.io> api.
+<b>whalealert.sh --</b> free api key, latest whale transactions from <whale-alert.io>.
 
 ---
 
