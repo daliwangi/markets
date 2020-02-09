@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # cmc.sh -- coinmarketcap.com api access
-# v0.7.5  feb/2020  by mountaineerbr
+# v0.7.6  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -30,16 +30,18 @@ HELP_LINES="NAME
 
 
 SYNOPSIS
-	cmc.sh [-ahlv]
-
 	cmc.sh [-p|-sNUM] [AMOUNT] 'FROM_CURRENCY' [TO_CURRENCY]
 	
 	cmc.sh -b [-gp] [-sNUM] [AMOUNT] 'FROM_CURRENCY' [TO_CURRENCY]
 
 	cmc.sh -m [TO_CURRENCY]
 
-	cmc.sh [-t] [NUM] [TO_CURRENCY]
+	cmc.sh -t [NUM] [TO_CURRENCY]
 	
+	cmc.sh -tt [NUM]
+	
+	cmc.sh [-adhlv]
+
 
 DESCRIPTION
 	This programme fetches updated currency rates from <coinmarketcap.com>
@@ -186,6 +188,8 @@ OPTIONS
 		-b 	  Bank currency function, converts between bank curren-
 			  cies.
 
+		-d 	  Print dominance stats.
+
 		-g 	  Use grams instead of troy ounces; only for precious
 			  metals.
 		
@@ -203,9 +207,11 @@ OPTIONS
 		-p 	  Print timestamp, if available.
 		
 		-t [NUM] [TO_CURRENCY]
+			  Tickers for top NUM cryptos; defaults=10; max 100.
+
 		-tt [NUM]
-			  Tickers for top cryptos; twice to  see winners and 
-			  losers against BTC and USD; defaults=10, max=100.
+			  Winners and losers against BTC and USD for top NUM 
+			  cryptos, including BTC/BTC; defaults=10, max=100.
 
 		-v 	  Script version."
 
@@ -343,8 +349,12 @@ bankf() {
 
 #market capital function
 mcapf() {
-	#check inupt to_currency
-	if [[ -n "${1}" ]]; then
+	#check for input to_currency
+	if [[ -n "${DOMOPT}" ]] || [[ -z "${1}" ]]; then
+		set -- USD
+	elif [[ "${1^^}" =~ ^(USD|BRL|CAD|CNY|EUR|GBP|JPY|BTC|ETH|XRP|LTC|EOS|USDT)$ ]]; then
+		set -- "${1^^}"	
+	elif [[ -n "${1}" ]]; then
 		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
 		if  ! grep -qi "${1}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${1}$"; then
 			if jq -er '.["'"${1^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
@@ -354,17 +364,27 @@ mcapf() {
 				exit 1
 			fi
 		fi
-	else
-		set -- USD
 	fi
+
 	#get market data
 	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest')
+	
 	#print json?
 	if [[ -n ${PJSON} ]]; then
 		printf '%s\n' "${CMCGLOBAL}"
 		exit 0
 	fi
+
+	#-d dominance opt
+	if [[ -n "${DOMOPT}" ]]; then
+		printf "BTC: %'.2f %%\n" "$(jq -r '.data.btc_dominance' <<< "${CMCGLOBAL}")"
+		printf "ETH: %'.2f %%\n" "$(jq -r '.data.eth_dominance' <<< "${CMCGLOBAL}")"
+		exit 0
+	fi
+
+	#timestamp
 	LASTUP=$(jq -r '.data.last_updated' <<< "${CMCGLOBAL}")
+	
 	#avoid erros being printed
 	{
 	printf '## CRYPTO MARKET INFORMATION\n'
@@ -446,7 +466,7 @@ tickerf() {
 	if ! [[ -t 1 ]]; then
 		true
 	elif test "$(tput cols)" -lt '100'; then
-		COLCONF="-HMCAP(${2^^}),SUPPLY/TOTAL,UPDATE -TPRICE(${2^^}),VOL24h(${2^^})"
+		COLCONF="-HMCAP-${2^^},SUPPLY/TOTAL,UPDATE -TPRICE-${2^^},VOL24h-${2^^}"
 		printf 'OBS: More columns are needed to print more info.\n' 1>&2
 	elif test "$(tput cols)" -lt '120'; then
 		COLCONF='-HSUPPLY/TOTAL,UPDATE'
@@ -461,10 +481,13 @@ tickerf() {
 		BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
 		BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
 		BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(BTC),D1h(BTC),D24h(BTC),D7D(BTC),VOL24h(BTC),MCAP(BTC),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+		
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"R,ID,SYMBOL,PRICE-BTC,D1h-BTC,D24h-BTC,D7D-BTC,VOL24h-BTC,MCAP-BTC,SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	
 	#coins vs USD
 	else
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"RANK,ID,SYMBOL,PRICE(${2^^}),D1h(USD),D24h(USD),D7D(USD),VOL24h(${2^^}),MCAP(${2^^}),SUPPLY/TOTAL,UPDATE" ${COLCONF}
+		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"R,ID,SYMBOL,PRICE-${2^^},D1h-USD,D24h-USD,D7D-USD,VOL24h-${2^^},MCAP-${2^^},SUPPLY/TOTAL,UPDATE" ${COLCONF}
+	
 	fi
 }
 
@@ -476,8 +499,8 @@ winlosef() {
 	fi
 
 	#get data
-	DATA0="$(tickerf "${1}" BTC | sed '1,2d')" 
-	DATA1="$(tickerf "${1}" USD | sed '1,2d')" 
+	DATA0="$(tickerf "${1}" BTC | sed '1d')" 
+	DATA1="$(tickerf "${1}" USD | sed '1d')" 
 	
 	#calc winners and losers by time frame
 	#1h
@@ -498,28 +521,31 @@ winlosef() {
 	C7=$(awk '{print $7}'<<<"$DATA1" | grep -cv '^-')
 	D7=$(awk '{print $7}'<<<"$DATA1" | grep -c '^-')
 	
-	#winners vs losers against btc/usd
-	echo 'Winners and losers'
-	echo "Top ${1} coins"
-	echo
-	echo 'Alts vs BTC'
-	column -et -s= -NTIME,WIN,LOSE -RTIME,WIN,LOSE <<-!
+	#winners vs losers against btc/usd tables
+	VSBTC=$(column -et -s= -NRNG,WIN,LOSE -RRNG,WIN,LOSE <<-!
 		1H=$A1=$B1
 		24H=$A24=$B24
 		7D=$A7=$B7
 		!
-	echo
-	echo "Alts vs USD"
-	#winners vs losers against btc/[to_currency]
-	column -et -s= -NTIME,WIN,LOSE -RTIME,WIN,LOSE <<-!
+		)
+	VSUSD=$(column -et -s= -NRNG,WIN,LOSE -RRNG,WIN,LOSE <<-!
 		1H=$C1=$D1
 		24H=$C24=$D24
 		7D=$C7=$D7
 		!
-		:<<-!
-		POS=${A1}=${B1}=${A24}=${B24}=${A7}=${B7}
-		NEG=${C1}=${D1}=${C24}=${D24}=${C7}=${C7}
-		!
+		)
+	
+	#format tables
+	cat <<-!
+	Winners and losers
+	Top ${1} coins
+	
+	All vs BTC
+	${VSBTC}
+
+	All vs USD
+	${VSUSD}
+	!
 }
 
 #-l print currency lists
@@ -570,7 +596,7 @@ ozgramf() {
 
 
 #parse options
-while getopts ':0123456789ablmghjs:tvp' opt; do
+while getopts ':0123456789abdlmghjs:tvp' opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
@@ -580,6 +606,10 @@ while getopts ':0123456789ablmghjs:tvp' opt; do
 			;;
 		( b ) #hack central bank currency rates
 			BANK=1
+			;;
+		( d ) #dominance only opt
+			DOMOPT=1
+			MCAP=1
 			;;
 		( g ) #gram opt
 			GRAMOPT=1
