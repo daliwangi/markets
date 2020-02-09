@@ -1,6 +1,6 @@
 #!/bin/bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.7.7  feb/2020  by mountaineerbr
+# v0.7.8  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -769,7 +769,7 @@ else
 	#print json timestamp ?
 	if [[ -n ${TIMEST} ]]; then
 	JSONTIME=$(jq -r ".data.${2^^}.quote.${3^^}.last_updated" <<< "${CMCJSON}")
-		date --date "$JSONTIME" '+## %FT%T%Z'
+		date --date "$JSONTIME" '+#%FT%T%Z'
 	fi
 	
 	#make equation and calculate result

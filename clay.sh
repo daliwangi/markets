@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # clay.sh -- <currencylayer.com> currency rates api access
-# v0.4.10  feb/2020  by mountaineerbr
+# v0.4.11  feb/2020  by mountaineerbr
 
 #your own personal api key
 #CLAYAPIKEY=''
@@ -267,7 +267,7 @@ fi
 #print timestamp?
 if [[ -n ${TIMEST} ]]; then
 	JSONTIME=$(jq '.timestamp' <<< "${CLJSON}")
-	date -d@"$JSONTIME" '+## %FT%T%Z'
+	date -d@"$JSONTIME" '+#%FT%T%Z'
 fi
 
 #precious metals in grams?
