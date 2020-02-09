@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.5  feb/2020  by mountaineerbr
+# v0.7.6  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -25,18 +25,18 @@ SYNOPSIS
 
 
 	Fetch information of Bitcoin blocks, addresses and transactions from
-	<blockchain.info> public APIs. It is intended to be used as a simple Bit-
-	coin blockchain explorer. Only one argument (block, address, transaction
-	hash, etc) is accepted at a time.
+	<blockchain.info> public APIs. It is intended to be used as a simple 
+	Bitcoin blockchain explorer. Only one argument (block, address, transac-
+	tion hash, etc) is accepted at a time.
 
 	If no optioni is given, the programme will try to select the appropriate
 	option automatically, for example, it will determine between block, ad-
 	dress and transaction hashes. If only an interger is given, the pro-
 	gramme will understand that as a block height.
 
-	<Blockchain.info> and <blockchair.com> may provide an internal index num-
-	ber (ID) of blocks, transactions, etc to use instead of their respective
-	hashes. However, options for IDs cannot be selected automatically.
+	<Blockchain.info> and <blockchair.com> may provide an internal index 
+	number (ID) of blocks, transactions, etc to use instead of their respec-
+	tive hashes. However, options for IDs cannot be selected automatically.
 
 	<Blockchain.info> still does not support segwit (bech32) addresses. On 
 	the other hand, <blockchair.com> supports segwit and other types of 
@@ -220,7 +220,7 @@ sstreamf() {
 					"Bits___: \(.bits)\t\tNonce__: \(.nonce)",
 					"Height_: \(.height)\t\t\tDiff___: \(.difficulty)",
 					"TxCount: \(.nTx)\t\t\tVersion: \(.version)",
-					"BlkSize: \(.size) (\(.size/1000)_KB)\tWeight_: \(.weight)",
+					"BlkSize: \(.size) (\(.size/1000) KB)\tWeight_: \(.weight)",
 					"Output_: \(.totalBTCSent/100000000) BTC\tEstVol_: \(.estimatedBTCSent/100000000) BTC",
 					"Time___: \(.time|strftime("%Y-%m-%dT%H:%M:%SZ"))",
 					"LocalT_: \(.time|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))\tReceivd: \(now|round|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
