@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # clay.sh -- <currencylayer.com> currency rates api access
-# v0.4.9  feb/2020  by mountaineerbr
+# v0.4.10  feb/2020  by mountaineerbr
 
 #your own personal api key
 #CLAYAPIKEY=''
@@ -117,9 +117,9 @@ USAGE EXAMPLES
 
 			$ clay.sh -s3 50 djf cny
 
-			Using math expression in AMOUNT:
+		(3) One CAD in JPY using math expression in AMOUNT:
 			
-			$ clay.sh -3 '(3*15.5)+40.55' djf cny
+			$ clay.sh -2 '(3*15.5)+40.55' cad jpy
 
 
 OPTIONS
@@ -258,10 +258,10 @@ fi
 
 #transform 'e' to '*10^'
 if [[ "${FROMCURRENCY}" =~ e ]]; then
-	FROMCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${FROMCURRENCY}")
+	FROMCURRENCY=$(sed 's/[eE]/*10^/g' <<< "${FROMCURRENCY}")
 fi
 if [[ "${TOCURRENCY}" =~ e ]]; then
-	TOCURRENCY=$(sed -E 's/([+-]?[0-9.]+)[eE]\+?(-?)([0-9]+)/(\1*10^\2\3)/g' <<< "${TOCURRENCY}") 
+	TOCURRENCY=$(sed 's/[eE]/*10^/g' <<< "${TOCURRENCY}") 
 fi
 
 #print timestamp?
