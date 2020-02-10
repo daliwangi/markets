@@ -1,6 +1,6 @@
 # markets
 ![ScreenShot](https://github.com/mountaineerbr/markets/blob/master/git_screenshot1.png)
-Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc; check 'metais.sh'.
+Fig. 1. Running scripts: binance.sh, bitfinex.sh, binfo.sh, bitstamp.sh, cgk.sh, cmc.sh, etc; check 'pricesroll.sh'.
 
 ---
 
@@ -52,7 +52,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>myc.sh --</b> <Mycurrency.net> public api, central bank currency rate converter.
 
-<b>metais.sh --</b> script to open and arrange terminal windows with these market scripts on X.
+<b>metais.sh --</b> script to retrieve dollar and preicous metals prices from multiple apis, requires other scritps from this repo.
 
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
@@ -61,6 +61,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 <b>ourominas.sh --</b> Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas.
 
 <b>parmetal.sh --</b> Parmetal (precious metals exchange) rates public api. Pega taxas da api pública da Parmetal.
+
+<b>pricesroll.sh --</b> script to open and arrange terminal windows with these market scripts on X.
 
 <b>stocks.sh --</b> <Financialmodelingprep.com> public api latest and historical stock rates
 
