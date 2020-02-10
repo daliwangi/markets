@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.3  jan/2020  by mountaineerbr
+# v0.6.4  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -58,9 +58,9 @@ DESCRIPTION
 	The number of decimal plates (scale) of output floating point numbers is
 	dependent on user input for all operations except division, as in pure
 	Bc. Mathlib scale defaults to 20 plus one uncertainty digit and the sci-
-	entific extensions defaults to 100. If option '-s' is not set explicitly,
-	trailing zeroes will be trimmed by a special Bc function before being 
-	printed to screen.
+	entific extensions defaults to 100. If the scale option '-s' is not set 
+	explicitly, trailing zeroes will be trimmed by a special Bc function be-
+	fore being printed to screen.
 
 	Remember that the decimal separator must be a dot '.'. Results with a
 	thousands separator can be obtained with option '-t', in which case a
@@ -133,8 +133,8 @@ BUGS
 
 	Multiline input will skip format settings defined by script options.
 
-	Bash Bc can only uses the point as a decimal separator, independently of 
-	user locale.
+	Bash Bc can only use point as decimal separator, independently of user
+	locale.
 
 
 USAGE EXAMPLES
@@ -143,7 +143,7 @@ USAGE EXAMPLES
 	Chars '-' and '()' need escaping when they start the expression, while '*'
 	needs escaping every time.
 
-		(I) Escaping
+		(I)   Escaping
 			$ bcalc.sh '(-20-20)/2'
 			
 			$ bcalc.sh \\(20+20\\)/2
@@ -152,7 +152,7 @@ USAGE EXAMPLES
 
 			$ bcalc.sh 'a=4;dog=1;cat=dog; a/(cat+dog)'
 		    
-		    Z-shell users need extra escaping
+		      Z-shell users need extra escaping
 			% bcalc.sh '10*10*10'
 			
 			% bcalc.sh 10\\*10\\*10
@@ -160,7 +160,7 @@ USAGE EXAMPLES
 			% bcalc.sh '2^2+(30)'
 	
 			
-		(II) Setting scale
+		(II)  Setting scale and thousands separator
 			$ bcalc.sh -s2 1/3
 	
 			$ bcalc.sh -2 1/3
@@ -170,7 +170,6 @@ USAGE EXAMPLES
 			$ echo '0.333333333' | bcalc.sh -2
 				result: 0.33
 
-		    Thousand separator
 			$ bcalc.sh -t 100000000
 				result: 100,000,000.00
 
@@ -180,7 +179,8 @@ USAGE EXAMPLES
 	
 			$ bcalc.sh -c 0.234*na    #'na' is Avogadro's constant
 	
-		    Adding note
+
+		(IV)  Adding notes
 			$ bcalc.sh -n This is my note.
 			
 			$ bcalc.sh -n '<This; is my w||*ird not& & >'
