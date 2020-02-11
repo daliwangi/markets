@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1.6  feb/2020  by mountaineerbr
+# v0.1.7  feb/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
@@ -111,8 +111,10 @@ BUGS
 	There seems to be some bugs with the API, so it was not possible to im-
 	plement historical rates nor rate time series.
 
-	Server returns an error page or wrong rate for rhodium XRH, but rhodium 
-	should be supported as per API documentation. Temporary server error?
+	Server returns an error page or inverted rate for rhodium XRH/USD, but 
+	rhodium should be supported normally as per API documentation. Temporary
+	server error? It seems XRH rate from the server is inverted, such as 
+	USD/XRH and not XRH/USD. Try 'metals.sh usd xrh'.
 
 
 USAGE EXAMPLES
