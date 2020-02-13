@@ -24,6 +24,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>INDEX / ÍNDICE</b>
 
+<b>.rc_mkt --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file in your shell to make them available.
+
 <b>alpha.sh</b> -- Stocks and currency rates from <alphaavantage.co>, most popular yahoo finance api alternative; get your free API key.
 
 <b>bakkt.sh --</b> Price and contract/volume tickers from bakkt public api.
@@ -63,8 +65,6 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 <b>parmetal.sh --</b> Parmetal (precious metals exchange) rates public api. Pega taxas da api pública da Parmetal.
 
 <b>pricesroll.sh --</b> script to open and arrange terminal windows with these market scripts on X.
-
-<b>.rc_mkt --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file in your shell to make them available.
 
 <b>stocks.sh --</b> <Financialmodelingprep.com> public api latest and historical stock rates
 
