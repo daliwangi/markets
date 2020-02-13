@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.5  feb/2020  by mountaineerbr
+# v0.6.6  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -381,7 +381,7 @@ elif [[ -n "${SCL}" ]]; then
 	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
 #trim trailing noughts; set a big enough scale
 elif RESTX="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RESS:-${RES}})" 2>/dev/null)"; then
-	[[ "${REST}" != '0' ]] && REST="${RESTX}"
+	 [[ -n "${RESTX}" ]] && [[ "${RESTX}" != '0' ]] && REST="${RESTX}"
 fi
 
 #print result
