@@ -4,16 +4,40 @@
 
 #compatible with bash and z-shell
 
-
 #lista de ações da bovespa b3
 blist() {
-	#listar ações
-	for i in {{A..Z},{0..9}}; do
+	#user input
+	if [[ -n "${*}" ]]; then
+		set -- $(tr '[[:lower:]]' '[[:upper:]]' <<<"${*}")
+	#or defaults
+	else
+		printf 'uso: %s [LETRA|NUM]\n\n' "${0}" 1>&2
+		set -- {{A..Z},{0..9}}
+		sleep 1
+	fi
+	
+	#laço para puxar os dados
+	for i in "${@}"; do
+		printf 'Puxando %s..\r' "${i}" 1>&2
 		curl -s "https://br.advfn.com/bolsa-de-valores/bovespa/${i}" |
-			htmlfilter | sed -n '/Ação/,/var ZD_USER/p' |
-			sed -e '1d' -e '$d' -e '/^\s*$/d'
+			sed 's/<[^>]*>//g' | sed -n '/Ação/,/var ZD_USER/p' |
+			sed -e '1d' -e '$d' -e '/^\s*$/d' -Ee 's/[a-z ]([A-Z0-9]+)$/\t\1/' |
+			column -et -s$'\t' -NNOME,SIMBOLO -TNOME
 	done
 }
+
+
+#tesouro direto -- precos e taxas dos titulos
+#requere o pacote 'xmlstarlet'
+#'wget -qO-' ou 'curl -sL'
+tesouro() {
+	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' |
+		xmlstarlet format --recover --html 2>/dev/null |
+		xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" |
+		paste -d ";" - - - - - | column -s';' -dt -NA,B,C,D,E -WA
+	printf '<http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos>\n'
+}
+#https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
 
 #richard heart's hex rate in usd
@@ -388,13 +412,6 @@ ylist() {
 	#grep input and make table
 	grep -i "${@:-.}" "${LISTF}" | column -et -s $'\t' -N'TICKER,NAME,EXCHANGE,CATEGORY,COUNTRY' -T'CATEGORY,NAME'
 }
-
-#tesouro direto -- precos e taxas dos titulos 
-tesouro() {
-	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' | xmlstarlet format --recover --html 2>/dev/null | xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" | paste -d ";" - - - - - | column -s ';' -t
-	printf '<http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos>.\n'
-}
-#https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
 
 #curl cryptocurrencies exchange rates
