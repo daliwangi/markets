@@ -353,8 +353,8 @@ yfin2() { (
 			"PrevClse: \(.chartPreviousClose//empty)",
 			"MktPrice: \(.regularMarketPrice//empty)"
 			#"PriceHnt: \(.priceHint//empty)"
-		),
-		""' <<<"${YJSON}"
+		)
+		' <<<"${YJSON}"
 );}
 
 #yahoo finances symbol list
