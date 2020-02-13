@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.8  feb/2020  by mountaineerbr
+# v0.6.9  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -22,7 +22,7 @@ EXTFILE="${HOME}/.bcalc_extensions"
 export BC_LINE_LENGTH=1000
 
 #make sure numeric locale is set correctly
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 
 #man page
 HELP_LINES="NAME
