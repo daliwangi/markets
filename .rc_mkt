@@ -1,0 +1,417 @@
+##################################################
+################ MARKET FUNCTIONS ################
+##################################################
+
+#compatible with bash and z-shell
+
+#get metal rates
+metals() {
+	local page table
+	
+	page="$(curl -sL 'http://www.infomine.com/investment/metal-prices/' | sed 's/<[^>]*>//g')"
+	
+	printf 'Metals and commodities\n\n'
+	
+	for table in 'Precious Metal Prices' 'Base Metal Prices' 'Steel Raw Material Prices' 'Minor Metal Prices' 'Energy Prices'; do
+		grep -F "${table}" <<<"${page}" | tr '%' '\n'| sed -e '1d' -e '$d' -Ee 's/(\.[0-9]{2})/\1\t/g' -e 's/(USD\/(ozt|lb|bb|mmBTU))/\t\1\t/'
+	done | column -et -s$'\t' -NITEM,UNIT,PRICE,CHANGE,CHANGE% -RUNIT,PRICE,CHANGE,CHANGE% -OITEM,PRICE,CHANGE,CHANGE%,UNIT
+	
+	printf '<infomine.com/investment/metal-prices/>\n'
+}
+#Metals and Commodities
+#Spot - Gold, silver, palladium and platinum are updated every two minutes. Trading time is London, UK time. Spot data is 23 ½ hours
+#per day 6 days per week. The market is closed for 30 minutes every day and is also closed on Saturdays, North America timezone.
+#Data Provider: Xignite
+#Closing – LME data, such as copper, nickel and aluminum, is updated in the early evening hours, PST.
+#Data Provider: theFinancials
+#Uranium data tracks Ux U308 spot.
+#Data Provider: UX Consulting Company
+#Oil data tracks Brent crude oil.
+#Data Provider: ICE
+#Chromite: Ferro-Chrome (High Carbon) 65% min., Europe;
+#Cobalt: Cobalt 99.8% min.;
+#Iron Ore: CVRD;
+#Iron Ore: Hamersley;
+#Magnesium: Ingots 99.9%, Europe;
+#Manganese: Electrolytic flakes 99.7%, Europe;
+#Molybdenum: Molybdenum oxide (Western) 57% min;
+#Phosphates: Phosphate rock, 70% BPL, Morocco;
+#Potash: Potassium chloride, standard grade, Vancouver;
+#Titanium: Ferro-Titanium 68-72% min., Europe;
+#Tungsten: Ferro-Tungsten 75% min., Europe;
+#Vanadium: Ferro-Vanadium 78% min., Europe
+#Specialty/Minor and Bulk Metals prices are derived from various sources including but not limited to International Monetary Fund,
+#The World Bank, German Geoscience Institutes, Energy Information Administration and others. 
+#http://www.infomine.com/chartsdata/infominechartsdatareadme.pdf
+
+metals2() {
+	#help
+	if [[ "${1}" = '-h' ]]; then
+		cat <<-!
+		usage: ${0} -h 		#help
+		usage: ${0} -n NUM 		#news, number of news
+		usage: ${0} CURRENCY UNIT 	#convert functions
+		currs: USD, AUD, CAD, EUR, GBP, JPY, CHF, CNY,
+		       HKD, BRL, INR, MXN, RUB and ZAR
+		units: ounce, gram, kilo or tola
+		!
+		return
+	$news
+	elif [[ "${1}" = '-n' ]]; then
+		curl -s "https://proxy.kitco.com/getvnews?type=json&df=2&max=${2:-11}"  -H 'Origin: https://www.kitco.com' | jq  -r '.News.videoNews|reverse[]|.fullHeadline,.publishDate,.description,""' | sed 's/<br\/>//g'
+		return
+	fi
+	
+	#arrange case or set defaults
+	set -- "$(tr '[a-z]' '[A-Z]' <<<"${1:-USD}")" "$(tr '[A-Z]' '[a-z]' <<<"${2:-ounce}")"
+	#available opts
+	#oz, gram, kilo or tola
+
+	#set columns
+	local colconf
+	((${COLUMNS}<86)) && colconf=(-TDATE,TIME -HUNIT,CUR)
+	
+	#ny spot
+	printf 'New York Spot Price\n'
+	#mkt status
+	curl -s 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
+	#table
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+
+	#world prices
+	printf '\nThe World Spot Price - Asia/Europe/NY markets\n'
+	#mkt status
+	curl -s 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
+	#table
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+}
+#Exchange rates displayed are the middle point between bid and ask.
+
+#richard heart's hex rate in usd
+hex() { (
+	date
+	DATA="$(curl -s "https://api.exchange.bitcoin.com/api/2/public/ticker")"
+	HEXETH="$(jq -r '.[]|select(.symbol == "HEXETH")|.last' <<<"${DATA}")"
+	ETHUSD="$(jq -r '.[]|select(.symbol == "ETHUSD")|.last' <<<"${DATA}")"
+	echo "Bitcoin.com Ticker"
+ 	column -et -s' ' <<-!
+		$(jq -r '.[]|select(.symbol == "HEXETH")'<<<"${DATA}"|tr -d '",}{'|sed 's/^\s\s*//g'|tac)
+		!
+	echo "HEXETH:       $HEXETH"
+	echo "ETHUSD:       $ETHUSD"
+	echo
+	echo 'HEX/USD:'
+	bc -l <<<"$HEXETH*$ETHUSD" | xargs printf 'Bitcoin.com:  %.10f\n'
+	command -v cgk.sh &>/dev/null && cgk.sh hex usd | xargs printf 'CoinGecko__:  %.10f\n'
+	command -v cmc.sh &>/dev/null && cmc.sh hex usd | xargs printf 'CoinMktCap_:  %.10f\n'
+	) |  tee -a ~/.hexRecord
+	}
+
+#lista de ações da bovespa
+blist() {
+	#listar ações
+	for i in {{A..Z},{0..9}}; do
+		curl -s "https://br.advfn.com/bolsa-de-valores/bovespa/${i}" |
+			htmlfilter | sed -n '/Ação/,/var ZD_USER/p' |
+			sed -e '1d' -e '$d' -e '/^\s*$/d'
+	done
+}
+
+#google finance hack
+gfin() {
+	printf 'Google Finance\n'
+	{
+	#get rates by 'mids'; max 100 mids per request
+	curl -s 'https://www.google.com/async/finance_wholepage_price_updates?ei=99InXuDmDNHY5OUPv-CguA0&yv=3&async=mids:%2Fg%2F11c319bxp1%7C%2Fg%2F11c6qr7_zl%7C%2Fg%2F11cjk7msnp%7C%2Fg%2F11f_p2h7tk%7C%2Fg%2F11fqt81yyy%7C%2Fg%2F11h06gmwhk%7C%2Fg%2F11h5q0hb4g%7C%2Fg%2F12fh0nz9c%7C%2Fg%2F12fh0nzb0%7C%2Fg%2F12fh0nzb3%7C%2Fg%2F12fh0p2yj%7C%2Fg%2F12fh0p2ys%7C%2Fg%2F12fh0p2zf%7C%2Fg%2F12fh0p73t%7C%2Fg%2F12fh0p75f%7C%2Fg%2F12fh0p75n%7C%2Fg%2F12fh0pcbj%7C%2Fg%2F12fh0ph_m%7C%2Fg%2F12fh0ph_n%7C%2Fg%2F12fh0ph_w%7C%2Fg%2F12fh0pj0n%7C%2Fg%2F12fh0pj11%7C%2Fg%2F12fh0pmvf%7C%2Fg%2F12fh0q03j%7C%2Fg%2F12fh0q03k%7C%2Fg%2F12fh0q40l%7C%2Fg%2F12fh0q40p%7C%2Fg%2F12fh0q417%7C%2Fg%2F12fh0q41w%7C%2Fg%2F12fh0q889%7C%2Fg%2F12fh0q89p%7C%2Fg%2F12fh0qdmr%7C%2Fg%2F12fh0qdp7%7C%2Fg%2F12fh0qdq2%7C%2Fg%2F12fh0qdq7%7C%2Fg%2F12hdlm_nd%7C%2Fg%2F12hdlm_nx%7C%2Fg%2F12hdlm_pq%7C%2Fg%2F12hdlr38s%7C%2Fg%2F12hdlrw86%7C%2Fg%2F12hdlsn8t%7C%2Fg%2F12hdlsn8x%7C%2Fg%2F12hdltfqt%7C%2Fg%2F12hdltfr0%7C%2Fg%2F12hdltfrc%7C%2Fg%2F12hdltfsh%7C%2Fg%2F1dtsbwq8%7C%2Fg%2F1hg1hklbg%7C%2Fg%2F1q4t94b6p%7C%2Fg%2F1q52g9wfq%7C%2Fg%2F1q52gbb7v%7C%2Fg%2F1q6b4f1pf%7C%2Fg%2F1yg5879fd%7C%2Fg%2F1yghbvnlq%7C%2Fg%2F1ylhlbf1j%7C%2Fm%2F016j14%7C%2Fm%2F016yss%7C%2Fm%2F02853rl%7C%2Fm%2F02hl6w%7C%2Fm%2F02xl7xj%7C%2Fm%2F034673%7C%2Fm%2F046k_p%7C%2Fm%2F04j8v0t%7C%2Fm%2F04t5sp%7C%2Fm%2F04ww1p%7C%2Fm%2F04xjcr%7C%2Fm%2F04xk2h%7C%2Fm%2F04zvfw%7C%2Fm%2F07zkq3x%7C%2Fm%2F07zkrds%7C%2Fm%2F07zk_ym%7C%2Fm%2F07zk_zc%7C%2Fm%2F07zkzv8%7C%2Fm%2F07zl90k%7C%2Fm%2F07zllzd%7C%2Fm%2F07zln7n%7C%2Fm%2F07zln_9%7C%2Fm%2F07zlw9w%7C%2Fm%2F07zm1ts%7C%2Fm%2F07zm2vb%7C%2Fm%2F07zm7zs%7C%2Fm%2F07zmbvf,currencies:,_fmt:json' | sed 1d
+	curl -s 'https://www.google.com/async/finance_wholepage_price_updates?ei=ywprXZHwMcCy5OUPqeK3qAw&yv=3&async=mids:%2Fm%2F0877z%7C%2Fm%2F09fld6%7C%2Fm%2F0b18t%7C%2Fm%2F0ckbkv_%7C%2Fm%2F0ckbnyv%7C%2Fm%2F0ckcq21%7C%2Fm%2F0ckcrh7%7C%2Fm%2F0ckcxmp%7C%2Fm%2F0ckd7nm%7C%2Fm%2F0ckd8tr%7C%2Fm%2F0ckdqsq%7C%2Fm%2F0ckf36v%7C%2Fm%2F0ckf8kv%7C%2Fm%2F0ckgsgx%7C%2Fm%2F0ckh859%7C%2Fm%2F0ckhqlx%7C%2Fm%2F0ck_hz6%7C%2Fm%2F0ckj0b3%7C%2Fm%2F0ckj76w%7C%2Fm%2F0ckjvmb%7C%2Fm%2F0ckk41t%7C%2Fm%2F0ckk6tq%7C%2Fm%2F0ckl1vg%7C%2Fm%2F0ckl258%7C%2Fm%2F0ckp030%7C%2Fm%2F0ckplt3%7C%2Fm%2F0ckpv1f%7C%2Fm%2F0ckpwbx%7C%2Fm%2F0ckq0pv%7C%2Fm%2F0ckq1xd%7C%2Fm%2F0ckq1yk%7C%2Fm%2F0ckqp37%7C%2Fm%2F0ckr0kx%7C%2Fm%2F0ckrjm4%7C%2Fm%2F0cks31m%7C%2Fm%2F0cks_60%7C%2Fm%2F0cksgss%7C%2Fm%2F0ckspft%7C%2Fm%2F0cksrc4%7C%2Fm%2F0cksx47%7C%2Fm%2F0ckt6ld%7C%2Fm%2F0cktgpy%7C%2Fm%2F0ckwf21%7C%2Fm%2F0ckxj89%7C%2Fm%2F0ckxkz6%7C%2Fm%2F0ckxpc8%7C%2Fm%2F0ckxrhc%7C%2Fm%2F0ckxvl0%7C%2Fm%2F0ckxvm7%7C%2Fm%2F0cky1hw%7C%2Fm%2F0ckynjl%7C%2Fm%2F0ckyv15%7C%2Fm%2F0ckzfjy%7C%2Fm%2F0cl015q%7C%2Fm%2F0cl0x5j%7C%2Fm%2F0cl19mp%7C%2Fm%2F0cl1_nd%7C%2Fm%2F0cl20h_%7C%2Fm%2F0cl20hl%7C%2Fm%2F0cl26k8%7C%2Fm%2F0cl3bt3%7C%2Fm%2F0cl3pfz%7C%2Fm%2F0clbbbp%7C%2Fm%2F0cqyw%7C%2Fm%2F0rz9htl,currencies:%2Fm%2F02l6h%2B%2Fm%2F09nqf%7C%2Fm%2F09nqf%2B%2Fm%2F088n7%7C%2Fm%2F01nv4h%2B%2Fm%2F09nqf%7C%2Fm%2F09nqf%2B%2Fm%2F0ptk_%7C%2Fm%2F09nqf%2B%2Fm%2F02nb4kq%7C%2Fm%2F09nqf%2B%2Fm%2F0hn4_%7C%2Fm%2F0kz1h%2B%2Fm%2F09nqf,_fmt:json' | sed 1d
+	} | jq -r '.PriceUpdate.entities[]|
+			(.financial_entity//.currency_entity|
+				"\((.common_entity_data|"\(.symbol//.name)$\(.name)$\(.change)$\(.value_change)$\(if .change == "POSITIVE" then "+" else "-" end)\(.percent_change)$\(.last_value)$\(.last_updated_time)"))$\(.last_close_price//null|.value//"")$\(.exchange//"")")' |
+		sed 's/\s\/\s/\//g' | sort -u -k1 -t'$' |
+		column -et -s'$' -NSYMBOL,NAME,DIRECTION,CHANGE,CHANGE%,VALUE,UPDATE,LASTCLOSE,EXCHANGE -TNAME,UPDATE -HDIRECTION,EXCHANGE -OSYMBOL,VALUE,NAME,DIRECTION,CHANGE,CHANGE%,LASTCLOSE,UPDATE,EXCHANGE
+
+#quotes are not sourced from all markets and may be delayed by up to 20 minutes.
+#information is provided 'as is' and solely for informational purposes, not for
+#trading purposes or advice.
+
+#get a more personalised list by visiting <https://www.google.com/finance> 
+#and expand watchlists and set your symbols. then, open the 'developer tools' 
+#of your browser, go to the 'network' tab, reload the page and check for the 
+#'finance_wholepage_price_updates' link
+
+#for jspb: .. | sed 's/<[^>]*>//g' | grep -E "\"*[[:digit:]]+.[[:digit:]]+\"" | grep -oP '"\K[^"]+' | grep -Ev -e '^,$' -e 'newwindow' -e 'search' -e '[[:digit:]]+]' -e '^]$' -e 'null' -e '/m/' -e '/g/' | sed -e 's/,.,/\n/g' -e 's/,$//g' -e 's/^,//g' -e 's/\\u0026/\&/g'  #| grep --color=never -i -e "${1}" -A6 -B3
+}
+
+#yahoo finance hack -- long ticker
+yfin() { (
+	#parse some opts
+	if [[ "${1}" = -h ]]; then
+		printf 'usage: %s [-jh] \"symbol\"\n' "${0}"
+		return
+	elif [[ "${1}" = -j ]]; then
+		PJSON=1
+		set -- "${@:2:4}"
+	fi
+	
+	#set symbol to uppercase (POSIX-compatible)
+	SYMBOL="$(tr '[:lower:]' '[:upper:]' <<<${1:-TSLA})"
+
+	#get data
+	YJSON="$(curl -sL "https://query1.finance.yahoo.com/v7/finance/quote?symbols=${SYMBOL:-TSLA}&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance")"
+
+	#print json?
+	if [[ -n "${PJSON}" ]]; then
+		printf '%s\n' "${YJSON}"
+		return
+	#check for error response
+	elif jq -e '.quoteResponse.error' <<<"${YJSON}" &>/dev/null; then
+		jq -r '.quoteResponse.error' <<<"${YJSON}"
+		return 1
+	fi
+
+	#set timezone for displaying times
+	#export TZ="GMT"
+	#set timezone according to info from yahoo
+	export TZ="$(jq -r '.quoteResponse.result[]|.exchangeTimezoneName//.exchangeTimezoneShortName' <<<"${YJSON}")"
+
+	#format ticker
+	jq -r '.quoteResponse.result[]|
+		"Exchang: \(.fullExchangeName)",
+		"Timezon: \(.exchangeTimezoneName)  \(.exchangeTimezoneShortName)",
+		"Source_: \(.quoteSourceName)",
+		"Delayed: \(.exchangeDataDelayedBy)",
+		"Intervl: \(.sourceInterval)",
+		"",
+		"50-day",
+		"Average: \(.fiftyDayAverage)",
+		"Change_: \(.fiftyDayAverageChange)",
+		"Change%: \(.fiftyDayAverageChangePercent)",
+		"",
+		"200-day",
+		"Average: \(.twoHundredDayAverage)",
+		"Change_: \(.twoHundredDayAverageChange)",
+		"Change%: \(.twoHundredDayAverageChangePercent)",
+		"",
+		"52-week",
+		"Range__: \(.fiftyTwoWeekRange)",
+		"HChange: \(.fiftyTwoWeekHighChange)",
+		"HChang%: \(.fiftyTwoWeekHighChangePercent)",
+		"LChange: \(.fiftyTwoWeekLowChange)",
+		"LChang%: \(.fiftyTwoWeekLowChangePercent)",
+		"High___: \(.fiftyTwoWeekHigh)",
+		"Low____: \(.fiftyTwoWeekLow)",
+		"",
+		"Average dayly volume",
+		"Last3Mo: \(.averageDailyVolume3Month)",
+		"Last10d: \(.averageDailyVolume10Day)",
+		"",
+		"Regular market",
+		"Time___: \(.regularMarketTime//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"DayRang: \(.regularMarketDayRange)",
+		"Change_: \(.regularMarketChange)",
+		"Change%: \(.regularMarketChangePercent)",
+		"DayHigh: \(.regularMarketDayHigh)",
+		"DayLow_: \(.regularMarketDayLow)",
+		"Volume_: \(.regularMarketVolume)",
+		"PrevClo: \(.regularMarketPreviousClose)",
+		"Open___: \(.regularMarketOpen)",
+		"Price__: \(.regularMarketPrice)",
+		"",
+		"Post market",
+		"Time___: \(.postMarketTime//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Change%: \(.postMarketChangePercent)",
+		"Price__: \(.postMarketPrice)",
+		"Change_: \(.postMarketChange)",
+		"",
+		"Earnings",
+		"T_Stamp: \(.earningsTimestamp//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Start__: \(.earningsTimestampStart//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"End____: \(.earningsTimestampEnd//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"",
+		"BookVal: \(.bookValue)",
+		"ForwdPE: \(.forwardPE)",
+		"PToBook: \(.priceToBook)",
+		"",
+		"Earnings per share",
+		"12mTrai: \(.epsTrailingTwelveMonths)",
+		"Forward: \(.epsForward)",
+		"Populat: \(.esgPopulated)",
+		"",
+		"Exchang: \(.exchange)",
+		"Market_: \(.market)",
+		"Name___: \(.longName)",
+		"Type___: \(.quoteType)",
+		"Symbol_: \(.symbol)",
+		"Currenc: \(.financialCurrency)",
+		"1stTrad: \(((.firstTradeDateMilliseconds//empty)/1000)|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"MktStat: \(.marketState)",
+		"ShrOuts: \(.sharesOutstanding)",
+		"Mkt_Cap: \(.marketCap)",
+		"BidSize: \(.bidSize)",
+		"AskSize: \(.askSize)",
+		"Bid____: \(.bid)",
+		"Ask____: \(.ask)"
+		' <<<"${YJSON}" | grep -v 'null' | cat -s
+	
+#currency
+#language
+#triggerable
+#region
+#tradeable
+#priceHint
+#messageBoardId
+#shortName -- symbol short name
+#gmtOffSetMilliseconds
+);}
+#https://query1.finance.yahoo.com/v7/finance/quote?symbols=DANSKE.CO,ERIC-B.ST,FPKPEN.CO,SSO.OL,VWS.CO&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance
+
+
+#yahoo finance hack -- data from chart api
+#usage: yfin2 [-jh] 'symbol' [range] [granularity]
+yfin2() { (
+	#parse some opts
+	if [[ "${1}" = -h ]]; then
+		printf 'usage: %s [-jh] \"symbol\" [range] [granularity]\n' "${0}"
+		return
+	elif [[ "${1}" = -j ]]; then
+		PJSON=1
+		set -- "${@:2:4}"
+	fi
+	
+	#set symbol to uppercase (POSIX-compatible)
+	SYMBOL="$(tr '[:lower:]' '[:upper:]' <<<${1:-TSLA})"
+
+	#get json
+	YJSON="$(curl -s "https://query1.finance.yahoo.com/v8/finance/chart/${SYMBOL}?region=US&lang=en-US&includePrePost=true&interval=${2:-1d}&range=${3:-1d}&corsDomain=finance.yahoo.com&.tsrc=finance" --compressed)"
+
+	#print json?
+	if [[ -n "${PJSON}" ]]; then
+		printf '%s\n' "${YJSON}"
+		return
+	#check for error response
+	elif jq -er '.chart.error' <<< "${YJSON}" &>/dev/null; then
+		jq -r '.chart.error.description' <<< "${YJSON}"
+		return 1
+	fi
+
+	#set timezone for displaying times
+	#export TZ="GMT"
+	#set timezone according to info from yahoo
+	export TZ="$(jq -r '.chart.result[].meta.exchangeTimezoneName//.timezone' <<<"${YJSON}")"
+	
+	#print ticker config
+	jq -r '.chart.result[]|
+	 		(.meta|
+				"Ticker configuration",
+				"Granularity and range",
+				"Available ranges:",
+				(.validRanges| @sh),
+				"Range___: \(.range)  Grain___: \(.dataGranularity)",
+				"",
+				"Current trading period",
+				(.currentTradingPeriod|
+					(.pre|
+					"PreMkt_T: \(.start//empty|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))  \(.end//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
+					),
+					(.regular|
+					"RegMkt_T: \(.start//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))  \(.end//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
+					),
+					(.post|
+					"PostMktT: \(.start//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))  \(.end//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
+					)
+				),
+				""
+			)' <<<"${YJSON}"
+
+	#tickers and indicators
+	jq -r '.chart.result[]|
+		"Symbol information",
+		"StartTim: \(.timestamp[0]//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"EndTime_: \(.timestamp[1]//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		(.meta|
+			"Symbol__: \(.symbol)  Currency: \(.currency//empty)",
+			"InstType: \(.instrumentType//empty)  Exchange: \(.exchangeName//empty)",
+			"Timezone: \(.exchangeTimezoneName//empty)  \(.timezone)",
+			"1stTrade: \(.firstTradeDate//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"
+		),
+		"",
+		"Indicators",
+		(.indicators.quote[]|
+			"Volume__: \(if .volume[1] != null and .volume[1] != 0 then .volume[1] else .volume[0]//"??" end)",
+			"High____: \(.high[0]//empty)",
+			"Low_____: \(.low[0]//empty)",
+			"Open ___: \(.open[0]//empty)",
+			"Close __: \(.close[0]//empty)"
+		),
+		"",
+		"Ticker",
+		(.meta|
+			"Mkt_Time: \(.regularMarketTime|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+			"MktT_UTC: \(.regularMarketTime//empty|strftime("%Y-%m-%dT%H:%M:%SZ"))",
+			"PrevClse: \(.chartPreviousClose//empty)",
+			"MktPrice: \(.regularMarketPrice//empty)"
+			#"PriceHnt: \(.priceHint//empty)"
+		),
+		""' <<<"${YJSON}"
+);}
+
+#yahoo finances symbol list
+ylist() {
+	#assign local vars
+	local LISTF TMPF
+
+	#local file?
+	LISTF="${HOME}/arq/docs/yahooFinanceSymbols/yahooFinanceSymbols.txt" 
+
+	#temp file for download
+	TMPF='/tmp/yahooFinanceSymbols.txt'
+
+	#if there is no local copy, try to download it
+	if [[ ! -f "${LISTF}" ]]; then
+		#check for downloaded temp file
+		if [[ ! -f "${TMPF}" ]]; then
+			curl 'https://raw.githubusercontent.com/mountaineerbr/markets/master/yahooFinanceSymbols.txt' > "${TMPF}" || return 1
+			printf 'File at %s\n' "${TMPF}" 1>&2
+		fi
+		
+		#set new path
+		LISTF="${TMPF}"
+	fi
+
+	#grep input and make table
+	grep -i "${@:-.}" "${LISTF}" | column -et -s $'\t' -N'TICKER,NAME,EXCHANGE,CATEGORY,COUNTRY' -T'CATEGORY,NAME'
+}
+
+#tesouro direto -- precos e taxas dos titulos 
+tesouro() {
+	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' | xmlstarlet format --recover --html 2>/dev/null | xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" | paste -d ";" - - - - - | column -s ';' -t
+	printf '<http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos>.\n'
+}
+#https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
+
+#crypto currency rates and charts
+rates() {
+	if [[ ${*} =~ (-h|:?help) ]]; then
+		curl -s 'rate.sx/:help'
+		return
+	fi
+ 	
+	curl -s 'rate.sx/?TFq' | sed -e '1,6d' -e '$d'
+}
+
+rate() {
+	#usage: rate [from_currency] [to_currency] [@date|?T|..]
+	if [[ -z ${2} ]] || [[ ${2} =~ [0-9]+ ]]; then
+		set -- "${1}" usd "${2}"
+	elif [[ ${*} =~ (-h|:?help) ]]; then
+		curl -s 'rate.sx/:help'
+		printf '\nusage: %s [from_currency] [to_currency] [@date|?T|..]\n' "${0}"
+		return
+	fi		
+	
+	curl -s "${2:-usd}.rate.sx/${1:-btc}${3}" | awk NF
+}
+##################################################
+############## END MARKET FUNCTIONS ##############
+##################################################
+
