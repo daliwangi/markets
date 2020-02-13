@@ -1,6 +1,6 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.4  feb/2020  by mountaineerbr
+# v0.6.5  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -255,7 +255,7 @@ setcf() {
 
 
 #parse options
-while getopts ":0123456789cfhnrs:tv" opt; do
+while getopts ':0123456789cfhnrs:tv' opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
@@ -268,7 +268,7 @@ while getopts ":0123456789cfhnrs:tv" opt; do
 			unset BCREC
 			;;
 		( h ) #show this help
-			printf "%s\n" "${HELP_LINES}"
+			printf '%s\n' "${HELP_LINES}"
 			exit
 			;;
 		( n ) #disable record file
@@ -290,7 +290,7 @@ while getopts ":0123456789cfhnrs:tv" opt; do
 			TOPT=1
 			;;
 		( v ) #show this script version
-			grep -m1 "^# v" "${0}"
+			grep -m1 '^# v' "${0}"
 			exit 0
 			;;
 		( \? )
@@ -379,11 +379,10 @@ elif [[ -n "${TOPT}" ]]; then
 elif [[ -n "${SCL}" ]]; then
 	#make bc result with user scale
 	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
-fi
-
 #trim trailing noughts; set a big enough scale
-REST="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RESS:-${RES}})" 2>/dev/null)"
-[[ "${REST}" = '0' ]] && unset REST
+elif RESTX="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RESS:-${RES}})" 2>/dev/null)"; then
+	[[ "${REST}" != '0' ]] && REST="${RESTX}"
+fi
 
 #print result
 printf '%s\n' "${REST:-${RESS:-${RES}}}"
