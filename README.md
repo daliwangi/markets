@@ -24,8 +24,6 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>INDEX / ÍNDICE</b>
 
-<b>.rc_mkt --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file to make them available in your shell.
-
 <b>alpha.sh</b> -- Stocks and currency rates from <alphaavantage.co>, most popular yahoo finance api alternative; get your free API key.
 
 <b>bakkt.sh --</b> Price and contract/volume tickers from bakkt public api.
@@ -57,6 +55,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 <b>metais.sh --</b> script to retrieve dollar and preicous metals prices from multiple apis, requires other scritps from this repo.
 
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
+
+<b>mkt_funct --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file to make them available in your shell.
 
 <b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currency converter.
 
