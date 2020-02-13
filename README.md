@@ -24,7 +24,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>INDEX / ÍNDICE</b>
 
-<b>.rc_mkt --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file in your shell to make them available.
+<b>.rc_mkt --</b> bash and z-shell functions to get some market data. these functions need improving. source from this file to make them available in your shell.
 
 <b>alpha.sh</b> -- Stocks and currency rates from <alphaavantage.co>, most popular yahoo finance api alternative; get your free API key.
 
