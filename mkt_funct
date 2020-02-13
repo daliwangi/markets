@@ -397,7 +397,9 @@ tesouro() {
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
 
-#crypto currency rates and charts
+#curl cryptocurrencies exchange rates
+#follow igor_chbin at <twitter.com/igor_chubin>
+#multiple symbols table
 rates() {
 	if [[ ${*} =~ (-h|:?help) ]]; then
 		curl -s 'rate.sx/:help'
@@ -407,7 +409,7 @@ rates() {
 	curl -s 'rate.sx/?TFq' | sed -e '1,6d' -e '$d'
 }
 
-
+#single symbol table
 rate() {
 	#usage: rate [from_currency] [to_currency] [@date|?T|..]
 	if [[ -z ${2} ]] || [[ ${2} =~ [0-9]+ ]]; then
