@@ -4,6 +4,7 @@
 
 #compatible with bash and z-shell
 
+
 #get metal rates
 metals() {
 	local page table
@@ -43,6 +44,7 @@ metals() {
 #Specialty/Minor and Bulk Metals prices are derived from various sources including but not limited to International Monetary Fund,
 #The World Bank, German Geoscience Institutes, Energy Information Administration and others. 
 #http://www.infomine.com/chartsdata/infominechartsdatareadme.pdf
+
 
 metals2() {
 	#help
@@ -87,7 +89,8 @@ metals2() {
 	
 	printf '<https://www.kitco.com/market/>\n'
 }
-#Exchange rates displayed are the middle point between bid and ask.
+#<<Exchange rates displayed are the middle point between bid and ask.>>
+
 
 #richard heart's hex rate in usd
 hex() { (
@@ -109,6 +112,7 @@ hex() { (
 	) |  tee -a ~/.hexRecord
 	}
 
+
 #lista de ações da bovespa
 blist() {
 	#listar ações
@@ -118,6 +122,7 @@ blist() {
 			sed -e '1d' -e '$d' -e '/^\s*$/d'
 	done
 }
+
 
 #google finance hack
 gfin() {
@@ -132,17 +137,16 @@ gfin() {
 		sed 's/\s\/\s/\//g' | sort -u -k1 -t'$' |
 		column -et -s'$' -NSYMBOL,NAME,DIRECTION,CHANGE,CHANGE%,VALUE,UPDATE,LASTCLOSE,EXCHANGE -TNAME,UPDATE -HDIRECTION,EXCHANGE -OSYMBOL,VALUE,NAME,DIRECTION,CHANGE,CHANGE%,LASTCLOSE,UPDATE,EXCHANGE
 
-#quotes are not sourced from all markets and may be delayed by up to 20 minutes.
-#information is provided 'as is' and solely for informational purposes, not for
-#trading purposes or advice.
-
-#get a more personalised list by visiting <https://www.google.com/finance> 
-#and expand watchlists and set your symbols. then, open the 'developer tools' 
-#of your browser, go to the 'network' tab, reload the page and check for the 
-#'finance_wholepage_price_updates' link
-
 #for jspb: .. | sed 's/<[^>]*>//g' | grep -E "\"*[[:digit:]]+.[[:digit:]]+\"" | grep -oP '"\K[^"]+' | grep -Ev -e '^,$' -e 'newwindow' -e 'search' -e '[[:digit:]]+]' -e '^]$' -e 'null' -e '/m/' -e '/g/' | sed -e 's/,.,/\n/g' -e 's/,$//g' -e 's/^,//g' -e 's/\\u0026/\&/g'  #| grep --color=never -i -e "${1}" -A6 -B3
 }
+#<<quotes are not sourced from all markets and may be delayed by up to 20 minutes.
+#information is provided 'as is' and solely for informational purposes, not for
+#trading purposes or advice.>>
+#get a personalised list by visiting <https://www.google.com/finance>,
+#expand watchlists and set up your symbols. then, open the 'developer tools' 
+#of your browser, go to the 'network' tab, reload the page and check for the 
+#'finance_wholepage_price_updates' link and get your 'mids'
+
 
 #yahoo finance hack -- long ticker
 yfin() { (
@@ -357,6 +361,7 @@ yfin2() { (
 		' <<<"${YJSON}"
 );}
 
+
 #yahoo finances symbol list
 ylist() {
 	#assign local vars
@@ -391,6 +396,7 @@ tesouro() {
 }
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
+
 #crypto currency rates and charts
 rates() {
 	if [[ ${*} =~ (-h|:?help) ]]; then
@@ -400,6 +406,7 @@ rates() {
  	
 	curl -s 'rate.sx/?TFq' | sed -e '1,6d' -e '$d'
 }
+
 
 rate() {
 	#usage: rate [from_currency] [to_currency] [@date|?T|..]
@@ -413,6 +420,8 @@ rate() {
 	
 	curl -s "${2:-usd}.rate.sx/${1:-btc}${3}" | awk NF
 }
+
+
 ##################################################
 ############## END MARKET FUNCTIONS ##############
 ##################################################
