@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.15  feb/2020  by mountaineerbr
+# v0.10.16  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -228,7 +228,7 @@ OPTIONS
 	-b 	  Activate Bank Currency function; it extends support for con-
 		  verting any central bank or crypto currency to any other.
 
-	-d 'CRYPTO'
+	-d [CRYPTO]
 		  Dominance of a single crypto currency in percentage.
 
 	-e 	  Exchange information; number of pages to fetch with option \"-p\";
@@ -285,12 +285,13 @@ mcapf() {
 			exit
 		fi
 
-		printf "%.${SCL}f\n" "${DOM}"
+		printf "%.${SCL}f %%\n" "${DOM}"
 		
 		exit 
 	else
+		printf 'Dominance%%\n'
 		jq -r '.data.market_cap_percentage|to_entries[] | [.key, .value] | @tsv' <<< "${CGKGLOBAL}"
-		exit 1
+		exit
 	fi
 	#DOMINANCEARRAY=($(jq -r '.data.market_cap_percentage | keys_unsorted[]' <<< "${CGKGLOBAL}"))
 
