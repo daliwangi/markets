@@ -5,7 +5,39 @@
 #compatible with bash and z-shell
 
 
-#get metal rates
+#lista de ações da bovespa b3
+blist() {
+	#listar ações
+	for i in {{A..Z},{0..9}}; do
+		curl -s "https://br.advfn.com/bolsa-de-valores/bovespa/${i}" |
+			htmlfilter | sed -n '/Ação/,/var ZD_USER/p' |
+			sed -e '1d' -e '$d' -e '/^\s*$/d'
+	done
+}
+
+
+#richard heart's hex rate in usd
+hex() { (
+	date
+	DATA="$(curl -s "https://api.exchange.bitcoin.com/api/2/public/ticker")"
+	HEXETH="$(jq -r '.[]|select(.symbol == "HEXETH")|.last' <<<"${DATA}")"
+	ETHUSD="$(jq -r '.[]|select(.symbol == "ETHUSD")|.last' <<<"${DATA}")"
+	echo "Bitcoin.com Ticker"
+ 	column -et -s' ' <<-!
+		$(jq -r '.[]|select(.symbol == "HEXETH")'<<<"${DATA}"|tr -d '",}{'|sed 's/^\s\s*//g'|tac)
+		!
+	echo "HEXETH:       $HEXETH"
+	echo "ETHUSD:       $ETHUSD"
+	echo
+	echo 'HEX/USD:'
+	bc -l <<<"$HEXETH*$ETHUSD" | xargs printf 'Bitcoin.com:  %.10f\n'
+	command -v cgk.sh &>/dev/null && cgk.sh hex usd | xargs printf 'CoinGecko__:  %.10f\n'
+	command -v cmc.sh &>/dev/null && cmc.sh hex usd | xargs printf 'CoinMktCap_:  %.10f\n'
+	) |  tee -a ~/.hexRecord
+}
+
+
+#get metal rates from infomine
 metals() {
 	local page table
 	
@@ -45,7 +77,7 @@ metals() {
 #The World Bank, German Geoscience Institutes, Energy Information Administration and others. 
 #http://www.infomine.com/chartsdata/infominechartsdatareadme.pdf
 
-
+#metal rates from kitco
 metals2() {
 	#help
 	if [[ "${1}" = '-h' ]]; then
@@ -90,38 +122,6 @@ metals2() {
 	printf '<https://www.kitco.com/market/>\n'
 }
 #<<Exchange rates displayed are the middle point between bid and ask.>>
-
-
-#richard heart's hex rate in usd
-hex() { (
-	date
-	DATA="$(curl -s "https://api.exchange.bitcoin.com/api/2/public/ticker")"
-	HEXETH="$(jq -r '.[]|select(.symbol == "HEXETH")|.last' <<<"${DATA}")"
-	ETHUSD="$(jq -r '.[]|select(.symbol == "ETHUSD")|.last' <<<"${DATA}")"
-	echo "Bitcoin.com Ticker"
- 	column -et -s' ' <<-!
-		$(jq -r '.[]|select(.symbol == "HEXETH")'<<<"${DATA}"|tr -d '",}{'|sed 's/^\s\s*//g'|tac)
-		!
-	echo "HEXETH:       $HEXETH"
-	echo "ETHUSD:       $ETHUSD"
-	echo
-	echo 'HEX/USD:'
-	bc -l <<<"$HEXETH*$ETHUSD" | xargs printf 'Bitcoin.com:  %.10f\n'
-	command -v cgk.sh &>/dev/null && cgk.sh hex usd | xargs printf 'CoinGecko__:  %.10f\n'
-	command -v cmc.sh &>/dev/null && cmc.sh hex usd | xargs printf 'CoinMktCap_:  %.10f\n'
-	) |  tee -a ~/.hexRecord
-	}
-
-
-#lista de ações da bovespa
-blist() {
-	#listar ações
-	for i in {{A..Z},{0..9}}; do
-		curl -s "https://br.advfn.com/bolsa-de-valores/bovespa/${i}" |
-			htmlfilter | sed -n '/Ação/,/var ZD_USER/p' |
-			sed -e '1d' -e '$d' -e '/^\s*$/d'
-	done
-}
 
 
 #google finance hack
@@ -422,6 +422,47 @@ rate() {
 	
 	curl -s "${2:-usd}.rate.sx/${1:-btc}${3}" | awk NF
 }
+
+
+#fun with <datahub.io>
+#time series
+
+#gold annual
+golda() { curl -sL 'https://datahub.io/core/gold-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#gold monthly
+goldm() { curl -sL 'https://datahub.io/core/gold-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+
+#oil daily brent 
+oild() { curl -sL 'https://datahub.io/core/oil-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil weekly brent 
+oilw() { curl -sL 'https://datahub.io/core/oil-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil monthly brent 
+oilm() { curl -sL 'https://datahub.io/core/oil-prices/r/2.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil annual brent 
+oila() { curl -sL 'https://datahub.io/core/oil-prices/r/3.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+
+#oil daily wti 
+oild2() { curl -sL 'https://datahub.io/core/oil-prices/r/4.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil weekly wti 
+oilw2() { curl -sL 'https://datahub.io/core/oil-prices/r/5.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil monthly wti 
+oilm2() { curl -sL 'https://datahub.io/core/oil-prices/r/6.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+#oil annual wti 
+oila2() { curl -sL 'https://datahub.io/core/oil-prices/r/7.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+
+#gas monthly
+gasm() { curl -sL 'https://datahub.io/core/natural-gas/r/1.json' | jq -r '.[]|"\(.Month)\t\(.Price)"';}
+#gas daily
+gasd() { curl -sL 'https://datahub.io/core/natural-gas/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+
+#consumer price index
+cpi() { curl -sLb non-existing 'https://datahub.io/core/cpi/r/0.json' | jq -r '.[]|"\(.Year)=\(.CPI)=\(.["Country Name"])"'| column -ets= -NYEAR,CPI,COUNTRY;}
+
+#corruption perception
+corruption() { curl -sL	'https://datahub.io/core/corruption-perceptions-index/r/0.json' | jq -r '.[]|keys[] as $k | "\($k) \(.[$k])"' | sed 's/^Jurisdiction.*/&\n/';}
+
+#population
+population() { curl -sL 'https://pkgstore.datahub.io/core/population-growth-estimates-and-projections/population-estimates_json/data/1d29be418daf875533c4bd4b5d0a5963/population-estimates_json.json' | jq -r '.[]|"\(.Year)\t\(.Population)\t\(.Region)"' | sort -t$'\t' -k3 |column -ets$'\t' -NYEAR,POPULATION,REGION;}
 
 
 ##################################################
