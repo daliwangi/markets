@@ -64,6 +64,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>pricesroll.sh --</b> script to open and arrange terminal windows with these market scripts on X.
 
+<b>.rc_mkt --</b> some bash and z-shell functions to get market data, needs to be sourced from by your shell.
+
 <b>stocks.sh --</b> <Financialmodelingprep.com> public api latest and historical stock rates
 
 <b>uol.sh --</b> Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia.
