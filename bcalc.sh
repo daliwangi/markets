@@ -1,14 +1,14 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.7  feb/2020  by mountaineerbr
+# v0.6.8  feb/2020  by mountaineerbr
 
 #defaults
 
-#special variable that holds the result of the last entry in the history
-HOLD=res  #ans
-
 #use of record file (enabled=1/disabled=0 or unset)
 BCREC=1
+
+#special variable that holds last entry in the record file
+HOLD=res  #ans
 
 #record file path
 RECFILE="${HOME}/.bcalc_record"
