@@ -2,7 +2,7 @@
 # v0.4  13/nov/2019  by mountaineer_br
 
 # Check Tether rates
-LC_NUMERIC="en_US.UTF-8"
+export LC_NUMERIC="en_US.UTF-8"
 printf "\nUSDT/USD Rates\n\n"
 
 CLIBJSON=$(curl -s "https://coinlib.io/api/v1/coin?key=${CLIBAPIKEY}&pref=USD&symbol=USDT")

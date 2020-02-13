@@ -15,7 +15,7 @@ DEFTOCUR=USD
 SCLDEFAULTS=20   #bash calculator defaults is 20 plus one uncertainty digit
 
 #don't change these
-LC_NUMERIC='en_US.UTF-8'
+export LC_NUMERIC='en_US.UTF-8'
 
 #troy ounce to gram ratio
 TOZ='31.1034768'

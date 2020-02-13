@@ -4,7 +4,7 @@
 # v0.3.4.1  14/nov/2019  by mountainner_br
 
 ## Some defaults
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 COLOROPT="cat"
 DECIMAL=2
 

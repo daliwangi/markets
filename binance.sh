@@ -12,7 +12,7 @@ FSTRDEF='%s'    #printf-like price formatting
 WHICHB='com'    #'com', 'us' or 'je'
 
 #don't change this
-LC_NUMERIC='en_US.UTF-8'
+export LC_NUMERIC='en_US.UTF-8'
 
 HELP="NAME
 	Binance.sh - Market rates from Binance public APIs

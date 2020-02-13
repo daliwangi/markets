@@ -15,7 +15,7 @@ DEFTOCUR=USD
 SCLDEFAULTS=16
 
 ## You should not change these:
-LC_NUMERIC="en_US.UTF-8"
+export LC_NUMERIC="en_US.UTF-8"
 ## Troy ounce to gram ratio
 TOZ='31.1034768'
 

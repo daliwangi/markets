@@ -9,7 +9,7 @@ DEFMARKET=BTCUSD
 DECIMAL=2
 
 #don't change these:
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 COLOROPT="cat"
 
 # BITFINIEX API DOCS

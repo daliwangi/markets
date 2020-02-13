@@ -3,7 +3,7 @@
 # Free Software under the GNU Public License 3
 # Ourominas não trabalha com Prata!
 
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 
 AJUDA="Ourominas.sh -- Puxa as cotações das moedas de Ouro Minas
 

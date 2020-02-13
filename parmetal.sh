@@ -2,7 +2,7 @@
 # v0.2.12  dec/2019  by mountaineer_br
 # Free Software under the GNU Public License 3
 
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 
 # Ajuda "-h"
 HELP="SINOPSE

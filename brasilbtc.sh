@@ -3,7 +3,7 @@
 # v0.4.4  jan/2020  by mountaineerbr
 
 # Some defaults
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 
 ## Manual and help
 # Uso: brasilbtc.sh [MOEDA] #Ex: btc, eth ltc

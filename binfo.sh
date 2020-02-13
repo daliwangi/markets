@@ -5,7 +5,7 @@
 #defaults
 
 #don't change these
-LC_NUMERIC=en_US.UTF-8
+export LC_NUMERIC=en_US.UTF-8
 
 HELP="NAME
     binfo.sh  -- Bitcoin Blockchain Explorer for Bash

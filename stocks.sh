@@ -6,7 +6,7 @@
 #stock
 DEFSTOCK="TSLA"
 #don't change the following:
-LC_NUMERIC="en_US.UTF-8"
+export LC_NUMERIC="en_US.UTF-8"
 
 HELP="NAME
 	stocks.sh  -- Stock and index rates in Bash
