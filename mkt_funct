@@ -28,7 +28,7 @@ blist() {
 
 
 #tesouro direto -- precos e taxas dos titulos
-#requere o pacote 'xmlstarlet'
+#requer o pacote 'xmlstarlet'
 #'wget -qO-' ou 'curl -sL'
 tesouro() {
 	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' |
