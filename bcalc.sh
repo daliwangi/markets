@@ -1,11 +1,11 @@
 #!/bin/bash
 # bcalc.sh -- simple bash bc wrapper
-# v0.6.6  feb/2020  by mountaineerbr
+# v0.6.7  feb/2020  by mountaineerbr
 
 #defaults
 
 #special variable that holds the result of the last entry in the history
-HOLD='res'  #'ans'
+HOLD=res  #ans
 
 #use of record file (enabled=1/disabled=0 or unset)
 BCREC=1
@@ -17,10 +17,12 @@ RECFILE="${HOME}/.bcalc_record"
 EXTFILE="${HOME}/.bcalc_extensions"
 
 #don't change these
+
 #length of result line (newer bash accepts '0' to disable multiline)
 export BC_LINE_LENGTH=1000
+
 #make sure numeric locale is set correctly
-LC_NUMERIC='en_US.UTF-8'
+LC_NUMERIC=en_US.UTF-8
 
 #man page
 HELP_LINES="NAME
@@ -214,7 +216,7 @@ notef() {
 		sed -i "$ i\>> ${*}" "${RECFILE}"
 		exit 0
 	else
-		printf "Note is empty.\n" 1>&2
+		printf 'Note is empty.\n' 1>&2
 		exit 1
 	fi
 }
@@ -227,19 +229,21 @@ setcf() {
 	if ! [[ -f "${EXTFILE}" ]]; then
 		#test for cURL or Wget
 		if command -v curl &>/dev/null; then
-			YOURAPP="curl"
+			YOURAPP='curl -L'
 		elif command -v wget &>/dev/null; then
-			YOURAPP="wget -O-"
+			YOURAPP='wget -O-'
 		else
-			printf "cURL or Wget is required.\n" 1>&2
+			printf 'cURL or Wget is required.\n' 1>&2
 			exit 1
 		fi
 	
 		#download extensions
-		{ ${YOURAPP} "http://x-bc.sourceforge.net/scientific_constants.bc"
-			printf "\n"
-			${YOURAPP} "http://x-bc.sourceforge.net/extensions.bc"
-			printf "\n";} > "${EXTFILE}"
+		{ 
+		${YOURAPP} 'http://x-bc.sourceforge.net/scientific_constants.bc'
+		printf '\n'
+		${YOURAPP} 'http://x-bc.sourceforge.net/extensions.bc'
+		printf '\n'
+		} > "${EXTFILE}"
 	fi
 	
 	#print extension file?
@@ -279,7 +283,7 @@ while getopts ':0123456789cfhnrs:tv' opt; do
 				cat "${RECFILE}"
 				exit 0
 			else
-				printf "No record file.\n" 1>&2
+				printf 'No record file.\n' 1>&2
 				exit 1
 			fi
 			;;
@@ -294,7 +298,7 @@ while getopts ':0123456789cfhnrs:tv' opt; do
 			exit 0
 			;;
 		( \? )
-			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			printf 'Invalid option: -%s\n' "${OPTARG}" 1>&2
 			#check if last arg starts with a negative sign
 			[[ "${@: -1}" = -* ]] && printf "First char in EXPRESSION is '-', try escaping: '(%s)'\n" "${@: -1}" 1>&2
 			exit 1
@@ -304,7 +308,7 @@ done
 shift $((OPTIND -1))
 
 #unset 'file record'?
-[[ "${BCREC}" != "1" ]] && unset BCREC
+[[ "${BCREC}" != '1' ]] && unset BCREC
 
 #process expression
 EQ="${*:-$(</dev/stdin)}"
@@ -316,8 +320,8 @@ EQ="${EQ%;}"
 if [[ -n "${BCREC}" ]]; then
 	#init record file if none
 	if [[ ! -f "${RECFILE}" ]]; then
-		printf "## Bcalc.sh Record\n\n" >> "${RECFILE}"
-		printf "File initialised: %s\n" "${RECFILE}" 1>&2
+		printf '## Bcalc.sh Record\n\n' >> "${RECFILE}"
+		printf 'File initialised: %s\n' "${RECFILE}" 1>&2
 	fi
 
 	#add note to record
@@ -333,7 +337,7 @@ if [[ -n "${BCREC}" ]]; then
 	fi
 #some error handling
 elif [[ -n "${NOTEOPT}" ]]; then
-	printf "A record file is required for adding notes.\n" 1>&2
+	printf 'A record file is required for adding notes.\n' 1>&2
 	exit 1
 fi
 
@@ -356,10 +360,10 @@ if [[ -n "${BCREC}" ]]; then
 	if [[ "${RES}" != 0 ]] && [[ "${RES}" != "${LASTRES}" ]]; then
 		{
 		#print timestamp
-		printf "## %s\n## { %s }\n" "$(date "+%FT%T%Z")" "${EQ}"
+		printf '## %s\n## { %s }\n' "$(date "+%FT%T%Z")" "${EQ}"
 		
 		#print new result
-		printf "%s\n" "${RES}"
+		printf '%s\n' "${RES}"
 		} >> "${RECFILE}"
 	fi
 fi
@@ -369,19 +373,20 @@ fi
 #don't format multiline inputs
 if [[ "$(wc -l <<<"${RES}")" -gt 1 ]]; then
 	[[ -n "${SCL}${TOPT}" ]] && printf 'Multiline skips formatting options.\n' 1>&2
-	printf "%s\n" "${RES}"
-	exit
-#thousands separator
+#thousands separator opt
 elif [[ -n "${TOPT}" ]]; then
 	printf "%'.${SCL:-2}f\n" "${RES}"
 	exit
 #user-set scale
-elif [[ -n "${SCL}" ]]; then
+elif [[ -n "${SCL}" ]] &&
 	#make bc result with user scale
-	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"
+	RESS="$(bc -l <<<"${EXT};scale=${SCL};${EQ}/1" 2>/dev/null)"; then
+	#check result
+	{ [[ -n "${RESS}" ]] && [[ "${RESS}" != '0' ]];} || unset RESS
 #trim trailing noughts; set a big enough scale
-elif RESTX="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RESS:-${RES}})" 2>/dev/null)"; then
-	 [[ -n "${RESTX}" ]] && [[ "${RESTX}" != '0' ]] && REST="${RESTX}"
+elif REST="$(bc -l <<< "define trunc(x){auto os;scale=${SCL:-200};os=scale;for(scale=0;scale<=os;scale++)if(x==x/1){x/=1;scale=os;return x}}; trunc(${RES})" 2>/dev/null)"; then
+	#check result
+	{ [[ -n "${REST}" ]] && [[ "${REST}" != '0' ]];} || unset REST
 fi
 
 #print result
