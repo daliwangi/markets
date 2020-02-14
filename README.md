@@ -42,7 +42,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
 
-<b>cmc.sh --</b>  <Coinmarketcap.com> free api key, currency converter, market ticker.
+<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one currency into another, default currency convertion does not need an api key but other functions such as market ticker do.
 
 <b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
