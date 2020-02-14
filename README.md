@@ -38,11 +38,11 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>brasilbtc.sh --</b> Fetches bitcoin rates from brazilian exchanges public apis. Puxa cotações de bitcoin de agências de câmbio brasileiras de apis públicas;
 
-<b>cgk.sh --</b> <Coinggecko.com> public api, currency converter, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
+<b>cgk.sh --</b> <Coinggecko.com> public api, convert one crypto, bank/fiat or metal currency into any another, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 
 <b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
 
-<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one currency into another, default currency convertion does not need an api key but other functions such as market ticker do.
+<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat or metal currency into any another, default currency convertion and single currency ticker do not require an api key but other functions do; now also a favorite.
 
 <b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
@@ -58,7 +58,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>mkt_funct --</b> bash and z-shell functions to get some market data from public apis. these functions need improving. source from this file to make them available in your shell.
 
-<b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currency converter.
+<b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currencies and precious metals converter.
 
 <b>ourominas.sh --</b> Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas.
 
