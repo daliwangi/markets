@@ -1,6 +1,6 @@
 #!/bin/bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.8  feb/2020  by mountaineerbr
+# v0.8.1  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -699,10 +699,11 @@ listsf() {
 		column -s'=' -et -N 'ID,SYMBOL,NAME' <<<"${LIST}"
 		
 		printf '\n===========BANK CURRENCIES===========\n'
-		printf '%s\n' "${OTHERCUR}" | column -s'=' -et -N'ID,SYMBOL,NAME'
+		LIST2="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
+		column -s'=' -et -N'ID,SYMBOL,SIGN,NAME' <<<"${LIST2}"
 
 		printf 'Cryptos: %s\n' "$(wc -l <<<"${LIST}")"
-		printf 'BankCur: %s\n' "$(wc -l <<<"${OTHERCUR}")"
+		printf 'BankCur: %s\n' "$(wc -l <<<"${LIST2}")"
 	else
 		printf '=============CRYPTOCURRENCIES============\n'		
 		LIST="$(pr -mJ -t <(tail -${ENDLINES} "${SCRIPT}" | jq -r 'keys_unsorted[]') <(tail -${ENDLINES} "${SCRIPT}" | jq -r '.[]') | sort)"
