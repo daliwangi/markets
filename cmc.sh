@@ -1,6 +1,6 @@
 #!/bin/bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.8.1  feb/2020  by mountaineerbr
+# v0.8.3  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -24,7 +24,7 @@ TOZ='31.1034768'
 #script location
 SCRIPT="${0}"
 
-#number of lines to get noapikeyf resources
+#number of lines to get nokeyf resources
 #from end of script
 ENDLINES=2310
 
@@ -42,9 +42,11 @@ SYNOPSIS
 
 	cmc.sh -m [TO_CURRENCY]
 
-	cmc.sh -t [NUM] [TO_CURRENCY]
+	cmc.sh -t 'SYMBOL' [TO_CURRENCY]
 	
-	cmc.sh -tt [NUM]
+	cmc.sh -tt [NUM] [TO_CURRENCY]
+	
+	cmc.sh -w [NUM]
 	
 	cmc.sh [-adhlv]
 
@@ -54,10 +56,11 @@ DESCRIPTION
 	It can convert any amount of one supported crypto currency into another.
 	CMC also converts crypto to ~93 central bank currencies, gold and silver.
 
-	Only the default currency convertion option works without an api key.
-	If you have got a free private API key, other functions will owrk.
+	If you do not have got a free api key, the default currency convertion 
+	option will work, as well the single ticker option '-t', but other func-
+	tions will not.
 
-	You can see a List of supported currencies running the script with the
+	You can see a list of supported currencies running the script with the
 	argument '-l'.
 
 	Central bank currency conversions are not supported officially by CMC,
@@ -176,13 +179,13 @@ USAGE EXAMPLES
 
 		(6) 	Top 20 crypto currency tickers in EUR; defaults: 10,BTC:
 
-			$ cmc.sh -t 20 eur
+			$ cmc.sh -tt 20 eur
 			
 			
 			TIP: use Less with opion -S (--chop-long-lines) or the 
 			'Most' pager for scrolling horizontally:
 
-			$ cmc.sh -t 100 btc | less -S
+			$ cmc.sh -tt 100 btc | less -S
 
 
 		(7)    One Bitcoin in troy ounces of Gold:
@@ -212,118 +215,134 @@ OPTIONS
 		-m [TO_CURRENCY]
 			  Market ticker.
 
-		-s [NUM]  Set scale (decimal plates); defaults=${SCLDEFAULTS}.
+		-s [NUM]  Set scale (decimal plates) for some opts; defaults=${SCLDEFAULTS}.
 
 		-p 	  Print timestamp, if available.
 		
-		-t [NUM] [TO_CURRENCY]
-			  Tickers for top NUM cryptos; defaults=10; max 100.
+		-t 'SYMBOL' [TO_CURRENCY]
+			Single ticker, optionally set quote symbol (public api).
 
-		-tt [NUM]
+		-tt [NUM] [TO_CURRENCY]
+			  Tickers for top NUM cryptos, optionally set quote 
+			  symbol (only affects some data); defaults=10; max 100.
+		
+		-v 	  Script version.
+		
+		-w [NUM]
 			  Winners and losers against BTC and USD for top NUM 
-			  cryptos, including BTC/BTC; defaults=10, max=100.
+			  cryptos, including BTC/BTC; defaults=10, max=100."
 
-		-v 	  Script version."
+FIATCUR="2781=USD=$=United States Dollar
+2782=AUD=$=Australian Dollar
+2783=BRL=R$=Brazilian Real
+2784=CAD=$=Canadian Dollar
+2785=CHF=Fr=Swiss Franc
+2786=CLP=$=Chilean Peso
+2787=CNY=¥=Chinese Yuan
+2788=CZK=Kč=Czech Koruna
+2789=DKK=kr=Danish Krone
+2790=EUR=€=Euro
+2791=GBP=£=Pound Sterling
+2792=HKD=$=Hong Kong Dollar
+2793=HUF=Ft=Hungarian Forint
+2794=IDR=Rp=Indonesian Rupiah
+2795=ILS=₪=Israeli New Shekel
+2796=INR=₹=Indian Rupee
+2797=JPY=¥=Japanese Yen
+2798=KRW=₩=South Korean Won
+2799=MXN=$=Mexican Peso
+2800=MYR=RM=Malaysian Ringgit
+2801=NOK=kr=Norwegian Krone
+2802=NZD=$=New Zealand Dollar
+2803=PHP=₱=Philippine Peso
+2804=PKR=₨=Pakistani Rupee
+2805=PLN=zł=Polish Złoty
+2806=RUB=₽=Russian Ruble
+2807=SEK=kr=Swedish Krona
+2808=SGD=$=Singapore Dollar
+2809=THB=฿=Thai Baht
+2810=TRY=₺=Turkish Lira
+2811=TWD=$=New Taiwan Dollar
+2812=ZAR=Rs=South African Rand
+2813=AED=د.إ=United Arab Emirates Dirham
+2814=BGN=лв=Bulgarian Lev
+2815=HRK=kn=Croatian Kuna
+2816=MUR=₨=Mauritian Rupee
+2817=RON=lei=Romanian Leu
+2818=ISK=kr=Icelandic Króna
+2819=NGN=₦=Nigerian Naira
+2820=COP=$=Colombian Peso
+2821=ARS=$=Argentine Peso
+2822=PEN=S/.=Peruvian Sol
+2823=VND=₫=Vietnamese Dong
+2824=UAH=₴=Ukrainian Hryvnia
+2832=BOB=Bs.=Bolivian Boliviano
+3526=ALL=L=Albanian Lek
+3527=AMD=֏=Armenian Dram
+3528=AZN=₼=Azerbaijani Manat
+3529=BAM=KM=Bosnia-Herzegovina Convertible Mark
+3530=BDT=৳=Bangladeshi Taka
+3531=BHD=.د.ب=Bahraini Dinar
+3532=BMD=$=Bermudan Dollar
+3533=BYN=Br=Belarusian Ruble
+3534=CRC=₡=Costa Rican Colón
+3535=CUP=$=Cuban Peso
+3536=DOP=$=Dominican Peso
+3537=DZD=د.ج=Algerian Dinar
+3538=EGP=£=Egyptian Pound
+3539=GEL=₾=Georgian Lari
+3540=GHS=₵=Ghanaian Cedi
+3541=GTQ=Q=Guatemalan Quetzal
+3542=HNL=L=Honduran Lempira
+3543=IQD=ع.د=Iraqi Dinar
+3544=IRR=﷼=Iranian Rial
+3545=JMD=$=Jamaican Dollar
+3546=JOD=د.ا=Jordanian Dinar
+3547=KES=Sh=Kenyan Shilling
+3548=KGS=с=Kyrgystani Som
+3549=KHR=៛=Cambodian Riel
+3550=KWD=د.ك=Kuwaiti Dinar
+3551=KZT=₸=Kazakhstani Tenge
+3552=LBP=ل.ل=Lebanese Pound
+3553=LKR=Rs=Sri Lankan Rupee
+3554=MAD=د.م.=Moroccan Dirham
+3555=MDL=L=Moldovan Leu
+3556=MKD=ден=Macedonian Denar
+3557=MMK=Ks=Myanma Kyat
+3558=MNT=₮=Mongolian Tugrik
+3559=NAD=$=Namibian Dollar
+3560=NIO=C$=Nicaraguan Córdoba
+3561=NPR=₨=Nepalese Rupee
+3562=OMR=ر.ع.=Omani Rial
+3563=PAB=B/.=Panamanian Balboa
+3564=QAR=ر.ق=Qatari Rial
+3565=RSD=дин.=Serbian Dinar
+3566=SAR=ر.س=Saudi Riyal
+3567=SSP=£=South Sudanese Pound
+3568=TND=د.ت=Tunisian Dinar
+3569=TTD=$=Trinidad and Tobago Dollar
+3570=UGX=Sh=Ugandan Shilling
+3571=UYU=$=Uruguayan Peso
+3572=UZS=so'm=Uzbekistan Som
+3573=VES=Bs.=Sovereign Bolivar"
 
-OTHERCUR="2781=USD=United States Dollar ($)
-3526=ALL=Albanian Lek (L)
-3537=DZD=Algerian Dinar (د.ج)
-2821=ARS=Argentine Peso ($)
-3527=AMD=Armenian Dram (֏)
-2782=AUD=Australian Dollar ($)
-3528=AZN=Azerbaijani Manat (₼)
-3531=BHD=Bahraini Dinar (.د.ب)
-3530=BDT=Bangladeshi Taka (৳)
-3533=BYN=Belarusian Ruble (Br)
-3532=BMD=Bermudan Dollar ($)
-2832=BOB=Bolivian Boliviano (Bs.)
-3529=BAM=Bosnia-Herzegovina Convertible Mark (KM)
-2783=BRL=Brazilian Real (R$)
-2814=BGN=Bulgarian Lev (лв)
-3549=KHR=Cambodian Riel (៛)
-2784=CAD=Canadian Dollar ($)
-2786=CLP=Chilean Peso ($)
-2787=CNY=Chinese Yuan (¥)
-2820=COP=Colombian Peso ($)
-3534=CRC=Costa Rican Colón (₡)
-2815=HRK=Croatian Kuna (kn)
-3535=CUP=Cuban Peso ($)
-2788=CZK=Czech Koruna (Kč)
-2789=DKK=Danish Krone (kr)
-3536=DOP=Dominican Peso ($)
-3538=EGP=Egyptian Pound (£)
-2790=EUR=Euro (€)
-3539=GEL=Georgian Lari (₾)
-3540=GHS=Ghanaian Cedi (₵)
-3541=GTQ=Guatemalan Quetzal (Q)
-3542=HNL=Honduran Lempira (L)
-2792=HKD=Hong Kong Dollar ($)
-2793=HUF=Hungarian Forint (Ft)
-2818=ISK=Icelandic Króna (kr)
-2796=INR=Indian Rupee (₹)
-2794=IDR=Indonesian Rupiah (Rp)
-3544=IRR=Iranian Rial (﷼)
-3543=IQD=Iraqi Dinar (ع.د)
-2795=ILS=Israeli New Shekel (₪)
-3545=JMD=Jamaican Dollar ($)
-2797=JPY=Japanese Yen (¥)
-3546=JOD=Jordanian Dinar (د.ا)
-3551=KZT=Kazakhstani Tenge (₸)
-3547=KES=Kenyan Shilling (Sh)
-3550=KWD=Kuwaiti Dinar (د.ك)
-3548=KGS=Kyrgystani Som (с)
-3552=LBP=Lebanese Pound (ل.ل)
-3556=MKD=Macedonian Denar (ден)
-2800=MYR=Malaysian Ringgit (RM)
-2816=MUR=Mauritian Rupee (₨)
-2799=MXN=Mexican Peso ($)
-3555=MDL=Moldovan Leu (L)
-3558=MNT=Mongolian Tugrik (₮)
-3554=MAD=Moroccan Dirham (د.م.)
-3557=MMK=Myanma Kyat (Ks)
-3559=NAD=Namibian Dollar ($)
-3561=NPR=Nepalese Rupee (₨)
-2811=TWD=New Taiwan Dollar ($)
-2802=NZD=New Zealand Dollar ($)
-3560=NIO=Nicaraguan Córdoba (C$)
-2819=NGN=Nigerian Naira (₦)
-2801=NOK=Norwegian Krone (kr)
-3562=OMR=Omani Rial (ر.ع.)
-2804=PKR=Pakistani Rupee (₨)
-3563=PAB=Panamanian Balboa (B/.)
-2822=PEN=Peruvian Sol (S/.)
-2803=PHP=Philippine Peso (₱)
-2805=PLN=Polish Złoty (zł)
-2791=GBP=Pound Sterling (£)
-3564=QAR=Qatari Rial (ر.ق)
-2817=RON=Romanian Leu (lei)
-2806=RUB=Russian Ruble (₽)
-3566=SAR=Saudi Riyal (ر.س)
-3565=RSD=Serbian Dinar (дин.)
-2808=SGD=Singapore Dollar ($)
-2812=ZAR=South African Rand (Rs)
-2798=KRW=South Korean Won (₩)
-3567=SSP=South Sudanese Pound (£)
-3573=VES=Sovereign Bolivar (Bs.)
-3553=LKR=Sri Lankan Rupee (Rs)
-2807=SEK=Swedish Krona ( kr)
-2785=CHF=Swiss Franc (Fr)
-2809=THB=Thai Baht (฿)	=
-3569=TTD=Trinidad and Tobago Dollar ($)
-3568=TND=Tunisian Dinar (د.ت)
-2810=TRY=Turkish Lira (₺)
-3570=UGX=Ugandan Shilling (Sh)
-2824=UAH=Ukrainian Hryvnia (₴)
-2813=AED=United Arab Emirates Dirham (د.إ)
-3571=UYU=Uruguayan Peso ($)
-3572=UZS=Uzbekistan Som (so'm)
-2823=VND=Vietnamese Dong (₫)
-3575=XAU=Gold Troy Ounce
+METALS="3575=XAU=Gold Troy Ounce
 3574=XAG=Silver Troy Ounce
 3577=XPT=Platinum Ounce
 3576=XPD=Palladium Ounce"
 
-TOCURLIST=( USD ALL DZD ARS AMD AUD AZN BHD BDT BYN BMD BOB BAM BRL BGN KHR CAD CLP CNY COP CRC HRK CUP CZK DKK DOP EGP EUR GEL GHS GTQ HNL HKD HUF ISK INR IDR IRR IQD ILS JMD JPY JOD KZT KES KWD KGS LBP MKD MYR MUR MXN MDL MNT MAD MMK NAD NPR TWD NZD NIO NGN NOK OMR PKR PAB PEN PHP PLN GBP QAR RON RUB SAR RSD SGD ZAR KRW SSP VES LKR SEK CHF THB TTD TND TRY UGX UAH AED UYU UZS VND XAU XAG XPT XPD ) 
+FIATCODES=(USD AUD BRL CAD CHF CLP CNY CZK DKK EUR GBP HKD HUF IDR ILS INR JPY KRW MXN MYR NOK NZD PHP PKR PLN RUB SEK SGD THB TRY TWD ZAR AED BGN HRK MUR RON ISK NGN COP ARS PEN VND UAH BOB ALL AMD AZN BAM BDT BHD BMD BYN CRC CUP DOP DZD EGP GEL GHS GTQ HNL IQD IRR JMD JOD KES KGS KHR KWD KZT LBP LKR MAD MDL MKD MMK MNT NAD NIO NPR OMR PAB QAR RSD SAR SSP TND TTD UGX UYU UZS VES XAU XAG XPD XPT)
+
+#check for error response
+#errf() { if [[ "$(jq -r '.status.error_code' <<<"${JSON}")" != 0 ]]; then jq -r '.status.error_message' <<<${JSON}"; exit 1; fi;}
+
+#check for api key
+keycheckf() {
+	if [[ -z "${CMCAPIKEY}" ]] && [[ -n "${*}" ]]; then
+		printf 'Please create a free API key and add it to the script source-code or set it as an environment variable.\n' 1>&2
+		exit 1
+	fi
+}
 
 #check currencies
 checkcurf() {
@@ -333,19 +352,29 @@ checkcurf() {
 		export SYMBOLLIST
 	fi
 	
-	#check
-	if [[ -z "${BANK}" ]]; then
-		#check from_currency
-		if ! jq -er '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
-			if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
-				set -- "${1}" "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")" "${3}"
-			else
-				printf 'Err: invalid FROM_CURRENCY -- %s\n' "${2^^}" 1>&2
-				exit 1
-			fi
+	if [[ -z "${FIATLIST}" ]]; then
+		FIATLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G 'https://pro-api.coinmarketcap.com/v1/fiat/map' | jq -r '.data[].symbol')"
+		FIATLIST+="$(printf '\n%s\n' "${FIATCODES[@]}")"
+		export FIATLIST
+	fi
+
+	#check from_currency
+	if [[ -n "${2}" ]] && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iqx "${2}"; then
+		if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
+			set -- "${1}" "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")" "${3}"
+		else
+			printf 'Err: invalid FROM_CURRENCY -- %s\n' "${2^^}" 1>&2
+			exit 1
 		fi
-		#check to_currency
-		if  ! grep -qi "${3}" <<< "${TOCURLIST[@]}" && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${3}$"; then
+	fi
+
+	#check to_currency
+	if [[ -n "${3}" ]]; then
+		#reinvert lists for no api key and single ticker opts..
+		[[ -z "${CMCAPIKEY}" ]] && SYMBOLLIST="$(jq -r '[keys_unsorted[] as $k | {"key": .[$k], "value": $k}] | from_entries' <<<"${SYMBOLLIST}")"
+		
+		#check
+		if ! grep -qix "${3}" <<< "${FIATLIST}" && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iqx "${3}"; then
 			if jq -er '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
 				set -- "${1}" "${2}" "$(jq -r '.["'"${3^^}"'"]' <<< "${SYMBOLLIST}")"
 			else
@@ -356,7 +385,7 @@ checkcurf() {
 	fi
 
 	#export new args
-	ARGS=("${@}")
+	ARGS=(${@})
 }
 #-b bank currency rate function
 bankf() {
@@ -371,6 +400,7 @@ bankf() {
 	BTCBANK="$("${0}" -p BTC "${2^^}")"
 	BTCBANKHEAD=$(head -n1 <<< "${BTCBANK}") # Timestamp
 	BTCBANKTAIL=$(tail -n1 <<< "${BTCBANK}") # Rate
+	
 	BTCTOCUR="$("${0}" -p BTC "${3^^}")"
 	BTCTOCURHEAD=$(head -n1 <<< "${BTCTOCUR}") # Timestamp
 	BTCTOCURTAIL=$(tail -n1 <<< "${BTCTOCUR}") # Rate
@@ -381,13 +411,15 @@ bankf() {
 		printf '%s ( to  currency)\n' "${BTCTOCURHEAD}"
 	fi
 
-	#calculate result & print result 
 	#precious metals in grams?
 	ozgramf "${2}" "${3}"
+
+	#calculate result & print result 
 	RESULT="$(bc -l <<< "(((${1})*${BTCTOCURTAIL})/${BTCBANKTAIL})${GRAM}${TOZ}")"
+	
 	#check for errors
 	if [[ -z "${RESULT}" ]]; then
-		printf 'Err: invalid currency code(s).\n' 1>&2
+		#printf 'Err: invalid currency code(s)\n' 1>&2
 		exit 1
 	else
 		printf "%.${SCL}f\n" "${RESULT}"
@@ -397,20 +429,13 @@ bankf() {
 #market capital function
 mcapf() {
 	#check for input to_currency
-	if [[ -n "${DOMOPT}" ]] || [[ -z "${1}" ]]; then
+	if [[ "${1^^}" =~ ^(USD|BRL|CAD|CNY|EUR|GBP|JPY|BTC|ETH|XRP|LTC|EOS|USDT)$ ]]; then
+		true	
+	elif [[ -n "${DOMOPT}" ]] || [[ -z "${1}" ]]; then
 		set -- USD
-	elif [[ "${1^^}" =~ ^(USD|BRL|CAD|CNY|EUR|GBP|JPY|BTC|ETH|XRP|LTC|EOS|USDT)$ ]]; then
-		set -- "${1^^}"	
 	elif [[ -n "${1}" ]]; then
-		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
-		if  ! grep -qi "${1}" <<< "${TOCURLIST[@]}" && ! jq -r ".[]" <<< "${SYMBOLLIST}" | grep -iq "^${1}$"; then
-			if jq -er '.["'"${1^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
-				set -- "$(jq -r '.["'"${1^^}"'"]' <<< "${SYMBOLLIST}")"
-			else
-				printf 'Check TO_CURRENCY code.\n' 1>&2
-				exit 1
-			fi
-		fi
+		#check to_currency (convert prices)
+		checkcurf '' '' "${1}" && set -- "${ARGS[@]}"
 	fi
 
 	#get market data
@@ -477,9 +502,15 @@ mcapf() {
 #no api key funct
 nokeyf() {
 	if [[ -z "${BANK}" ]]; then
-		#check currencies
+		#export local lists
+		#these jsons has a different structure than normal checking
 		SYMBOLLIST="$(tail -${ENDLINES} "${SCRIPT}")"
-		checkcurf 1 "${2}" usd && set -- "${1}" "${ARGS[1]}" "${3}"
+		export SYMBOLLIST
+		FIATLIST="$(printf '%s\n' "${FIATCODES[@]}")"
+		export FIATLIST
+
+		#check from_currency
+		checkcurf "${@}" && set -- "${ARGS[@]}"
 
 		#get data
 		CMCJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/${2,,}/?convert=${3^^}")"
@@ -536,7 +567,7 @@ nokeyf() {
 		
 		#check for errors
 		if [[ -z "${RESULT}" ]]; then
-			printf 'Err: invalid currency code(s).\n' 1>&2
+			printf 'Err: bad code(s).\n' 1>&2
 			exit 1
 		fi
 	fi
@@ -546,71 +577,137 @@ nokeyf() {
 	exit
 }
 
-#-t top tickers function
+#-tt top tickers function
 tickerf() {
-	#how many top cryptosd? defaults=10
-	if [[ ! ${1} =~ ^[0-9]+$ ]]; then
-		set -- 10 "${@}"
-	fi
-
-	#default to currency
-	if [[ -z "${2}" ]]; then
-		set -- "${1}" USD
-	fi
-
-	#check input to_currency
-	if [[ "${2^^}" != USD ]]; then
-		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
-		if  ! grep -qi "${2}" <<< "${TOCURLIST[@]}" && ! jq -r '.[]' <<< "${SYMBOLLIST}" | grep -iq "^${2}$"; then
-			if jq -er '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}" &>/dev/null; then
-				set -- "$(jq -r '.["'"${2^^}"'"]' <<< "${SYMBOLLIST}")"
-			else
-				printf 'Check TO_CURRENCY code.\n' 1>&2
-				exit 1
-			fi
-		fi
-	fi
-
-	#get data
-	TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
-	
-	#print json?
-	if [[ -n ${PJSON} ]]; then
-		printf '%s\n' "${TICKERJSON}"
-		exit 0
-	fi
-
-	#test screen width
-	#if stdout is redirected; skip this
-	if ! [[ -t 1 ]]; then
-		true
-	elif test "$(tput cols)" -lt '100'; then
-		COLCONF="-HMCAP-${2^^},SUPPLY/TOTAL,UPDATE -TPRICE-${2^^},VOL24h-${2^^}"
-		printf 'OBS: More columns are needed to print more info.\n' 1>&2
-	elif test "$(tput cols)" -lt '120'; then
-		COLCONF='-HSUPPLY/TOTAL,UPDATE'
-		printf 'OBS: More columns are needed to print more info.\n' 1>&2
-	else
-		COLCONF='-TSUPPLY/TOTAL,UPDATE'
-	fi
-	
-	#altcoins vs bitcoin
-	if [[ "${2^^}" = BTC ]]; then
-
-		BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
-		BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
-		BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
+	if [[ "${TICKEROPT}" -eq 1 ]]; then
+		#check for api key
+		keycheckf 1
 		
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"R,ID,SYMBOL,PRICE-BTC,D1h-BTC,D24h-BTC,D7D-BTC,VOL24h-BTC,MCAP-BTC,SUPPLY/TOTAL,UPDATE" ${COLCONF}
-	
-	#coins vs USD
+		#how many top cryptosd? defaults=10
+		if [[ ! ${1} =~ ^[0-9]+$ ]]; then
+			set -- 10 "${@}"
+		fi
+
+		#default to currency
+		if [[ -z "${2}" ]]; then
+			set -- "${1}" USD
+		fi
+
+		#check to_currency (convert price)
+		checkcurf "${1}" '' "${2}" && set -- "${ARGS[@]}"
+
+		#get data
+		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
+		
+		#print json?
+		if [[ -n ${PJSON} ]]; then
+			printf '%s\n' "${TICKERJSON}"
+			exit 0
+		fi
+
+		#test screen width
+		#if stdout is redirected; skip this
+		if ! [[ -t 1 ]]; then
+			true
+		elif test "$(tput cols)" -lt '100'; then
+			COLCONF="-HMcap${2^^},SUPPLY/TOTAL,UPDATE -TPrice${2^^},VOL24h${2^^}"
+			printf 'OBS: More columns are needed to print more info.\n' 1>&2
+		elif test "$(tput cols)" -lt '120'; then
+			COLCONF='-HSUPPLY/TOTAL,UPDATE'
+			printf 'OBS: More columns are needed to print more info.\n' 1>&2
+		else
+			COLCONF='-TSUPPLY/TOTAL,UPDATE'
+		fi
+		
+		#altcoins vs bitcoin
+		if [[ "${2^^}" = BTC ]]; then
+
+			BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${TICKERJSON}")"
+			BTC24H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_24h'  <<< "${TICKERJSON}")"
+			BTC7D="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_7d'  <<< "${TICKERJSON}")"
+			
+			jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'${2,,}')=\(((.percent_change_1h // '${BTC1H}')|tonumber)-'${BTC1H}')%=\(((.percent_change_24h // '${BTC24H}')|tonumber)-'${BTC24H}')%=\(((.percent_change_7d // '${BTC7D}')|tonumber)-'${BTC7D}')%=\(."24h_volume_'${2,,}'")=\(.market_cap_'${2,,}')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | sed -E 's/([0-9]+\.[0-9]{0,4})[0-9]*%/\1%/g' | column -s"=" -t  -N"R,ID,SYMBOL,PriceBTC,1hBTC%,24hBTC%,7dBTC%,VOL24hBTC,McapBTC,SUPPLY/TOTAL,UPDATE" ${COLCONF}
+		
+		#coins vs USD
+		else
+			jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"R,ID,SYMBOL,Price${2^^},1hUSD%,24hUSD%,7dUSD%,VOL24h${2^^},Mcap${2^^},SUPPLY/TOTAL,UPDATE" ${COLCONF}
+		
+		fi
+	#single ticker -- public api
 	else
-		jq -r '.[]|"\(.rank)=\(.id)=\(.symbol)=\(.price_'"${2,,}"')=\(.percent_change_1h)%=\(.percent_change_24h)%=\(.percent_change_7d)%=\(."24h_volume_'"${2,,}"'")=\(.market_cap_'"${2,,}"')=\(.available_supply)/\(.total_supply)=\(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))"' <<< "${TICKERJSON}" | column -s"=" -t  -N"R,ID,SYMBOL,PRICE-${2^^},D1h-USD,D24h-USD,D7D-USD,VOL24h-${2^^},MCAP-${2^^},SUPPLY/TOTAL,UPDATE" ${COLCONF}
-	
+		#check ticker symbol
+		if [[ "${1}" =~ ^[0-9]+$ ]]; then
+			set -- ${@:2}
+		fi
+
+		#default ticker symbol
+		if [[ -z "${1}" ]]; then 
+			set -- BTC
+		fi
+
+		#default to currency
+		if [[ -z "${2}" ]]; then 
+			set -- "${1}" USD
+		fi
+
+		#export local lists
+		#this jsons has a different structure than normal checking
+		SYMBOLLIST="$(tail -${ENDLINES} "${SCRIPT}")"
+		export SYMBOLLIST
+		
+		if [[ -z "${CMCAPIKEY}" ]]; then
+			FIATLIST="$(printf '%s\n' "${FIATCODES[@]}")"
+			export FIATLIST
+		fi
+
+		#check from currency
+		FROMCURSYMBOL="${1}"
+		TOCURSYMBOL="${2}"
+		checkcurf '' "${@}" && set -- "${ARGS[@]}" 
+		
+		#get data
+		CMCJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/${1,,}/?convert=${2^^}")"
+		
+		#print json?
+		if [[ -n ${PJSON} ]]; then
+			printf '%s\n' "${CMCJSON}"
+			exit 0
+		fi
+		
+		#format ticker
+		jq -r '.[]|
+			"Ticker",
+			(.last_updated|tonumber|strflocaltime("%Y-%m-%dT%H:%M:%S%Z")),
+			"",
+			"Id_____: \(.id)",
+			"Name___: \(.name)",
+			"Symbol_: \(.symbol)",
+			"Rank___: \(.rank)",
+			"",
+			"Supply",
+			"Availab: \(.available_supply)",
+			"Total__: \(.total_supply)",
+			"Max____: \(.max_supply)",
+			"",
+			"MktCap_: \(.market_cap_usd) USD",
+			"MktCap_: \(.market_cap_'${TOCURSYMBOL,,}'//empty) '${TOCURSYMBOL^^}'",
+			"",
+			"24HVol_: \(."24h_volume_usd") USD",
+			"24HVol_: \(."24h_volume_'${TOCURSYMBOL,,}'"//empty)  '${TOCURSYMBOL^^}'",
+			"",
+			"Chg_1H_: \(.percent_change_1h) %",
+			"Chg_24H: \(.percent_change_24h) %",
+			"Chg_7D_: \(.percent_change_7d) %",
+			"",
+			"Price",
+			"'${FROMCURSYMBOL^^}'BTC_: \(.price_btc)",
+			"'${FROMCURSYMBOL^^}'USD_: \(.price_usd)",
+			"'${TOCURSYMBOL^^}${FROMCURSYMBOL^^}'_: \(.price_'${TOCURSYMBOL,,}'//empty)"
+			' <<<"${CMCJSON}"
 	fi
 }
 
-#-tt winners and losers
+#-w winners and losers
 winlosef() {
 	#how many top cryptosd? defaults=10
 	if [[ ! ${1} =~ ^[0-9]+$ ]]; then
@@ -694,26 +791,30 @@ listsf() {
 		fi
 
 		#make table
-		printf '=============CRYPTOCURRENCIES============\n'		
+		printf 'CRYPTOCURRENCIES\n'		
 		LIST="$(jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' <<<"${PAGE}")"
 		column -s'=' -et -N 'ID,SYMBOL,NAME' <<<"${LIST}"
 		
-		printf '\n===========BANK CURRENCIES===========\n'
+		printf '\nBANK CURRENCIES\n'
 		LIST2="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
 		column -s'=' -et -N'ID,SYMBOL,SIGN,NAME' <<<"${LIST2}"
+		column -s'=' -et -N'ID,SYMBOL,NAME' <<<"${METALS}"
 
 		printf 'Cryptos: %s\n' "$(wc -l <<<"${LIST}")"
 		printf 'BankCur: %s\n' "$(wc -l <<<"${LIST2}")"
+		printf 'Metals : %s\n' "$(wc -l <<<"${METALS}")"
 	else
-		printf '=============CRYPTOCURRENCIES============\n'		
+		printf 'CRYPTOCURRENCIES\n'		
 		LIST="$(pr -mJ -t <(tail -${ENDLINES} "${SCRIPT}" | jq -r 'keys_unsorted[]') <(tail -${ENDLINES} "${SCRIPT}" | jq -r '.[]') | sort)"
 		column -s$'\t' -et -N 'SYMBOL,NAME' <<<"${LIST}"
 		
-		printf '\n===========BANK CURRENCIES===========\n'
-		printf '%s\n' "${OTHERCUR}" | column -s'=' -et -N'ID,SYMBOL,NAME'
+		printf '\nBANK CURRENCIES\n'
+		printf '%s\n' "${FIATCUR}" | column -s'=' -et -N'ID,SYMBOL,SIGN,NAME'
+		column -s'=' -et -N'ID,SYMBOL,NAME' <<<"${METALS}"
 
 		printf 'Cryptos: %s\n' "$(wc -l <<<"${LIST}")"
-		printf 'BankCur: %s\n' "$(wc -l <<<"${OTHERCUR}")"
+		printf 'BankCur: %s\n' "$(wc -l <<<"${FIATCUR}")"
+		printf 'Metals : %s\n' "$(wc -l <<<"${METALS}")"
 		printf 'No api key. Currency list may be outdated.\n' 1>&2
 	fi
 
@@ -762,7 +863,7 @@ ozgramf() {
 
 
 #parse options
-while getopts ':0123456789abdlmghjs:tvp' opt; do
+while getopts ':0123456789abdlmghjs:tvpw' opt; do
 	case ${opt} in
 		( [0-9] ) #scale, same as '-sNUM'
 			SCL="${SCL}${opt}"
@@ -800,12 +901,14 @@ while getopts ':0123456789abdlmghjs:tvp' opt; do
 			SCL="${OPTARG}"
 			;;
 		( t ) #tickers for crypto currencies
-		      #winners and losers
-			[[ -z "${TICKEROPT}" ]] && TICKEROPT=1 || TICKEROPT=2
+			[[ -z "${TICKEROPT}" ]] && TICKEROPT=3 || TICKEROPT=1
 			;;
 		( v ) #script version
 			grep -m1 '# v' "${0}"
 			exit 0
+			;;
+		( w ) #winners and losers
+			TICKEROPT=2
 			;;
 		( \? )
 			printf 'Invalid option: -%s\n' "$OPTARG" 1>&2
@@ -815,11 +918,8 @@ while getopts ':0123456789abdlmghjs:tvp' opt; do
 done
 shift $((OPTIND -1))
 
-#check for api key
-if [[ -z "${CMCAPIKEY}" ]] && [[ -n "${APIOPT}${DOMOPT}${MCAP}${TICKEROPT}" ]]; then
-	printf 'Please create a free API key and add it to the script source-code or set it as an environment variable.\n' 1>&2
-	exit 1
-fi
+#check for api key for some opts
+keycheckf "${APIOPT}${DOMOPT}${MCAP}"
 
 #test for must have packages
 if [[ -z "${CCHECK}" ]]; then
@@ -841,7 +941,7 @@ if [[ -z ${SCL} ]]; then
 fi
 
 #call opt functions
-if [[ "${TICKEROPT}" = 1 ]]; then
+if [[ "${TICKEROPT}" =~ (1|3) ]]; then
 	tickerf "${@}"
 	exit
 elif [[ "${TICKEROPT}" = 2 ]]; then
@@ -861,7 +961,7 @@ if ! [[ "${1}" =~ [0-9] ]]; then
 	set -- 1 "${@}"
 #if amount is not a valid expression for bc
 elif [[ -z "$(bc -l <<< "${1}" 2>/dev/null)" ]]; then
-	printf "Invalid expression in 'AMOUNT'\n" 1>&2
+	printf 'Err: invalid expression in AMOUNT\n' 1>&2
 	exit 1
 fi
 if [[ -z ${2} ]]; then
@@ -873,7 +973,7 @@ fi
 
 #check currencies
 if [[ -n "${CMCAPIKEY}" ]]; then
-	checkcurf "${@}" && set -- "${ARGS[@]}"
+	[[ -z "${BANK}" ]] && checkcurf "${@}" && set -- "${ARGS[@]}"
 else
 	[[ -n "${LISTS}" ]] && listsf
 	nokeyf "${@}"
