@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.36  feb/2020
+# v0.2.40  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -63,9 +63,9 @@ COLLISION PROBABILITIES
 
 
 	References:
-		(1) <https://www.youtube.com/watch?v=fOMVZXLjKYo>
-		(2) <https://www.blockchain.com/en/charts/n-unique-addresses>
-		(3) <http://valerieaurora.org/hash.html>
+		(1) <youtube.com/watch?v=fOMVZXLjKYo>
+		(2) <blockchain.com/en/charts/n-unique-addresses>
+		(3) <valerieaurora.org/hash.html>
 
 
 RATE LIMITS
@@ -137,8 +137,6 @@ OPTIONS
 	
 	-d 		Use Blocypher.com API.
 
-	-g 		Debug, prints server response on error.
-
 	-h 		Show this help.
 
 	-o [FILE_PATH] 	File path to record positive match results; 
@@ -148,7 +146,10 @@ OPTIONS
 			is possible, although api servers may block you quickly;
 			defaults=${SLEEPTIME}.
 
-	-v 		Print script version."
+	-v 		Verbose, log all addresses tested to file and print 
+			debug messages on screen to stderr.
+
+	-V 		Print script version."
 
 #functions
 
@@ -198,16 +199,18 @@ getbal() {
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
 			printf "Addr: %s\n" "${address}" 1>&2
-			printf "Processing: PASS %s.\n" "${PASS}" 1>&2
+			printf "Processing: PASS %s\n" "${PASS}" 1>&2
 			date 1>&2
 			printf "%s\n" "${QUERY}" 1>&2
 			printf "\n.............." 1>&2
 		fi
+		
 		#continue...
 	elif grep -iq -e "Invalid API token" -e "invalid api" -e "wrong api" -e "wrong key" <<< "${QUERY}"; then
 		printf "\nInvalid API token.\n" 1>&2
 		exit 1
 	fi
+
 	# Choose processing between 
 	if [[ "${PASS}" -eq "1" ]]; then
 		# Binfo.com
@@ -233,7 +236,7 @@ getbal() {
 #parse opt
 
 # Parse options
-while getopts ":cbadghs:vo:" opt; do
+while getopts ":cbadghs:vVo:" opt; do
 	case ${opt} in
 		a ) # Use BTC.com
 			BTCOPT=1
@@ -249,24 +252,24 @@ while getopts ":cbadghs:vo:" opt; do
 			;;
 		h ) # Help
 			head "${0}" | grep -e '# v'
-			echo -e "${HELP}"
+			printf '%s\n' "${HELP}"
 			exit 0
 			;;
 		o ) # Record file path
 			RECFILE="${OPTARG}"
 			;;
-		v ) # Version of Script
+		V ) # Version of Script
 			head "${0}" | grep -e '# v'
 			exit 0
 			;;
 		s ) # Sleep time
 			SLEEPTIME="${OPTARG}"
 			;;
-		g ) # Debug
+		v|g ) # verbose and debug
 			DEBUG=1
 			;;
 		\? )
-			echo "Invalid Option: -$OPTARG" 1>&2
+			printf 'Invalid option: -%s\n' "${OPTARG}" 1>&2
 			exit 1
 			;;
 	 esac
@@ -302,10 +305,19 @@ date
 # Loop
 # Start count
 while :; do
+	#addr counter
 	((N++))
+
+	#status
 	printf "\rAddrs: %07d" "${N}" 1>&2
+	
+	#generate one addr
 	VANITY="$(vanitygen -q 1)"
-	printf '\n%s\n' "${VANITY}" >> "${RECFILE}.all"
+
+	#verbose, debug opt logfile
+	[[ -n "${DEBUG}" ]] && printf '%s\n' "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d' -e 's/^Privkey://' -e 's/^Address://' >> "${RECFILE}.all"
+
+	#get address and query for received amount from api
 	address="$(grep -e "Address:" <<< "${VANITY}" | cut -d' ' -f2)"
 	queryf
 	
@@ -318,12 +330,14 @@ while :; do
 	# Get received amount for further processing
 	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ "${REC}" != "null" ]] ; then
 		{ date
-		  printf 'Check this address! \n'
+		  printf 'Check this address\n'
 		  printf "%s\n" "${VANITY}"
 		  printf "Received? %s\n" "${REC}"
 		  printf "Addrs checked: %s.\n" "${N}"
 		} | tee -a "${RECFILE}" "${RECFILE}.all"
 	fi
+
+	#wait a little for next loop iteration
 	sleep "${SLEEPTIME}"
 done
 
