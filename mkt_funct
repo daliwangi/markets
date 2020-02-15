@@ -53,14 +53,14 @@ ipca() { (
 	#inflação acumulada por ano
 	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${datecodes%,}&ng=1(1)&c=")"
 	jq -er '.[0].var' <<<"${data}" || return 1
-	jq -r '.[]|"\(.p) \(.v)\(.um)"' <<<"${data}" | column -ets' ' -NMes,Ano,VarAc
+	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" | column -ets' ' -NMes,Ano,Var%Ano
 	
 	#inflação acumulada a partir de um ano específico
 	datecodes="$(printf ' "dezembro %s",' {${1}..${year}})" 
 	arg=".[]|select( .p == ( '${datecodes%,}' ))|.v";
 	arg=${arg//\'}
 	
-	printf '\nAcumulado%% desde jan/%s\n' "${1}"
+	printf '\nAcumulado%% desde %s/jan\n' "${1}"
 	year="${1}"
 	jq -r "${arg//\'}" <<<"${data}" | 
 	while read line; do
