@@ -40,21 +40,28 @@ tesouro() {
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
 #inflação IPCA - Variação acumulada no ano -- IBGE
+#uso: %s [ANO]  #calcula a partir de um determinado ano (>=1995)
 ipca() { (
+	[[ -z "${*}" ]] && printf 'uso: %s [ANO]  #ANO >=1995\n\n' "${0}"
+
+	#testar input do usuário, ano maior que 1995
+	((${1}>=1995)) 2>/dev/null || set -- 1995
+
 	year="$(date +%Y)"
-	datecodes="$(printf '%s,' {1995..${year}}{01..12})"
+	datecodes="$(printf '%s,' {${1}..${year}}{01..12})"
 	
+	#inflação acumulada por ano
 	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${datecodes%,}&ng=1(1)&c=")"
-	
 	jq -er '.[0].var' <<<"${data}" || return 1
 	jq -r '.[]|"\(.p) \(.v)\(.um)"' <<<"${data}" | column -ets' ' -NMes,Ano,VarAc
 	
-	datecodes="$(printf ' "dezembro %s",' {1995..${year}})" 
+	#inflação acumulada a partir de um ano específico
+	datecodes="$(printf ' "dezembro %s",' {${1}..${year}})" 
 	arg=".[]|select( .p == ( '${datecodes%,}' ))|.v";
 	arg=${arg//\'}
 	
-	printf '\nAcumulado%% desde jan/1995\n'
-	year=1995
+	printf '\nAcumulado%% desde jan/%s\n' "${1}"
+	year="${1}"
 	jq -r "${arg//\'}" <<<"${data}" | 
 	while read line; do
 		vals+="
