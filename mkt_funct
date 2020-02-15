@@ -39,6 +39,33 @@ tesouro() {
 }
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
+#inflação IPCA - Variação acumulada no ano -- IBGE
+ipca() { (
+	year="$(date +%Y)"
+	datecodes="$(printf '%s,' {1995..${year}}{01..12})"
+	
+	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${datecodes%,}&ng=1(1)&c=")"
+	
+	jq -er '.[0].var' <<<"${data}" || return 1
+	jq -r '.[]|"\(.p) \(.v)\(.um)"' <<<"${data}" | column -ets' ' -NMes,Ano,VarAc
+	
+	datecodes="$(printf ' "dezembro %s",' {1995..${year}})" 
+	arg=".[]|select( .p == ( '${datecodes%,}' ))|.v";
+	arg=${arg//\'}
+	
+	printf '\nAcumulado%% desde jan/1995\n'
+	year=1995
+	jq -r "${arg//\'}" <<<"${data}" | 
+	while read line; do
+		vals+="
+			$(bc -l <<<"(${line}/100)+1")"
+		val="$(paste -sd\* <<<"${vals}" | sed -e 's/\s//g' -e 's/\t//g' -e 's/\*\*/*/g' -e 's/^\*//')"
+		printf '%s/dez  %.4f\n' "${year}" "$(bc -l <<<"(${val}-1)*100")" 
+		((year++))
+	done
+);}	
+#orig:199512,199612,199712,199812,199912,200012,200112,200212,200312,200412,200512,200612,200712,200812,200912,201012,201112,201212,201312,201412,201512,201612,201712,201812,201912,202012,202112,202212,202312,202412,202512,202612,202712,202812,202912,203012,202001
+#https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?t=series-historicas&utm_source=landing&utm_medium=explica&utm_campaign=inflacao#plano-real-mes
 
 #richard heart's hex rate in usd
 hex() { (
