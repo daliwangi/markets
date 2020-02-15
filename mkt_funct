@@ -81,6 +81,7 @@ ipca2() {
 	curl -sL 'https://data.bls.gov/pdq/SurveyOutputServlet'  --data 'request_action=get_data&reformat=true&from_results_page=true&from_year=1913&to_year=2030&Go.x=17&Go.y=9&initial_request=false&data_tool=surveymost&series_id=CUUR0000SA0&output_type=default&original_output_type=default&original_annualAveragesRequested=false' --compressed | sed -e 's/<\/[A-Z][A-Z]>/ &/g' -e 's/<[^>]*>//g' -e 's/&.*;//g' | sed -n '/Year\s*Jan/,/202[0-9]/p'| column -t
 }
 #https://www.bls.gov/
+#https://download.bls.gov/pub/time.series/cu/cu.data.0.Current
 
 #american inflation
 ipca3() {
