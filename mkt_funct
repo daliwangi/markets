@@ -39,7 +39,8 @@ tesouro() {
 }
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
-#inflação IPCA - Variação acumulada no ano -- IBGE
+
+#inflação brasileira IPCA - Variação acumulada no ano -- IBGE
 #uso: %s [ANO]  #calcula a partir de um determinado ano (>=1995)
 ipca() { (
 	[[ -z "${*}" ]] && printf 'uso: %s [ANO]  #ANO >=1995\n\n' "${0}"
@@ -74,6 +75,11 @@ ipca() { (
 #orig:199512,199612,199712,199812,199912,200012,200112,200212,200312,200412,200512,200612,200712,200812,200912,201012,201112,201212,201312,201412,201512,201612,201712,201812,201912,202012,202112,202212,202312,202412,202512,202612,202712,202812,202912,203012,202001
 #https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?t=series-historicas&utm_source=landing&utm_medium=explica&utm_campaign=inflacao#plano-real-mes
 
+#inflação americana
+ipca2() {
+	curl -sL 'https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/' | sed -n '/<tbody>/,/<\/tbody>/p' | sed -e 's/<[^>]*>//g' -e 's/&.*;//g' -e 's/^\s*//g' | sed -n '/Year/,$p' | sed ':a;N;s/\n\(.\)/ \1/;ta' | sed 's/^\s//g' | column -ts' ' -o' '
+}
+	
 #richard heart's hex rate in usd
 hex() { (
 	date
