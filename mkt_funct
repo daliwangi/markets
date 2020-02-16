@@ -42,8 +42,8 @@ tesouro() {
 
 #inflação brasileira IPCA - Variação acumulada no ano -- IBGE
 #uso: %s [ANO]  #calcula a partir de um determinado ano (>=1995)
-ipca() { (
-	[[ -z "${*}" ]] && printf 'uso: %s [ANO]  #ANO >=1995\n\n' "${0}"
+ipcab() { (
+	[[ -z "${*}" ]] && printf 'uso: %s [ANO]  #ANO >=1995\n\n' "${0}" 1>&2
 
 	#testar input do usuário, ano maior que 1995
 	((${1}>=1995)) 2>/dev/null || set -- 1995
@@ -77,14 +77,21 @@ ipca() { (
 
 #inflação americana
 #american inflation
-ipca2() {
-	curl -sL 'https://data.bls.gov/pdq/SurveyOutputServlet'  --data 'request_action=get_data&reformat=true&from_results_page=true&from_year=1913&to_year=2030&Go.x=17&Go.y=9&initial_request=false&data_tool=surveymost&series_id=CUUR0000SA0&output_type=default&original_output_type=default&original_annualAveragesRequested=false' --compressed | sed -e 's/<\/[A-Z][A-Z]>/ &/g' -e 's/<[^>]*>//g' -e 's/&.*;//g' | sed -n '/Year\s*Jan/,/202[0-9]/p'| column -t
+ipca() {
+	if [[ -z "${*}" ]]; then
+		printf 'usage: %s [series_id]\n' "${0}" 1>&2
+		printf 'usage: %s .  #all series\n\n' "${0}" 1>&2
+		set -- CUUR0000SA0
+	fi
+
+	curl -s 'https://download.bls.gov/pub/time.series/cu/cu.data.1.AllItems' | grep "${1}" | column -t
 }
+#??Daily query limit Version 1.0 (Unregistered) 25
 #https://www.bls.gov/
-#https://download.bls.gov/pub/time.series/cu/cu.data.0.Current
+#also good:https://download.bls.gov/pub/time.series/cu/cu.data.0.Current
 
 #american inflation
-ipca3() {
+ipca2() {
 	curl -sL 'https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/' | sed -n '/<tbody>/,/<\/tbody>/p' | sed -e 's/<[^>]*>//g' -e 's/&.*;//g' -e 's/^\s*//g' | sed -n '/Year/,$p' | sed ':a;N;s/\n\(.\)/ \1/;ta' | sed 's/^\s//g' | column -ts' ' -o' '
 }
 #https://www.usinflationcalculator.com
