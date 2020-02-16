@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.44  feb/2020
+# v0.2.46  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -168,22 +168,22 @@ queryf() {
 	# Choose resquest server
 	if [[ -n "${BINFOOPT}" ]] && [[ "${PASS}" -eq "0" ]] ; then
 		# Binfo.com
-		QUERY="$(${MYAPP} "https://blockchain.info/balance?active=$address")"
 		PASS=1
+		QUERY="$(${MYAPP} "https://blockchain.info/balance?active=$address")" || return 1
 	elif [[ -n "${CHAIROPT}" ]] && [[ "${PASS}" -le "1" ]]; then
 		# Blockchair.com
-		QUERY="$(${MYAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${address}${CHAIRKEY}")"
 		PASS=2
+		QUERY="$(${MYAPP} "https://api.blockchair.com/bitcoin/dashboards/address/${address}${CHAIRKEY}")" || return 1
 	elif [[ -n "${BTCOPT}" ]] && [[ "${PASS}" -le "2" ]]; then
-		# BTC.com
-		# OBS : BTC.com returns null if no tx in address
-		QUERY="$(${MYAPP} "https://chain.api.btc.com/v3/address/${address}")"
+		# BTC.com; obs: returns null if no tx in address
 		PASS=3
+		QUERY="$(${MYAPP} "https://chain.api.btc.com/v3/address/${address}")" || return 1
 	elif [[ -n "${CYPHEROPT}" ]] && [[ "${PASS}" -le "3" ]]; then
 		#Blockcypher.com
-		QUERY="$(${MYAPP} "https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance")"
 		PASS=4
+		QUERY="$(${MYAPP} "https://api.blockcypher.com/v1/btc/main/addrs/${address}/balance")" || return 1
 	else
+		#it goes only one nested level
 		PASS=0
 		queryf
 	fi
@@ -193,39 +193,42 @@ queryf() {
 SA=1
 getbal() {
 	# Test for rate limit error
-	if grep -i -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
-		printf "\nLimit warning or error: %s\n" "$(whichf)" 1>&2
-		printf "Skipped: %s\n" "${SA}" 1>&2
+	if grep -ie "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
+		{
+		printf "Limit warning or error: %s\n" "$(whichf)"
+		printf "Skipped: %s\n" "${SA}"
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
-			printf "Addr: %s\n" "${address}" 1>&2
-			printf "Processing: PASS %s\n" "${PASS}" 1>&2
-			date 1>&2
-			printf "%s\n" "${QUERY}" 1>&2
+			printf "Addr: %s\n" "${address}"
+			printf "PASS: %s\n" "${PASS}"
+			date
+			printf "%s\n" "${QUERY}"
 		fi
+		} 1>&2
 		
-		#continue...
+		return 1
 	elif grep -i -e "Invalid API token" -e "invalid api" -e "wrong api" -e "wrong key" <<< "${QUERY}" 1>&2; then
 		printf "Invalid API token?\n" 1>&2
 		exit 1
 	fi
 
 	# Choose processing between 
+	{
 	if [[ "${PASS}" -eq "1" ]]; then
 		# Binfo.com
-		jq -er '.[].total_received' <<< "${QUERY}" 2>/dev/null || return 1
+		jq -er '.[].total_received' <<< "${QUERY}" || return 1
 	elif [[ "${PASS}" -eq "2" ]]; then
 		# Blockchair.com
-		jq -er '.data[].address.received' <<< "${QUERY}" 2>/dev/null || return 1
+		jq -er '.data[].address.received' <<< "${QUERY}" || return 1
 	elif [[ "${PASS}" -eq "3" ]]; then
-		# BTC.com
-		# OBS : BTC.com returns null if no tx in address
-		# Option -e deactivated
-		jq -r '.data.received' <<< "${QUERY}" 2>/dev/null || return 1
+		# BTC.com; obs: returns null if no tx in address
+		#disable -e because this is not an error
+		jq -r '.data.received' <<< "${QUERY}" || return 1
 	elif [[ "${PASS}" -eq "4" ]]; then
 		#Blockcypher.com
-		jq -er '.total_received' <<< "${QUERY}" 2>/dev/null || return 1
+		jq -er '.total_received' <<< "${QUERY}" || return 1
 	fi
+	}  2>/dev/null
 }
 
 #parse opt
@@ -313,25 +316,24 @@ while :; do
 	[[ -n "${DEBUG}" ]] && printf '%s\n' "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d' -e 's/^Privkey://' -e 's/^Address://' >> "${RECFILE}.all"
 
 	#get address and query for received amount from api
-	address="$(grep -e "Address:" <<< "${VANITY}" | cut -d' ' -f2)"
-	queryf
-	
-	# If JQ detects an error, skip address and sleep
-	if ! REC="$(getbal)" >/dev/null; then
-		((SA++))
-		sleep 300
-		continue
-	fi
-
-	# Get received amount for further processing
-	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ ! "${REC}" =~ null ]] ; then
-		{ date
-		  printf 'Check this address\n'
-		  printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
-		  printf "Received? %s\n" "${REC}"
-		  printf "Addrs checked: %s\n" "${N}"
-		  printf 'PASS %s\n' "${PASS}"
-		} | tee -a "${RECFILE}" "${RECFILE}.all"
+	if address="$(sed -En 's/^Address:\s(.*)$/\1/p' <<< "${VANITY}")"; queryf; then
+		if ! REC="$(getbal)"; then	
+			#if cannot fetch data or JQ detects an error, skip address and sleep
+			((SA++))
+			sleep 300
+		# Get received amount for further processing
+		elif [[ "${REC}" =~ ^[0-9,.]+$ ]] && [[ "${REC}" != 0 ]]; then
+			{
+			date
+			printf 'Check this address\n'
+			printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
+			printf "Received? %s\n" "${REC}"
+			printf "Addrs checked: %s\n" "${N}"
+			printf 'PASS %s\n' "${PASS}"
+			} | tee -a "${RECFILE}" "${RECFILE}.all"
+		fi
+	else
+		printf 'Error on querying server PASS %s\n' 1>&2 "${PASS}"
 	fi
 
 	#wait a little for next loop iteration
