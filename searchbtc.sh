@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.46  feb/2020
+# v0.2.47  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -199,8 +199,8 @@ getbal() {
 		printf "Skipped: %s\n" "${SA}"
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
-			printf "Addr: %s\n" "${address}"
 			printf "PASS: %s\n" "${PASS}"
+			printf "Addr: %s\n" "${address}"
 			date
 			printf "%s\n" "${QUERY}"
 		fi
@@ -328,12 +328,12 @@ while :; do
 			printf 'Check this address\n'
 			printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
 			printf "Received? %s\n" "${REC}"
-			printf "Addrs checked: %s\n" "${N}"
-			printf 'PASS %s\n' "${PASS}"
+			printf "Addrs: %s\n" "${N}"
+			printf 'PASS : %s\n' "${PASS}"
 			} | tee -a "${RECFILE}" "${RECFILE}.all"
 		fi
 	else
-		printf 'Error on querying server PASS %s\n' 1>&2 "${PASS}"
+		printf 'Error on querying server (PASS %s)\n' 1>&2 "${PASS}"
 	fi
 
 	#wait a little for next loop iteration
