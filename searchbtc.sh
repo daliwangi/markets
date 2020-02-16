@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.52  feb/2020
+# v0.2.53  feb/2020
 
 #defaults
 #attention to rate limits
@@ -152,8 +152,7 @@ OPTIONS
 			is possible, although api servers may block you quickly;
 			defaults=${SLEEPTIME}.
 
-	-v 		Verbose, log all addresses tested to file and print 
-			debug messages on screen to stderr.
+	-v 		Log all addresses generated to file. 
 
 	-V 		Print script version."
 
@@ -203,12 +202,8 @@ getbal() {
 		{
 		printf "Limit warning or error: %s\n" "$(whichf)"
 		printf 'Skipped: %s  PASS: %s\n' "${SA}" "${PASS}"
-		#Debug Verbose
-		if [[ -n "${DEBUG}" ]]; then
-			date
-			printf "Addr: %s\n" "${address}"
-			printf "%s\n" "${QUERY}"
-		fi
+		printf "Addr: %s\n" "${address}"
+		date
 		} 1>&2
 		
 		return 1
@@ -239,7 +234,7 @@ getbal() {
 #parse opt
 
 # Parse options
-while getopts ":cbadghs:vVo:" opt; do
+while getopts ":cbadhs:vVo:" opt; do
 	case ${opt} in
 		a ) # Use BTC.com
 			BTCOPT=1
@@ -261,14 +256,14 @@ while getopts ":cbadghs:vVo:" opt; do
 		o ) # Record file path
 			RECFILE="${OPTARG}"
 			;;
+		s ) # Sleep time
+			SLEEPTIME="${OPTARG}"
+			;;
 		V ) # Version of Script
 			head "${0}" | grep -e '# v'
 			exit 0
 			;;
-		s ) # Sleep time
-			SLEEPTIME="${OPTARG}"
-			;;
-		v|g ) # verbose and debug
+		v ) # verbose log all addrs tried
 			DEBUG=1
 			;;
 		\? )
@@ -317,7 +312,7 @@ while :; do
 	#generate one addr
 	VANITY="$(vanitygen -q 1)"
 
-	#verbose, debug opt logfile
+	#log all addrs tried
 	[[ -n "${DEBUG}" ]] && printf '%s\n' "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d' -e 's/^Privkey://' -e 's/^Address://' >> "${RECFILE}.all"
 
 	#get address and query for received amount from api
@@ -333,7 +328,7 @@ while :; do
 			printf 'Addrs: %s  PASS: %s\n' "${N}" "${PASS}"
 			printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
 			printf "Received? %s\n" "${REC}"
-			} | tee -a "${RECFILE}" "${RECFILE}.all"
+			} | tee -a "${RECFILE}"
 		fi
 	else
 		((SA++))
