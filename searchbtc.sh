@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.53  feb/2020
+# v0.2.54  feb/2020
 
 #defaults
 #attention to rate limits
@@ -198,10 +198,9 @@ queryf() {
 getbal() {
 	# Test for rate limit error
 	if grep -ie "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
-		((SA++))
 		{
 		printf "Limit warning or error: %s\n" "$(whichf)"
-		printf 'Skipped: %s  PASS: %s\n' "${SA}" "${PASS}"
+		printf 'Skipped: %s  PASS: %s\n' "${SA:-1}" "${PASS}"
 		printf "Addr: %s\n" "${address}"
 		date
 		} 1>&2
@@ -319,6 +318,7 @@ while :; do
 	if address="$(sed -En 's/^Address:\s(.*)$/\1/p' <<< "${VANITY}")"; queryf; then
 		if ! REC="$(getbal)"; then	
 			#if cannot fetch data or JQ detects an error, skip address and sleep
+			((SA++))
 			sleep "${SLEEPTIMEERR}"
 		# Get received amount for further processing
 		elif [[ "${REC}" =~ ^[0-9,.]+$ ]] && [[ "${REC}" != 0 ]]; then
