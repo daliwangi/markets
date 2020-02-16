@@ -1,19 +1,25 @@
 #!/bin/bash
-# v0.2.48  feb/2020
+# v0.2.52  feb/2020
 
-#if you have got a BlockChair api key for higher limit:
+#defaults
+#attention to rate limits
+
+#blockchair api key for higher limit
 #CHAIRKEY="?key=MYSECRETKEY"
-
-# DEFAULTS
-# Pay attention to rate limits
-#time between new queries
-SLEEPTIME=10
 
 #log file
 RECFILE="${HOME}/addresses.log"
 
+#time between new queries
+SLEEPTIME=10
+
+#sleep time on error
+SLEEPTIMEERR=200
+
 #curl/wget timeout to estabilish connection
 TIMEOUT=20
+#retries on transient error
+RETRY=2
 
 # Help -- run with -h
 HELP="SYNOPSIS
@@ -190,18 +196,17 @@ queryf() {
 }
 
 #Get RECEIVED TOTAL (not really balance)
-SA=1
 getbal() {
 	# Test for rate limit error
 	if grep -ie "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
+		((SA++))
 		{
 		printf "Limit warning or error: %s\n" "$(whichf)"
-		printf "Skipped: %s\n" "${SA}"
+		printf 'Skipped: %s  PASS: %s\n' "${SA}" "${PASS}"
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
-			printf "PASS: %s\n" "${PASS}"
-			printf "Addr: %s\n" "${address}"
 			date
+			printf "Addr: %s\n" "${address}"
 			printf "%s\n" "${QUERY}"
 		fi
 		} 1>&2
@@ -286,9 +291,9 @@ if ! command -v vanitygen >/dev/null; then
 fi
 # Must have cURL or Wget
 if command -v curl >/dev/null; then
-	MYAPP="curl -sLb non-existing --retry 1 --connect-timeout ${TIMEOUT}"
+	MYAPP="curl -sLb non-existing --retry ${RETRY} --connect-timeout ${TIMEOUT}"
 elif command -v wget >dev/null; then
-	MYAPP="wget  -t1 -T${TIMEOUT} -qO-"
+	MYAPP="wget  -t${RETRY} -T${TIMEOUT} -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
@@ -319,21 +324,22 @@ while :; do
 	if address="$(sed -En 's/^Address:\s(.*)$/\1/p' <<< "${VANITY}")"; queryf; then
 		if ! REC="$(getbal)"; then	
 			#if cannot fetch data or JQ detects an error, skip address and sleep
-			((SA++))
-			sleep 300
+			sleep "${SLEEPTIMEERR}"
 		# Get received amount for further processing
 		elif [[ "${REC}" =~ ^[0-9,.]+$ ]] && [[ "${REC}" != 0 ]]; then
 			{
 			date
 			printf 'Check this address\n'
+			printf 'Addrs: %s  PASS: %s\n' "${N}" "${PASS}"
 			printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
 			printf "Received? %s\n" "${REC}"
-			printf "Addrs: %s\n" "${N}"
-			printf 'PASS : %s\n' "${PASS}"
 			} | tee -a "${RECFILE}" "${RECFILE}.all"
 		fi
 	else
-		printf 'Error on querying server (PASS %s)\n' 1>&2 "${PASS}"
+		((SA++))
+		printf 'Error on querying server\n' 1>&2
+		printf 'Skipped: %s  PASS: %s\n' "${SA}" "${PASS}" 1>&2
+		sleep "${SLEEPTIMEERR}"
 	fi
 
 	#wait a little for next loop iteration
