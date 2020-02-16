@@ -80,7 +80,7 @@ ipcab() { (
 ipca() {
 	if [[ -z "${*}" ]]; then
 		printf 'usage: %s [series_id]\n' "${0}" 1>&2
-		printf 'usage: %s .  #all series\n\n' "${0}" 1>&2
+		printf 'usage: %s  .  #all series\n\n' "${0}" 1>&2
 		set -- CUUR0000SA0
 	fi
 
