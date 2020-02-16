@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.42  feb/2020
+# v0.2.44  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -190,10 +190,10 @@ queryf() {
 }
 
 #Get RECEIVED TOTAL (not really balance)
+SA=1
 getbal() {
 	# Test for rate limit error
 	if grep -i -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
-		((SA++))
 		printf "\nLimit warning or error: %s\n" "$(whichf)" 1>&2
 		printf "Skipped: %s\n" "${SA}" 1>&2
 		#Debug Verbose
@@ -214,21 +214,17 @@ getbal() {
 	if [[ "${PASS}" -eq "1" ]]; then
 		# Binfo.com
 		jq -er '.[].total_received' <<< "${QUERY}" 2>/dev/null || return 1
-		return 0
 	elif [[ "${PASS}" -eq "2" ]]; then
 		# Blockchair.com
 		jq -er '.data[].address.received' <<< "${QUERY}" 2>/dev/null || return 1
-		return 0
 	elif [[ "${PASS}" -eq "3" ]]; then
 		# BTC.com
 		# OBS : BTC.com returns null if no tx in address
 		# Option -e deactivated
 		jq -r '.data.received' <<< "${QUERY}" 2>/dev/null || return 1
-		return 0
 	elif [[ "${PASS}" -eq "4" ]]; then
 		#Blockcypher.com
 		jq -er '.total_received' <<< "${QUERY}" 2>/dev/null || return 1
-		return 0
 	fi
 }
 
@@ -322,6 +318,7 @@ while :; do
 	
 	# If JQ detects an error, skip address and sleep
 	if ! REC="$(getbal)" >/dev/null; then
+		((SA++))
 		sleep 300
 		continue
 	fi
@@ -333,6 +330,7 @@ while :; do
 		  printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
 		  printf "Received? %s\n" "${REC}"
 		  printf "Addrs checked: %s\n" "${N}"
+		  printf 'PASS %s\n' "${PASS}"
 		} | tee -a "${RECFILE}" "${RECFILE}.all"
 	fi
 
