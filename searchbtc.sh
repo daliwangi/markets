@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.40  feb/2020
+# v0.2.41  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -202,7 +202,6 @@ getbal() {
 			printf "Processing: PASS %s\n" "${PASS}" 1>&2
 			date 1>&2
 			printf "%s\n" "${QUERY}" 1>&2
-			printf "\n.............." 1>&2
 		fi
 		
 		#continue...
@@ -328,12 +327,12 @@ while :; do
 	fi
 
 	# Get received amount for further processing
-	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ "${REC}" != "null" ]] ; then
+	if [[ -n "${REC}" ]] && [[ "${REC}" != "0" ]] && [[ ! "${REC}" =~ null ]] ; then
 		{ date
 		  printf 'Check this address\n'
-		  printf "%s\n" "${VANITY}"
+		  printf "%s\n" "${VANITY}" | sed  -Ee 's/(\r|\t|\s)//g' -e '/^Pattern/d'
 		  printf "Received? %s\n" "${REC}"
-		  printf "Addrs checked: %s.\n" "${N}"
+		  printf "Addrs checked: %s\n" "${N}"
 		} | tee -a "${RECFILE}" "${RECFILE}.all"
 	fi
 
