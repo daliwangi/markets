@@ -75,7 +75,7 @@ ipcab() { (
 #orig:199512,199612,199712,199812,199912,200012,200112,200212,200312,200412,200512,200612,200712,200812,200912,201012,201112,201212,201312,201412,201512,201612,201712,201812,201912,202012,202112,202212,202312,202412,202512,202612,202712,202812,202912,203012,202001
 #https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?t=series-historicas&utm_source=landing&utm_medium=explica&utm_campaign=inflacao#plano-real-mes
 
-#inflação americana
+
 #american inflation
 ipca() {
 	if [[ -z "${*}" ]]; then
@@ -90,12 +90,14 @@ ipca() {
 #https://www.bls.gov/
 #also good:https://download.bls.gov/pub/time.series/cu/cu.data.0.Current
 
+
 #american inflation
 ipca2() {
 	curl -sL 'https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/' | sed -n '/<tbody>/,/<\/tbody>/p' | sed -e 's/<[^>]*>//g' -e 's/&.*;//g' -e 's/^\s*//g' | sed -n '/Year/,$p' | sed ':a;N;s/\n\(.\)/ \1/;ta' | sed 's/^\s//g' | column -ts' ' -o' '
 }
 #https://www.usinflationcalculator.com
-	
+
+
 #richard heart's hex rate in usd
 hex() { (
 	date
@@ -117,7 +119,56 @@ hex() { (
 }
 
 
-#get metal rates from infomine
+#metal rates from kitco
+kitco() {
+	#help
+	if [[ "${1}" = '-h' ]]; then
+		cat <<-!
+		usage: ${0} [CURRENCY] [UNIT]   #convert opts
+		usage: ${0} -h                  #help
+		usage: ${0} -n NUM              #kitco news
+		currs: USD, AUD, CAD, EUR, GBP, JPY, CHF, CNY,
+		       HKD, BRL, INR, MXN, RUB and ZAR
+		units: ounce, gram, kilo or tola
+		defau: USD ounce
+		!
+		return
+	#kitco news
+	elif [[ "${1}" = '-n' ]]; then
+		curl -s "https://proxy.kitco.com/getvnews?type=json&df=2&max=${2:-11}"  -H 'Origin: https://www.kitco.com' | jq  -r '.News.videoNews|reverse[]|.fullHeadline,.publishDate,.description,""' | sed 's/<br\/>//g'
+		return
+	fi
+	
+	#arrange case or set defaults
+	set -- $(tr '[A-Z]' '[a-z]' <<<"${*}")
+	[[ "${1}" =~ ^(ounce|gram|kilo|tola)$ ]] && set -- "${2}" "${1}"
+	[[ ! "${2}" =~ ^(ounce|gram|kilo|tola)$ ]] && set -- "${1}" ounce
+	[[ -z "${1}" ]] && set -- USD "${2}" || set -- "$(tr '[a-z]' '[A-Z]' <<<"${1}")" "${2}"
+
+	#set columns
+	local colconf
+	((${COLUMNS}<86)) && colconf=(-TDATE,TIME -HUNIT,CUR)
+	
+	#ny spot
+	printf 'New York Spot Price\n'
+	#mkt status
+	curl -s 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
+	#table
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+
+	#world prices
+	printf '\nThe World Spot Price - Asia/Europe/NY markets\n'
+	#mkt status
+	curl -s 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
+	#table
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+	
+	printf '<https://www.kitco.com/market/>\n'
+}
+#<<Exchange rates displayed are the middle point between bid and ask.>>
+
+
+#metal rates from infomine
 metals() {
 	local page table
 	
@@ -156,52 +207,6 @@ metals() {
 #Specialty/Minor and Bulk Metals prices are derived from various sources including but not limited to International Monetary Fund,
 #The World Bank, German Geoscience Institutes, Energy Information Administration and others. 
 #http://www.infomine.com/chartsdata/infominechartsdatareadme.pdf
-
-#metal rates from kitco
-metals2() {
-	#help
-	if [[ "${1}" = '-h' ]]; then
-		cat <<-!
-		usage: ${0} -h 		#help
-		usage: ${0} -n NUM 		#news, number of news
-		usage: ${0} CURRENCY UNIT 	#convert functions
-		currs: USD, AUD, CAD, EUR, GBP, JPY, CHF, CNY,
-		       HKD, BRL, INR, MXN, RUB and ZAR
-		units: ounce, gram, kilo or tola
-		!
-		return
-	$news
-	elif [[ "${1}" = '-n' ]]; then
-		curl -s "https://proxy.kitco.com/getvnews?type=json&df=2&max=${2:-11}"  -H 'Origin: https://www.kitco.com' | jq  -r '.News.videoNews|reverse[]|.fullHeadline,.publishDate,.description,""' | sed 's/<br\/>//g'
-		return
-	fi
-	
-	#arrange case or set defaults
-	set -- "$(tr '[a-z]' '[A-Z]' <<<"${1:-USD}")" "$(tr '[A-Z]' '[a-z]' <<<"${2:-ounce}")"
-	#available opts
-	#oz, gram, kilo or tola
-
-	#set columns
-	local colconf
-	((${COLUMNS}<86)) && colconf=(-TDATE,TIME -HUNIT,CUR)
-	
-	#ny spot
-	printf 'New York Spot Price\n'
-	#mkt status
-	curl -s 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
-	#table
-	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
-
-	#world prices
-	printf '\nThe World Spot Price - Asia/Europe/NY markets\n'
-	#mkt status
-	curl -s 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
-	#table
-	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
-	
-	printf '<https://www.kitco.com/market/>\n'
-}
-#<<Exchange rates displayed are the middle point between bid and ask.>>
 
 
 #google finance hack
