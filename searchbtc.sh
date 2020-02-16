@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.47  feb/2020
+# v0.2.48  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -307,7 +307,7 @@ while :; do
 	((N++))
 
 	#status
-	printf "\rAddrs: %07d" "${N}" 1>&2
+	printf "Addrs: %07d\r" "${N}" 1>&2
 	
 	#generate one addr
 	VANITY="$(vanitygen -q 1)"
