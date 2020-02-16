@@ -120,7 +120,7 @@ metals() {
 	
 	for table in 'Precious Metal Prices' 'Base Metal Prices' 'Steel Raw Material Prices' 'Minor Metal Prices' 'Energy Prices'; do
 		grep -F "${table}" <<<"${page}" | tr '%' '\n'| sed -e '1d' -e '$d' -Ee 's/(\.[0-9]{2})/\1\t/g' -e 's/(USD\/(ozt|lb|bb|mmBTU))/\t\1\t/'
-	done | column -et -s$'\t' -NITEM,UNIT,PRICE,CHANGE,CHANGE% -RUNIT,PRICE,CHANGE,CHANGE% -OITEM,PRICE,CHANGE,CHANGE%,UNIT
+	done | column -et -s$'\t' -NITEM,UNIT,PRICE,CHANGE,CHANGE% -RPRICE,CHANGE,CHANGE% -OITEM,PRICE,CHANGE,CHANGE%,UNIT
 	
 	printf '<infomine.com/investment/metal-prices/>\n'
 }
