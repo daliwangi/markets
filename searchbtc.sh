@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.41  feb/2020
+# v0.2.42  feb/2020
 
 #if you have got a BlockChair api key for higher limit:
 #CHAIRKEY="?key=MYSECRETKEY"
@@ -192,9 +192,9 @@ queryf() {
 #Get RECEIVED TOTAL (not really balance)
 getbal() {
 	# Test for rate limit error
-	if grep -iq -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}"; then
+	if grep -i -e "Please try again shortly" -e "Quota exceeded" -e "Servlet Limit" -e "rate limit" -e "exceeded" -e "limited" -e "not found" -e "429 Too Many Requests" -e "Error 402" -e "Error 429" -e "too many requests" -e "banned" -e "Maximum concurrent requests" -e "Please try again shor" -e 'Internal Server Error' -e "\"error\":" -e "upgrade your plan" -e "extend your limits" <<< "${QUERY}" 1>&2; then
 		((SA++))
-		printf "\nRate limit warning/error: %s.\n" "$(whichf)" 1>&2
+		printf "\nLimit warning or error: %s\n" "$(whichf)" 1>&2
 		printf "Skipped: %s\n" "${SA}" 1>&2
 		#Debug Verbose
 		if [[ -n "${DEBUG}" ]]; then
@@ -205,8 +205,8 @@ getbal() {
 		fi
 		
 		#continue...
-	elif grep -iq -e "Invalid API token" -e "invalid api" -e "wrong api" -e "wrong key" <<< "${QUERY}"; then
-		printf "\nInvalid API token.\n" 1>&2
+	elif grep -i -e "Invalid API token" -e "invalid api" -e "wrong api" -e "wrong key" <<< "${QUERY}" 1>&2; then
+		printf "Invalid API token?\n" 1>&2
 		exit 1
 	fi
 
