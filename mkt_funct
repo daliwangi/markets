@@ -450,7 +450,7 @@ yfin2() { (
 );}
 
 
-#yahoo finances symbol list
+#yahoo finance symbol list
 ylist() {
 	#assign local vars
 	local LISTF TMPF
@@ -490,7 +490,7 @@ rates() {
 	curl -s 'rate.sx/?TFq' | sed -e '1,6d' -e '$d'
 }
 
-#single symbol table
+#single symbol graph
 rate() {
 	#usage: rate [from_currency] [to_currency] [@date|?T|..]
 	if [[ -z ${2} ]] || [[ ${2} =~ [0-9]+ ]]; then
