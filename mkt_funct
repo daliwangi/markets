@@ -118,6 +118,9 @@ hex() { (
 	) |  tee -a ~/.hexRecord
 }
 
+#stats from <xe.com>
+#30 and 60-day hig, low and avg
+#{ curl -sL 'https://www.xe.com/api/stats.php?fromCurrency=GBP&toCurrency=USD';}
 
 #metal rates from kitco
 kitco() {
