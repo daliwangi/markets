@@ -1,6 +1,6 @@
 #!/bin/bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.8.5  feb/2020  by mountaineerbr
+# v0.8.10  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -334,7 +334,21 @@ METALS="3575=XAU=Gold Troy Ounce
 FIATCODES=(USD AUD BRL CAD CHF CLP CNY CZK DKK EUR GBP HKD HUF IDR ILS INR JPY KRW MXN MYR NOK NZD PHP PKR PLN RUB SEK SGD THB TRY TWD ZAR AED BGN HRK MUR RON ISK NGN COP ARS PEN VND UAH BOB ALL AMD AZN BAM BDT BHD BMD BYN CRC CUP DOP DZD EGP GEL GHS GTQ HNL IQD IRR JMD JOD KES KGS KHR KWD KZT LBP LKR MAD MDL MKD MMK MNT NAD NIO NPR OMR PAB QAR RSD SAR SSP TND TTD UGX UYU UZS VES XAU XAG XPD XPT)
 
 #check for error response
-#errf() { if [[ "$(jq -r '.status.error_code' <<<"${JSON}")" != 0 ]]; then jq -r '.status.error_message' <<<${JSON}"; exit 1; fi;}
+errf() {
+	RESP="$(jq -r '.status|.error_code?' <<<"${*}" 2>/dev/null)"
+
+	if { [[ -n "${RESP}" ]] && ((RESP>0)) 2>/dev/null;} || grep -qiE 'have been (rate limited|black|banned)' <<<"${*}"; then
+		{ jq -r '.status.error_message' <<<"${*}" 2>/dev/null || printf 'Err: run script with -j to check server response\n';} 1>&2 
+
+		#print json?
+		if [[ -n ${PJSON} ]]; then
+			printf '%s\n' "${*}"
+			exit 0
+		fi
+
+		exit 1
+	fi
+}
 
 #check for api key
 keycheckf() {
@@ -348,12 +362,22 @@ keycheckf() {
 checkcurf() {
 	#get data if empty
 	if [[ -z "${SYMBOLLIST}" ]]; then
-		SYMBOLLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map' | jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries')"
+		SYMBOLLIST="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map')"
+
+		#check error response
+		errf "${SYMBOLLIST}"
+		
+		SYMBOLLIST="$(jq '[.data[]| {"key": .slug, "value": .symbol},{"key": (.name|ascii_upcase), "value": .symbol}] | from_entries' <<<"${SYMBOLLIST}")"
 		export SYMBOLLIST
 	fi
 	
 	if [[ -z "${FIATLIST}" ]]; then
-		FIATLIST="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G 'https://pro-api.coinmarketcap.com/v1/fiat/map' | jq -r '.data[].symbol')"
+		FIATLIST="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G 'https://pro-api.coinmarketcap.com/v1/fiat/map')"
+
+		#check error response
+		errf "${FIATLIST}"
+
+		FIATLIST="$(jq -r '.data[].symbol' <<<"${FIATLIST}")"
 		FIATLIST+="$(printf '\n%s\n' "${FIATCODES[@]}")"
 		export FIATLIST
 	fi
@@ -392,7 +416,7 @@ bankf() {
 	unset BANK
 	if [[ -n "${PJSON}" ]] && [[ -n "${BANK}" ]]; then
 		#print json?
-		printf 'No specific JSON for the bank currency function.\n'
+		printf 'No specific JSON for the bank currency function.\n' 1>&2
 		exit 1
 	fi
 
@@ -439,13 +463,16 @@ mcapf() {
 	fi
 
 	#get market data
-	CMCGLOBAL=$(curl -s -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest')
+	CMCGLOBAL=$(curl -s --compressed -H "X-CMC_PRO_API_KEY:  ${CMCAPIKEY}" -H 'Accept: application/json' -d "convert=${1^^}" -G 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest')
 	
 	#print json?
 	if [[ -n ${PJSON} ]]; then
 		printf '%s\n' "${CMCGLOBAL}"
 		exit 0
 	fi
+
+	#check error response
+	errf "${CMCGLOBAL}"
 
 	#-d dominance opt
 	if [[ -n "${DOMOPT}" ]]; then
@@ -479,7 +506,7 @@ mcapf() {
 	printf ' # Last 24h Reported Volume\n'
 	printf "    %'.2f %s\n" "$(jq -r "(.data.quote.${1^^}.total_volume_24h_reported-.data.quote.${1^^}.altcoin_volume_24h_reported)" <<< "${CMCGLOBAL}")" "${1^^}"
 	printf '## Circulating Supply\n'
-	printf " # BTC: %'.2f bitcoins\n" "$(bc -l <<< "$(curl -s "https://blockchain.info/q/totalbc")/100000000")"
+	printf " # BTC: %'.2f bitcoins\n" "$(bc -l <<< "$(curl -s --compressed "https://blockchain.info/q/totalbc")/100000000")"
 
 	printf '\n## AltCoin Market Cap\n'
 	printf "   %'.2f %s\n" "$(jq -r ".data.quote.${1^^}.altcoin_market_cap" <<< "${CMCGLOBAL}")" "${1^^}"
@@ -513,7 +540,7 @@ nokeyf() {
 		checkcurf "${@}" && set -- "${ARGS[@]}"
 
 		#get data
-		CMCJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/${2,,}/?convert=${3^^}")"
+		CMCJSON="$(curl -s --compressed "https://api.coinmarketcap.com/v1/ticker/${2,,}/?convert=${3^^}")"
 		
 		#print json?
 		if [[ -n ${PJSON} ]]; then
@@ -597,13 +624,16 @@ tickerf() {
 		checkcurf "${1}" '' "${2}" && set -- "${ARGS[@]}"
 
 		#get data
-		TICKERJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
+		TICKERJSON="$(curl -s --compressed "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=${2^^}")"
 		
 		#print json?
 		if [[ -n ${PJSON} ]]; then
 			printf '%s\n' "${TICKERJSON}"
 			exit 0
 		fi
+		
+		#check error response
+		errf "${TICKERJSON}"
 
 		#test screen width
 		#if stdout is redirected; skip this
@@ -666,7 +696,7 @@ tickerf() {
 		checkcurf '' "${@}" && set -- "${ARGS[@]}" 
 		
 		#get data
-		CMCJSON="$(curl -s "https://api.coinmarketcap.com/v1/ticker/${1,,}/?convert=${2^^}")"
+		CMCJSON="$(curl -s --compressed "https://api.coinmarketcap.com/v1/ticker/${1,,}/?convert=${2^^}")"
 		
 		#print json?
 		if [[ -n ${PJSON} ]]; then
@@ -715,8 +745,8 @@ winlosef() {
 	fi
 
 	#get data
-	DATA0="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=BTC")"
-	DATA1="$(curl -s "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=USD")"
+	DATA0="$(curl -s --compressed "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=BTC")"
+	DATA1="$(curl -s --compressed "https://api.coinmarketcap.com/v1/ticker/?limit=${1}&convert=USD")"
 
 	#process data
 	BTC1H="$(jq -r '.[]|select(.id == "bitcoin")|.percent_change_1h'  <<< "${DATA0}")"
@@ -782,21 +812,24 @@ winlosef() {
 listsf() {
 	if [[ -n "${CMCAPIKEY}" ]]; then
 		#get data
-		PAGE="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map')"
+		PAGE="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/map')"
 		
 		#print json?
 		if [[ -n ${PJSON} ]]; then
 			printf '%s\n' "${PAGE}"
 			exit 0
 		fi
-
+		
+		#check error response
+		errf "${PAGE}"
+	
 		#make table
 		printf 'CRYPTOCURRENCIES\n'		
 		LIST="$(jq -r '.data[] | "\(.id)=\(.symbol)=\(.name)"' <<<"${PAGE}")"
 		column -s'=' -et -N 'ID,SYMBOL,NAME' <<<"${LIST}"
 		
 		printf '\nBANK CURRENCIES\n'
-		LIST2="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
+		LIST2="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H "Accept: application/json" -d "" -G https://pro-api.coinmarketcap.com/v1/fiat/map | jq -r '.data[]|"\(.id)=\(.symbol)=\(.sign)=\(.name)"')"
 		column -s'=' -et -N'ID,SYMBOL,SIGN,NAME' <<<"${LIST2}"
 		column -s'=' -et -N'ID,SYMBOL,NAME' <<<"${METALS}"
 
@@ -823,7 +856,7 @@ listsf() {
 
 #-a api status
 apif() {
-	PAGE="$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json'  'https://pro-api.coinmarketcap.com/v1/key/info')"
+	PAGE="$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json'  'https://pro-api.coinmarketcap.com/v1/key/info')"
 
 	#print json?
 	if [[ -n ${PJSON} ]]; then
@@ -831,6 +864,9 @@ apif() {
 		exit 0
 	fi
 	
+	#check error response
+	errf "${PAGE}"
+		
 	#print heading and status page
 	printf 'API key: %s\n\n' "${CMCAPIKEY}"
 	tr -d '{}",' <<<"${PAGE}"| sed -e 's/^\s*\(.*\)/\1/' -e '1,/data/d' -e 's/_/ /g'| sed -e '/^$/N;/^\n$/D' | sed -e 's/^\([a-z]\)/\u\1/g'
@@ -989,14 +1025,17 @@ elif [[ -n "${LISTS}" ]]; then
 #currency converter
 else
 	#get rate json
-	CMCJSON=$(curl -s -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -d "&symbol=${2^^}&convert=${3^^}" -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest')
+	CMCJSON=$(curl -s --compressed -H "X-CMC_PRO_API_KEY: ${CMCAPIKEY}" -H 'Accept: application/json' -d "&symbol=${2^^}&convert=${3^^}" -G 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest')
 	
 	#print json?
 	if [[ -n ${PJSON} ]]; then
 		printf '%s\n' "${CMCJSON}"
 		exit 0
 	fi
-	
+		
+	#check error response
+	errf "${CMCJSON}"
+		
 	#get pair rate
 	CMCRATE=$(jq -r ".data[] | .quote.${3^^}.price" <<< "${CMCJSON}" | sed 's/e/*10^/g') 
 	
