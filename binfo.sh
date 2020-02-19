@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.6  feb/2020  by mountaineerbr
+# v0.7.10  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -50,7 +50,7 @@ WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed
 	without support or bug corrections.
 
-	This script needs the latest Bash, cURL or Wget, JQ, Websocat and
+	This script needs the latest Bash, cURL or Wget, Gzip, JQ, Websocat and
 	Coreutils packages to work properly.
 
 	If you found this script useful, consider giving me a nickle! =)
@@ -734,12 +734,17 @@ if ! command -v jq &>/dev/null; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP=(curl -sL)
+	YOURAPP=(curl -sL --compressed)
 elif command -v wget &>/dev/null; then
-	YOURAPP=(wget -qO-)
+	YOURAPP=(wget -qO- "--header='Accept-Encoding: gzip'")
 else
 	printf 'cURL or Wget is required.\n' 1>&2
 	exit 1
+fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
 fi
 
 #parse options

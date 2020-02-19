@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # erates.sh -- Currency converter Bash wrapper for exchangeratesapi.io API
-# v0.1.11  2019/dec  by mountaineerbr
+# v0.1.12  feb/2020  by mountaineerbr
 
 ## Some defaults
 SCRIPTBASECUR="EUR"
@@ -10,7 +10,7 @@ SCLDEFAULTS=8
 ## Manual and help
 ## Usage: $ erates.sh [amount] [from currency] [to currency]
 HELP_LINES="WARRANTY & LICENSE
- 	This programme needs latest versions of Bash, Curl and JQ to work
+ 	This programme needs latest versions of Bash, Curl , Gzip and JQ to work
 	properly.
 
 	It is licensed under GPLv3 and distributed without support or bug
@@ -153,7 +153,7 @@ if [[ -z ${3} ]]; then
 fi
 
 ## Get JSON once
-JSON="$(curl -s "https://api.exchangeratesapi.io/latest")"
+JSON="$(curl --compressed -s "https://api.exchangeratesapi.io/latest")"
 ## Print JSON?
 if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${JSON}"

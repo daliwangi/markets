@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.8  jan/2020  by mountaineerbr
+# v0.9.10  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -82,8 +82,8 @@ WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed
 	without support or bug corrections.
    	
-	This script needs Bash, cURL or Wget, JQ , Websocat, Lolcat and Core-
-	utils to work properly.
+	This script needs Bash, cURL or Wget, Gzip, JQ , Websocat, Lolcat and 
+	Coreutils to work properly.
 
 	If you found this useful, consider giving me a nickle! =)
 
@@ -505,13 +505,19 @@ if ! command -v jq &>/dev/null; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP=(curl -sL)
+	YOURAPP=(curl -sL --compressed)
 elif command -v wget &>/dev/null; then
-	YOURAPP=(wget -qO-)
+	YOURAPP=(wget -qO- "--header='Accept-Encoding: gzip'")
 else
 	printf 'Curl or wget is required.\n' 1>&2
 	exit 1
 fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
+fi
+
 if [[ -n "${IOPT}${SOPT}${BOPT}${TOPT}" ]] &&
 	[[ -z "${CURLOPT}" ]] && ! command -v websocat &>/dev/null; then
 	printf 'Websocat is required.\n' 1>&2

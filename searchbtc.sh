@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.54  feb/2020
+# v0.2.55  feb/2020
 
 #defaults
 #attention to rate limits
@@ -43,8 +43,8 @@ HELP="SYNOPSIS
 	Defaults to Blockchain.info API, but you can choose which servers to 
 	query. Beware of rate limits for each server!
 
-	Required packages are: Bash, cURL or Wget, Tee and Vanitygen (OpenSSL 
-	and Pcre are required dependencies of Vanitygen).
+	Required packages are: Bash, cURL or Wget, Gzip, Tee and Vanitygen 
+	(OpenSSL and Pcre are required dependencies of Vanitygen).
 
 
 COLLISION PROBABILITIES
@@ -285,13 +285,19 @@ if ! command -v vanitygen >/dev/null; then
 fi
 # Must have cURL or Wget
 if command -v curl >/dev/null; then
-	MYAPP="curl -sLb non-existing --retry ${RETRY} --connect-timeout ${TIMEOUT}"
+	MYAPP="curl -sLb non-existing --retry ${RETRY} --connect-timeout ${TIMEOUT} --compressed"
 elif command -v wget >dev/null; then
-	MYAPP="wget  -t${RETRY} -T${TIMEOUT} -qO-"
+	MYAPP="wget  -t${RETRY} -T${TIMEOUT} -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
 fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
+fi
+
 if ! command -v jq >/dev/null; then
 	printf "JQ is required.\n" 1>&2
 	exit 1

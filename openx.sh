@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # openx.sh - bash (crypto)currency converter
-# v0.6.9 - feb/2020  by mountaineerbr
+# v0.6.10 - feb/2020  by mountaineerbr
 
 ## Please make a free account and update this script
 ## with *your* Open Exchange Rates API ID ( app_id ).
@@ -268,7 +268,7 @@ if [[ -z ${3} ]]; then
 fi
 
 ## Grep JSON from server
-JSON=$(curl -s "https://openexchangerates.org/api/latest.json?app_id=${OPENXAPPID}&show_alternative=true")
+JSON=$(curl --compressed -s "https://openexchangerates.org/api/latest.json?app_id=${OPENXAPPID}&show_alternative=true")
 ## Print JSON?
 if [[ -n "${PJSON}" ]]; then
 	printf "%s\n" "${JSON}"

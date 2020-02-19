@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1.8  feb/2020  by mountaineerbr
+# v0.1.9  feb/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
@@ -164,7 +164,7 @@ OPTIONS
 #list symbols
 listf() {
 	#list
-	LIST="$(curl -Ls "https://metals-api.com/api/symbols?access_key=$METALSAPIKEY"|jq -r 'keys[] as $k | "\($k) \(.[$k])"')"
+	LIST="$(curl --compressed -Ls "https://metals-api.com/api/symbols?access_key=$METALSAPIKEY"|jq -r 'keys[] as $k | "\($k) \(.[$k])"')"
 	printf '%s\n' "${LIST}"
 	printf 'Symbols: %s\n' "$(wc -l <<<"${LIST}")"
 	exit
@@ -285,7 +285,7 @@ if [[ ! "${3^^}" =~ ^[A-Z]+$  ]]; then
 fi
 
 #get json once
-JSON="$(curl -sL "http://metals-api.com/api/latest?access_key=${METALSAPIKEY}")"
+JSON="$(curl --compressed -sL "http://metals-api.com/api/latest?access_key=${METALSAPIKEY}")"
 
 #historical price? -- temporary server error? -- server responds with 'no_results' 
 #[[ "${4}" =~ ^[0-9]{4}[/-][0-9]{2}[/-][0-9]{2}$ ]] && HISTDATE="&date=${4//\//-}"

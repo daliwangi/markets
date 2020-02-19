@@ -1,11 +1,11 @@
 #!/bin/bash
-# v0.4  13/nov/2019  by mountaineer_br
+# v0.4.1  feb/2020  by mountaineer_br
 
 # Check Tether rates
 export LC_NUMERIC="en_US.UTF-8"
 printf "\nUSDT/USD Rates\n\n"
 
-CLIBJSON=$(curl -s "https://coinlib.io/api/v1/coin?key=${CLIBAPIKEY}&pref=USD&symbol=USDT")
+CLIBJSON=$(curl --compressed -s "https://coinlib.io/api/v1/coin?key=${CLIBAPIKEY}&pref=USD&symbol=USDT")
 ENAMES=($(printf "%s\n" "${CLIBJSON}" | jq -r ".markets[0]|.exchanges[]|.name"))
 PRICES=($(printf "%s\n" "${CLIBJSON}" | jq -r ".markets[0]|.exchanges[]|.price"))
 

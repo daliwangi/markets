@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.3.9  dec/2019  by mountaineer_br
+# v0.3.10  feb/2020  by mountaineer_br
 # Free Software under the GNU Public License 3
 # Ourominas não trabalha com Prata!
 
@@ -18,8 +18,7 @@ SINOPSE
 	nal. Para puxar a cotação do ouro em dólares/onça troy, utiliza-se co-
 	tação do UOL.
 
-	Os pacotes Bash, cURL e iconv (Glibc) são necessários.
-	" 
+	Os pacotes Bash, Curl e iconv (Glibc) são necessários." 
 # Ajuda
 if [[ "${1}" = '-h' ]]; then
 	printf "%s\n" "${AJUDA}"
@@ -27,7 +26,7 @@ if [[ "${1}" = '-h' ]]; then
 fi
 
 ## Taxas da Ouro Minas
-DATA="$(curl -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" | sed -E 's/<[^>]*>//g' | iconv -c -f utf-8 | tr -d ' ' | grep -iv "pr-pago" | sed -e 's/^[ \t]*//')"
+DATA="$(curl --compressed -s "https://www.cambiorapido.com.br/tabelinha_wl.asp?filial=MESAVAREJO%20243" | sed -E 's/<[^>]*>//g' | iconv -c -f utf-8 | tr -d ' ' | grep -iv "pr-pago" | sed -e 's/^[ \t]*//')"
 
 USD=($(grep -i -A2 "laramericano" <<< "${DATA}" | sed 's/.$/=/g'))
 EUR=($(grep -i -A2 "euro" <<< "${DATA}" | sed 's/.$/=/g'))
@@ -59,7 +58,7 @@ printf "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n" \
 # Estimagem do preço por cotação do UOL
 USDP="${USD[@]:1:1}"
 USDP="${USDP%\=}"
-UOLXAU="$(curl -s "https://economia.uol.com.br/cotacoes/" | sed -e 's/<[^>]*>//g' -e 's/\s\s*/ /g' | grep -m1 -Eo --color=never 'Ouro.{25}' | grep -Eo '[^- ][0-9][0-9][0-9]+,[0-9]+')"
+UOLXAU="$(curl --compressed -s "https://economia.uol.com.br/cotacoes/" | sed -e 's/<[^>]*>//g' -e 's/\s\s*/ /g' | grep -m1 -Eo --color=never 'Ouro.{25}' | grep -Eo '[^- ][0-9][0-9][0-9]+,[0-9]+')"
 
 { printf "XAU(troyoz)/USD UOL  %s\n" "$(bc -l <<< "scale=4;${UOLXAU/,/.}/1")"
 printf "Venda estimada(R$/g)  %s\n" "$(bc -l <<< "scale=4; ${UOLXAU/,/.}*${USDP/,/.}/31.1034768")"; } | tr '.' ','

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.13  dec/2019  by mountainner_br
+# v0.2.20  dec/2019  by mountainner_br
 
 ## Some defaults
 #if no stock is given, use this:
@@ -32,8 +32,8 @@ DESCRIPTION
 WARRANTY
 	This programme is free software and is licensed under the GPLv3 or later.
 
-	It needs the latest version of Bash, JQ, Websocat, Xargs and Lolcat to
-	work properly.
+	It needs the latest version of Bash, Curl or Wget, Gzip, JQ, Websocat, 
+	Xargs and Lolcat to work properly.
 
 
 OPTIONS
@@ -114,13 +114,19 @@ if ! command -v jq &>/dev/null; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
 fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
+fi
+
 if [[ -z "${LOPT}" ]] && ! command -v websocat &>/dev/null; then
 	printf "Websocat is required.\n" 1>&2
 	exit 1

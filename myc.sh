@@ -1,6 +1,6 @@
 #!/bin/bash
 # myc.sh - Currency converter, API access to MyCurrency.com
-# v0.3  jan/2020  by mountaineerbr
+# v0.3.1  feb/2020  by mountaineerbr
 
 ## Defaults
 # Scale (decimal plates):
@@ -39,7 +39,7 @@ WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed 
 	without support or bug corrections.
 
-	Required packages:
+	Required packages: bash, jq, curl or wget and gzip.
 
 	If you found this script useful, consider giving me a nickle! =)
 
@@ -130,13 +130,19 @@ fi
 
 # Test if cURL or Wget is available
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1
 fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
+fi
+
 
 ## Set default scale if no custom scale
 test -z "${SCL}" && SCL="${SCLDEFAULTS}"

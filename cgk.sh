@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.16  feb/2020  by mountaineerbr
+# v0.10.20  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -157,7 +157,7 @@ PRECIOUS METALS -- OUNCES TROY AND GRAMS
 WARRANTY
 	Licensed under the GNU Public License v3 or better. It is distributed 
 	without support or bug corrections. This programme needs Bash, cURL or 
-	Wget, JQ and Coreutils to work properly.
+	Wget, JQ, Coreutils and Gzip to work properly.
 	
 	It  is  _not_ advisable to depend solely on CoinGecko rates for serious 
 	trading.
@@ -669,16 +669,21 @@ if [[ -z "${YOURAPP}" ]]; then
 		exit 1
 	fi
 	if command -v curl &>/dev/null; then
-		YOURAPP="curl -s"
-		YOURAPP2="curl -s --head"
+		YOURAPP="curl -s --compressed"
+		YOURAPP2="curl -s --compressed --head"
 	elif command -v wget &>/dev/null; then
-		YOURAPP="wget -qO-"
-		YOURAPP2="wget -qO- --server-response"
+		YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+		YOURAPP2="wget -qO- --header='Accept-Encoding: gzip' --server-response"
 	else
 		printf "cURL or Wget is required.\n" 1>&2
 		exit 1
 	fi
 	export YOURAPP YOURAPP2
+	
+	#request compressed response
+	if ! command -v gzip &>/dev/null; then
+		printf 'warning: gzip may be required\n' 1>&2
+	fi
 fi
 
 # Call opt function

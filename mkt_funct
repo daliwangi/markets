@@ -4,6 +4,10 @@
 
 #compatible with bash and z-shell
 
+#request compressed response from server
+#alias curl='curl --compressed'
+#alias wget="wget --header='Accept-Encoding: gzip'"
+
 #lista de ações da bovespa b3
 blist() {
 	#user input
@@ -155,14 +159,14 @@ kitco() {
 	#ny spot
 	printf 'New York Spot Price\n'
 	#mkt status
-	curl -s 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
+	curl -Ls 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
 	#table
 	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
 
 	#world prices
 	printf '\nThe World Spot Price - Asia/Europe/NY markets\n'
 	#mkt status
-	curl -s 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
+	curl -Ls 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
 	#table
 	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
 	

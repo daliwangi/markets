@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3.5  feb/2020  by mountaineer_br
+# v0.3.6  feb/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -39,7 +39,7 @@ DESCRIPTION
 	prices and volume information of the current trading day, updated real-
 	time. 
 
-	Required packages are JQ and Curl or Wget.
+	Required packages are JQ, gzip and Curl or Wget.
 
 
 API KEY
@@ -335,12 +335,17 @@ if ! command -v jq &>/dev/null && [[ -z "${PJSON}${LFOREXOPT}${PERIOD}" ]]; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP="curl -sL --compressed"
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
+fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
 fi
 
 #test for any arg?

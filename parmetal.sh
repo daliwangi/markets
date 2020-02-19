@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.12  dec/2019  by mountaineer_br
+# v0.2.13  feb/2020  by mountaineer_br
 # Free Software under the GNU Public License 3
 
 export LC_NUMERIC=en_US.UTF-8
@@ -25,7 +25,7 @@ htmlfilter() { sed -E 's/<[^>]*>//g';}
 parmf() {
 	# Can also be used to parse XML files   grep -oPm1 -e "(?<=<descr>)[^<]+"
 	# From:https://unix.stackexchange.com/questions/277861/parse-xml-returned-from-curl-within-a-bash-script
-	PRICE="$(curl -s "https://www.parmetal.com.br/app/metais/" |
+	PRICE="$(curl --compressed -s "https://www.parmetal.com.br/app/metais/" |
 		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' |
 		sed 's/]]]/[/g' | sed 's/]]/[/g' | sed 's/\[/\n/g' |
 		grep --color=never -A2 -e "Barra Parmetal/RBM")"
@@ -37,7 +37,7 @@ parmf() {
 
 # Função Cotações Metais
 metaisf() {
-	METAIS="$(curl -s "https://www.parmetal.com.br/app/metais/" |
+	METAIS="$(curl --compressed -s "https://www.parmetal.com.br/app/metais/" |
 		sed -E 's/<[^>]*>/]/g' | sed 's/]]]]/[[/g' | sed 's/]]]/[/g' |
 		sed 's/]]/[/g' | sed 's/\[/\n/g')"
 	BPARM=($(grep -iA2 "barra parmetal" <<< "${METAIS}" | sed -e 's/$/=/g' -e 's/Barra Parmetal\/RBM/Barra Par\/RBM/g'))
@@ -58,7 +58,7 @@ metaisf() {
 # Moedas de Câmbios
 moedasf() {
 	printf "Puxando índices...\r" 1>&2
-	MOEDAS="$(curl -s "https://www.parmetal.com.br/app/subtop-cotacao/" |
+	MOEDAS="$(curl --compressed -s "https://www.parmetal.com.br/app/subtop-cotacao/" |
 		htmlfilter | sed 's/&nbsp;//g' | grep -i -e dolar -e libra -e "ouro spot" -e euro |
 		sed -e 's/^[ \t]*//' -e 's/Valor: //g' | tr '.' ',')" 
 	# Preparar para Tebela

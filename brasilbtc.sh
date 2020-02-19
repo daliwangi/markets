@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.4.4  jan/2020  by mountaineerbr
+# v0.4.5  feb/2020  by mountaineerbr
 
 # Some defaults
 export LC_NUMERIC=en_US.UTF-8
@@ -33,7 +33,7 @@ DESCRIÇÃO
 	O nome do script em Bash (Brasilbtc.sh) não tem relação alguma com qual-
 	quer agência de câmbio com nome eventualmente parecido!
 
-	São necessários os pacotes cURL ou Wget, JQ, Bash e Coreutils.
+	São necessários os pacotes cURL ou Wget, Gzip, JQ, Bash e Coreutils.
 
 	
 GARANTIA
@@ -292,12 +292,17 @@ shift $((OPTIND -1))
 
 # Test if cURL or Wget is available
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL ou Wget é necessário.\n" 1>&2
 	exit 1
+fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
 fi
 
 # Veja se há algum argumento

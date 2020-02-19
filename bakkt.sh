@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.13  jan/2020  by castaway
+# v0.1.14 feb/2020  by castaway
 
 HELP="WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed 
@@ -23,7 +23,7 @@ SINOPSIS
 
 	Market data delayed a minimum of 15 minutes. 
 
-	Required software: Bash, JQ and cURL or Wget.
+	Required software: Bash, JQ, gzip and cURL or Wget.
 
 
 OPTIONS
@@ -64,12 +64,17 @@ fi
 
 # Test if cURL or Wget is available
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP="curl -sL --compressed"
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1
+fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
 fi
 
 #Some defaults

@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # clay.sh -- <currencylayer.com> currency rates api access
-# v0.4.13  feb/2020  by mountaineerbr
+# v0.4.15  feb/2020  by mountaineerbr
 
 #your own personal api key
 #CLAYAPIKEY=''
@@ -177,7 +177,7 @@ while getopts ':1234567890lghjs:tv' opt; do
 			SCL="${SCL}${opt}"
 			;;
 		( l ) #list available currencies
-			LIST="$(curl -s 'https://currencylayer.com/site_downloads/cl-currencies-table.txt' | sed -e 's/<[^>]*>//g' -e 's/^[ \t]*//' -e '/^$/d'| sed -e '$!N;s/\n/ /')"
+			LIST="$(curl --compressed -s 'https://currencylayer.com/site_downloads/cl-currencies-table.txt' | sed -e 's/<[^>]*>//g' -e 's/^[ \t]*//' -e '/^$/d'| sed -e '$!N;s/\n/ /')"
 			printf '%s\n' "${LIST}"
 			printf 'Currencies: %s\n' "$(($(wc -l <<<"${LIST}")-1))" 
 			exit 0
@@ -237,7 +237,7 @@ if [[ -z ${3} ]]; then
 fi
 
 #get json once
-CLJSON="$(curl -s "http://www.apilayer.net/api/live?access_key=${CLAYAPIKEY}")"
+CLJSON="$(curl --compressed -s "http://www.apilayer.net/api/live?access_key=${CLAYAPIKEY}")"
 
 #print json?
 if [[ -n ${PJSON} ]]; then

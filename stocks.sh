@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.8  jan/2020  by mountaineerbr
+# v0.1.9  feb/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -51,7 +51,7 @@ WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed
 	without support or bug corrections.
    	
-	This script needs Bash,	cURL or Wget and JQ to work properly.
+	This script needs Bash,	cURL or Wget, Gzip and JQ to work properly.
 
 	That is _not_ advisable to depend solely on this script for serious 
 	trading. Do your own research!
@@ -245,12 +245,17 @@ if ! command -v jq &>/dev/null; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
+fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
 fi
 
 ##call opt functions

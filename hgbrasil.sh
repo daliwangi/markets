@@ -1,6 +1,6 @@
 #!/bin/bash
 # hgbrasil.sh -- Dados financeiros do HG Brasil Finance
-# v0.4  jan/2020  by mountaineer_br
+# v0.4.1  feb/2020  by mountaineer_br
 
 #*sua* chave de api grátis do hg brasil
 #HGBAPIKEY=""
@@ -34,7 +34,7 @@ GARANTIA
 	Geral Pública v3 ou superior do GNU. Sua distribuição não oferece supor-
 	te nem correção de bugs.
 	
-	O script precisa do cURL/Wget, JQ e Bash.
+	O script precisa do cURL/Wget, JQ, Gzip e Bash.
 
 	If this programme was useful, consider giving me a nickle! =)
   
@@ -183,13 +183,19 @@ shift $((OPTIND -1))
 
 #test for some must have packages
 if command -v curl &>/dev/null; then
-	YOURAPP="curl -sL"
+	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
 else
 	printf "cURL ou Wget é requerido.\n" 1>&2
 	exit 1
 fi
+
+#request compressed response
+if ! command -v gzip &>/dev/null; then
+	printf 'warning: gzip may be required\n' 1>&2
+fi
+
 
 #call opt func
 #list stock symbols

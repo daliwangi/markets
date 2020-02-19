@@ -1,6 +1,6 @@
 #!/bin/bash
 # WhaleAlert.sh -- whale-alert.io API Access
-# v0.1.7  17/nov/2019  by mountaineerbr
+# v0.1.8  feb/2020  by mountaineerbr
 
 
 # Your own key
@@ -165,7 +165,7 @@ stime() {
 stime
 
 # Get data
-PAGE="$(curl -s "https://api.whale-alert.io/v1/transactions?api_key=${WALERTAPIKEY}&min_value=${MVALUE}&start=${STIME}&limit=${RESULTS}")"
+PAGE="$(curl --compressed -s "https://api.whale-alert.io/v1/transactions?api_key=${WALERTAPIKEY}&min_value=${MVALUE}&start=${STIME}&limit=${RESULTS}")"
 #&cursor=2bc7e46-2bc7e46-5c66c0a7
 #&limit=100 # default:100 max:100
 
