@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.2  feb/2020  by mountaineer_br
+# v0.2.1  feb/2020  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -74,15 +74,17 @@ scrapef() {
 
 	{
 	#currency rates
-	i=1; f=25; while ((f<=175)); do
-		g="$(eval printf '%s,' {$i..$f})"; i=$((i+25)); f=$((f+25))
-		curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&currencies=${g%,}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=jsoni"
+	i=1; f=25; inc=$f; max=175; while ((f<=max)); do
+		g="$(eval printf '%s,' {$i..$f})"; i=$((i+inc)); f=$((f+inc))
+		curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&currencies=${g%,}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json"
+		printf 'Aguarde.. %s\r' "${f}/${max}" 1>&2
 	done
 	
 	#stocks and indexes
-	i=1; f=10; while ((f<=2000)); do
-		g="$(eval printf '%s,' {$i..$f})"; i=$((i+10)); f=$((f+10))
+	i=1; f=9; inc=$f; max=2010; while ((f<=max)); do
+		g="$(eval printf '%s,' {$i..$f})"; i=$((i+inc)); f=$((f+inc))
 		curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&itens=${g%,}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json"
+		printf 'Aguarde.. %s\r' "${f}/${max}" 1>&2
 	done
 	} | processf | sed -E 's/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/\1-\2-\3 \4:\5:\6/'
 
