@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.1.30  feb/2020  by mountaineer_br
+# v0.2  feb/2020  by mountaineer_br
 
 AJUDA="Uol.sh -- Puxa dados do UOL Economia
 
@@ -8,10 +8,13 @@ AJUDA="Uol.sh -- Puxa dados do UOL Economia
 SINOPSE
 	uol.sh [-bdi]
 	
-	uol.sh [-hlmv]
+	uol.sh [-ahlmv]
 
 	
 	O script puxa as cotações de páginas de economia do UOL.
+
+	A opção '-a' tenta puxar todas as cotações de moedas, ações e índices
+	suportados pelo UOL. O 'scrape' de dados é uma operação lenta.
 
 	Os pacotes Bash, cURL ou Wget e gzip são necessários.
 
@@ -31,6 +34,8 @@ GARANTIA
 
 
 OPÇÕES
+	-a 	Puxa dados de todas as moedas, ações e índices.
+	
 	-b 	Índice da B3.
 	
 	-bb 	Série B3 intraday.
@@ -56,6 +61,33 @@ OPÇÕES
 ## Funções
 # Filtro HTML
 hf() {  sed 's/<[^>]*>//g';}
+
+#scrape cotações
+scrapef() {
+
+	#processing funct
+	processf() { jq -r '.docs|reverse[]|"\(.abbreviation//.name)\t\(.price//.askvalue)\t\(.high//.maxbid//"-")\t\(.low//.minbid//"-")\t\(.open//"-")\t\(.close//"-")\t\(.change//.variationbid//"-")\t\(.pctChange//.variationpercentbid//"-")%\t\(.date)"';}
+	
+	#legenda
+	printf 'MOEDAS: Nome, Preço, Max, Min, Var, Var%%, Data\n'
+	printf 'AÇÕES : Símbolo, Pontos, Alta, Baixa, Abertura, Fechamento, Var, Var%%, Data\n'
+
+	{
+	#currency rates
+	i=1; f=25; while ((f<=175)); do
+		g="$(eval printf '%s,' {$i..$f})"; i=$((i+25)); f=$((f+25))
+		curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&currencies=${g%,}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=jsoni"
+	done
+	
+	#stocks and indexes
+	i=1; f=10; while ((f<=2000)); do
+		g="$(eval printf '%s,' {$i..$f})"; i=$((i+10)); f=$((f+10))
+		curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&itens=${g%,}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json"
+	done
+	} | processf | sed -E 's/([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})/\1-\2-\3 \4:\5:\6/'
+
+}
+#curl --compressed -s "https://api.cotacoes.uol.com/mixed/summary?&currencies=${c}&itens=${i}&fields=name,openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json" |
 
 # Cotação da BOVESPA B3 Hack
 b3f() {
@@ -224,8 +256,11 @@ fi
 
 
 # Parse options
-while getopts ':bdjlmhv' opt; do
+while getopts ':abdjlmhv' opt; do
 	case ${opt} in
+		a ) #scrape data
+			SCRAPEOPT=1
+			;;
 		b ) #b3 
 			if [[ "${B3OPT}" = 2 ]]; then
 				B3OPT=3
@@ -274,4 +309,6 @@ elif [[ -n "${METAISOPT}" ]]; then
 	metf
 elif [[ -n "${LSTOCKSOPT}" ]]; then
 	lstocksf
+elif [[ -n "${SCRAPEOPT}" ]]; then
+	scrapef
 fi
