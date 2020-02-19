@@ -1,6 +1,6 @@
 #!/bin/bash
 # cmc.sh -- coinmarketcap.com api access
-# v0.8.10  feb/2020  by mountaineerbr
+# v0.8.11  feb/2020  by mountaineerbr
 
 #cmc api personal key
 #CMCAPIKEY=''
@@ -22,7 +22,7 @@ export LC_NUMERIC='en_US.UTF-8'
 TOZ='31.1034768' 
 
 #script location
-SCRIPT="${0}"
+SCRIPT="${BASH_SOURCE[0]}"
 
 #number of lines to get nokeyf resources
 #from end of script
@@ -337,7 +337,7 @@ FIATCODES=(USD AUD BRL CAD CHF CLP CNY CZK DKK EUR GBP HKD HUF IDR ILS INR JPY K
 errf() {
 	RESP="$(jq -r '.status|.error_code?' <<<"${*}" 2>/dev/null)"
 
-	if { [[ -n "${RESP}" ]] && ((RESP>0)) 2>/dev/null;} || grep -qiE 'have been (rate limited|black|banned)' <<<"${*}"; then
+	if { [[ -n "${RESP}" ]] && ((RESP>0)) 2>/dev/null;} || grep -qiE -e 'have been (rate limited|black|banned)' -e 'has banned you' -e 'are being rate limited' <<<"${*}"; then
 		{ jq -r '.status.error_message' <<<"${*}" 2>/dev/null || printf 'Err: run script with -j to check server response\n';} 1>&2 
 
 		#print json?
