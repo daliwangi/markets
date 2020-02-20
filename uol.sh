@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.2.3  feb/2020  by mountaineer_br
+# v0.2.4  feb/2020  by mountaineer_br
 
 #defaults
 SCRIPT="${BASH_SOURCE[0]}"
@@ -248,7 +248,7 @@ lstocksf() {
 		printf 'Items: %s\n' "$(wc -l <<<"${PRELIST}")"
 	else
 		tail -"${LASTLINES}" "${SCRIPT}"
-		printf 'Items: %s\n' "$(tail -"${LASTLINES}" "${SCRIPT}" | grep '^[0-9]' | wc -l)"
+		printf 'Items: %s\n' "$(tail -"${LASTLINES}" "${SCRIPT}" | grep -c '^[0-9]')"
 	fi
 }
 
