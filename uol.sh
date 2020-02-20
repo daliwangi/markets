@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.2.2  feb/2020  by mountaineer_br
+# v0.2.3  feb/2020  by mountaineer_br
 
 #defaults
 SCRIPT="${BASH_SOURCE[0]}"
@@ -22,7 +22,7 @@ SINOPSE
 
 	O número de identificação pode ser usado para puxar um ticker resumido
 	do ativo correspondente. Em caso de colisão de números de identificação
-	entre moedas e ações ou índices, será puxado ambos.
+	entre moedas, ações e índices, será puxado ambos (números 1-170).
 
 	A opção '-a' tenta puxar todas as cotações de moedas, ações e índices
 	suportados pelo UOL. O 'scrape' de dados é uma operação lenta.
@@ -344,18 +344,16 @@ elif [[ -z "${*}" ]]; then
 elif [[ "${*}" =~ ^[0-9]+$ ]]; then
 	{
 	#ticker de ações/indexes
-	if ((${1}>170)); then
-		#ticker de uma ação, por número de id do uol
-		JSON="$(${YOURAPP} "https://api.cotacoes.uol.com/stocks/summary?&item=${1}&fields=openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json")"
+	#ticker de uma ação, por número de id do uol
+	JSON="$(${YOURAPP} "https://api.cotacoes.uol.com/stocks/summary?&item=${1}&fields=openbidvalue,askvalue,variationpercentbid,price,exchangeasset,open,pctChange,date,abbreviation&json=json")"
 
-		jq -r '.docs[]|
-			"Data___: \(.date)",
-			"Nome___: \(.exchangeasset)",
-			"Abbrvia: \(.abbreviation)",
-			"Abertur: \(.open)",
-			"Varia%_: \(.pctChange)",
-			"Preço__: \(.price)"' <<<"${JSON}"
-	fi
+	jq -r '.docs[]|
+		"Data___: \(.date)",
+		"Nome___: \(.exchangeasset)",
+		"Abbrvia: \(.abbreviation)",
+		"Abertur: \(.open)",
+		"Varia%_: \(.pctChange)",
+		"Preço__: \(.price)"' <<<"${JSON}"
 
 	#ticker de moedas
 	if ((${1}<170)); then
