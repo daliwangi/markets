@@ -5,8 +5,9 @@
 #compatible with bash and z-shell
 
 #request compressed response from server
-#alias curl='curl --compressed'
-#alias wget="wget --header='Accept-Encoding: gzip'"
+#curl --compressed
+#wget --header='Accept-Encoding: gzip'
+
 
 #lista de ações da bovespa b3
 blist() {
@@ -44,40 +45,124 @@ tesouro() {
 #https://stackoverflow.com/questions/47593807/how-to-scrape-a-html-table-and-print-it-on-terminal-using-bash
 
 
-#inflação brasileira IPCA - Variação acumulada no ano -- IBGE
-#uso: %s [ANO]  #calcula a partir de um determinado ano (>=1995)
+#ibge inflação brasileira IPCA - Variação mensal
 ipcab() { (
-	[[ -z "${*}" ]] && printf 'uso: %s [ANO]  #ANO >=1995\n\n' "${0}" 1>&2
+	[[ -z "${*}" ]] && printf 'uso: %s [ANOMES >= 199407]\n\n' "${0}" 1>&2
 
 	#testar input do usuário, ano maior que 1995
-	((${1}>=1995)) 2>/dev/null || set -- 1995
+	[[ -n "${2}" ]] && set -- "${1}${2}"
+	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1994)) 2>/dev/null && set -- "${1}01"
+	[[ "${1}" =~ ^[0-9]{6}$ ]] && ((${1}>=199407)) 2>/dev/null || set -- 199407
 
-	year="$(date +%Y)"
-	datecodes="$(printf '%s,' {${1}..${year}}{01..12})"
-	
-	#inflação acumulada por ano
-	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${datecodes%,}&ng=1(1)&c=")"
+	data="$(curl --compressed -s "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=63&p=${1}-203701&ng=1(1)&c=")"
+
+	#inflação variação mensal #63
 	jq -er '.[0].var' <<<"${data}" || return 1
-	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" | column -ets' ' -NMes,Ano,Var%Ano
-	
-	#inflação acumulada a partir de um ano específico
-	datecodes="$(printf ' "dezembro %s",' {${1}..${year}})" 
-	arg=".[]|select( .p == ( '${datecodes%,}' ))|.v";
-	arg=${arg//\'}
-	
-	printf '\nAcumulado%% desde %s/jan\n' "${1}"
-	year="${1}"
-	jq -r "${arg//\'}" <<<"${data}" | 
+
+	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" |
 	while read line; do
-		vals+="
-			$(bc -l <<<"(${line}/100)+1")"
-		val="$(paste -sd\* <<<"${vals}" | sed -e 's/\s//g' -e 's/\t//g' -e 's/\*\*/*/g' -e 's/^\*//')"
-		printf '%s/dez  %.4f\n' "${year}" "$(bc -l <<<"(${val}-1)*100")" 
+		val="$(cut -d' ' -f3 <<<"${line}")"
+		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
+		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
+
+		printf '%s %.4f\n' "${line}" "${tvalp}"
+	done | column -ets' ' -NMes,Ano,Var%Mes,Acu%Total -OAno,Mes,Var%Mes,Acu%Total
+
+);}
+#calculadora: https://www3.bcb.gov.br/CALCIDADAO/publico/corrigirPorIndice.do?method=corrigirPorIndice
+
+
+#ibge inflação brasileira IPCA - Variação acumulada no ano
+#uso: %s [ANO]  #calcula de jan/ANO a DEZ/ANOPASSADO (ano>=1994)
+ipcab2() { (
+	[[ -z "${*}" ]] && printf 'uso: %s [ANO >= 1994]\n\n' "${0}" 1>&2
+
+	#testar input do usuário, ano maior que 1994
+	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1994)) 2>/dev/null || set -- 1994
+
+	#inflação acumulada por ano #69
+	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${1}04-203012&ng=1(1)&c=")"
+	jq -er '.[0].var' <<<"${data}" || return 1
+	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" | column -ets' ' -NMes,Ano,Acu%Ano -OAno,Mes,Acu%Ano
+	
+	#inflação acumulada a partir de um ano específicado pelo usuário
+	yearend="$(($(date +%Y)-1))"
+	year="${1}"
+
+	printf '\nAcumulado%% desde %s/jan\n' "${year}"
+	
+	printf 'dezembro %s\n' {${1}..${yearend}} |
+	while read line; do
+		val="$(jq -r '.[]|select( .p == "'${line}'")|.v' <<<"${data}")"
+		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
+		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
+		
+		printf '%s/dez\t%.4f\n' "${year}" "${tvalp}"
 		((year++))
 	done
 );}	
 #orig:199512,199612,199712,199812,199912,200012,200112,200212,200312,200412,200512,200612,200712,200812,200912,201012,201112,201212,201312,201412,201512,201612,201712,201812,201912,202012,202112,202212,202312,202412,202512,202612,202712,202812,202912,203012,202001
 #https://www.ibge.gov.br/estatisticas/economicas/precos-e-custos/9256-indice-nacional-de-precos-ao-consumidor-amplo.html?t=series-historicas&utm_source=landing&utm_medium=explica&utm_campaign=inflacao#plano-real-mes
+
+
+#ibge - frequência de nomes
+#uso: nomefreq [adriano]
+nomef() {
+	local json
+	if [[ -z "${1}" ]]; then
+		json="$(curl -s 'https://servicodados.ibge.gov.br/api/v2/censos/nomes/ranking')"
+		jq -r '.[]|"Localidade: \(.localidade)"' <<<"${json}"
+		jq -r '.[]|.res[]|"\(.nome)\t\(.frequencia)\t\(.ranking)"' <<<"${json}"| column -et -NNOME,FREQ,RNK
+	else
+		set -- "$(tr '[A-Z]' '[a-z]' <<<"${1}")"
+		json="$(curl -s "https://servicodados.ibge.gov.br/api/v2/censos/nomes/${1}")"
+		jq -r '.[]|"Local: \(.localidade)","Nome_: \(.nome)"' <<<"${json}"
+		jq -r '.[].res[]|"\(.periodo)\t\(.frequencia)"' <<<"${json}"| tr -d '][' | tr ',' '-' | column -et -NPERIODO,FREQ
+	fi
+}
+#https://servicodados.ibge.gov.br/api/docs/censos/nomes?versao=2
+
+
+#ibge -- ids de localidades
+#uso: localidade ["Nome da Cidade|Estado|Região"]
+localidade() {
+	if [[ -z "${1}" ]]; then
+		curl --compressed -s 'https://servicodados.ibge.gov.br/api/v1/localidades/distritos' | jq '.'
+	elif RES="$(curl --compressed -s 'https://servicodados.ibge.gov.br/api/v1/localidades/distritos' | jq -r '.[]|select(.nome == "'${1}'")' | tr -d '}{][,"' | sed -E '/^\s*$/d')"; [[ -n "${RES}" ]]; then
+		printf '%s\n' "${RES}"
+	else
+		localidade | grep -iB2 "${1}"
+	fi
+}
+#https://servicodados.ibge.gov.br/api/docs/localidades
+
+
+#ibge - população
+#uso: população 'id'
+#id é um npumero obtido do ibge da função 'localidade'
+#id pode ser de um município, microrregiao, mesorregiao, UF ou região
+bpop() {
+	if ! curl --compressed -s "https://servicodados.ibge.gov.br/api/v1/projecoes/populacao/${1}" |
+		jq -r '"Local: \(.localidade)",
+			"Hora_: \(.horario)",
+			"Projeção",
+			(.projecao|
+				"Popul: \(.populacao)",
+				(.periodoMedio|
+				"IncrP: \(.incrementoPopulacional)ms  \(.incrementoPopulacional/1000)s",
+				"Nasc_: \(.nascimento)ms  \(.nascimento/1000)s",
+				"Obito: \(.obito)ms  \(.obito/1000)s"
+				)
+			)'; then
+		localidade "${1}"
+		printf '\nUse função \'localidade\' para número de id!\n' 1>&2
+		return 1
+	fi
+}
+#incrementoPopulacional: Período médio em millisegundos para a população aumentar em uma unidade
+#nascimento: Período médio entre nascimentos
+#obito: Período médio entre óbitos
+#https://servicodados.ibge.gov.br/api/docs/projecoes
 
 
 #american inflation
@@ -546,8 +631,8 @@ cpi() { curl -sLb non-existing 'https://datahub.io/core/cpi/r/0.json' | jq -r '.
 #corruption perception
 corruption() { curl -sL	'https://datahub.io/core/corruption-perceptions-index/r/0.json' | jq -r '.[]|keys[] as $k | "\($k) \(.[$k])"' | sed 's/^Jurisdiction.*/&\n/';}
 
-#population
-population() { curl -sL 'https://pkgstore.datahub.io/core/population-growth-estimates-and-projections/population-estimates_json/data/1d29be418daf875533c4bd4b5d0a5963/population-estimates_json.json' | jq -r '.[]|"\(.Year)\t\(.Population)\t\(.Region)"' | sort -t$'\t' -k3 |column -ets$'\t' -NYEAR,POPULATION,REGION;}
+#world population
+wpop() { curl -sL 'https://pkgstore.datahub.io/core/population-growth-estimates-and-projections/population-estimates_json/data/1d29be418daf875533c4bd4b5d0a5963/population-estimates_json.json' | jq -r '.[]|"\(.Year)\t\(.Population)\t\(.Region)"' | sort -t$'\t' -k3 |column -ets$'\t' -NYEAR,POPULATION,REGION;}
 
 
 ##################################################
