@@ -5,8 +5,8 @@
 #compatible with bash and z-shell
 
 #request compressed response from server
-#curl --compressed
-#wget --header='Accept-Encoding: gzip'
+#alias curl='curl --compressed'
+#alias wget="wget --header='Accept-Encoding: gzip'"
 
 
 #lista de ações da bovespa b3
@@ -47,16 +47,17 @@ tesouro() {
 
 #ibge inflação brasileira IPCA - Variação mensal
 ipcab() { (
-	[[ -z "${*}" ]] && printf 'uso: %s [ANOMES >= 199407]\n\n' "${0}" 1>&2
+	[[ -z "${*}" ]] && printf 'uso: %s  ANO/MES  #ANO/MES >= 1980/01\n\n' "${0}" 1>&2
 
-	#testar input do usuário, ano maior que 1995
+	#testar input do usuário, ano maior que 1980
+	set -- "$(tr -d '/.-' <<<"${*}")"
 	[[ -n "${2}" ]] && set -- "${1}${2}"
-	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1994)) 2>/dev/null && set -- "${1}01"
-	[[ "${1}" =~ ^[0-9]{6}$ ]] && ((${1}>=199407)) 2>/dev/null || set -- 199407
+	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1980)) 2>/dev/null && set -- "${1}01"
+	[[ "${1}" =~ ^[0-9]{6}$ ]] && ((${1}>=198001)) 2>/dev/null || set -- 199501  #199407 começo do plano real
 
 	data="$(curl --compressed -s "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=63&p=${1}-203701&ng=1(1)&c=")"
 
-	#inflação variação mensal #63
+	#inflação variação mensal #cod:63
 	jq -er '.[0].var' <<<"${data}" || return 1
 
 	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" |
@@ -65,7 +66,7 @@ ipcab() { (
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 
-		printf '%s %.4f\n' "${line}" "${tvalp}"
+		printf '%s %.6f\n' "${line}" "${tvalp}"
 	done | column -ets' ' -NMes,Ano,Var%Mes,Acu%Total -OAno,Mes,Var%Mes,Acu%Total
 
 );}
@@ -73,31 +74,32 @@ ipcab() { (
 
 
 #ibge inflação brasileira IPCA - Variação acumulada no ano
-#uso: %s [ANO]  #calcula de jan/ANO a DEZ/ANOPASSADO (ano>=1994)
+#uso: %s [ANO]  #ANO>=1980 e calcula de jan/ANO a DEZ/ANO_ATUAL-1 
 ipcab2() { (
-	[[ -z "${*}" ]] && printf 'uso: %s [ANO >= 1994]\n\n' "${0}" 1>&2
+	[[ -z "${*}" ]] && printf 'uso: %s ANO  #ANO >= 1980\n\n' "${0}" 1>&2
 
-	#testar input do usuário, ano maior que 1994
-	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1994)) 2>/dev/null || set -- 1994
-
-	#inflação acumulada por ano #69
-	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${1}04-203012&ng=1(1)&c=")"
+	#testar input do usuário, ano maior que 1980
+	[[ "${1}" =~ ^[0-9]{4}$ ]] && ((${1}>=1980)) 2>/dev/null && set -- "${1}01"
+	[[ "${1}" =~ ^[0-9]{6}$ ]] && ((${1}>=1980)) 2>/dev/null || set -- 199501  #199407 começo do plano real
+	
+	#inflação acumulada por ano #cod:69
+	data="$(curl -sLb non-existing "https://servicodados.ibge.gov.br/api/v1/conjunturais?&d=s&user=ibge&t=1737&v=69&p=${1}-203012&ng=1(1)&c=")"
 	jq -er '.[0].var' <<<"${data}" || return 1
 	jq -r '.[]|"\(.p) \(.v)"' <<<"${data}" | column -ets' ' -NMes,Ano,Acu%Ano -OAno,Mes,Acu%Ano
 	
 	#inflação acumulada a partir de um ano específicado pelo usuário
 	yearend="$(($(date +%Y)-1))"
-	year="${1}"
+	year="${1:0:4}"
 
 	printf '\nAcumulado%% desde %s/jan\n' "${year}"
 	
-	printf 'dezembro %s\n' {${1}..${yearend}} |
+	printf 'dezembro %s\n' {${year}..${yearend}} |
 	while read line; do
 		val="$(jq -r '.[]|select( .p == "'${line}'")|.v' <<<"${data}")"
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 		
-		printf '%s/dez\t%.4f\n' "${year}" "${tvalp}"
+		printf '%s/dez\t%.2f\n' "${year}" "${tvalp}"
 		((year++))
 	done
 );}	
