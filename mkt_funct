@@ -66,8 +66,8 @@ ipcab() { (
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 
-		printf '%s %.6f\n' "${line}" "${tvalp}"
-	done | column -ets' ' -NMes,Ano,Var%Mes,Acu%Total -OAno,Mes,Var%Mes,Acu%Total
+		printf "%s %'.2f%% %.6f\n" "${line}" "${tvalp}" "${tval}"
+	done | column -ets' ' -NMes,Ano,Var%Mes,Acu%Total,Fator -OAno,Mes,Var%Mes,Acu%Total,Fator
 
 );}
 #calculadora: https://www3.bcb.gov.br/CALCIDADAO/publico/corrigirPorIndice.do?method=corrigirPorIndice
@@ -91,7 +91,8 @@ ipcab2() { (
 	yearend="$(($(date +%Y)-1))"
 	year="${1:0:4}"
 
-	printf '\nAcumulado%% desde %s/jan\n' "${year}"
+	printf '\nAcumulado%% e fator de correção\n'
+	printf 'no período %s/jan - %s/dez\n' "${year}" "${yearend}"
 	
 	printf 'dezembro %s\n' {${year}..${yearend}} |
 	while read line; do
@@ -99,7 +100,7 @@ ipcab2() { (
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 		
-		printf '%s/dez\t%.2f\n' "${year}" "${tvalp}"
+		printf "%s/dez  %'.2f%%  %.6f\n" "${year}" "${tvalp}" "${tval}"
 		((year++))
 	done
 );}	
