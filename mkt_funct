@@ -10,7 +10,7 @@
 
 
 #lista de ações da bovespa b3
-blist() {
+function blist() {
 	#user input
 	if [[ -n "${*}" ]]; then
 		set -- $(tr '[[:lower:]]' '[[:upper:]]' <<<"${*}")
@@ -35,7 +35,7 @@ blist() {
 #tesouro direto -- precos e taxas dos titulos
 #requer o pacote 'xmlstarlet'
 #'wget -qO-' ou 'curl -sL'
-tesouro() {
+function tesouro() {
 	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' |
 		xmlstarlet format --recover --html 2>/dev/null |
 		xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" |
@@ -46,7 +46,7 @@ tesouro() {
 
 
 #ibge inflação brasileira IPCA - Variação mensal
-ipcab() { (
+function ipcab() { (
 	[[ -z "${*}" ]] && printf 'uso: %s  ANO/MES  #ANO/MES >= 1980/01\n\n' "${0}" 1>&2
 
 	#testar input do usuário, ano maior que 1980
@@ -75,7 +75,7 @@ ipcab() { (
 
 #ibge inflação brasileira IPCA - Variação acumulada no ano
 #uso: %s [ANO]  #ANO>=1980 e calcula de jan/ANO a DEZ/ANO_ATUAL-1 
-ipcab2() { (
+function ipcab2() { (
 	[[ -z "${*}" ]] && printf 'uso: %s ANO  #ANO >= 1980\n\n' "${0}" 1>&2
 
 	#testar input do usuário, ano maior que 1980
@@ -109,7 +109,7 @@ ipcab2() { (
 
 #ibge - frequência de nomes
 #uso: nomefreq [adriano]
-nomef() {
+function nomef() {
 	local json
 	if [[ -z "${1}" ]]; then
 		json="$(curl -s 'https://servicodados.ibge.gov.br/api/v2/censos/nomes/ranking')"
@@ -127,7 +127,7 @@ nomef() {
 
 #ibge -- ids de localidades
 #uso: localidade ["Nome da Cidade|Estado|Região"]
-localidade() {
+function localidade() {
 	if [[ -z "${1}" ]]; then
 		curl --compressed -s 'https://servicodados.ibge.gov.br/api/v1/localidades/distritos' | jq '.'
 	elif RES="$(curl --compressed -s 'https://servicodados.ibge.gov.br/api/v1/localidades/distritos' | jq -r '.[]|select(.nome == "'${1}'")' | tr -d '}{][,"' | sed -E '/^\s*$/d')"; [[ -n "${RES}" ]]; then
@@ -143,7 +143,7 @@ localidade() {
 #uso: população 'id'
 #id é um npumero obtido do ibge da função 'localidade'
 #id pode ser de um município, microrregiao, mesorregiao, UF ou região
-bpop() {
+function bpop() {
 	if ! curl --compressed -s "https://servicodados.ibge.gov.br/api/v1/projecoes/populacao/${1}" |
 		jq -r '"Local: \(.localidade)",
 			"Hora_: \(.horario)",
@@ -168,7 +168,7 @@ bpop() {
 
 
 #american inflation
-ipca() {
+function ipca() {
 	if [[ -z "${*}" ]]; then
 		printf 'usage: %s [series_id]\n' "${0}" 1>&2
 		printf 'usage: %s  .  #all series\n\n' "${0}" 1>&2
@@ -183,14 +183,14 @@ ipca() {
 
 
 #american inflation
-ipca2() {
+function ipca2() {
 	curl -sL 'https://www.usinflationcalculator.com/inflation/consumer-price-index-and-annual-percent-changes-from-1913-to-2008/' | sed -n '/<tbody>/,/<\/tbody>/p' | sed -e 's/<[^>]*>//g' -e 's/&.*;//g' -e 's/^\s*//g' | sed -n '/Year/,$p' | sed ':a;N;s/\n\(.\)/ \1/;ta' | sed 's/^\s//g' | column -ts' ' -o' '
 }
 #https://www.usinflationcalculator.com
 
 
 #richard heart's hex rate in usd
-hex() { (
+function hex() { (
 	date
 	DATA="$(curl -s "https://api.exchange.bitcoin.com/api/2/public/ticker")"
 	HEXETH="$(jq -r '.[]|select(.symbol == "HEXETH")|.last' <<<"${DATA}")"
@@ -214,7 +214,7 @@ hex() { (
 #{ curl -sL 'https://www.xe.com/api/stats.php?fromCurrency=GBP&toCurrency=USD';}
 
 #metal rates from kitco
-kitco() {
+function kitco() {
 	#help
 	if [[ "${1}" = '-h' ]]; then
 		cat <<-!
@@ -263,7 +263,7 @@ kitco() {
 
 
 #metal rates from infomine
-metals() {
+function metals() {
 	local page table
 	
 	page="$(curl -sL 'http://www.infomine.com/investment/metal-prices/' | sed 's/<[^>]*>//g')"
@@ -304,7 +304,7 @@ metals() {
 
 
 #google finance hack
-gfin() {
+function gfin() {
 	printf 'Google Finance\n'
 	{
 	#get rates by 'mids'; max 100 mids per request
@@ -328,7 +328,7 @@ gfin() {
 
 
 #yahoo finance hack -- long ticker
-yfin() { (
+function yfin() { (
 	#parse some opts
 	if [[ "${1}" = -h ]]; then
 		printf 'usage: %s [-jh] \"symbol\"\n' "${0}"
@@ -453,7 +453,7 @@ yfin() { (
 
 #yahoo finance hack -- data from chart api
 #usage: yfin2 [-jh] 'symbol' [range] [granularity]
-yfin2() { (
+function yfin2() { (
 	#parse some opts
 	if [[ "${1}" = -h ]]; then
 		printf 'usage: %s [-jh] \"symbol\" [range] [granularity]\n' "${0}"
@@ -542,7 +542,7 @@ yfin2() { (
 
 
 #yahoo finance symbol list
-ylist() {
+function ylist() {
 	#assign local vars
 	local LISTF TMPF
 
@@ -572,7 +572,7 @@ ylist() {
 #curl cryptocurrencies exchange rates
 #follow igor_chbin at <twitter.com/igor_chubin>
 #multiple symbols table
-rates() {
+function rates() {
 	if [[ ${*} =~ (-h|:?help) ]]; then
 		curl -s 'rate.sx/:help'
 		return
@@ -582,7 +582,7 @@ rates() {
 }
 
 #single symbol graph
-rate() {
+function rate() {
 	#usage: rate [from_currency] [to_currency] [@date|?T|..]
 	if [[ -z ${2} ]] || [[ ${2} =~ [0-9]+ ]]; then
 		set -- "${1}" usd "${2}"
@@ -600,41 +600,41 @@ rate() {
 #time series
 
 #gold annual
-golda() { curl -sL 'https://datahub.io/core/gold-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function golda() { curl -sL 'https://datahub.io/core/gold-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #gold monthly
-goldm() { curl -sL 'https://datahub.io/core/gold-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function goldm() { curl -sL 'https://datahub.io/core/gold-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 
 #oil daily brent 
-oild() { curl -sL 'https://datahub.io/core/oil-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oild() { curl -sL 'https://datahub.io/core/oil-prices/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil weekly brent 
-oilw() { curl -sL 'https://datahub.io/core/oil-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oilw() { curl -sL 'https://datahub.io/core/oil-prices/r/1.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil monthly brent 
-oilm() { curl -sL 'https://datahub.io/core/oil-prices/r/2.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oilm() { curl -sL 'https://datahub.io/core/oil-prices/r/2.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil annual brent 
-oila() { curl -sL 'https://datahub.io/core/oil-prices/r/3.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oila() { curl -sL 'https://datahub.io/core/oil-prices/r/3.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 
 #oil daily wti 
-oild2() { curl -sL 'https://datahub.io/core/oil-prices/r/4.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oild2() { curl -sL 'https://datahub.io/core/oil-prices/r/4.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil weekly wti 
-oilw2() { curl -sL 'https://datahub.io/core/oil-prices/r/5.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oilw2() { curl -sL 'https://datahub.io/core/oil-prices/r/5.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil monthly wti 
-oilm2() { curl -sL 'https://datahub.io/core/oil-prices/r/6.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oilm2() { curl -sL 'https://datahub.io/core/oil-prices/r/6.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 #oil annual wti 
-oila2() { curl -sL 'https://datahub.io/core/oil-prices/r/7.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function oila2() { curl -sL 'https://datahub.io/core/oil-prices/r/7.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 
 #gas monthly
-gasm() { curl -sL 'https://datahub.io/core/natural-gas/r/1.json' | jq -r '.[]|"\(.Month)\t\(.Price)"';}
+function gasm() { curl -sL 'https://datahub.io/core/natural-gas/r/1.json' | jq -r '.[]|"\(.Month)\t\(.Price)"';}
 #gas daily
-gasd() { curl -sL 'https://datahub.io/core/natural-gas/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
+function gasd() { curl -sL 'https://datahub.io/core/natural-gas/r/0.json' | jq -r '.[]|"\(.Date)\t\(.Price)"';}
 
 #consumer price index
-cpi() { curl -sLb non-existing 'https://datahub.io/core/cpi/r/0.json' | jq -r '.[]|"\(.Year)=\(.CPI)=\(.["Country Name"])"'| column -ets= -NYEAR,CPI,COUNTRY;}
+function cpi() { curl -sLb non-existing 'https://datahub.io/core/cpi/r/0.json' | jq -r '.[]|"\(.Year)=\(.CPI)=\(.["Country Name"])"'| column -ets= -NYEAR,CPI,COUNTRY;}
 
 #corruption perception
-corruption() { curl -sL	'https://datahub.io/core/corruption-perceptions-index/r/0.json' | jq -r '.[]|keys[] as $k | "\($k) \(.[$k])"' | sed 's/^Jurisdiction.*/&\n/';}
+function corruption() { curl -sL	'https://datahub.io/core/corruption-perceptions-index/r/0.json' | jq -r '.[]|keys[] as $k | "\($k) \(.[$k])"' | sed 's/^Jurisdiction.*/&\n/';}
 
 #world population
-wpop() { curl -sL 'https://pkgstore.datahub.io/core/population-growth-estimates-and-projections/population-estimates_json/data/1d29be418daf875533c4bd4b5d0a5963/population-estimates_json.json' | jq -r '.[]|"\(.Year)\t\(.Population)\t\(.Region)"' | sort -t$'\t' -k3 |column -ets$'\t' -NYEAR,POPULATION,REGION;}
+function wpop() { curl -sL 'https://pkgstore.datahub.io/core/population-growth-estimates-and-projections/population-estimates_json/data/1d29be418daf875533c4bd4b5d0a5963/population-estimates_json.json' | jq -r '.[]|"\(.Year)\t\(.Population)\t\(.Region)"' | sort -t$'\t' -k3 |column -ets$'\t' -NYEAR,POPULATION,REGION;}
 
 
 ##################################################
