@@ -91,8 +91,7 @@ ipcab2() { (
 	yearend="$(($(date +%Y)-1))"
 	year="${1:0:4}"
 
-	printf '\nAcumulado%% e fator de correção\n'
-	printf 'no período %s/jan - %s/dez\n' "${year}" "${yearend}"
+	printf '\nPeríodo %s/jan - %s/dez\n' "${year}" "${yearend}"
 	
 	printf 'dezembro %s\n' {${year}..${yearend}} |
 	while read line; do
