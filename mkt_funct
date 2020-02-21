@@ -66,7 +66,7 @@ ipcab() { (
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 
-		printf "%s %'.2f%% %.6f\n" "${line}" "${tvalp}" "${tval}"
+		printf "%s%% %'.2f%% %.6f\n" "${line}" "${tvalp}" "${tval}"
 	done | column -ets' ' -NMes,Ano,Var%Mes,Acu%Total,Fator -OAno,Mes,Var%Mes,Acu%Total,Fator -RVar%Mes,Acu%Total,Fator
 
 );}
@@ -99,7 +99,7 @@ ipcab2() { (
 		tval="$(bc -l <<<"(1+ (${val}/100) ) * ${tval:-1}")"
 		tvalp="$(bc -l <<<"(${tval}-1) * 100")"
 		
-		printf "%s dez %s %'.2f%% %.6f\n" "${year}" "${val}" "${tvalp}" "${tval}"
+		printf "%s dez %s%% %'.2f%% %.6f\n" "${year}" "${val}" "${tvalp}" "${tval}"
 		((year++))
 	done | column -ets' ' -NAno,Mes,Ac%Ano,Acu%Total,Fator -RAc%Ano,Acu%Total,Fator 
 );}	
