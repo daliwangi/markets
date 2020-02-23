@@ -556,7 +556,7 @@ ylist() {
 	if [[ ! -f "${LISTF}" ]]; then
 		#check for downloaded temp file
 		if [[ ! -f "${TMPF}" ]]; then
-			curl 'https://github.com/mountaineerbr/extra/raw/master/yahooFinanceSymbols/yahooFinanceSymbols.txt' > "${TMPF}" || return 1
+			curl -L 'https://github.com/mountaineerbr/extra/raw/master/yahooFinanceSymbols/yahooFinanceSymbols.txt' > "${TMPF}" || return 1
 			printf 'File at %s\n' "${TMPF}" 1>&2
 		fi
 		
