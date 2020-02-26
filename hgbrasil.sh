@@ -1,6 +1,6 @@
 #!/bin/bash
 # hgbrasil.sh -- Dados financeiros do HG Brasil Finance
-# v0.4.1  feb/2020  by mountaineer_br
+# v0.4.2  feb/2020  by mountaineer_br
 
 #*sua* chave de api grátis do hg brasil
 #HGBAPIKEY=""
@@ -185,7 +185,7 @@ shift $((OPTIND -1))
 if command -v curl &>/dev/null; then
 	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "cURL ou Wget é requerido.\n" 1>&2
 	exit 1

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# v0.1.14 feb/2020  by castaway
+# v0.1.15 feb/2020  by castaway
 
 HELP="WARRANTY
 	Licensed under the GNU Public License v3 or better and is distributed 
@@ -66,7 +66,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP="curl -sL --compressed"
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1

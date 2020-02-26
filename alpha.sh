@@ -1,6 +1,6 @@
 #!/bin/bash
 # AlphaAvantage Stocks and Currency Rates (Most popular Yahoo Finance API alternative)
-# v0.3.6  feb/2020  by mountaineer_br
+# v0.3.8  feb/2020  by mountaineer_br
 
 # *YOUR* (free) API Private Key
 #ALPHAAPIKEY=""
@@ -337,7 +337,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP="curl -sL --compressed"
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1

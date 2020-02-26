@@ -1,6 +1,6 @@
 #!/bin/bash
 # Uol.sh -- Puxa cotações do portal do UOL
-# v0.2.4  feb/2020  by mountaineer_br
+# v0.2.5  feb/2020  by mountaineer_br
 
 #defaults
 SCRIPT="${BASH_SOURCE[0]}"
@@ -265,11 +265,11 @@ metf() {
 	grep -o "Câmbio     Atualizado em..............." <<<"${COT}" | sed -e 's/\s\s*/ /g' -e 's/Atualizado/atualizado/'
 }
 
-# Test for must have packages
+# Test for must have packages 
 if command -v curl &>/dev/null; then
 	YOURAPP="curl -s --compressed"
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "cURL ou Wget é requerido.\n" 1>&2
 	exit 1

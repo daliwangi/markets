@@ -1,6 +1,6 @@
 #!/bin/bash
 # myc.sh - Currency converter, API access to MyCurrency.com
-# v0.3.1  feb/2020  by mountaineerbr
+# v0.3.2  feb/2020  by mountaineerbr
 
 ## Defaults
 # Scale (decimal plates):
@@ -132,7 +132,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "Package cURL or Wget is needed.\n" 1>&2
 	exit 1

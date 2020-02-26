@@ -1,6 +1,6 @@
 #!/bin/bash
 # binfo.sh -- bitcoin blockchain explorer for bash
-# v0.7.10  feb/2020  by mountaineerbr
+# v0.7.11  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -736,7 +736,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP=(curl -sL --compressed)
 elif command -v wget &>/dev/null; then
-	YOURAPP=(wget -qO- "--header='Accept-Encoding: gzip'")
+	YOURAPP=(wget -qO-)
 else
 	printf 'cURL or Wget is required.\n' 1>&2
 	exit 1

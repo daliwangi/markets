@@ -1,5 +1,5 @@
 #!/bin/bash
-# v0.2.55  feb/2020
+# v0.2.56  feb/2020
 
 #defaults
 #attention to rate limits
@@ -287,7 +287,7 @@ fi
 if command -v curl >/dev/null; then
 	MYAPP="curl -sLb non-existing --retry ${RETRY} --connect-timeout ${TIMEOUT} --compressed"
 elif command -v wget >dev/null; then
-	MYAPP="wget  -t${RETRY} -T${TIMEOUT} -qO- --header='Accept-Encoding: gzip'"
+	MYAPP="wget  -t${RETRY} -T${TIMEOUT} -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Bitfinex.sh  -- Websocket access to Bitfinex.com
-# v0.2.20  dec/2019  by mountainner_br
+# v0.2.21  dec/2019  by mountainner_br
 
 ## Some defaults
 #if no stock is given, use this:
@@ -116,7 +116,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1

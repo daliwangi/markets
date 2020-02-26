@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.20  feb/2020  by mountaineerbr
+# v0.10.22  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -672,8 +672,8 @@ if [[ -z "${YOURAPP}" ]]; then
 		YOURAPP="curl -s --compressed"
 		YOURAPP2="curl -s --compressed --head"
 	elif command -v wget &>/dev/null; then
-		YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
-		YOURAPP2="wget -qO- --header='Accept-Encoding: gzip' --server-response"
+		YOURAPP="wget -qO-"
+		YOURAPP2="wget -qO-"
 	else
 		printf "cURL or Wget is required.\n" 1>&2
 		exit 1

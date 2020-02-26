@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.10  feb/2020  by mountaineerbr
+# v0.9.11  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -507,7 +507,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP=(curl -sL --compressed)
 elif command -v wget &>/dev/null; then
-	YOURAPP=(wget -qO- "--header='Accept-Encoding: gzip'")
+	YOURAPP=(wget -qO-)
 else
 	printf 'Curl or wget is required.\n' 1>&2
 	exit 1

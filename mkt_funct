@@ -6,7 +6,7 @@
 
 #request compressed response from server
 #alias curl='curl --compressed'
-#alias wget="wget --header='Accept-Encoding: gzip'"
+#alias wget="wget --header='Accept-Encoding: gzip'" # .. |gzip -dc
 
 
 #lista de ações da bovespa b3

@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.9  feb/2020  by mountaineerbr
+# v0.1.10  feb/2020  by mountaineerbr
 
 ##defaults
 #stock
@@ -247,7 +247,7 @@ fi
 if command -v curl &>/dev/null; then
 	YOURAPP='curl -sL --compressed'
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO- --header='Accept-Encoding: gzip'"
+	YOURAPP="wget -qO-"
 else
 	printf "cURL or Wget is required.\n" 1>&2
 	exit 1
