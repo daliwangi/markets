@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cgk.sh -- Coingecko.com API Access
-# v0.10.22  feb/2020  by mountaineerbr
+# v0.10.23  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -44,8 +44,10 @@ SYNOPSIS
 DESCRIPTION
 	This programme fetches updated crypto and bank currency rates from Coin
 	Gecko.com and can convert any amount of one supported currency into an-
-	other. Currencies can be symbols or CoinGecko IDs, list them with option
-	\"-l\". VS_CURRENCY is optional and defaults to ${DEFVSCUR,,}.
+	other. FROM_CURRENCY is a cryptocurrency and symbol or CoinGecko IDs can
+	be used. List them with option \"-l\". VS_CURRENCY is a fiat or metal 
+	and defaults to ${DEFVSCUR,,}. Currently, only about 53 bank currencies
+	(fiat) are supporterd, plus gold and silver.
 	
 	CoinGecko has got a public API for many crypto and bank currency rates.
 	Officially, CoinGecko only keeps rates of existing market pairs. For ex-
@@ -66,6 +68,8 @@ DESCRIPTION
 	symbol, it will be swapped to its corresponding ID automatically.
 	
 	Default precision is ${SCLDEFAULTS} and can be adjusted with option \"-s\" (scale).
+
+	<coingecko.com> api rate limit is currently 100 requests/minute.
 	
 
 ABBREVIATIONS
@@ -528,10 +532,14 @@ listsf() {
 		printf "%s\n" "${VSCLISTS}"
 		exit
 	fi
-	printf "List of supported FROM_CURRENCY and precious metal IDs and codes\n"
+	printf "List of supported FROM_CURRENCIES (cryptos)\n"
 	jq -r '.[]|"\(.symbol)=\(.id)=\(.name)"' <<< "${FCLISTS}" | column -s'=' -et -N'SYMBOL,ID,NAME'
-	printf "\nList of supported VS_CURRENCY Codes\n"
+	
+	printf "\nList of supported VS_CURRENCY (fiat and metals)\n"
 	jq -r '.[]' <<< "${VSCLISTS}" | tr "[:lower:]" "[:upper:]" | sort | column -c 80
+	
+	printf '\nCriptos: %s\n' "$(jq -r '.[]' <<< "${FCLISTS}" | wc -l)"
+	printf 'Fiats/m: %s\n' "$(jq -r '.[]' <<< "${VSCLISTS}" | wc -l)"
 }
 
 # List of from_currencies
