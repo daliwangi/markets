@@ -1,6 +1,6 @@
 #!/bin/bash
 # Brasilbtc.sh -- Puxa Taxas de Bitcoin de Exchanges do Brasil
-# v0.5  feb/2020  by mountaineerbr
+# v0.5.1  feb/2020  by mountaineerbr
 
 #defaults
 
@@ -390,7 +390,7 @@ elif [[ -n "${COINTOPT}" ]]; then
 	cointf
 #estatisticas basicas
 elif [[ -n "${MOPT}" ]]; then
-	printf "Aguarde..\r"
+	printf "Aguarde\r"
 	#somente a média?
 	if [[ "${MOPT}" = "2" ]]; then
 		getmediaf "${1}" | sed -Ee 's/\s+/  /' -e 's/\./,/' | grep -A1 "^Média" | tail -n1
@@ -405,16 +405,15 @@ else
 	# Pegar cotações disponíveis
 	{
 	if [[ "${1^^}" = "BTC" ]]; then
-		printf "API do CoinTrader\n"
+		printf "\nAPI do CoinTrader\n"
 		cointf
-		printf "API do BitVerso\n"
+		printf "\nAPI do BitVerso\n"
 		bitversof
-		printf "API do BitValor\n"
+		printf "\nAPI do BitValor\n"
 		bitvalorf
 	fi
-	printf "APIs das agências\n"
+	printf "\nAPIs das agências\n"
 	apiratesf "${1}"
 	} 2>/dev/null | tr ',.' '.,'
 fi
-
 
