@@ -241,21 +241,21 @@ kitco() {
 
 	#set columns
 	local colconf
-	((${COLUMNS}<86)) && colconf=(-TDATE,TIME -HUNIT,CUR)
+	((${COLUMNS}<102)) && colconf=(-TTIME -HUNIT,CUR)
 	
 	#ny spot
 	printf 'New York Spot Price\n'
 	#mkt status
 	curl -Ls 'https://proxy.kitco.com/getMarketStatus?market=1' -H 'Origin: https://www.kitco.com'
 	#table
-	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=1" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/T/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,TIME ${colconf[@]}
 
 	#world prices
 	printf '\nThe World Spot Price - Asia/Europe/NY markets\n'
 	#mkt status
 	curl -Ls 'https://proxy.kitco.com/getMarketStatus?market=4' -H 'Origin: https://www.kitco.com'
 	#table
-	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/,/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,DATE,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,DATE,TIME ${colconf[@]}
+	curl -Ls "https://proxy.kitco.com/getPM?symbol=AU,AG,PT,PD,RH&currency=${1}&unit=${2}&market=4" -H 'Origin: https://www.kitco.com' | sed -e 's/\s/T/' -e 's/\r//g' | column -ts, -NX,CUR,UNIT,TIME,BID,MID,ASK,CHG,CHG%,LOW,HIGH -RCUR,UNIT,BID,MID,ASK,CHG,CHG%,LOW,HIGH -OX,BID,MID,ASK,CHG,CHG%,LOW,HIGH,CUR,UNIT,TIME ${colconf[@]}
 	
 	printf '<https://www.kitco.com/market/>\n'
 }
