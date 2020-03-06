@@ -36,9 +36,10 @@ blist() {
 #requer o pacote 'xmlstarlet'
 #'wget -qO-' ou 'curl -sL'
 tesouro() {
+	printf 'Título,Vencimento,Taxa de Rendimento (%% a.a.),Valor Mínimo,Preço Unitário\n'
 	wget -qO- 'http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos' |
 		xmlstarlet format --recover --html 2>/dev/null |
-		xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" |
+		xmlstarlet select --html --template --value-of "/html/body/div/div/div/div/div/div/div/div/div/div/table/tbody/tr/td[@class='listing0' or @class='listing' or @class='listing ']" <<<"${page}"|
 		paste -d ";" - - - - - | column -s';' -dt -NA,B,C,D,E -WA
 	printf '<http://www.tesouro.fazenda.gov.br/tesouro-direto-precos-e-taxas-dos-titulos>\n'
 }
