@@ -40,9 +40,9 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>cgk.sh --</b> <Coinggecko.com> public api, convert one crypto, bank/fiat or metal currency into any another, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 
-<b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
+<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat currency or metal into any another, requires a free api key.
 
-<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat or metal currency into any another, default currency convertion and single currency ticker do not require an api key but other functions do; now also a favorite.
+<b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
 
 <b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
