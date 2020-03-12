@@ -1,10 +1,11 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.10  feb/2020  by mountaineerbr
+# v0.1.11  mar/2020  by mountaineerbr
 
-##defaults
+#defaults
 #stock
 DEFSTOCK="TSLA"
+
 #don't change the following:
 export LC_NUMERIC="en_US.UTF-8"
 
@@ -22,17 +23,16 @@ SYNOPSIS
 	stocks.sh -hlv
 
 
- 	Fetch rates of stocks and indexes from <financialmodelingprep.com/> 
-	public APIs.
+ 	Fetch realtime rates of stocks and indexes from <financialmodelingprep.com> 
+	public APIs (more on price update in the next session).
 	
-	By default, the script will try to fetch real-time data (as stated by
-	financialmodelingprep.com), otherwise it will show the same price data 
-	as the profile \"-p\" ticker option.
+	By default, the script will try to fetch real-time data from the server.
+	Otherwise, use same data available for the profile ticker option '-p'.
+	
+	Check various world indexes with option '-i'. 
 
-	Check various world indexes with option \"-i\". 
-
-	If no stock symbol is given, defaults to ${DEFSTOCK}. Stock and index 
-	symbols	are case-insensitive.
+	If no stock symbol is given, defaults to ${DEFSTOCK}. Stock and index symbols
+	are case-insensitive.
 
 
 LIMITS
@@ -102,7 +102,7 @@ OPTIONS
 
 #historical prices
 histf() {
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/historical-price-full/${1^^}?serietype=line")"
+	DATA="$("${YOURAPP[@]}" "https://financialmodelingprep.com/api/v3/historical-price-full/${1^^}?serietype=line")"
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${DATA}"
@@ -110,7 +110,7 @@ histf() {
 	fi
 	
 	HIST="$(jq -r '(.historical[]|"\(.date)  \(.close)")' <<<"${DATA}")"
-	printf "%s\n" "${HIST}" | column -et -N'date,close'
+	printf "%s\n" "${HIST}" | column -et -N'DATE,CLOSE'
 	jq -r '"Symbol: \(.symbol)"' <<<"${DATA}"
 	printf "Registers: %s\n" "$(wc -l <<<"${HIST}")"
 
@@ -119,22 +119,27 @@ histf() {
 
 #list stock/index symbols
 indexf() {
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/majors-indexes")"
+	#get data
+	DATA="$("${YOURAPP[@]}" 'https://financialmodelingprep.com/api/v3/majors-indexes')"
+	
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
 		printf "%s\n" "${DATA}"
 		exit 0
 	fi
 	
+	#decode url codes -- why they do it??
+	DATA="$(sed 's/%5E/^/g' <<<"${DATA}")"	
+	
 	#list one index by symbol
-	if jq -er '.majorIndexesList[]|select(.symbol == "'${1^^}'")' <<<"${DATA}" 2>/dev/null; then
-		jq -r '.majorIndexesList[]|select(.symbol == "'${1^^}'")|.price' <<<"${DATA}"
+	if jq -er '.majorIndexesList[]|select(.ticker == "'${1^^}'")' <<<"${DATA}" &>/dev/null; then
+		jq -r '.majorIndexesList[]|select(.ticker == "'${1^^}'")|.price' <<<"${DATA}"
 	#list all major indexes
 	else
 		#test if stdout is to tty
-		[[ -t 1 ]] && TRIMCOL="-Tname" 
+		[[ -t 1 ]] && TRIMCOL="-TNAME" 
 		INDEX="$(jq -r '.majorIndexesList[]|"\(.ticker)=\(.price)=\(.changes)=\(.indexName)"' <<<"${DATA}")"
-		sort <<<"${INDEX}" | column -et -s= -N'ticker,price,change,name' ${TRIMCOL}
+		sort <<<"${INDEX}" | column -et -s= -N'TICKER,VALUE,CHANGE,NAME' ${TRIMCOL}
 		printf 'Indexes: %s\n' "$(wc -l <<<"${INDEX}")"
 	fi
 	
@@ -144,19 +149,19 @@ indexf() {
 #list stock/index symbols
 listf() {
 	#get data
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/stock/list")"
+	DATA="$("${YOURAPP[@]}" 'https://financialmodelingprep.com/api/v3/company/stock/list')"
 	
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
-		printf "%s\n" "${DATA}"
+		printf '%s\n' "${DATA}"
 		exit 0
 	fi
 	
 	#test if stdout is to tty
-	[[ -t 1 ]] && TRIMCOL="-Tname" 
+	[[ -t 1 ]] && TRIMCOL='-TNAME' 
 	
 	LIST="$(jq -r '.symbolsList[]|"\(.symbol)=\(.price)=\(.name)"' <<<"${DATA}")"
-	sort <<<"${LIST}" | column -et -s= -N'symbol,price,name' ${TRIMCOL}
+	sort <<<"${LIST}" | column -et -s= -N'SYMBOL,PRICE,NAME' ${TRIMCOL}
 	printf 'Symbols: %s\n' "$(wc -l <<<"${LIST}")"
 	
 	exit
@@ -165,11 +170,11 @@ listf() {
 #simple profile ticker
 profilef() {
 	#get data
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
+	DATA="$("${YOURAPP[@]}" "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
 
 	#print json? (debug)
 	if [[ -n  "${PJSON}" ]]; then
-		printf "%s\n" "${DATA}"
+		printf '%s\n' "${DATA}"
 		exit 0
 	fi
 	
@@ -196,20 +201,20 @@ profilef() {
 
 #test if stock symbol is valid
 testsf() {
-	if ${YOURAPP} "https://financialmodelingprep.com/api/v3/company/stock/list" |
-		jq -r '.symbolsList[].symbol' | grep -q "^\\${1^^}$"; then
+	if "${YOURAPP[@]}" 'https://financialmodelingprep.com/api/v3/company/stock/list' |
+		  jq -r '.symbolsList[].symbol' | grep -q "^\\${1^^}$"; then
 		return 0
 	else
-		printf "Unsupported stock symbol -- %s\n" "${1^^}" 1>&2
+		printf 'Unsupported stock symbol -- %s\n' "${1^^}" 1>&2
 		exit 1
 	fi
 }
 
 # Parse options
-while getopts ":hHijlpv" opt; do
+while getopts ':hHijlpv' opt; do
 	case ${opt} in
 		( h ) #help
-			printf "%s\n" "${HELP}"
+			printf '%s\n' "${HELP}"
 			exit 0
 			;;
 		( H ) #historical prices
@@ -232,7 +237,7 @@ while getopts ":hHijlpv" opt; do
 			exit 0
 			;;
 		( \? )
-			printf "Invalid option: -%s\n" "${OPTARG}" 1>&2
+			printf 'Invalid option: -%s\n' "${OPTARG}" 1>&2
 			exit 1
 			;;
 	esac
@@ -245,11 +250,11 @@ if ! command -v jq &>/dev/null; then
 	exit 1
 fi
 if command -v curl &>/dev/null; then
-	YOURAPP='curl -sL --compressed'
+	YOURAPP=(curl -sL --compressed)
 elif command -v wget &>/dev/null; then
-	YOURAPP="wget -qO-"
+	YOURAPP=(wget -qO-)
 else
-	printf "cURL or Wget is required.\n" 1>&2
+	printf 'cURL or Wget is required.\n' 1>&2
 	exit 1
 fi
 
@@ -260,46 +265,41 @@ fi
 
 ##call opt functions
 #list symbols
-test -n "${LOPT}" && listf
+[[ -n "${LOPT}" ]] && listf
 #major indexes (full list or single index)
-test -n "${IOPT}" && indexf "${1}"
+[[ -n "${IOPT}" ]] && indexf "${1}"
 
 #set defaults stock symbol if no arg given
 if [[ -z "${1}" ]]; then
 	set -- "${DEFSTOCK}"
+#test symbol
 else
-	#test symbol
 	testsf "${1}"
 fi
 
 ##call opt functions
 #company profile ticker
-test -n "${POPT}" && profilef "${1}"
+[[ -n "${POPT}" ]] && profilef "${1}"
 #historical prices
-test -n "${HOPT}" && histf "${1}"
+[[ -n "${HOPT}" ]] && histf "${1}"
 
 #default function, get stock/index real-time rate
-DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/stock/real-time-price/${1^^}")"
+DATA="$("${YOURAPP[@]}" "https://financialmodelingprep.com/api/v3/stock/real-time-price/${1^^}")"
 
 #print json? (debug)
 if [[ -n  "${PJSON}" ]]; then
-	printf "%s\n" "${DATA}"
+	printf '%s\n' "${DATA}"
 	exit 0
 fi
 
 #test if there is real-time data available,
 #otherwise get static data
 if [[ "${DATA}" = '{ }' ]]; then
-	printf "No real-time data.\r" 1>&2
-	DATA="$(${YOURAPP} "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
+	printf 'No real-time data.\r' 1>&2
+	DATA="$("${YOURAPP[@]}" "https://financialmodelingprep.com/api/v3/company/profile/${1^^}")"
 	jq -r '.profile.price' <<<"${DATA}"
-	exit 
+else
+	#process real-time data
+	jq -r '.price' <<<"${DATA}"
 fi
-
-#process real-time data
-jq -r '.price' <<<"${DATA}"
-
-exit 
-
-##Dead code
 
