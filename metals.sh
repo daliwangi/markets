@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # metals.sh -- <metals-api.com> precious metal rates api access
-# v0.1.9  feb/2020  by mountaineerbr
+# v0.1.10  mar/2020  by mountaineerbr
 
 #your own personal api key
 #METALSAPIKEY=''
@@ -114,8 +114,9 @@ BUGS
 	Server returns an error page or the wrong base currency for rhodium XRH
 	rates. Rates should be from XRH/USD but api return the inverted USD/XRH 
 	rate. A code fix was applied within this script, but if the server fixes
-	their rate it is going to be overcorrected and the fix must be unset in
-	the script source code.
+	their xrh rate it is going to be overcorrected and the fix must be unset
+	in the script source code. For rhodium rates to be displayed correctly,
+	scale must not be set to less than 5.
 
 
 USAGE EXAMPLES
