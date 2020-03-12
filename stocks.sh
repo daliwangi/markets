@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.12  mar/2020  by mountaineerbr
+# v0.1.14  mar/2020  by mountaineerbr
 
 #defaults
 #stock
@@ -190,11 +190,11 @@ profilef() {
 		"Cap_____: \(.mktCap)",
 		"LastDiv_: \(.lastDiv)",
 		"Beta____: \(.beta)",
-		"Price___: \(.price)",
 		"VolAvg__: \(.volAvg)",
 		"Range___: \(.range)",
+		"Change%_: \(.changesPercentage)",
 		"Change__: \(.changes)",
-		"Change%_: \(.changesPercentage)"
+		"Price___: \(.price)"
 	)' <<<"${DATA}"
 
 	exit
