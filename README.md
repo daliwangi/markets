@@ -56,7 +56,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
-<b>mkt_funct* --</b> bash and z-shell functions to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
+<b>*mkt_funct --</b> bash and z-shell functions to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
 
 <b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currencies and precious metals converter.
 
@@ -70,9 +70,9 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>uol.sh --</b> Fetches rates from uol service provider public api. Puxa dados de páginas da api pública do uol economia.
 
-<b>yahooFinanceSymbols.txt</b> -- Some yahoo finance stock symbols. Alguns símbolos do yahoo finance.
-
 <b>whalealert.sh --</b> free api key, latest whale transactions from <whale-alert.io>.
+
+For a list of Yahoo! Finance symbols, check: https://github.com/mountaineerbr/extra/tree/master/yahooFinanceSymbols
 
 ---
 
@@ -86,7 +86,7 @@ Por favor, crie chaves de API grátis para usar com esses scripts.</b>
 
 <b>ALSO CHECK / TAMBÉM VEJA</b>
 
-<b>bcalc.sh -- </b> Bash calculator wrapper that keeps a record of results
+<b>bcalc.sh -- </b> A bash calculator wrapper that keeps a record of results
 
 <https://github.com/mountaineerbr/scripts/blob/master/bcalc.sh>
 
