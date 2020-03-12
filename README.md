@@ -86,7 +86,7 @@ Por favor, crie chaves de API grátis para usar com esses scripts.</b>
 
 <b>ALSO CHECK / TAMBÉM VEJA</b>
 
-<b>bcalc.sh -- </b> A bash calculator wrapper that keeps a record of results
+bcalc.sh -- A bash calculator wrapper that keeps a record of results
 
 <https://github.com/mountaineerbr/scripts/blob/master/bcalc.sh>
 
