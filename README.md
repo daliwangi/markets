@@ -40,9 +40,9 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>cgk.sh --</b> <Coinggecko.com> public api, convert one crypto, bank/fiat or metal currency into any another, market ticker, cryptocurrency ticker. This is my favorite everyday-use script for all-currency rates!
 
-<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat currency or metal into any another, requires a free api key.
-
 <b>clay.sh --</b> <Currencylayer.com> free api key, central bank currency, precious metal and cryptocurrency converter.
+
+<b>cmc.sh --</b>  <Coinmarketcap.com> convert any amount of one crypto, bank/fiat currency or metal into any another, requires a free api key.
 
 <b>erates.sh --</b> <Exchangeratesapi.io> public api, currency converter (same API as Alexander Epstein's Bash-Snippets/currency).
 
@@ -56,7 +56,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
-<b>mkt_funct --</b> bash and z-shell functions to get some market data from public apis. these functions need improving. source from this file to make them available in your shell.
+<b>mkt_funct* --</b> bash and z-shell functions to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
 
 <b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currencies and precious metals converter.
 
