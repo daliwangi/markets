@@ -1,6 +1,6 @@
 #!/bin/bash
 # stocks.sh  -- Stock and index rates in Bash
-# v0.1.11  mar/2020  by mountaineerbr
+# v0.1.12  mar/2020  by mountaineerbr
 
 #defaults
 #stock
@@ -27,7 +27,8 @@ SYNOPSIS
 	public APIs (more on price update in the next session).
 	
 	By default, the script will try to fetch real-time data from the server.
-	Otherwise, use same data available for the profile ticker option '-p'.
+	Otherwise, it uses the same data available for the profile ticker opt-
+	ion '-p'.
 	
 	Check various world indexes with option '-i'. 
 
@@ -84,9 +85,9 @@ USAGE EXAMPLES
 
 
 OPTIONS
-	-h           Show this Help.
+	-h           Show this help page.
 	
-	-H [STOCK]   Historical prices.
+	-H [STOCK]   Historical prices (daily time-series).
 
 	-i [INDEX]   List major indexes or only a single one, if given.
 	
