@@ -353,6 +353,9 @@ yfin() { (
 	elif jq -e '.quoteResponse.error' <<<"${YJSON}" &>/dev/null; then
 		jq -r '.quoteResponse.error' <<<"${YJSON}"
 		return 1
+	#empty response?
+	elif ! jq -e '.quoteResponse.result[]' <<<"${YJSON}" &>/dev/null; then
+		return 1
 	fi
 
 	#set timezone for displaying times
@@ -437,7 +440,7 @@ yfin() { (
 		"PrevClo: \(.regularMarketPreviousClose)",
 		"Open___: \(.regularMarketOpen)",
 		"Price__: \(.regularMarketPrice)"
-		' <<<"${YJSON}" | grep -v 'null' | cat -s
+		' <<<"${YJSON}" | grep -Fv 'null' | cat -s
 	
 #currency
 #language
