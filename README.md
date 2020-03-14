@@ -56,7 +56,7 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>metals.sh --</b> <metals-api.com> free private api, precious metals and central bank currency rate converter.
 
-<b>*mkt_funct --</b> bash and z-shell functions to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
+<b>*mkt_funct --</b> shell functions (bash and z-shell) to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
 
 <b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currencies and precious metals converter.
 
