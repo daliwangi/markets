@@ -569,6 +569,21 @@ ylist() {
 	grep -i "${@:-.}" "${LISTF}" | column -et -s $'\t' -N'TICKER,NAME,EXCHANGE,CATEGORY,COUNTRY' -T'CATEGORY,NAME'
 }
 
+#nasdaq stock symbols
+nlist() {
+	curl --compressed -s 'ftp://ftp.nasdaqtrader.com/symboldirectory/'|sed 's/<[^>]*>//g' | sort -nk3 | awk '$4{print $4}' |
+	while read line; do
+	#for line in nasdaqlisted.txt otherlisted.txt, do  ##only most important
+		printf 'Fetching %s\r' "${line}" 1>&2
+		curl -s --compressed "ftp://ftp.nasdaqtrader.com/symboldirectory/${line}"
+	done
+}
+#https://quant.stackexchange.com/questions/1640/where-to-download-list-of-all-common-stocks-traded-on-nyse-nasdaq-and-amex
+
+#slightly ugly bash one-liner for a sorted json array
+nlistjson() {
+	echo "[\"$(echo -n "$(echo -en "$(curl -s --compressed 'ftp://ftp.nasdaqtrader.com/SymbolDirectory/nasdaqlisted.txt' | tail -n+2 | head -n-1 | perl -pe 's/ //g' | tr '|' ' ' | awk '{printf $1" "} {print $4}')\n$(curl -s --compressed 'ftp://ftp.nasdaqtrader.com/SymbolDirectory/otherlisted.txt' | tail -n+2 | head -n-1 | perl -pe 's/ //g' | tr '|' ' ' | awk '{printf $1" "} {print $7}')" | grep -v 'Y$' | awk '{print $1}' | grep -v '[^a-zA-Z]' | sort)" | perl -pe 's/\n/","/g')\"]"
+}
 
 #curl cryptocurrencies exchange rates
 #follow igor_chbin at <twitter.com/igor_chubin>
