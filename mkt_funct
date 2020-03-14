@@ -390,15 +390,9 @@ yfin() { (
 		"High___: \(.fiftyTwoWeekHigh)",
 		"Low____: \(.fiftyTwoWeekLow)",
 		"",
-		"Average dayly volume",
+		"Average daily volume",
 		"Last3Mo: \(.averageDailyVolume3Month)",
 		"Last10d: \(.averageDailyVolume10Day)",
-		"",
-		"Post market",
-		"Time___: \(.postMarketTime//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
-		"Change%: \(.postMarketChangePercent)",
-		"Price__: \(.postMarketPrice)",
-		"Change_: \(.postMarketChange)",
 		"",
 		"Earnings",
 		"T_Stamp: \(.earningsTimestamp//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
@@ -413,6 +407,12 @@ yfin() { (
 		"12mTrai: \(.epsTrailingTwelveMonths)",
 		"Forward: \(.epsForward)",
 		"Populat: \(.esgPopulated)",
+		"",
+		"Post market",
+		"Time___: \(.postMarketTime//empty|strflocaltime("%Y-%m-%dT%H:%M:%S%Z"))",
+		"Change%: \(.postMarketChangePercent)",
+		"Price__: \(.postMarketPrice)",
+		"Change_: \(.postMarketChange)",
 		"",
 		"Exchang: \(.exchange)",
 		"Market_: \(.market)",
@@ -441,7 +441,7 @@ yfin() { (
 		"Open___: \(.regularMarketOpen)",
 		"Price__: \(.regularMarketPrice)"
 		' <<<"${YJSON}" | grep -Fv 'null' | cat -s
-	
+);}
 #currency
 #language
 #triggerable
@@ -451,7 +451,6 @@ yfin() { (
 #messageBoardId
 #shortName -- symbol short name
 #gmtOffSetMilliseconds
-);}
 #https://query1.finance.yahoo.com/v7/finance/quote?symbols=DANSKE.CO,ERIC-B.ST,FPKPEN.CO,SSO.OL,VWS.CO&range=1d&interval=5m&indicators=close&includeTimestamps=false&includePrePost=false&corsDomain=finance.yahoo.com&.tsrc=finance
 
 
