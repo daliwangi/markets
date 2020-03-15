@@ -50,6 +50,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>hgbrasil.sh --</b> Bovespa and tax rates. Cotações de ações da Bovespa e índices e taxas (CDI e SELIC) do api da hg brasil.
 
+<b>keysdemo --</b> Some api keys for demo purposes, source this file from your shell to load keys and use them with these scripts. algumas chaves de api para demonstração, faça um source deste arquivo a partir da sua shell para carregar as chaves e usá-las com os scripts.
+
 <b>myc.sh --</b> <Mycurrency.net> public api, central bank currency rate converter.
 
 <b>metais.sh --</b> script to retrieve dollar and preicous metals prices from multiple apis, requires other scritps from this repo.
