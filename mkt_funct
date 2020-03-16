@@ -567,8 +567,8 @@ ylist() {
 		LISTF="${TMPF}"
 	fi
 
-	#grep input and make table
-	grep -i "${@:-.}" "${LISTF}" | column -et -s $'\t' -N'TICKER,NAME,EXCHANGE,CATEGORY,COUNTRY' -T'CATEGORY,NAME'
+	#make table
+	column -et -s $'\t' -N'TICKER,NAME,EXCHANGE,CATEGORY,COUNTRY' -T'CATEGORY,NAME' <"${LISTF}"
 }
 
 #nasdaq stock symbols

@@ -55,6 +55,6 @@ for m in "${markets[@]}"; do
 		getf
 		
 	done
-done  #| grep -v 'Symbol.*Name' | sed -Ee 's/^(\]|\[|\s|\t)*([A-Z]*)/\2/' -e 's/[0-9]+\.[0-9].*$//' 
+done  #| grep -v 'Symbol.*Name' | sed -Ee 's/^(\]|\[|\s|\t)*([A-Z]*)/\2/' -e 's/[0-9]+\.[0-9].*$//' | sed 's/\s/\t/' 
       #uncomment above line to process tables further
 
