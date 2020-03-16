@@ -74,7 +74,9 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>whalealert.sh --</b> free api key, latest whale transactions from <whale-alert.io>.
 
-For a list of Yahoo! Finance symbols, check: https://github.com/mountaineerbr/extra/tree/master/yahooFinanceSymbols
+<b>yahooscrape.sh --</b> scrape some yahoo! finance tickers.
+
+For a large list of Yahoo! Finance symbols, check: https://github.com/mountaineerbr/extra/tree/master/yahooFinanceSymbols
 
 ---
 
