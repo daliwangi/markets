@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.11  feb/2020  by mountaineerbr
+# v0.9.12  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -489,7 +489,7 @@ shift $((OPTIND -1))
 #set default scale if no custom scale
 if [[ -z ${FSTR} ]]; then
 	FSTR="${FSTRDEF}"
-elif [[ "${FSTR}" = [0-9]* ]]; then
+elif [[ "${FSTR}" =~ ^[0-9]+$ ]]; then
 	if [[ -n "${FSTRSEP}" ]]; then
 		FSTR="%'.${FSTR}f"
 	else
