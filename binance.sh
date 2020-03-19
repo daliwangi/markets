@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.14  mar/2020  by mountaineerbr
+# v0.9.15  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -382,7 +382,7 @@ tickerf() {
 			"TimeRang: \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
 			"Price",
-			"Change__: \(.p|tonumber)  (\(.P|tonumber) %)",
+			"Change__: \(.p|tonumber)  \(.P|tonumber)%",
 			"Weig.Avg: \(.w|tonumber)",
 			"Open____: \(.o|tonumber)",
 			"High____: \(.h|tonumber)",
