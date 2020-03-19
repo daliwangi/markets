@@ -60,6 +60,8 @@ A maioria desses scripts de bash precisam do 'curl'. Alguns irão funcionar se v
 
 <b>*mkt_funct --</b> shell functions (bash and z-shell) to get some market data from public apis. Google Finance and Yahoo! Finance hacks.. these functions need improvement. source from this file to make them available in your shell.
 
+<b>novad.sh --</b> puxa dados das apis públicas da NovaDax brasileira. fetch public api data from NovaDax brazilian enchange.
+
 <b>openx.sh --</b> <Openexchangerates.org> free api key, central bank currencies and precious metals converter.
 
 <b>ourominas.sh --</b> Ourominas (precious metals exchange) rates public api. Pega taxas da api pública da Ouro Minas.
