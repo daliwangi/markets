@@ -1,6 +1,6 @@
 #!/bin/bash
 # novad.sh  --  market rates from novadax public apis
-# v0.1  mar/2020  by mountaineerbr
+# v0.1.1  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -113,8 +113,8 @@ bookdf() {
 	"${YOURAPP[@]}" "https://api.novadax.com/v1/market/depth?symbol=${2}_${3}&limit=${1}" |
 		jq -r '.data|
 			(.asks|reverse|.[range(1;length)]|"\t\(.[0])   \t\(.[1])"),
-			(.asks|reverse[-1]|"> \(.[0])   \t\(.[1])"),
-			(.bids|reverse[-1]|"< \(.[0])   \t\(.[1])"),
+			(.asks|reverse[-1]|"     > \(.[0])   \t\(.[1])"),
+			(.bids|reverse[-1]|"     < \(.[0])   \t\(.[1])"),
 			(.bids|.[range(1;length)]|"\t\(.[0])   \t\(.[1])")'
 }
 
