@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.12  mar/2020  by mountaineerbr
+# v0.9.13  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -163,9 +163,9 @@ OPTIONS
 
 	-c  [LIMIT] 'MKT' 
 		   Price in columns; optionally, limit number of orders fetched
-		   at a time; max limit 1000; defaults=250.
+		   at a time; max=1000; defaults=250.
 
-	-d 	   Debugging info.
+	-d 	   Some debugging info.
 
 	-f  [NUM|STR]
 		   Number of decimal plates 'NUM' or printf-like formatting of
@@ -173,7 +173,7 @@ OPTIONS
 		   as received).
 	
 	-ff [NUM]  
-		   Number of decimal plates, add a thousands separatori, too.
+		   Number of decimal plates and adds a thousands separator.
 
 	-h 	   Show this help.
 
@@ -191,7 +191,7 @@ OPTIONS
 
 	-u 	   Use <binance.us> server; defaults=<binance.com>.
 		   
-	-v 	   Script version.
+	-v 	   Print script version.
 	
 	-w 	   Coloured stream of latest trades, requires lolcat."
 
@@ -377,28 +377,27 @@ booktf() {
 tickerf() {
 	#open websocket and process data
 	"${WEBSOCATC[@]}" "${WSSADD}${2,,}${3,,}@ticker" |
-		jq -r '"",.s,.e,(.E/1000|strflocaltime("%H:%M:%S%Z")),
-			"Window   :  \(((.C-.O)/1000)/(60*60)) hrs",
+		jq -r '"","---",
+			.s,.e,(.E/1000|strflocaltime("%H:%M:%S%Z")),
+			"TimeRang: \(((.C-.O)/1000)/(60*60)) hrs",
 			"",
 			"Price",
-			"Change   :  \(.p|tonumber)  (\(.P|tonumber) %)",
-			"W Avg    :  \(.w|tonumber)",
-			"Open     :  \(.o|tonumber)",
-			"High     :  \(.h|tonumber)",
-			"Low      :  \(.l|tonumber)",
-			"",
-			"Total Volume",
-			"Base     :  \(.v|tonumber)",
-			"Quote    :  \(.q|tonumber)",
+			"Change__: \(.p|tonumber)  (\(.P|tonumber) %)",
+			"Weig.Avg: \(.w|tonumber)",
+			"Open____: \(.o|tonumber)",
+			"High____: \(.h|tonumber)",
+			"Low_____: \(.l|tonumber)",
+			"Base_Vol: \(.v|tonumber)",
+			"QuoteVol: \(.q|tonumber)",
 			"",
 			"Trades",
-			"N of  T  :  \(.n)",
-			"First ID :  \(.F)",
-			"Last  ID :  \(.L)",
-			"First T-1:  \(.x)",
-			"Last  T  :  \(.c|tonumber)  Qty: \(.Q)",
-			"Best Bid :  \(.b|tonumber)  Qty: \(.B)",
-			"Best Ask :  \(.a|tonumber)  Qty: \(.A)"'
+			"Number__: \(.n)",
+			"First_ID: \(.F)",
+			"Last__ID: \(.L)",
+			"FirstT-1: \(.x)",
+			"LastTrad: \(.c|tonumber)  Qty: \(.Q)",
+			"Best_Bid: \(.b|tonumber)  Qty: \(.B)",
+			"Best_Ask: \(.a|tonumber)  Qty: \(.A)"'
 	printf '\n'
 }
 
