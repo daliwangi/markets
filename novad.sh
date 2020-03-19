@@ -1,6 +1,6 @@
 #!/bin/bash
 # novad.sh  --  market rates from novadax public apis
-# v0.1.1  mar/2020  by mountaineerbr
+# v0.1.2  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -174,16 +174,16 @@ tickerf() {
 		#format single ticker
 		jq -r '"24H rolling ticker",
 			(.data|
-				"Loc_Time: \(.timestamp/1000|strflocaltime("%FT%H:%M:%S%Z"))",
+				"LoclTime: \(.timestamp/1000|strflocaltime("%FT%H:%M:%S%Z"))",
 				"Market__: \(.symbol)",
-				"BaseVol_: \(.baseVolume24h)",
+				"Base_Vol: \(.baseVolume24h)",
 				"QuoteVol: \(.quoteVolume24h)",
 				"Open____: \(.open24h)",
 				"High____: \(.high24h)",
 				"Low_____: \(.low24h)",
 				"Ask_____: \(.ask)",
 				"Bid_____: \(.bid)",
-				"L_Price_: \(.lastPrice)"
+				"LastPric: \(.lastPrice)"
 			)' <<<"${DATA}"
 	fi
 }

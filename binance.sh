@@ -1,6 +1,6 @@
 #!/bin/bash
 # Binance.sh  --  Market rates from Binance public APIs
-# v0.9.13  mar/2020  by mountaineerbr
+# v0.9.14  mar/2020  by mountaineerbr
 
 #defaults
 
@@ -395,9 +395,9 @@ tickerf() {
 			"First_ID: \(.F)",
 			"Last__ID: \(.L)",
 			"FirstT-1: \(.x)",
-			"LastTrad: \(.c|tonumber)  Qty: \(.Q)",
 			"Best_Bid: \(.b|tonumber)  Qty: \(.B)",
-			"Best_Ask: \(.a|tonumber)  Qty: \(.A)"'
+			"Best_Ask: \(.a|tonumber)  Qty: \(.A)",
+			"LastTrad: \(.c|tonumber)  Qty: \(.Q)"'
 	printf '\n'
 }
 
